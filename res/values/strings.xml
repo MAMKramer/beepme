@@ -1,3 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Beeper</string>
+    <string name="samples_list_no_samples">No samples found.</string>
+    <string name="preferences">Preferences</string>
+    <string name="list_samples">Samples List</string>
+    <string name="main_menu_samples_list">Samples List</string>
+    <string name="refresh">Refresh</string>
 </resources>
