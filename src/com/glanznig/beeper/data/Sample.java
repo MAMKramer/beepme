@@ -4,17 +4,23 @@ import java.util.Date;
 
 public class Sample {
 	
-	private Long id;
+	private int id;
 	private Date timestamp;
 	private String title;
 	private String description;
 	private Boolean accepted;
 	
-	public Long getId() {
+	public Sample() { }
+	
+	public Sample(int id) {
+		setId(id);
+	}
+	
+	public int getId() {
 		return id;
 	}
 	
-	private void setId(Long id) {
+	private void setId(int id) {
 		this.id = id;
 	}
 
