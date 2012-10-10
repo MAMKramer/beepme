@@ -19,6 +19,10 @@ public class MainMenu extends Activity {
 		startActivity(new Intent(MainMenu.this, ListSamplesActivity.class));
 	}
 	
+	public void onClickNewSample(View view) {
+		startActivity(new Intent(MainMenu.this, NewSampleActivity.class));
+	}
+	
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);

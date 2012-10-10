@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -39,7 +40,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		onCreate(db);
 	}
 	
-	public Sample getSample(int id) {
+	public Sample getSample(long id) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		Sample s = null;
 		
@@ -49,9 +50,9 @@ public class StorageHandler extends SQLiteOpenHelper {
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
 			
-			s = new Sample(Integer.parseInt(cursor.getString(0)));
-			int timestamp = Integer.parseInt(cursor.getString(1));
-			s.setTimestamp(new Date((long)timestamp * 1000));
+			s = new Sample(Long.parseLong(cursor.getString(0)));
+			long timestamp = Long.parseLong(cursor.getString(1));
+			s.setTimestamp(new Date(timestamp));
 			s.setTitle(cursor.getString(2));
 			s.setDescription(cursor.getString(3));
 			if (Integer.parseInt(cursor.getString(4)) == 0) {
@@ -61,6 +62,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 				s.setAccepted(true);
 			}
 		}
+		db.close();
 		
 		return s;
 	}
@@ -77,8 +79,8 @@ public class StorageHandler extends SQLiteOpenHelper {
 			
 			do {
 				Sample s = new Sample(Integer.parseInt(cursor.getString(0)));
-				int timestamp = Integer.parseInt(cursor.getString(1));
-				s.setTimestamp(new Date((long)timestamp * 1000));
+				long timestamp = Long.parseLong(cursor.getString(1));
+				s.setTimestamp(new Date(timestamp));
 				s.setTitle(cursor.getString(2));
 				s.setDescription(cursor.getString(3));
 				if (Integer.parseInt(cursor.getString(4)) == 0) {
@@ -91,8 +93,37 @@ public class StorageHandler extends SQLiteOpenHelper {
 			}
 			while (cursor.moveToNext());
 		}
+		db.close();
 		
 		return sampleList;
+	}
+	
+	public boolean addSample(Sample s) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		boolean success = true;
+		 
+	    ContentValues values = new ContentValues();
+	    if (s.getTimestamp() != null) {
+	    	values.put("timestamp", String.valueOf(s.getTimestamp().getTime()));
+	    }
+	    else {
+	    	success = false;
+	    }
+	    values.put("title", s.getTitle());
+	    values.put("description", s.getDescription());
+	    if (s.getAccepted()) {
+	    	values.put("accepted", "1");
+	    }
+	    else {
+	    	values.put("accepted", "0");
+	    }
+	 
+	    if (success) {
+	    	db.insert(SAMPLE_TBL_NAME, null, values);
+	    }
+	    db.close();
+	    
+	    return success;
 	}
 
 }

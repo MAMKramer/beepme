@@ -15,6 +15,10 @@ public class BeeperApp extends Application {
 		return store.getSamples();
 	}
 	
+	public boolean addSample(Sample s) {
+		return store.addSample(s);
+	}
+	
 	public void onCreate() {
 		super.onCreate();
 		

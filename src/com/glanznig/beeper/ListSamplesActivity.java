@@ -1,7 +1,5 @@
 package com.glanznig.beeper;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.glanznig.beeper.R;
@@ -16,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 
 
 public class ListSamplesActivity extends ListActivity implements OnSharedPreferenceChangeListener {

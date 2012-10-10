@@ -12,5 +12,13 @@
         android:layout_margin="20dp"
         android:text="@string/main_menu_samples_list"
         android:onClick="onClickListSamples" />
+    
+    <Button
+        android:id="@+id/btn_main_menu_new_sample"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="@string/main_menu_new_sample"
+        android:onClick="onClickNewSample" />
 
 </LinearLayout>

@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Sample {
 	
-	private int id;
+	private long id;
 	private Date timestamp;
 	private String title;
 	private String description;
@@ -12,15 +12,15 @@ public class Sample {
 	
 	public Sample() { }
 	
-	public Sample(int id) {
+	public Sample(long id) {
 		setId(id);
 	}
 	
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 	
-	private void setId(int id) {
+	private void setId(long id) {
 		this.id = id;
 	}
 
