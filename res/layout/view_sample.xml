@@ -8,51 +8,43 @@
     tools:context="NewSampleActivity" >
 
     <TextView
-        android:id="@+id/new_sample_timestamp"
+        android:id="@+id/view_sample_timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="" />
 
     <TextView
-        android:id="@+id/new_sample_label_title"
+        android:id="@+id/view_sample_label_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sample_title" />
 
-    <EditText
-        android:id="@+id/new_sample_title"
+    <TextView
+        android:id="@+id/view_sample_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text"
-        android:ems="10" >
-
-        <requestFocus />
-    </EditText>
+        android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/new_sample_label_description"
+        android:id="@+id/view_sample_label_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sample_description" />
 
-    <EditText
-        android:id="@+id/new_sample_description"
+    <TextView
+        android:id="@+id/view_sample_description"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textMultiLine" />
+        android:layout_height="wrap_content" />
 
-    <CheckBox
-        android:id="@+id/new_sample_accepted"
+    <TextView
+        android:id="@+id/view_sample_status"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="accepted" />
+        android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/new_sample_btn_save"
+        android:id="@+id/view_sample_btn_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/save"
-        android:onClick="onClickSave" />
+        android:text="@string/edit"
+        android:onClick="onClickEdit" />
 
 </LinearLayout>

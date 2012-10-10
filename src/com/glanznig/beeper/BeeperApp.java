@@ -11,12 +11,20 @@ public class BeeperApp extends Application {
 	
 	private StorageHandler store;
 	
+	public Sample getSample(long id) {
+		return store.getSample(id);
+	}
+	
 	public List<Sample> getSamples() {
 		return store.getSamples();
 	}
 	
 	public boolean addSample(Sample s) {
 		return store.addSample(s);
+	}
+	
+	public boolean editSample(Sample s) {
+		return store.editSample(s);
 	}
 	
 	public void onCreate() {

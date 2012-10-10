@@ -14,6 +14,8 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
 
 
 public class ListSamplesActivity extends ListActivity implements OnSharedPreferenceChangeListener {
@@ -53,11 +55,27 @@ public class ListSamplesActivity extends ListActivity implements OnSharedPrefere
         return super.onOptionsItemSelected(item);
     }
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+		populateList();
+	}
+	
 	private void populateList() {
 		BeeperApp app = (BeeperApp)getApplication();
 		List<Sample> samplesList = app.getSamples();
         SampleListAdapter samples = new SampleListAdapter(this, samplesList);
         setListAdapter(samples);
+	}
+	
+	@Override
+	public void onListItemClick(ListView listView, View view, int position, long id) {
+		Sample s = (Sample)listView.getItemAtPosition(position);
+		Intent i = new Intent(ListSamplesActivity.this, ViewSampleActivity.class);
+		Bundle b = new Bundle();
+		b.putLong("sampleId", s.getId());
+		i.putExtras(b);
+		startActivity(i);
 	}
 
 }

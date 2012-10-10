@@ -62,6 +62,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 				s.setAccepted(true);
 			}
 		}
+		cursor.close();
 		db.close();
 		
 		return s;
@@ -72,7 +73,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		List<Sample> sampleList = new ArrayList<Sample>();
 		
 		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted"},
-				null, null, null, null, "timestamp DESC");
+				"accepted = 1", null, null, null, "timestamp DESC");
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
@@ -93,6 +94,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 			}
 			while (cursor.moveToNext());
 		}
+		cursor.close();
 		db.close();
 		
 		return sampleList;
@@ -124,6 +126,25 @@ public class StorageHandler extends SQLiteOpenHelper {
 	    db.close();
 	    
 	    return success;
+	}
+	
+	public boolean editSample(Sample s) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		 
+	    ContentValues values = new ContentValues();
+	    values.put("title", s.getTitle());
+	    values.put("description", s.getDescription());
+	    if (s.getAccepted()) {
+	    	values.put("accepted", "1");
+	    }
+	    else {
+	    	values.put("accepted", "0");
+	    }
+	    
+	    int numRows = db.update(SAMPLE_TBL_NAME, values, "id=?", new String[] { String.valueOf(s.getId()) });
+	    db.close();
+		
+		return numRows == 1 ? true : false;
 	}
 
 }

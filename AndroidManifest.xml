@@ -26,6 +26,10 @@
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beeper.MainMenu" />
 	    </activity>
 	    
+	    <activity android:name=".ViewSampleActivity" android:label="@string/view_sample">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beeper.ListSamplesActivity" />
+	    </activity>
+	    
 	  </application>
 
 </manifest>

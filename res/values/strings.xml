@@ -8,7 +8,9 @@
     <string name="main_menu_samples_list">Samples List</string>
     <string name="main_menu_new_sample">New Sample</string>
     <string name="refresh">Refresh</string>
-    <string name="new_sample_title">Title</string>
-    <string name="new_sample_description">Description</string>
+    <string name="sample_title">Title</string>
+    <string name="sample_description">Description</string>
     <string name="save">Save</string>
+    <string name="edit">Edit</string>
+    <string name="view_sample">View Sample</string>
 </resources>
