@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Beeper</string>
+    <string name="samples_list_no_samples">Keine Einträge gefunden.</string>
+    <string name="preferences">Einstellungen</string>
+    <string name="list_samples">Samples Liste</string>
+    <string name="new_sample">Neues Sample</string>
+    <string name="main_menu_samples_list">Samples Liste</string>
+    <string name="main_menu_new_sample">Neues Sample</string>
+    <string name="refresh">Neu laden</string>
+    <string name="sample_title">Titel</string>
+    <string name="sample_description">Beschreibung</string>
+    <string name="save">Speichern</string>
+    <string name="edit">Ändern</string>
+    <string name="view_sample">Sample ansehen</string>
+</resources>

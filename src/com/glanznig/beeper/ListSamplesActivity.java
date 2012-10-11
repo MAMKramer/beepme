@@ -11,9 +11,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
@@ -34,25 +31,6 @@ public class ListSamplesActivity extends ListActivity implements OnSharedPrefere
 	@Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
         populateList();
-    }
-	
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater mi = getMenuInflater();
-        mi.inflate(R.menu.samples_list_menu, menu);
-        return true;
-    }
-	
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_settings:
-                Intent iSettings = new Intent(this, Preferences.class);
-                startActivity(iSettings);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 	
 	@Override

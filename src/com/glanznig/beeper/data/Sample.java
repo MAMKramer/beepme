@@ -9,6 +9,8 @@ public class Sample {
 	private String title;
 	private String description;
 	private Boolean accepted;
+	private String photoUri;
+	private byte[] photoThumb;
 	
 	public Sample() { }
 	
@@ -54,6 +56,22 @@ public class Sample {
 
 	public void setAccepted(Boolean accepted) {
 		this.accepted = accepted;
+	}
+	
+	public void setPhotoUri(String photoUri) {
+		this.photoUri = photoUri;
+	}
+	
+	public String getPhotoUri() {
+		return photoUri;
+	}
+	
+	public void setPhotoThumb(byte[] photoThumb) {
+		this.photoThumb = photoThumb;
+	}
+	
+	public byte[] getPhotoThumb() {
+		return photoThumb;
 	}
 
 }

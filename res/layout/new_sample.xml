@@ -49,6 +49,19 @@
         android:text="accepted" />
 
     <Button
+        android:id="@+id/new_sample_btn_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Photo"
+        android:onClick="onClickTakePhoto" />
+
+    <ImageView
+        android:id="@+id/new_sample_thumb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="thumb" />
+
+    <Button
         android:id="@+id/new_sample_btn_save"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

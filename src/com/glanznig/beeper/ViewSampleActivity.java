@@ -1,20 +1,25 @@
 package com.glanznig.beeper;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.text.DateFormat;
 
 import com.glanznig.beeper.data.Sample;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ViewSampleActivity extends Activity {
 	
+	private static final String TAG = "beeper";
 	private long sampleId;
 	
 	@Override
@@ -55,10 +60,22 @@ public class ViewSampleActivity extends Activity {
 			timestamp.setText(dateFormat.format(s.getTimestamp()));
 			
 			TextView title = (TextView)findViewById(R.id.view_sample_title);
-			title.setText(s.getTitle());
+			if (s.getTitle() != null) {
+				title.setText(s.getTitle());
+			}
+			else {
+				findViewById(R.id.view_sample_label_title).setVisibility(View.GONE);
+				title.setVisibility(View.GONE);
+			}
 			
 			TextView description = (TextView)findViewById(R.id.view_sample_description);
-			description.setText(s.getDescription());
+			if (s.getDescription() != null) {
+				description.setText(s.getDescription());
+			}
+			else {
+				findViewById(R.id.view_sample_label_description).setVisibility(View.GONE);
+				description.setVisibility(View.GONE);
+			}
 			
 			TextView status = (TextView)findViewById(R.id.view_sample_status);
 			String statusText = "Status: ";
@@ -69,6 +86,30 @@ public class ViewSampleActivity extends Activity {
 				statusText += "not accepted";
 			}
 			status.setText(statusText);
+			
+			if (s.getPhotoUri() != null) {
+				try {
+					FileInputStream input = new FileInputStream(s.getPhotoUri());
+					Bitmap imageBitmap = BitmapFactory.decodeStream(input);
+					
+					Float width  = Float.valueOf(imageBitmap.getWidth());
+					Float height = Float.valueOf(imageBitmap.getHeight());
+					Float ratio = width/height;
+					
+					//get display dimensions
+					Display display = getWindowManager().getDefaultDisplay();
+					
+					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(display.getWidth()*ratio), display.getWidth(), false);
+					
+					ImageView image = (ImageView)findViewById(R.id.view_sample_image);
+					//int padding = (THUMBNAIL_WIDTH - imageBitmap.getWidth())/2;
+					//image.setPadding(padding, 0, padding, 0);
+					image.setImageBitmap(imageBitmap);
+				}
+				catch(FileNotFoundException fnfe) {
+					Log.e(TAG, "picture file not found.", fnfe);
+				}
+			}
 		}
 	}
 	
@@ -84,23 +125,4 @@ public class ViewSampleActivity extends Activity {
 	public void onSaveInstanceState(Bundle savedState) {
 		savedState.putLong("sampleId", sampleId);
 	}
-	
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater mi = getMenuInflater();
-        mi.inflate(R.menu.samples_list_menu, menu);
-        return true;
-    }
-	
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_settings:
-                Intent iSettings = new Intent(this, Preferences.class);
-                startActivity(iSettings);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

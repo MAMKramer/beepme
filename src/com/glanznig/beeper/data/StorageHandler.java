@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class StorageHandler extends SQLiteOpenHelper {
 	
 	private static final String DB_NAME = "beeper";
-	private static final int DB_VERSION = 1;
+	private static final int DB_VERSION = 4;
 	
 	private static final String SAMPLE_TBL_NAME = "sample";
 	private static final String SAMPLE_TBL_CREATE =
@@ -22,7 +22,9 @@ public class StorageHandler extends SQLiteOpenHelper {
 			"timestamp INTEGER NOT NULL UNIQUE, " +
 			"title TEXT, " +
 			"description TEXT, " +
-			"accepted INTEGER NOT NULL" +
+			"accepted INTEGER NOT NULL, " +
+			"photoUri TEXT," +
+			"photoThumb BLOB" +
 			")";
 	
 	public StorageHandler(Context ctx) {
@@ -44,7 +46,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		Sample s = null;
 		
-		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted"},
+		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted", "photoUri", "photoThumb"},
 				"id=?", new String[] { String.valueOf(id) }, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -61,6 +63,8 @@ public class StorageHandler extends SQLiteOpenHelper {
 			else {
 				s.setAccepted(true);
 			}
+			s.setPhotoUri(cursor.getString(5));
+			s.setPhotoThumb(cursor.getBlob(6));
 		}
 		cursor.close();
 		db.close();
@@ -72,7 +76,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		List<Sample> sampleList = new ArrayList<Sample>();
 		
-		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted"},
+		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted", "photoUri", "photoThumb"},
 				"accepted = 1", null, null, null, "timestamp DESC");
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -82,13 +86,23 @@ public class StorageHandler extends SQLiteOpenHelper {
 				Sample s = new Sample(Integer.parseInt(cursor.getString(0)));
 				long timestamp = Long.parseLong(cursor.getString(1));
 				s.setTimestamp(new Date(timestamp));
-				s.setTitle(cursor.getString(2));
-				s.setDescription(cursor.getString(3));
+				if (!cursor.isNull(2)) {
+					s.setTitle(cursor.getString(2));
+				}
+				if (!cursor.isNull(3)) {
+					s.setDescription(cursor.getString(3));
+				}
 				if (Integer.parseInt(cursor.getString(4)) == 0) {
 					s.setAccepted(false);
 				}
 				else {
 					s.setAccepted(true);
+				}
+				if (!cursor.isNull(5)) {
+					s.setPhotoUri(cursor.getString(5));
+				}
+				if (!cursor.isNull(6)) {
+					s.setPhotoThumb(cursor.getBlob(6));
 				}
 				sampleList.add(s);
 			}
@@ -119,6 +133,8 @@ public class StorageHandler extends SQLiteOpenHelper {
 	    else {
 	    	values.put("accepted", "0");
 	    }
+	    values.put("photoUri", s.getPhotoUri());
+	    values.put("photoThumb", s.getPhotoThumb());
 	 
 	    if (success) {
 	    	db.insert(SAMPLE_TBL_NAME, null, values);
