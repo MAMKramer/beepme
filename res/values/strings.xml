@@ -11,6 +11,6 @@
     <string name="sample_title">Title</string>
     <string name="sample_description">Description</string>
     <string name="save">Save</string>
-    <string name="edit">Edit</string>
+    <string name="edit">Edit Sample</string>
     <string name="view_sample">View Sample</string>
 </resources>

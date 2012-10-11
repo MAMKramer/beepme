@@ -77,16 +77,6 @@ public class ViewSampleActivity extends Activity {
 				description.setVisibility(View.GONE);
 			}
 			
-			TextView status = (TextView)findViewById(R.id.view_sample_status);
-			String statusText = "Status: ";
-			if (s.getAccepted()) {
-				statusText += "accepted";
-			}
-			else {
-				statusText += "not accepted";
-			}
-			status.setText(statusText);
-			
 			if (s.getPhotoUri() != null) {
 				try {
 					FileInputStream input = new FileInputStream(s.getPhotoUri());
@@ -98,8 +88,9 @@ public class ViewSampleActivity extends Activity {
 					
 					//get display dimensions
 					Display display = getWindowManager().getDefaultDisplay();
+					int imageWidth = display.getWidth() - 20;
 					
-					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(display.getWidth()*ratio), display.getWidth(), false);
+					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(imageWidth*ratio), imageWidth, false);
 					
 					ImageView image = (ImageView)findViewById(R.id.view_sample_image);
 					//int padding = (THUMBNAIL_WIDTH - imageBitmap.getWidth())/2;

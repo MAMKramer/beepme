@@ -11,6 +11,6 @@
     <string name="sample_title">Titel</string>
     <string name="sample_description">Beschreibung</string>
     <string name="save">Speichern</string>
-    <string name="edit">Ändern</string>
-    <string name="view_sample">Sample ansehen</string>
+    <string name="edit">Eintrag ändern</string>
+    <string name="view_sample">Eintrag ansehen</string>
 </resources>
