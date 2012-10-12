@@ -1,7 +1,6 @@
 package com.glanznig.beeper;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.text.DateFormat;
 
 import com.glanznig.beeper.data.Sample;
@@ -10,6 +9,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -50,6 +50,51 @@ public class ViewSampleActivity extends Activity {
 		populateFields();
 	}
 	
+private class ImageLoadTask extends AsyncTask<String, Void, Bitmap> {
+		
+		@Override
+		protected Bitmap doInBackground(String... uri) {
+			try {
+				if (uri.length >= 1) {
+					FileInputStream input = new FileInputStream(uri[0]);
+					Bitmap imageBitmap = BitmapFactory.decodeStream(input);
+					
+					Float width  = Float.valueOf(imageBitmap.getWidth());
+					Float height = Float.valueOf(imageBitmap.getHeight());
+					Float ratio = width/height;
+					
+					//get display dimensions
+					Display display = getWindowManager().getDefaultDisplay();
+					int imageWidth = display.getWidth() - 20;
+					
+					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(imageWidth*ratio), imageWidth, false);
+					
+					return imageBitmap;
+				}
+			}
+			catch(Exception e) {
+				Log.e(TAG, "Something happened on the way.", e);
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Bitmap imageBitmap) {
+			if (imageBitmap != null) {
+				ImageView image = (ImageView)ViewSampleActivity.this.findViewById(R.id.view_sample_image);
+				//int padding = (THUMBNAIL_WIDTH - imageBitmap.getWidth())/2;
+				//image.setPadding(padding, 0, padding, 0);
+				image.setImageBitmap(imageBitmap);
+				ViewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+				image.setVisibility(View.VISIBLE);
+			}
+			else {
+				ViewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+			}
+		}
+	}
+	
 	private void populateFields() {
 		if (sampleId != 0L) {
 			BeeperApp app = (BeeperApp)getApplication();
@@ -78,28 +123,8 @@ public class ViewSampleActivity extends Activity {
 			}
 			
 			if (s.getPhotoUri() != null) {
-				try {
-					FileInputStream input = new FileInputStream(s.getPhotoUri());
-					Bitmap imageBitmap = BitmapFactory.decodeStream(input);
-					
-					Float width  = Float.valueOf(imageBitmap.getWidth());
-					Float height = Float.valueOf(imageBitmap.getHeight());
-					Float ratio = width/height;
-					
-					//get display dimensions
-					Display display = getWindowManager().getDefaultDisplay();
-					int imageWidth = display.getWidth() - 20;
-					
-					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(imageWidth*ratio), imageWidth, false);
-					
-					ImageView image = (ImageView)findViewById(R.id.view_sample_image);
-					//int padding = (THUMBNAIL_WIDTH - imageBitmap.getWidth())/2;
-					//image.setPadding(padding, 0, padding, 0);
-					image.setImageBitmap(imageBitmap);
-				}
-				catch(FileNotFoundException fnfe) {
-					Log.e(TAG, "picture file not found.", fnfe);
-				}
+				findViewById(R.id.view_sample_image_load).setVisibility(View.VISIBLE);
+			    new ImageLoadTask().execute(new String[] { s.getPhotoUri() });
 			}
 		}
 	}

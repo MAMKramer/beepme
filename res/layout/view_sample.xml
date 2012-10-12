@@ -34,7 +34,7 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_gravity="top|center_horizontal"
-	        android:layout_marginBottom="5dp"
+	        android:layout_marginBottom="10dp"
 	        android:layout_marginLeft="10dp"
 	        android:layout_marginRight="10dp"
 	        android:layout_marginTop="5dp"
@@ -52,14 +52,26 @@
 	            android:textSize="17dp"
 	            android:textStyle="bold" />
 
+	        <ProgressBar
+	            android:id="@+id/view_sample_image_load"
+	            style="?android:attr/progressBarStyleSmall"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center"
+	            android:layout_marginBottom="20dp"
+	            android:layout_marginTop="20dp"
+	            android:indeterminate="true"
+	            android:visibility="gone" />
+
 	        <ImageView
 	            android:id="@+id/view_sample_image"
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content"
 	            android:layout_marginBottom="10dp"
 	            android:layout_marginTop="5dp"
+	            android:adjustViewBounds="true"
 	            android:contentDescription="image"
-	            android:scaleType="centerInside" />
+	            android:visibility="gone" />
 		
 		    <TextView
 		        android:id="@+id/view_sample_label_title"

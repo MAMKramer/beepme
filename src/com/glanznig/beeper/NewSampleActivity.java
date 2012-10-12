@@ -150,6 +150,7 @@ public class NewSampleActivity extends Activity {
 	public void onClickTakePhoto(View view) {
 		//external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			//Context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 			String picPath = Environment.getExternalStorageDirectory().getName() + File.separatorChar + "Android"
 			+ File.separatorChar + "data" + File.separatorChar + NewSampleActivity.this.getPackageName() + File.separatorChar
 			+ "pics" + File.separatorChar + "beeper_img_" + new SimpleDateFormat("yyyyMMddHHmmss").format(sampleTimestamp) + ".jpg";
