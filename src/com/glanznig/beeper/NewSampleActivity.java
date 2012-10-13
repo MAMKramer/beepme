@@ -170,6 +170,7 @@ public class NewSampleActivity extends Activity {
 		}
 		else {
 			app.addSample(sample);
+			Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
 		}
 		finish();
 	}
