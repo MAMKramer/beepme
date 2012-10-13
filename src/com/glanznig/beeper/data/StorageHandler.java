@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class StorageHandler extends SQLiteOpenHelper {
 	
 	private static final String DB_NAME = "beeper";
-	private static final int DB_VERSION = 4;
+	private static final int DB_VERSION = 5;
 	
 	private static final String SAMPLE_TBL_NAME = "sample";
 	private static final String SAMPLE_TBL_CREATE =
@@ -23,8 +23,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 			"title TEXT, " +
 			"description TEXT, " +
 			"accepted INTEGER NOT NULL, " +
-			"photoUri TEXT," +
-			"photoThumb BLOB" +
+			"photoUri TEXT" +
 			")";
 	
 	public StorageHandler(Context ctx) {
@@ -46,7 +45,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		Sample s = null;
 		
-		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted", "photoUri", "photoThumb"},
+		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted", "photoUri"},
 				"id=?", new String[] { String.valueOf(id) }, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -64,7 +63,6 @@ public class StorageHandler extends SQLiteOpenHelper {
 				s.setAccepted(true);
 			}
 			s.setPhotoUri(cursor.getString(5));
-			s.setPhotoThumb(cursor.getBlob(6));
 		}
 		cursor.close();
 		db.close();
@@ -76,7 +74,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		List<Sample> sampleList = new ArrayList<Sample>();
 		
-		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted", "photoUri", "photoThumb"},
+		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id", "timestamp", "title", "description", "accepted", "photoUri"},
 				"accepted = 1", null, null, null, "timestamp DESC");
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -100,9 +98,6 @@ public class StorageHandler extends SQLiteOpenHelper {
 				}
 				if (!cursor.isNull(5)) {
 					s.setPhotoUri(cursor.getString(5));
-				}
-				if (!cursor.isNull(6)) {
-					s.setPhotoThumb(cursor.getBlob(6));
 				}
 				sampleList.add(s);
 			}
@@ -134,7 +129,6 @@ public class StorageHandler extends SQLiteOpenHelper {
 	    	values.put("accepted", "0");
 	    }
 	    values.put("photoUri", s.getPhotoUri());
-	    values.put("photoThumb", s.getPhotoThumb());
 	 
 	    if (success) {
 	    	db.insert(SAMPLE_TBL_NAME, null, values);

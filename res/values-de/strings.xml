@@ -5,6 +5,10 @@
     <string name="preferences">Einstellungen</string>
     <string name="list_samples">Samples Liste</string>
     <string name="new_sample">Neues Sample</string>
+    <string name="new_sample_take_photo">Foto machen</string>
+    <string name="new_sample_replace_img_title">Foto ersetzen</string>
+    <string name="new_sample_replace_img_msg">Möchten Sie das Foto ersetzen?</string>
+    <string name="new_sample_replace_img_delete">Foto wurde gelöscht.</string>
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="main_menu_samples_list">Samples Liste</string>
     <string name="main_menu_new_sample">Neues Sample</string>
@@ -14,5 +18,7 @@
     <string name="save">Speichern</string>
     <string name="edit">Eintrag ändern</string>
     <string name="cancel">Abbrechen</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
     <string name="view_sample">Eintrag ansehen</string>
 </resources>

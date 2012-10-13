@@ -51,15 +51,53 @@
 	        android:orientation="vertical"
 	        android:paddingBottom="8dp" >
 
-		    <TextView
-		        android:id="@+id/new_sample_timestamp"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_gravity="right"
-		        android:layout_marginTop="5dp"
-		        android:text=""
-		        android:textSize="17dp"
-		        android:textStyle="bold" />
+	        <RelativeLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="5dp" >
+
+	            <TextView
+	                android:id="@+id/new_sample_timestamp"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentLeft="true"
+	                android:layout_gravity="left"
+	                android:textSize="17dp"
+	                android:textStyle="bold" />
+
+	            <Button
+	                android:id="@+id/new_sample_btn_photo"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentRight="true"
+	                android:layout_gravity="right"
+	                android:height="80dp"
+	                android:onClick="onClickTakePhoto"
+	                android:text="@string/new_sample_take_photo"
+	                android:width="120dp" />
+
+	            <ProgressBar
+	                android:id="@+id/new_sample_image_load"
+	                style="?android:attr/progressBarStyleSmall"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentRight="true"
+	                android:layout_marginRight="50dp"
+	                android:layout_marginTop="30dp"
+	                android:visibility="gone" />
+
+	            <ImageView
+	                android:id="@+id/new_sample_thumb"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentRight="true"
+	                android:adjustViewBounds="true"
+	                android:contentDescription="thumb"
+	                android:longClickable="true"
+	                android:onClick="onLongClickChangeThumb"
+	                android:visibility="gone" />
+
+	        </RelativeLayout>
 		
 		    <TextView
 		        android:id="@+id/new_sample_label_title"
@@ -105,20 +143,6 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:text="accepted" />
-		
-		    <Button
-		        android:id="@+id/new_sample_btn_photo"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:text="Photo"
-		        android:onClick="onClickTakePhoto" />
-		
-		    <ImageView
-		        android:id="@+id/new_sample_thumb"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:contentDescription="thumb"
-		        android:visibility="gone" />
 		    
 		</LinearLayout>
 	</ScrollView>

@@ -12,12 +12,15 @@ import java.util.List;
 import com.glanznig.beeper.data.Sample;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -31,15 +34,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class NewSampleActivity extends Activity {
 	
 	private static final int TAKE_PICTURE = 42;
-	private static final int THUMBNAIL_HEIGHT = 48;
-	private static final int THUMBNAIL_WIDTH = 66;
+	private static final int THUMBNAIL_HEIGHT = 120; //in dp
+	private static final int THUMBNAIL_WIDTH = 80; //in dp
 	private static final String TAG = "beeper";
 	
 	private Sample sample = new Sample();
+	private String photoUri = null;
 	private boolean isEdit = false;
 	private boolean photoTaken = false;
 	
@@ -173,19 +178,63 @@ public class NewSampleActivity extends Activity {
 		finish();
 	}
 	
+	private class ImageDeleteTask extends AsyncTask<String, Void, Boolean> {
+		
+		@Override
+		protected Boolean doInBackground(String... uri) {
+			if (uri.length >= 1) {
+				File pic = new File(uri[0]);
+				return Boolean.valueOf(pic.delete());
+			}
+			return Boolean.FALSE;
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean success) {
+			if (success.booleanValue()) {
+				Toast.makeText(getApplicationContext(), R.string.new_sample_replace_img_delete, Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+	
+	public void onLongClickChangeThumb(View view) {
+		AlertDialog.Builder replaceImgBuilder = new AlertDialog.Builder(NewSampleActivity.this);
+		//replaceImgBuilder.setIcon(icon);
+        replaceImgBuilder.setTitle(R.string.new_sample_replace_img_title);
+        replaceImgBuilder.setMessage(R.string.new_sample_replace_img_msg);
+        replaceImgBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            	if (sample.getPhotoUri() != null) {
+            		new ImageDeleteTask().execute(new String[] { sample.getPhotoUri() });
+            		sample.setPhotoUri(null);
+            		findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
+            		takePhoto();
+            	}
+            }
+        });
+        replaceImgBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+        });
+        
+        replaceImgBuilder.create().show();
+	}
+	
 	public void onClickTakePhoto(View view) {
+		takePhoto();
+	}
+	
+	private void takePhoto() {
 		//external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			//Context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-			String picPath = Environment.getExternalStorageDirectory().getName() + File.separatorChar + "Android"
-			+ File.separatorChar + "data" + File.separatorChar + NewSampleActivity.this.getPackageName() + File.separatorChar
-			+ "pics" + File.separatorChar + "beeper_img_" + new SimpleDateFormat("yyyyMMddHHmmss").format(sample.getTimestamp()) + ".jpg";
-			File pictureFile = new File(picPath);
+			File picDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+			String picFilename = "beeper_img_" + new SimpleDateFormat("yyyyMMddHHmmss").format(sample.getTimestamp()) + ".jpg";
+			File pictureFile = new File(picDir, picFilename);
 			try {
                 if(pictureFile.exists() == false) {
                     pictureFile.getParentFile().mkdirs();
                     pictureFile.createNewFile();
-                    sample.setPhotoUri(pictureFile.getAbsolutePath());
+                    photoUri = pictureFile.getAbsolutePath();
                 }
             } catch (IOException e) {
             	Log.e(TAG, "unable to create file.", e);
@@ -197,40 +246,69 @@ public class NewSampleActivity extends Activity {
 		}
 	}
 	
+	private class ImageLoadTask extends AsyncTask<String, Void, Bitmap> {
+		
+		@Override
+		protected Bitmap doInBackground(String... uri) {
+			try {
+				if (uri.length >= 1) {
+					//create thumbnail
+					FileInputStream input = new FileInputStream(uri[0]);
+					Bitmap imageBitmap = BitmapFactory.decodeStream(input);
+					
+					Float width  = Float.valueOf(imageBitmap.getWidth());
+					Float height = Float.valueOf(imageBitmap.getHeight());
+					Float ratio = width/height;
+					final float scale = getResources().getDisplayMetrics().density;
+					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)((THUMBNAIL_WIDTH * scale + 0.5f) * ratio), (int)(THUMBNAIL_WIDTH * scale + 0.5f), false);
+					
+					ByteArrayOutputStream output = new ByteArrayOutputStream();
+		            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+		            
+		            return imageBitmap;
+				}
+			}
+			catch(Exception e) {
+				Log.e(TAG, "Failed to create thumbnail.", e);
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Bitmap imageBitmap) {
+			if (imageBitmap != null) {
+				NewSampleActivity.this.findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
+				ImageView imageView = (ImageView)findViewById(R.id.new_sample_thumb);
+				final float scale = getResources().getDisplayMetrics().density;
+				int padding = (int)(((THUMBNAIL_WIDTH * scale + 0.5f) - imageBitmap.getWidth()) / 2);
+				imageView.setPadding(padding, 0, padding, 0);
+				imageView.setImageBitmap(imageBitmap);
+				imageView.setVisibility(View.VISIBLE);
+			}
+			else {
+				NewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+			}
+		}
+	}
+	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
 				photoTaken = true;
-				
-				//create thumbnail
-				Bitmap imageBitmap = null;
-				try {
-					FileInputStream input = new FileInputStream(sample.getPhotoUri());
-					imageBitmap = BitmapFactory.decodeStream(input);
-					
-					Float width  = Float.valueOf(imageBitmap.getWidth());
-					Float height = Float.valueOf(imageBitmap.getHeight());
-					Float ratio = width/height;
-					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(THUMBNAIL_HEIGHT*ratio), THUMBNAIL_HEIGHT, false);
-					
-					ByteArrayOutputStream output = new ByteArrayOutputStream();
-		            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
-		            sample.setPhotoThumb(output.toByteArray());
-				}
-				catch (IOException ioe) {
-					Log.e(TAG, "failed to create thumbnail.", ioe);
-				}
-				
-				//replace button with thumbnail
-				if (sample.getPhotoThumb() != null) {
-					findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-					
-					ImageView imageView = (ImageView)findViewById(R.id.new_sample_thumb);
-					imageView.setVisibility(View.VISIBLE);
-					int padding = (THUMBNAIL_WIDTH - imageBitmap.getWidth())/2;
-					imageView.setPadding(padding, 0, padding, 0);
-					imageView.setImageBitmap(imageBitmap);
+				sample.setPhotoUri(photoUri);
+				photoUri = null;
+				findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+				findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
+				new ImageLoadTask().execute(new String[] { sample.getPhotoUri() });
+			}
+			else if (resultCode == Activity.RESULT_CANCELED) {
+				photoTaken = false;
+				if (sample.getPhotoUri() == null) {
+					findViewById(R.id.new_sample_btn_photo).setVisibility(View.VISIBLE);
+					findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
+					findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
 				}
 			}
 		}

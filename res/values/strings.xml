@@ -5,6 +5,10 @@
     <string name="preferences">Preferences</string>
     <string name="list_samples">Samples List</string>
     <string name="new_sample">New Sample</string>
+    <string name="new_sample_take_photo">Take Photo</string>
+    <string name="new_sample_replace_img_title">Replace Photo</string>
+    <string name="new_sample_replace_img_msg">Do you want to replace the photo?</string>
+    <string name="new_sample_replace_img_delete">Photo has been deleted.</string>
     <string name="edit_sample">Edit Sample</string>
     <string name="main_menu_samples_list">Samples List</string>
     <string name="main_menu_new_sample">New Sample</string>
@@ -14,5 +18,7 @@
     <string name="save">Save</string>
     <string name="edit">Edit Sample</string>
     <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="view_sample">View Sample</string>
 </resources>

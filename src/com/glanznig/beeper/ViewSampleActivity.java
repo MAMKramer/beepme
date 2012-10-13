@@ -51,7 +51,7 @@ public class ViewSampleActivity extends Activity {
 		populateFields();
 	}
 	
-private class ImageLoadTask extends AsyncTask<String, Void, Bitmap> {
+	private class ImageLoadTask extends AsyncTask<String, Void, Bitmap> {
 		
 		@Override
 		protected Bitmap doInBackground(String... uri) {

@@ -10,7 +10,6 @@ public class Sample {
 	private String description;
 	private Boolean accepted;
 	private String photoUri;
-	private byte[] photoThumb;
 	
 	public Sample() {
 		id = 0L;
@@ -19,7 +18,6 @@ public class Sample {
 		description = null;
 		accepted = Boolean.FALSE;
 		photoUri = null;
-		photoThumb = null;
 	}
 	
 	public Sample(long id) {
@@ -29,7 +27,6 @@ public class Sample {
 		description = null;
 		accepted = Boolean.FALSE;
 		photoUri = null;
-		photoThumb = null;
 	}
 	
 	public long getId() {
@@ -78,14 +75,6 @@ public class Sample {
 	
 	public String getPhotoUri() {
 		return photoUri;
-	}
-	
-	public void setPhotoThumb(byte[] photoThumb) {
-		this.photoThumb = photoThumb;
-	}
-	
-	public byte[] getPhotoThumb() {
-		return photoThumb;
 	}
 
 }
