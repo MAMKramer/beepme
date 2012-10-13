@@ -11,6 +11,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -21,6 +23,24 @@ public class ViewSampleActivity extends Activity {
 	
 	private static final String TAG = "beeper";
 	private long sampleId;
+	
+	private final Handler imgLoadHandler = new Handler() {
+	    @Override
+	    public void handleMessage(Message msg) {
+	    	if (msg.what == AsyncImageLoader.BITMAP_MSG) {
+	    		Bitmap imageBitmap = (Bitmap)msg.obj;
+		    	if (imageBitmap != null) {
+					ViewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+					ImageView image = (ImageView)ViewSampleActivity.this.findViewById(R.id.view_sample_image);
+					image.setImageBitmap(imageBitmap);
+					image.setVisibility(View.VISIBLE);
+				}
+				else {
+					ViewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+				}
+	    	}
+	    }
+	};
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -49,51 +69,6 @@ public class ViewSampleActivity extends Activity {
 		super.onResume();
 		findViewById(R.id.view_sample_image).setVisibility(View.GONE);
 		populateFields();
-	}
-	
-	private class ImageLoadTask extends AsyncTask<String, Void, Bitmap> {
-		
-		@Override
-		protected Bitmap doInBackground(String... uri) {
-			try {
-				if (uri.length >= 1) {
-					FileInputStream input = new FileInputStream(uri[0]);
-					Bitmap imageBitmap = BitmapFactory.decodeStream(input);
-					
-					Float width  = Float.valueOf(imageBitmap.getWidth());
-					Float height = Float.valueOf(imageBitmap.getHeight());
-					Float ratio = width/height;
-					
-					//get display dimensions
-					Display display = getWindowManager().getDefaultDisplay();
-					int imageWidth = display.getWidth() - 20;
-					
-					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(imageWidth*ratio), imageWidth, false);
-					
-					return imageBitmap;
-				}
-			}
-			catch(Exception e) {
-				Log.e(TAG, "Something happened on the way.", e);
-			}
-			
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Bitmap imageBitmap) {
-			if (imageBitmap != null) {
-				ImageView image = (ImageView)ViewSampleActivity.this.findViewById(R.id.view_sample_image);
-				//int padding = (THUMBNAIL_WIDTH - imageBitmap.getWidth())/2;
-				//image.setPadding(padding, 0, padding, 0);
-				image.setImageBitmap(imageBitmap);
-				ViewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
-				image.setVisibility(View.VISIBLE);
-			}
-			else {
-				ViewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
-			}
-		}
 	}
 	
 	private void populateFields() {
@@ -125,7 +100,12 @@ public class ViewSampleActivity extends Activity {
 			
 			if (s.getPhotoUri() != null) {
 				findViewById(R.id.view_sample_image_load).setVisibility(View.VISIBLE);
-			    new ImageLoadTask().execute(new String[] { s.getPhotoUri() });
+			    
+				//get display dimensions
+				Display display = getWindowManager().getDefaultDisplay();
+				int imageWidth = display.getWidth() - 20;
+				AsyncImageLoader loader = new AsyncImageLoader(s.getPhotoUri(), imageWidth, imgLoadHandler);
+				loader.start();
 			}
 		}
 	}

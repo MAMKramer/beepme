@@ -23,6 +23,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
@@ -41,12 +43,31 @@ public class NewSampleActivity extends Activity {
 	private static final int TAKE_PICTURE = 42;
 	private static final int THUMBNAIL_HEIGHT = 120; //in dp
 	private static final int THUMBNAIL_WIDTH = 80; //in dp
+	private static final String PICTURE_PREFIX = "beeper_img_";
 	private static final String TAG = "beeper";
 	
 	private Sample sample = new Sample();
 	private String photoUri = null;
 	private boolean isEdit = false;
 	private boolean photoTaken = false;
+	
+	private final Handler imgLoadHandler = new Handler() {
+	    @Override
+	    public void handleMessage(Message msg) {
+	    	if (msg.what == AsyncImageLoader.BITMAP_MSG) {
+	    		Bitmap imageBitmap = (Bitmap)msg.obj;
+	    		if (imageBitmap != null) {
+					NewSampleActivity.this.findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
+					ImageView imageView = (ImageView)NewSampleActivity.this.findViewById(R.id.new_sample_thumb);
+					imageView.setImageBitmap(imageBitmap);
+					imageView.setVisibility(View.VISIBLE);
+				}
+				else {
+					NewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+				}
+	    	}
+	    }
+	};
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -63,14 +84,21 @@ public class NewSampleActivity extends Activity {
 			}
 			
 			if (savedState.getCharSequence("title") != null) {
-				sample.setTitle((String)savedState.getCharSequence("title"));
+				sample.setTitle(savedState.getCharSequence("title").toString());
 			}
 			
 			if (savedState.getCharSequence("description") != null) {
-				sample.setDescription((String)savedState.getCharSequence("description"));
+				sample.setDescription(savedState.getCharSequence("description").toString());
+			}
+			
+			if (savedState.getCharSequence("photoUri") != null) {
+				sample.setPhotoUri(savedState.getCharSequence("photoUri").toString());
 			}
 			
 			sample.setAccepted(savedState.getBoolean("accepted"));
+			
+			isEdit = savedState.getBoolean("isEdit");
+			photoTaken = savedState.getBoolean("photoTaken");
 		}
 		else {
 			Bundle b = getIntent().getExtras();
@@ -129,6 +157,16 @@ public class NewSampleActivity extends Activity {
         else {
         	setTitle(R.string.new_sample);
         	
+        	if (photoTaken && sample.getPhotoUri() != null) {
+        		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+				findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
+				
+				final float scale = getResources().getDisplayMetrics().density;
+				int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
+				AsyncImageLoader loader = new AsyncImageLoader(sample.getPhotoUri(), imageWidth, imgLoadHandler);
+				loader.start();
+        	}
+        	
         	Button save = (Button)findViewById(R.id.new_sample_btn_save);
         	save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         }
@@ -179,25 +217,6 @@ public class NewSampleActivity extends Activity {
 		finish();
 	}
 	
-	private class ImageDeleteTask extends AsyncTask<String, Void, Boolean> {
-		
-		@Override
-		protected Boolean doInBackground(String... uri) {
-			if (uri.length >= 1) {
-				File pic = new File(uri[0]);
-				return Boolean.valueOf(pic.delete());
-			}
-			return Boolean.FALSE;
-		}
-		
-		@Override
-		protected void onPostExecute(Boolean success) {
-			if (success.booleanValue()) {
-				Toast.makeText(getApplicationContext(), R.string.new_sample_replace_img_delete, Toast.LENGTH_SHORT).show();
-			}
-		}
-	}
-	
 	public void onLongClickChangeThumb(View view) {
 		AlertDialog.Builder replaceImgBuilder = new AlertDialog.Builder(NewSampleActivity.this);
 		//replaceImgBuilder.setIcon(icon);
@@ -206,10 +225,12 @@ public class NewSampleActivity extends Activity {
         replaceImgBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
             	if (sample.getPhotoUri() != null) {
-            		new ImageDeleteTask().execute(new String[] { sample.getPhotoUri() });
-            		sample.setPhotoUri(null);
-            		findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
-            		takePhoto();
+            		File pic = new File(sample.getPhotoUri());
+            		if (pic.delete()) {
+            			sample.setPhotoUri(null);
+            			findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
+                		takePhoto();
+            		}
             	}
             }
         });
@@ -229,7 +250,7 @@ public class NewSampleActivity extends Activity {
 		//external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			File picDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-			String picFilename = "beeper_img_" + new SimpleDateFormat("yyyyMMddHHmmss").format(sample.getTimestamp()) + ".jpg";
+			String picFilename = PICTURE_PREFIX + new SimpleDateFormat("yyyyMMddHHmmss").format(sample.getTimestamp()) + ".jpg";
 			File pictureFile = new File(picDir, picFilename);
 			try {
                 if(pictureFile.exists() == false) {
@@ -247,62 +268,14 @@ public class NewSampleActivity extends Activity {
 		}
 	}
 	
-	private class ImageLoadTask extends AsyncTask<String, Void, Bitmap> {
-		
-		@Override
-		protected Bitmap doInBackground(String... uri) {
-			try {
-				if (uri.length >= 1) {
-					//create thumbnail
-					FileInputStream input = new FileInputStream(uri[0]);
-					Bitmap imageBitmap = BitmapFactory.decodeStream(input);
-					
-					Float width  = Float.valueOf(imageBitmap.getWidth());
-					Float height = Float.valueOf(imageBitmap.getHeight());
-					Float ratio = width/height;
-					final float scale = getResources().getDisplayMetrics().density;
-					imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)((THUMBNAIL_WIDTH * scale + 0.5f) * ratio), (int)(THUMBNAIL_WIDTH * scale + 0.5f), false);
-					
-					ByteArrayOutputStream output = new ByteArrayOutputStream();
-		            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
-		            
-		            return imageBitmap;
-				}
-			}
-			catch(Exception e) {
-				Log.e(TAG, "Failed to create thumbnail.", e);
-			}
-			
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Bitmap imageBitmap) {
-			if (imageBitmap != null) {
-				NewSampleActivity.this.findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
-				ImageView imageView = (ImageView)findViewById(R.id.new_sample_thumb);
-				final float scale = getResources().getDisplayMetrics().density;
-				int padding = (int)(((THUMBNAIL_WIDTH * scale + 0.5f) - imageBitmap.getWidth()) / 2);
-				imageView.setPadding(padding, 0, padding, 0);
-				imageView.setImageBitmap(imageBitmap);
-				imageView.setVisibility(View.VISIBLE);
-			}
-			else {
-				NewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
-			}
-		}
-	}
-	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
 				photoTaken = true;
+				Log.i(TAG, "photo taken, photoUri: " + photoUri);
 				sample.setPhotoUri(photoUri);
 				photoUri = null;
-				findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-				findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
-				new ImageLoadTask().execute(new String[] { sample.getPhotoUri() });
 			}
 			else if (resultCode == Activity.RESULT_CANCELED) {
 				photoTaken = false;
@@ -328,5 +301,8 @@ public class NewSampleActivity extends Activity {
 		savedState.putCharSequence("title", title.getText());
 		savedState.putCharSequence("description", description.getText());
 		savedState.putBoolean("accepted", accepted.isChecked());
+		savedState.putCharSequence("photoUri", sample.getPhotoUri());
+		savedState.putBoolean("photoTaken", photoTaken);
+		savedState.putBoolean("isEdit", isEdit);
 	}
 }
