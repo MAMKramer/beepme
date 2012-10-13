@@ -47,6 +47,7 @@ public class ViewSampleActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
+		findViewById(R.id.view_sample_image).setVisibility(View.GONE);
 		populateFields();
 	}
 	

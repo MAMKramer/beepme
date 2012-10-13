@@ -5,6 +5,7 @@
     <string name="preferences">Preferences</string>
     <string name="list_samples">Samples List</string>
     <string name="new_sample">New Sample</string>
+    <string name="edit_sample">Edit Sample</string>
     <string name="main_menu_samples_list">Samples List</string>
     <string name="main_menu_new_sample">New Sample</string>
     <string name="refresh">Refresh</string>
@@ -12,5 +13,6 @@
     <string name="sample_description">Description</string>
     <string name="save">Save</string>
     <string name="edit">Edit Sample</string>
+    <string name="cancel">Cancel</string>
     <string name="view_sample">View Sample</string>
 </resources>

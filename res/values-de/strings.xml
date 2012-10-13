@@ -5,6 +5,7 @@
     <string name="preferences">Einstellungen</string>
     <string name="list_samples">Samples Liste</string>
     <string name="new_sample">Neues Sample</string>
+    <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="main_menu_samples_list">Samples Liste</string>
     <string name="main_menu_new_sample">Neues Sample</string>
     <string name="refresh">Neu laden</string>
@@ -12,5 +13,6 @@
     <string name="sample_description">Beschreibung</string>
     <string name="save">Speichern</string>
     <string name="edit">Eintrag ändern</string>
+    <string name="cancel">Abbrechen</string>
     <string name="view_sample">Eintrag ansehen</string>
 </resources>

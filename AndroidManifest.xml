@@ -26,7 +26,7 @@
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beeper.MainMenu" />
 	    </activity>
 	    
-	    <activity android:name=".NewSampleActivity" android:label="@string/new_sample">
+	    <activity android:name=".NewSampleActivity" android:label="@string/new_sample" android:windowSoftInputMode="adjustPan">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beeper.MainMenu" />
 	    </activity>
 	    

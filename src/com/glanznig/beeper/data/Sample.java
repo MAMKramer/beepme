@@ -12,10 +12,24 @@ public class Sample {
 	private String photoUri;
 	private byte[] photoThumb;
 	
-	public Sample() { }
+	public Sample() {
+		id = 0L;
+		timestamp = null;
+		title = null;
+		description = null;
+		accepted = Boolean.FALSE;
+		photoUri = null;
+		photoThumb = null;
+	}
 	
 	public Sample(long id) {
 		setId(id);
+		timestamp = null;
+		title = null;
+		description = null;
+		accepted = Boolean.FALSE;
+		photoUri = null;
+		photoThumb = null;
 	}
 	
 	public long getId() {
