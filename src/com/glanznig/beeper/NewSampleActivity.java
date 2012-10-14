@@ -1,8 +1,6 @@
 package com.glanznig.beeper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -18,9 +16,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -73,6 +69,14 @@ public class NewSampleActivity extends Activity {
 	public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         setContentView(R.layout.new_sample);
+        
+        ((ImageView)findViewById(R.id.new_sample_thumb)).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                NewSampleActivity.this.onLongClickChangeThumb(view);
+                return true;
+            }
+        });
 		
 		if (savedState != null) {
 			if (savedState.getLong("sampleId") != 0L) {
@@ -273,7 +277,6 @@ public class NewSampleActivity extends Activity {
 		if (requestCode == TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
 				photoTaken = true;
-				Log.i(TAG, "photo taken, photoUri: " + photoUri);
 				sample.setPhotoUri(photoUri);
 				photoUri = null;
 			}

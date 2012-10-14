@@ -52,6 +52,14 @@
 	            android:textSize="17dp"
 	            android:textStyle="bold" />
 
+	        <TextView
+	            android:id="@+id/view_sample_title"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp"
+	            android:textSize="17dp"
+	            android:textStyle="bold" />
+
 	        <ProgressBar
 	            android:id="@+id/view_sample_image_load"
 	            style="?android:attr/progressBarStyleSmall"
@@ -72,20 +80,6 @@
 	            android:adjustViewBounds="true"
 	            android:contentDescription="image"
 	            android:visibility="gone" />
-		
-		    <TextView
-		        android:id="@+id/view_sample_label_title"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:text="@string/sample_title"
-		        android:textSize="17dp"
-		        android:textStyle="bold" />
-		
-		    <TextView
-		        android:id="@+id/view_sample_title"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:textSize="17dp" />
 		
 		    <TextView
 		        android:id="@+id/view_sample_label_description"

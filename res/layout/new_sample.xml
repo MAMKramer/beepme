@@ -94,7 +94,6 @@
 	                android:adjustViewBounds="true"
 	                android:contentDescription="thumb"
 	                android:longClickable="true"
-	                android:onClick="onLongClickChangeThumb"
 	                android:visibility="gone" />
 
 	        </RelativeLayout>

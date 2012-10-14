@@ -85,7 +85,6 @@ public class ViewSampleActivity extends Activity {
 				title.setText(s.getTitle());
 			}
 			else {
-				findViewById(R.id.view_sample_label_title).setVisibility(View.GONE);
 				title.setVisibility(View.GONE);
 			}
 			
