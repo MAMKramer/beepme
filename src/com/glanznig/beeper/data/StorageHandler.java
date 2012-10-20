@@ -7,13 +7,16 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class StorageHandler extends SQLiteOpenHelper {
 	
+	private static final String TAG = "beeper";
 	private static final String DB_NAME = "beeper";
-	private static final int DB_VERSION = 5;
+	private static final int DB_VERSION = 6;
 	
 	private static final String SAMPLE_TBL_NAME = "sample";
 	private static final String SAMPLE_TBL_CREATE =
@@ -26,6 +29,23 @@ public class StorageHandler extends SQLiteOpenHelper {
 			"photoUri TEXT" +
 			")";
 	
+	private static final String TAG_TBL_NAME = "tag";
+	private static final String TAG_TBL_CREATE =
+			"CREATE TABLE " + TAG_TBL_NAME + " (" +
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			"name TEXT NOT NULL" +
+			")";
+	
+	private static final String SAMPLE_TAG_TBL_NAME = "sample_tag";
+	private static final String SAMPLE_TAG_TBL_CREATE =
+			"CREATE TABLE " + SAMPLE_TAG_TBL_NAME + " (" +
+			"sample_id INTEGER NOT NULL, " +
+			"tag_id INTEGER NOT NULL, " +
+			"PRIMARY KEY(sample_id, tag_id), " +
+			"FOREIGN KEY(sample_id) REFERENCES sample(id), " +
+			"FOREIGN KEY(tag_id) REFERENCES tag(id)" +
+			")";
+	
 	public StorageHandler(Context ctx) {
 		super(ctx, DB_NAME, null, DB_VERSION);
 	}
@@ -33,11 +53,15 @@ public class StorageHandler extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(SAMPLE_TBL_CREATE);
+		db.execSQL(TAG_TBL_CREATE);
+		db.execSQL(SAMPLE_TAG_TBL_CREATE);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		db.execSQL("DROP TABLE IF EXISTS " + SAMPLE_TAG_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + SAMPLE_TBL_NAME);
+		db.execSQL("DROP TABLE IF EXISTS " + TAG_TBL_NAME);
 		onCreate(db);
 	}
 	
@@ -51,22 +75,49 @@ public class StorageHandler extends SQLiteOpenHelper {
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
 			
-			s = new Sample(Long.parseLong(cursor.getString(0)));
-			long timestamp = Long.parseLong(cursor.getString(1));
+			s = new Sample(cursor.getLong(0));
+			long timestamp = cursor.getLong(1);
 			s.setTimestamp(new Date(timestamp));
-			s.setTitle(cursor.getString(2));
-			s.setDescription(cursor.getString(3));
-			if (Integer.parseInt(cursor.getString(4)) == 0) {
+			if (!cursor.isNull(2)) {
+				s.setTitle(cursor.getString(2));
+			}
+			if (!cursor.isNull(3)) {
+				s.setDescription(cursor.getString(3));
+			}
+			if (cursor.getInt(4) == 0) {
 				s.setAccepted(false);
 			}
 			else {
 				s.setAccepted(true);
 			}
-			s.setPhotoUri(cursor.getString(5));
+			if (!cursor.isNull(5)) {
+				s.setPhotoUri(cursor.getString(5));
+			}
 		}
 		cursor.close();
 		db.close();
 		
+		return s;
+	}
+	
+	public Sample getSampleWithTags(long id) {
+		Sample s = getSample(id);
+		if (s != null) {
+			SQLiteDatabase db = this.getReadableDatabase();
+			Cursor cursor = db.rawQuery("SELECT t.id, t.name FROM " + TAG_TBL_NAME + " t " +
+					"INNER JOIN " + SAMPLE_TAG_TBL_NAME + " st ON st.tag_id = id WHERE st.sample_id = ?", new String[] { String.valueOf(id) });
+			
+			if (cursor != null && cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				Tag t = null;
+				do {
+					t = new Tag(cursor.getLong(0));
+					t.setName(cursor.getString(1));
+					s.addTag(t);
+				}
+				while (cursor.moveToNext());
+			}
+		}
 		return s;
 	}
 	
@@ -81,8 +132,8 @@ public class StorageHandler extends SQLiteOpenHelper {
 			cursor.moveToFirst();
 			
 			do {
-				Sample s = new Sample(Integer.parseInt(cursor.getString(0)));
-				long timestamp = Long.parseLong(cursor.getString(1));
+				Sample s = new Sample(cursor.getLong(0));
+				long timestamp = cursor.getLong(1);
 				s.setTimestamp(new Date(timestamp));
 				if (!cursor.isNull(2)) {
 					s.setTitle(cursor.getString(2));
@@ -90,7 +141,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 				if (!cursor.isNull(3)) {
 					s.setDescription(cursor.getString(3));
 				}
-				if (Integer.parseInt(cursor.getString(4)) == 0) {
+				if (cursor.getInt(4) == 0) {
 					s.setAccepted(false);
 				}
 				else {
@@ -109,33 +160,51 @@ public class StorageHandler extends SQLiteOpenHelper {
 		return sampleList;
 	}
 	
-	public boolean addSample(Sample s) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		boolean success = true;
+	public Sample addSample(Sample s) {
+		Sample sCreated = null;
+		
+		if (s != null) {
+			boolean success = true;
+			SQLiteDatabase db = this.getWritableDatabase();
+			 
+		    ContentValues values = new ContentValues();
+		    if (s.getTimestamp() != null) {
+		    	values.put("timestamp", String.valueOf(s.getTimestamp().getTime()));
+		    }
+		    else {
+		    	success = false;
+		    }
+		    values.put("title", s.getTitle());
+		    values.put("description", s.getDescription());
+		    if (s.getAccepted()) {
+		    	values.put("accepted", "1");
+		    }
+		    else {
+		    	values.put("accepted", "0");
+		    }
+		    values.put("photoUri", s.getPhotoUri());
 		 
-	    ContentValues values = new ContentValues();
-	    if (s.getTimestamp() != null) {
-	    	values.put("timestamp", String.valueOf(s.getTimestamp().getTime()));
-	    }
-	    else {
-	    	success = false;
-	    }
-	    values.put("title", s.getTitle());
-	    values.put("description", s.getDescription());
-	    if (s.getAccepted()) {
-	    	values.put("accepted", "1");
-	    }
-	    else {
-	    	values.put("accepted", "0");
-	    }
-	    values.put("photoUri", s.getPhotoUri());
-	 
-	    if (success) {
-	    	db.insert(SAMPLE_TBL_NAME, null, values);
-	    }
-	    db.close();
-	    
-	    return success;
+		    if (success) {
+		    	long sampleId = db.insert(SAMPLE_TBL_NAME, null, values);
+		    	sCreated = new Sample(sampleId);
+		    	sCreated.setAccepted(s.getAccepted());
+		    	if (s.getDescription() != null) {
+		    		sCreated.setDescription(s.getDescription());
+		    	}
+		    	if (s.getPhotoUri() != null) {
+		    		sCreated.setPhotoUri(s.getPhotoUri());
+		    	}
+		    	if (s.getTimestamp() != null) {
+		    		sCreated.setTimestamp(s.getTimestamp());
+		    	}
+		    	if (s.getTitle() != null) {
+		    		sCreated.setTitle(s.getTitle());
+		    	}
+		    }
+		    db.close();
+		}
+		
+		return sCreated;
 	}
 	
 	public boolean editSample(Sample s) {
@@ -155,6 +224,146 @@ public class StorageHandler extends SQLiteOpenHelper {
 	    db.close();
 		
 		return numRows == 1 ? true : false;
+	}
+	
+	public Tag addTag(String name, Sample s) {
+		if (name != null && s != null && s.getId() != 0L) {
+			
+			SQLiteDatabase db = this.getWritableDatabase();
+			ContentValues values = null;
+			long tagId = 0L;
+			boolean success = true;
+			db.beginTransaction();
+			
+			Cursor cursor = db.query(TAG_TBL_NAME, new String[] { "id", "name" }, "name=?", new String[] { name.toLowerCase() }, null, null, null);
+			
+			if (cursor != null && cursor.getCount() == 0) {
+			    values = new ContentValues();
+			    values.put("name", name.toLowerCase());
+			    tagId = db.insert(TAG_TBL_NAME, null, values);
+			}
+			else {
+				cursor.moveToFirst();
+				tagId = cursor.getLong(0);
+			}
+			
+			if (cursor != null) {
+				cursor.close();
+			}
+		 
+		    if (success) {
+		    	if (tagId != 0L) {
+			    	values = new ContentValues();
+			    	values.put("sample_id", s.getId());
+			    	values.put("tag_id", tagId);
+			    	try {
+			    		db.insertOrThrow(SAMPLE_TAG_TBL_NAME, null, values);
+			    	}
+			    	catch (SQLiteConstraintException sce) {
+			    		success = false;
+			    	}
+		    	}
+		    	else {
+		    		success = false;
+		    	}
+		    }
+		    
+		    if (success) {
+		    	db.setTransactionSuccessful();
+		    }
+		    
+		    db.endTransaction();
+		    db.close();
+		    
+		    if (success) {
+		    	Tag t = new Tag(tagId);
+		    	t.setName(name.toLowerCase());
+		    	
+		    	return t;
+		    }
+		}
+	    
+	    return null;
+	}
+	
+	public boolean removeTag(Tag t, Sample s) {
+		boolean success = true;
+		
+		if (t != null && t.getId() != 0L && s != null && s.getId() != 0L) {
+			SQLiteDatabase db = this.getWritableDatabase();
+			db.beginTransaction();
+			
+			Cursor cursor = db.rawQuery("DELETE FROM " + SAMPLE_TAG_TBL_NAME + " WHERE tag_id = ? AND sample_id = ?",
+					new String[] { String.valueOf(t.getId()), String.valueOf(s.getId()) });
+			
+			if (cursor != null) {
+				cursor.close();
+				cursor = db.query(SAMPLE_TAG_TBL_NAME, new String[] { "sample_id" }, "tag_id = ?", new String[] { String.valueOf(t.getId()) }, null, null, null);
+				
+				if (cursor != null && cursor.getCount() == 0) {
+					cursor = db.rawQuery("DELETE FROM " + TAG_TBL_NAME + " WHERE tag_id = ?", new String[] { String.valueOf(t.getId()) });
+					if (cursor == null) {
+						success = false;
+					}
+				}
+				else if (cursor == null) {
+					success = false;
+				}
+			}
+			else {
+				success = false;
+			}
+				
+			if (success) {
+				db.setTransactionSuccessful();
+			}
+			
+			db.endTransaction();
+			db.close();
+		}
+		else {
+			success = false;
+		}
+		
+		return success;
+	}
+	
+	public List<Tag> getTags(String search) {
+		ArrayList<Tag> list = new ArrayList<Tag>();
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor cursor = db.rawQuery("SELECT id, name FROM " + TAG_TBL_NAME + " WHERE name like '" + search +"%'", null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			Tag t = null;
+			do {
+				t = new Tag(cursor.getLong(0));
+				t.setName(cursor.getString(1));
+				list.add(t);
+			}
+			while (cursor.moveToNext());
+		}
+		
+		return list;
+	}
+	
+	public List<Tag> getTags() {
+		ArrayList<Tag> list = new ArrayList<Tag>();
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor cursor = db.query(TAG_TBL_NAME, new String[] { "id", "name" }, null, null, null, null, "name");
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			Tag t = null;
+			do {
+				t = new Tag(cursor.getLong(0));
+				t.setName(cursor.getString(1));
+				list.add(t);
+			}
+			while (cursor.moveToNext());
+		}
+		
+		return list;
 	}
 
 }

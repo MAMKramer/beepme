@@ -96,6 +96,22 @@
 		        android:layout_height="wrap_content"
 		        android:textSize="17dp" />
 		    
+		    <TextView
+		        android:id="@+id/view_sample_label_tags"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="10dp"
+		        android:text="@string/sample_tags"
+		        android:textSize="17dp"
+		        android:textStyle="bold" />
+		    
+		    <TextView
+	            android:id="@+id/view_sample_tags"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:textSize="17dp"
+	            android:layout_marginTop="10dp" />
+		    
 	    </LinearLayout>
 	</ScrollView>
     

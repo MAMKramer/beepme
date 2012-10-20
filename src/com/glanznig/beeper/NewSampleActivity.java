@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.glanznig.beeper.data.Sample;
+import com.glanznig.beeper.data.Tag;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,8 +27,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -115,6 +116,9 @@ public class NewSampleActivity extends Activity {
 			}
 			else {
 				sample.setTimestamp(new Date());
+				sample.setAccepted(true);
+				BeeperApp app = (BeeperApp)getApplication();
+				sample = app.addSample(sample);
 			}
 		}
 		
@@ -191,9 +195,30 @@ public class NewSampleActivity extends Activity {
         	EditText descriptionWidget = (EditText)findViewById(R.id.new_sample_description);
         	descriptionWidget.setText(sample.getDescription());
         }
-		
-		CheckBox acceptedWidget = (CheckBox)findViewById(R.id.new_sample_accepted);
-		acceptedWidget.setChecked(sample.getAccepted());
+        
+        AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_tag);
+        TagAutocompleteAdapter adapter = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row);
+    	autocompleteTags.setAdapter(adapter);
+    	//after how many chars should autocomplete list appear?
+    	autocompleteTags.setThreshold(2);
+    	//autocompleteTags.setMaxLines(5);
+	}
+	
+	public void onClickAddTag(View view) {
+		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_tag);
+		if (enteredTag.getText().length() > 0) {
+			BeeperApp app = (BeeperApp)getApplication();
+			Tag added = app.addTag(enteredTag.getText().toString(), sample);
+			
+			if (added != null) {
+				TextView tags = (TextView)findViewById(R.id.new_sample_tags);
+				tags.setText(tags.getText().toString() + " " + added.getName());
+				enteredTag.setText("");
+			}
+			else {
+				Toast.makeText(getApplicationContext(), R.string.new_sample_add_tag_error, Toast.LENGTH_SHORT).show();
+			}
+		}
 	}
 	
 	public void onClickSave(View view) {
@@ -201,17 +226,15 @@ public class NewSampleActivity extends Activity {
 		
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
-		CheckBox accepted = (CheckBox)findViewById(R.id.new_sample_accepted);
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
-		sample.setAccepted(accepted.isChecked());
 		
 		if (isEdit) {
 			app.editSample(sample);
 		}
 		else {
-			app.addSample(sample);
+			app.editSample(sample);
 			Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
 		}
 		finish();
@@ -295,7 +318,6 @@ public class NewSampleActivity extends Activity {
 	public void onSaveInstanceState(Bundle savedState) {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
-		CheckBox accepted = (CheckBox)findViewById(R.id.new_sample_accepted);
 		
 		if (sample.getTimestamp() != null) {
 			savedState.putLong("timestamp", sample.getTimestamp().getTime());
@@ -303,7 +325,7 @@ public class NewSampleActivity extends Activity {
 		savedState.putLong("sampleId", sample.getId());
 		savedState.putCharSequence("title", title.getText());
 		savedState.putCharSequence("description", description.getText());
-		savedState.putBoolean("accepted", accepted.isChecked());
+		savedState.putBoolean("accepted", sample.getAccepted());
 		savedState.putCharSequence("photoUri", sample.getPhotoUri());
 		savedState.putBoolean("photoTaken", photoTaken);
 		savedState.putBoolean("isEdit", isEdit);

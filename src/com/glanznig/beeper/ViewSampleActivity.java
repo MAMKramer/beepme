@@ -1,19 +1,17 @@
 package com.glanznig.beeper;
 
-import java.io.FileInputStream;
 import java.text.DateFormat;
+import java.util.ArrayList;
 
 import com.glanznig.beeper.data.Sample;
+import com.glanznig.beeper.data.Tag;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
@@ -74,7 +72,7 @@ public class ViewSampleActivity extends Activity {
 	private void populateFields() {
 		if (sampleId != 0L) {
 			BeeperApp app = (BeeperApp)getApplication();
-			Sample s = app.getSample(sampleId);
+			Sample s = app.getSampleWithTags(sampleId);
 			
 			TextView timestamp = (TextView)findViewById(R.id.view_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -95,6 +93,25 @@ public class ViewSampleActivity extends Activity {
 			else {
 				findViewById(R.id.view_sample_label_description).setVisibility(View.GONE);
 				description.setVisibility(View.GONE);
+			}
+			
+			ArrayList<Tag> tags = (ArrayList<Tag>)s.getTags();
+			if (tags != null) {
+				String tagsOutput = "";
+				for (int i = 0; i < tags.size(); i++) {
+					Tag t = tags.get(i);
+					if (i > 0) {
+						tagsOutput += ", ";
+					}
+					tagsOutput += t.getName();
+				}
+				
+				TextView tagsView = (TextView)findViewById(R.id.view_sample_tags);
+				tagsView.setText(tagsOutput);
+			}
+			else {
+				findViewById(R.id.view_sample_tags).setVisibility(View.GONE);
+				findViewById(R.id.view_sample_label_tags).setVisibility(View.GONE);
 			}
 			
 			if (s.getPhotoUri() != null) {

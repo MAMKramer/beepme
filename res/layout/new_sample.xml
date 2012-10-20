@@ -136,12 +136,51 @@
 		        android:gravity="top"
 		        android:inputType="textMultiLine"
 		        android:lines="5" />
-		
-		    <CheckBox
-		        android:id="@+id/new_sample_accepted"
+		    
+		    <TextView
+		        android:id="@+id/new_sample_label_tags"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:text="accepted" />
+		        android:layout_marginTop="10dp"
+		        android:text="@string/sample_tags"
+		        android:textSize="17dp"
+		        android:textStyle="bold" />
+		    
+		    <RelativeLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="5dp" >
+
+		        <!--<EditText
+		            android:id="@+id/new_sample_add_tag"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_alignParentLeft="true"
+		            android:ems="10"
+		            android:inputType="text" />-->
+		        
+		        <AutoCompleteTextView
+		            android:id="@+id/new_sample_add_tag"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_alignParentLeft="true"
+		            android:layout_toLeftOf="@+id/new_sample_btn_add_tag" />
+
+		        <Button
+		            android:id="@+id/new_sample_btn_add_tag"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_alignParentRight="true"
+		            android:text="@string/add"
+		            android:onClick="onClickAddTag" />
+		        
+		    </RelativeLayout>
+		    
+		    <TextView
+	            android:id="@+id/new_sample_tags"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp" />
 		    
 		</LinearLayout>
 	</ScrollView>
