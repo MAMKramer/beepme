@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.glanznig.beeper.data.Sample;
@@ -81,7 +82,8 @@ public class NewSampleActivity extends Activity {
 		
 		if (savedState != null) {
 			if (savedState.getLong("sampleId") != 0L) {
-				sample = new Sample(savedState.getLong("sampleId"));
+				BeeperApp app = (BeeperApp)getApplication();
+				sample = app.getSampleWithTags(savedState.getLong("sampleId"));
 			}
 			
 			if (savedState.getLong("timestamp") != 0L) {
@@ -110,7 +112,7 @@ public class NewSampleActivity extends Activity {
 			if (b != null) {
 				long sampleId = b.getLong("sampleId");
 				BeeperApp app = (BeeperApp)getApplication();
-				sample = app.getSample(sampleId);
+				sample = app.getSampleWithTags(sampleId);
 				
 				isEdit = true;
 			}
@@ -161,6 +163,18 @@ public class NewSampleActivity extends Activity {
 			int width = (display.getWidth() - 10) / 2;
 			save.setWidth(width);
 			cancel.setWidth(width);
+			
+			TextView tags = (TextView)findViewById(R.id.new_sample_tags);
+			List<Tag> tagList = sample.getTags();
+			Iterator<Tag> i = tagList.iterator();
+			String outputTags = null;
+			if (i.hasNext()) {
+				outputTags = i.next().getName();
+			}
+			while (i.hasNext()) {
+				outputTags += " " + i.next().getName();
+			}
+			tags.setText(outputTags);
         }
         else {
         	setTitle(R.string.new_sample);
@@ -199,7 +213,7 @@ public class NewSampleActivity extends Activity {
         AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_tag);
         TagAutocompleteAdapter adapter = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row);
     	autocompleteTags.setAdapter(adapter);
-    	//after how many chars should autocomplete list appear?
+    	//after how many chars should auto-complete list appear?
     	autocompleteTags.setThreshold(2);
     	//autocompleteTags.setMaxLines(5);
 	}

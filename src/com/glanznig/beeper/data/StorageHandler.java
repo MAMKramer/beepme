@@ -331,7 +331,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 	public List<Tag> getTags(String search) {
 		ArrayList<Tag> list = new ArrayList<Tag>();
 		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cursor = db.rawQuery("SELECT id, name FROM " + TAG_TBL_NAME + " WHERE name like '" + search +"%'", null);
+		Cursor cursor = db.query(TAG_TBL_NAME, new String[] { "id", "name" }, "name like '" + search + "%'", null, null, null, "name");
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();

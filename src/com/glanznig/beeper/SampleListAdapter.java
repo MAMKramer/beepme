@@ -20,7 +20,7 @@ public class SampleListAdapter extends ArrayAdapter<Sample> {
 	static class ViewHolder {
 	    public TextView title;
 	    public TextView timestamp;
-	  }
+	}
 	
 	public SampleListAdapter(Context context, List<Sample> values) {
 	    super(context, R.layout.samples_list_row, values);

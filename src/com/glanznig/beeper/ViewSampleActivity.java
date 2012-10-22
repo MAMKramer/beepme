@@ -2,6 +2,8 @@ package com.glanznig.beeper;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import com.glanznig.beeper.data.Sample;
 import com.glanznig.beeper.data.Tag;
@@ -95,15 +97,15 @@ public class ViewSampleActivity extends Activity {
 				description.setVisibility(View.GONE);
 			}
 			
-			ArrayList<Tag> tags = (ArrayList<Tag>)s.getTags();
-			if (tags != null) {
+			List<Tag> tags = s.getTags();
+			if (tags.size() > 0) {
+				Iterator<Tag> i = tags.iterator();
 				String tagsOutput = "";
-				for (int i = 0; i < tags.size(); i++) {
-					Tag t = tags.get(i);
-					if (i > 0) {
-						tagsOutput += ", ";
-					}
-					tagsOutput += t.getName();
+				if (i.hasNext()) {
+					tagsOutput = i.next().getName();
+				}
+				while (i.hasNext()) {
+					tagsOutput += ", " + i.next().getName();
 				}
 				
 				TextView tagsView = (TextView)findViewById(R.id.view_sample_tags);

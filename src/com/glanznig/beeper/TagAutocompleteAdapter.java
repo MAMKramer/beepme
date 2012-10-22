@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import com.glanznig.beeper.data.Tag;
 
 import android.content.Context;
-import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.TextView;
 
 public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filterable {
 	
@@ -16,11 +19,40 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
 	
 	private ArrayList<Tag> resultList;
 	private Context ctx;
+	private int resourceId;
+	
+	static class ViewHolder {
+	    public TextView name;
+	}
     
     public TagAutocompleteAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
         ctx = context;
+        resourceId = textViewResourceId;
     }
+    
+    @Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		View rowView = null;
+		
+		//performance optimization: reuse already inflated views
+		if (convertView == null) {
+			LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			rowView = inflater.inflate(resourceId, parent, false);
+			
+			ViewHolder holder = new ViewHolder();
+			holder.name = (TextView)rowView.findViewById(R.id.autocomplete_list_tag_name);
+			rowView.setTag(holder);
+		}
+		else {
+			rowView = convertView;
+		}
+		
+		ViewHolder holder = (ViewHolder)rowView.getTag();
+		
+		holder.name.setText(resultList.get(position).getName());
+		return rowView;
+	}
 	
 	@Override
     public int getCount() {
@@ -39,7 +71,7 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
-                    // Retrieve the autocomplete results.
+                    // Retrieve the auto-complete results.
                 	BeeperApp app = (BeeperApp)((NewSampleActivity)ctx).getApplication();
             		resultList = (ArrayList<Tag>)app.getTags(constraint.toString());
                     
