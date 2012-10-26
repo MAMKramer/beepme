@@ -10,7 +10,7 @@
     <string name="new_sample_replace_img_msg">Do you want to replace the photo?</string>
     <string name="new_sample_replace_img_delete">Photo has been deleted.</string>
     <string name="new_sample_save_success">Sample has been recorded.</string>
-    <string name="new_sample_add_tag_error">Could not add tag. It may be already added.</string>
+    <string name="new_sample_add_tag_error">Tag has already been added.</string>
     <string name="edit_sample">Edit Sample</string>
     <string name="main_menu_samples_list">Samples List</string>
     <string name="main_menu_new_sample">New Sample</string>

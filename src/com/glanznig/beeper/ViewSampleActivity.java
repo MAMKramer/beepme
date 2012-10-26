@@ -60,8 +60,6 @@ public class ViewSampleActivity extends Activity {
 				sampleId = b.getLong("sampleId");
 			}
 		}
-		
-		populateFields();
 	}
 	
 	@Override
@@ -110,6 +108,8 @@ public class ViewSampleActivity extends Activity {
 				
 				TextView tagsView = (TextView)findViewById(R.id.view_sample_tags);
 				tagsView.setText(tagsOutput);
+				tagsView.setVisibility(View.VISIBLE);
+				findViewById(R.id.view_sample_label_tags).setVisibility(View.VISIBLE);
 			}
 			else {
 				findViewById(R.id.view_sample_tags).setVisibility(View.GONE);

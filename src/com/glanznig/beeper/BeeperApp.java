@@ -32,14 +32,6 @@ public class BeeperApp extends Application {
 		return store.editSample(s);
 	}
 	
-	public Tag addTag(String name, Sample s) {
-		return store.addTag(name, s);
-	}
-	
-	public boolean removeTag(Tag t, Sample s) {
-		return store.removeTag(t, s);
-	}
-	
 	public List<Tag> getTags(String search) {
 		return store.getTags(search);
 	}

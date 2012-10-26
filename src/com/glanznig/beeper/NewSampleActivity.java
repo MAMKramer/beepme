@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -24,15 +27,18 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +52,8 @@ public class NewSampleActivity extends Activity {
 	
 	private Sample sample = new Sample();
 	private String photoUri = null;
+	private ArrayList<Button> tagList = null;
+	private int lastTagId = 0;
 	private boolean isEdit = false;
 	private boolean photoTaken = false;
 	
@@ -102,6 +110,17 @@ public class NewSampleActivity extends Activity {
 				sample.setPhotoUri(savedState.getCharSequence("photoUri").toString());
 			}
 			
+			if (savedState.getStringArrayList("tagList") != null) {
+				Iterator<String> i = savedState.getStringArrayList("tagList").iterator();
+				while (i.hasNext()) {
+					Tag t = new Tag();
+					t.setName(i.next());
+					sample.addTag(t);
+				}
+			}
+			
+			lastTagId = savedState.getInt("tagId");
+			
 			sample.setAccepted(savedState.getBoolean("accepted"));
 			
 			isEdit = savedState.getBoolean("isEdit");
@@ -113,6 +132,7 @@ public class NewSampleActivity extends Activity {
 				long sampleId = b.getLong("sampleId");
 				BeeperApp app = (BeeperApp)getApplication();
 				sample = app.getSampleWithTags(sampleId);
+				lastTagId = 0;
 				
 				isEdit = true;
 			}
@@ -121,10 +141,9 @@ public class NewSampleActivity extends Activity {
 				sample.setAccepted(true);
 				BeeperApp app = (BeeperApp)getApplication();
 				sample = app.addSample(sample);
+				lastTagId = 0;
 			}
 		}
-		
-		populateFields();
 	}
 	
 	@Override
@@ -164,17 +183,34 @@ public class NewSampleActivity extends Activity {
 			save.setWidth(width);
 			cancel.setWidth(width);
 			
-			TextView tags = (TextView)findViewById(R.id.new_sample_tags);
-			List<Tag> tagList = sample.getTags();
-			Iterator<Tag> i = tagList.iterator();
-			String outputTags = null;
-			if (i.hasNext()) {
-				outputTags = i.next().getName();
-			}
+			RelativeLayout tagHolder = (RelativeLayout)findViewById(R.id.new_sample_tags);
+			tagList = new ArrayList<Button>();
+			Iterator<Tag> i = sample.getTags().iterator();
+			Button tagBtn = null;
+			int prevBtnId = 0;
+			Tag tag = null;
+			final float scale = getResources().getDisplayMetrics().density;
+			
 			while (i.hasNext()) {
-				outputTags += " " + i.next().getName();
+				tag = i.next();
+				tagBtn = new Button(NewSampleActivity.this);
+				tagBtn.setText(tag.getName());
+				lastTagId += 1;
+				tagBtn.setId(lastTagId);
+				RelativeLayout.LayoutParams btnLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				btnLayout.setMargins((int)(2 * scale + 0.5f), 0, (int)(2 * scale + 0.5f), 0);
+				if (prevBtnId != 0) {
+					btnLayout.addRule(RelativeLayout.RIGHT_OF, prevBtnId);
+				}
+				tagBtn.setOnClickListener(new OnClickListener() {
+					public void onClick(View view) {
+						onClickRemoveTag(view);
+					}
+				});
+				tagHolder.addView(tagBtn, btnLayout);
+				tagList.add(tagBtn);
+				prevBtnId = tagBtn.getId();
 			}
-			tags.setText(outputTags);
         }
         else {
         	setTitle(R.string.new_sample);
@@ -191,6 +227,8 @@ public class NewSampleActivity extends Activity {
         	
         	Button save = (Button)findViewById(R.id.new_sample_btn_save);
         	save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        	
+        	tagList = new ArrayList<Button>();
         }
         
         
@@ -221,17 +259,99 @@ public class NewSampleActivity extends Activity {
 	public void onClickAddTag(View view) {
 		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_tag);
 		if (enteredTag.getText().length() > 0) {
-			BeeperApp app = (BeeperApp)getApplication();
-			Tag added = app.addTag(enteredTag.getText().toString(), sample);
+			Tag t = new Tag();
+			t.setName(enteredTag.getText().toString().toLowerCase());
+			if (sample.addTag(t)) {
 			
-			if (added != null) {
-				TextView tags = (TextView)findViewById(R.id.new_sample_tags);
-				tags.setText(tags.getText().toString() + " " + added.getName());
+				Button tagBtn = new Button(NewSampleActivity.this);
+				tagBtn.setText(t.getName());
+				lastTagId += 1;
+				tagBtn.setId(lastTagId);
+				
+				RelativeLayout tagHolder = (RelativeLayout)findViewById(R.id.new_sample_tags);
+				RelativeLayout.LayoutParams btnLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				final float scale = getResources().getDisplayMetrics().density;
+				btnLayout.setMargins((int)(2 * scale + 0.5f), 0, (int)(2 * scale + 0.5f), 0);
+				tagBtn.setOnClickListener(new OnClickListener() {
+					public void onClick(View view) {
+						onClickRemoveTag(view);
+					}
+				});
+				
+				Comparator<Button> compare = new Comparator<Button>() {
+			      public int compare(Button b1, Button b2) {
+			        return b1.getText().toString().compareTo(b2.getText().toString());
+			      }
+			    };
+				
+				int pos = Collections.binarySearch(tagList, tagBtn, compare);
+				pos = -pos - 1;
+				if (pos >= 0) {
+					Button left = null;
+					Button right = null;
+					if (pos > 0) {
+						left = tagList.get(pos - 1);
+					}
+					if (pos < tagList.size()) {
+						right = tagList.get(pos);
+					}
+					
+					if (left != null && right != null) {
+						btnLayout.addRule(RelativeLayout.RIGHT_OF, left.getId());
+						RelativeLayout.LayoutParams rightLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+						rightLayout.setMargins((int)(2 * scale + 0.5f), 0, (int)(2 * scale + 0.5f), 0);
+						rightLayout.addRule(RelativeLayout.RIGHT_OF, tagBtn.getId());
+						right.setLayoutParams(rightLayout);
+					}
+					else if (left == null && right != null) {
+						RelativeLayout.LayoutParams rightLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+						rightLayout.setMargins((int)(2 * scale + 0.5f), 0, (int)(2 * scale + 0.5f), 0);
+						rightLayout.addRule(RelativeLayout.RIGHT_OF, tagBtn.getId());
+						right.setLayoutParams(rightLayout);
+					}
+					else if (left != null && right == null) {
+						btnLayout.addRule(RelativeLayout.RIGHT_OF, left.getId());
+					}
+					
+					tagList.add(pos, tagBtn);
+					tagHolder.addView(tagBtn, pos, btnLayout);
+				}
 				enteredTag.setText("");
 			}
 			else {
 				Toast.makeText(getApplicationContext(), R.string.new_sample_add_tag_error, Toast.LENGTH_SHORT).show();
 			}
+		}
+	}
+	
+	public void onClickRemoveTag(View view) {
+		Tag t = new Tag();
+		t.setName(((Button)view).getText().toString());
+		int pos = tagList.indexOf(view);
+		RelativeLayout tagHolder = (RelativeLayout)findViewById(R.id.new_sample_tags);
+		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		
+		if (pos != -1) {
+			Button left = null;
+			Button right = null;
+			if (pos > 0) {
+				left = tagList.get(pos - 1);
+			}
+			if (pos < tagList.size() - 1) {
+				right = tagList.get(pos + 1);
+			}
+			
+			if (left != null && right != null) {
+				lp.addRule(RelativeLayout.RIGHT_OF, left.getId());
+				right.setLayoutParams(lp);
+			}
+			else if (left == null && right != null) {
+				right.setLayoutParams(lp);
+			}
+			
+			tagHolder.removeView(view);
+			tagList.remove(view);
+			sample.removeTag(t);
 		}
 	}
 	
@@ -243,11 +363,9 @@ public class NewSampleActivity extends Activity {
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
+		app.editSample(sample);
 		
-		if (isEdit) {
-			app.editSample(sample);
-		}
-		else {
+		if (!isEdit) {
 			app.editSample(sample);
 			Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
 		}
@@ -343,5 +461,17 @@ public class NewSampleActivity extends Activity {
 		savedState.putCharSequence("photoUri", sample.getPhotoUri());
 		savedState.putBoolean("photoTaken", photoTaken);
 		savedState.putBoolean("isEdit", isEdit);
+		
+		if (sample.getTags().size() > 0) {
+			Iterator<Tag> i = sample.getTags().iterator(); 
+			ArrayList<String> tags = new ArrayList<String>();
+			
+			while (i.hasNext()) {
+				tags.add(i.next().getName());
+			}
+			savedState.putStringArrayList("tagList", tags);
+		}
+		
+		savedState.putInt("tagId", lastTagId);
 	}
 }

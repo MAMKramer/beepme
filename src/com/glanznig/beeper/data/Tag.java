@@ -36,7 +36,7 @@ public class Tag {
 	}
 	
 	public int hashCode() {
-        return name != null ? this.getClass().hashCode() + name.toLowerCase().hashCode() : super.hashCode();
+        return name != null ? name.toLowerCase().hashCode() : super.hashCode();
     }
 	
 	public boolean equals(Object other) {

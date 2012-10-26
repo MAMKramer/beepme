@@ -2,6 +2,8 @@ package com.glanznig.beeper.data;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -16,7 +18,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 	
 	private static final String TAG = "beeper";
 	private static final String DB_NAME = "beeper";
-	private static final int DB_VERSION = 6;
+	private static final int DB_VERSION = 7;
 	
 	private static final String SAMPLE_TBL_NAME = "sample";
 	private static final String SAMPLE_TBL_CREATE =
@@ -33,7 +35,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 	private static final String TAG_TBL_CREATE =
 			"CREATE TABLE " + TAG_TBL_NAME + " (" +
 			"id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-			"name TEXT NOT NULL" +
+			"name TEXT NOT NULL UNIQUE" +
 			")";
 	
 	private static final String SAMPLE_TAG_TBL_NAME = "sample_tag";
@@ -103,9 +105,23 @@ public class StorageHandler extends SQLiteOpenHelper {
 	public Sample getSampleWithTags(long id) {
 		Sample s = getSample(id);
 		if (s != null) {
+			List<Tag> tagList = getTagsOfSample(s.getId());
+			if (tagList != null) {
+				Iterator<Tag> i = tagList.iterator();
+				while (i.hasNext()) {
+					s.addTag(i.next());
+				}
+			}
+		}
+		return s;
+	}
+	
+	public List<Tag> getTagsOfSample(long id) {
+		if (id != 0L) {
+			ArrayList<Tag> tagList = new ArrayList<Tag>();
 			SQLiteDatabase db = this.getReadableDatabase();
 			Cursor cursor = db.rawQuery("SELECT t.id, t.name FROM " + TAG_TBL_NAME + " t " +
-					"INNER JOIN " + SAMPLE_TAG_TBL_NAME + " st ON st.tag_id = id WHERE st.sample_id = ?", new String[] { String.valueOf(id) });
+					"INNER JOIN " + SAMPLE_TAG_TBL_NAME + " st ON st.tag_id = t.id WHERE st.sample_id = ?", new String[] { String.valueOf(id) });
 			
 			if (cursor != null && cursor.getCount() > 0) {
 				cursor.moveToFirst();
@@ -113,12 +129,15 @@ public class StorageHandler extends SQLiteOpenHelper {
 				do {
 					t = new Tag(cursor.getLong(0));
 					t.setName(cursor.getString(1));
-					s.addTag(t);
+					tagList.add(t);
 				}
 				while (cursor.moveToNext());
+				
+				return tagList;
 			}
 		}
-		return s;
+		
+		return null;
 	}
 	
 	public List<Sample> getSamples() {
@@ -202,6 +221,14 @@ public class StorageHandler extends SQLiteOpenHelper {
 		    	}
 		    }
 		    db.close();
+		    
+		    if (s.getTags().size() > 0) {
+		    	Iterator<Tag> i = s.getTags().iterator();
+		    	while (i.hasNext()) {
+		    		Tag t = i.next();
+		    		sCreated.addTag(addTag(t.getName(), s.getId()));
+		    	}
+		    }
 		}
 		
 		return sCreated;
@@ -222,24 +249,78 @@ public class StorageHandler extends SQLiteOpenHelper {
 	    
 	    int numRows = db.update(SAMPLE_TBL_NAME, values, "id=?", new String[] { String.valueOf(s.getId()) });
 	    db.close();
+	    
+	    List<Tag> dbTagList = getTagsOfSample(s.getId());
+	    List<Tag> sTagList = s.getTags();
+	    
+	    if (sTagList.size() == 0 && dbTagList != null) {
+	    	//delete all
+	    	Iterator<Tag> i = dbTagList.iterator();
+	    	while (i.hasNext()) {
+	    		removeTag(i.next().getName(), s.getId());
+	    	}
+	    }
+	    else if (sTagList.size() > 0 && dbTagList == null) {
+	    	//add all
+	    	Iterator<Tag> i = sTagList.iterator();
+	    	while (i.hasNext()) {
+	    		addTag(i.next().getName(), s.getId());
+	    	}
+	    }
+	    else if (sTagList.size() > 0 && dbTagList != null) {
+	    	//sync, if changes
+	    	if (!sTagList.equals(dbTagList)) {
+	    		HashSet<String> sTagSet = new HashSet<String>();
+	    		Iterator<Tag> i = sTagList.iterator();
+	    		while (i.hasNext()) {
+	    			Tag t = i.next();
+	    			sTagSet.add(t.getName());
+	    		}
+	    		
+	    		HashSet<String> dbTagSet = new HashSet<String>();
+	    		i = dbTagList.iterator();
+	    		while (i.hasNext()) {
+	    			Tag t = i.next();
+	    			dbTagSet.add(t.getName());
+	    		}
+	    		
+	    		//sample side
+	    		i = sTagList.iterator();
+	    		while (i.hasNext()) {
+	    			Tag t = i.next();
+	    			if (!dbTagSet.contains(t.getName())) {
+	    				addTag(t.getName(), s.getId());
+	    			}
+	    		}
+	    		
+	    		//db side
+	    		i = dbTagList.iterator();
+	    		while (i.hasNext()) {
+	    			Tag t = i.next();
+	    			if (!sTagSet.contains(t.getName())) {
+	    				removeTag(t.getName(), s.getId());
+	    			}
+	    		}
+	    	}
+	    }
 		
 		return numRows == 1 ? true : false;
 	}
 	
-	public Tag addTag(String name, Sample s) {
-		if (name != null && s != null && s.getId() != 0L) {
-			
+	public Tag addTag(String tagName, long sampleId) {
+		
+		if (tagName != null && sampleId != 0L) {
 			SQLiteDatabase db = this.getWritableDatabase();
 			ContentValues values = null;
 			long tagId = 0L;
 			boolean success = true;
 			db.beginTransaction();
 			
-			Cursor cursor = db.query(TAG_TBL_NAME, new String[] { "id", "name" }, "name=?", new String[] { name.toLowerCase() }, null, null, null);
+			Cursor cursor = db.query(TAG_TBL_NAME, new String[] { "id", "name" }, "name=?", new String[] { tagName.toLowerCase() }, null, null, null);
 			
 			if (cursor != null && cursor.getCount() == 0) {
 			    values = new ContentValues();
-			    values.put("name", name.toLowerCase());
+			    values.put("name", tagName.toLowerCase());
 			    tagId = db.insert(TAG_TBL_NAME, null, values);
 			}
 			else {
@@ -254,12 +335,13 @@ public class StorageHandler extends SQLiteOpenHelper {
 		    if (success) {
 		    	if (tagId != 0L) {
 			    	values = new ContentValues();
-			    	values.put("sample_id", s.getId());
+			    	values.put("sample_id", sampleId);
 			    	values.put("tag_id", tagId);
 			    	try {
 			    		db.insertOrThrow(SAMPLE_TAG_TBL_NAME, null, values);
 			    	}
 			    	catch (SQLiteConstraintException sce) {
+			    		Log.e(TAG, "error insert tag relation", sce);
 			    		success = false;
 			    	}
 		    	}
@@ -277,7 +359,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		    
 		    if (success) {
 		    	Tag t = new Tag(tagId);
-		    	t.setName(name.toLowerCase());
+		    	t.setName(tagName.toLowerCase());
 		    	
 		    	return t;
 		    }
@@ -286,27 +368,34 @@ public class StorageHandler extends SQLiteOpenHelper {
 	    return null;
 	}
 	
-	public boolean removeTag(Tag t, Sample s) {
+	public boolean removeTag(String tagName, long sampleId) {
 		boolean success = true;
 		
-		if (t != null && t.getId() != 0L && s != null && s.getId() != 0L) {
+		if (tagName != null && sampleId != 0L) {
 			SQLiteDatabase db = this.getWritableDatabase();
 			db.beginTransaction();
 			
-			Cursor cursor = db.rawQuery("DELETE FROM " + SAMPLE_TAG_TBL_NAME + " WHERE tag_id = ? AND sample_id = ?",
-					new String[] { String.valueOf(t.getId()), String.valueOf(s.getId()) });
+			//delete tag - sample relationship
+			int rows = db.delete(SAMPLE_TAG_TBL_NAME,
+					"tag_id = (SELECT t.id FROM " + TAG_TBL_NAME + " t WHERE t.name = ?) AND sample_id = ?",
+					new String[] { tagName.toLowerCase(), String.valueOf(sampleId) });
 			
-			if (cursor != null) {
-				cursor.close();
-				cursor = db.query(SAMPLE_TAG_TBL_NAME, new String[] { "sample_id" }, "tag_id = ?", new String[] { String.valueOf(t.getId()) }, null, null, null);
+			if (rows > 0) {
+				Cursor cursor = db.rawQuery("SELECT sample_id FROM " + SAMPLE_TAG_TBL_NAME +
+						" st INNER JOIN " + TAG_TBL_NAME + " t ON st.tag_id = t.id WHERE t.name = ?",
+						new String[] { tagName.toLowerCase() });
 				
-				if (cursor != null && cursor.getCount() == 0) {
-					cursor = db.rawQuery("DELETE FROM " + TAG_TBL_NAME + " WHERE tag_id = ?", new String[] { String.valueOf(t.getId()) });
-					if (cursor == null) {
-						success = false;
+				//if there are no other samples attached to this tag -> delete tag
+				if (cursor != null) {
+					if (cursor.getCount() == 0) {
+						rows = db.delete(TAG_TBL_NAME, "name = ?", new String[] { tagName.toLowerCase() });
+						if (rows == 0) {
+							success = false;
+						}
 					}
+					cursor.close();
 				}
-				else if (cursor == null) {
+				else {
 					success = false;
 				}
 			}

@@ -24,8 +24,6 @@ public class ListSamplesActivity extends ListActivity implements OnSharedPrefere
         
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
-        
-        populateList();
     }
 	
 	@Override

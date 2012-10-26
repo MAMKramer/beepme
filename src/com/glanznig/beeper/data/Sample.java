@@ -1,6 +1,8 @@
 package com.glanznig.beeper.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -87,10 +89,22 @@ public class Sample {
 		return photoUri;
 	}
 	
-	public void addTag(Tag tag) {
+	public boolean addTag(Tag tag) {
 		if (!tags.contains(tag)) {
-			tags.add(tag);
+			//maintain sorting
+			Comparator<Tag> compare = new Comparator<Tag>() {
+		      public int compare(Tag t1, Tag t2) {
+		        return t1.getName().compareTo(t2.getName());
+		      }
+		    };
+			
+			int pos = Collections.binarySearch(tags, tag, compare);
+			tags.add(-pos - 1, tag);
+			
+			return true;
 		}
+		
+		return false;
 	}
 	
 	public boolean removeTag(Tag tag) {
