@@ -40,6 +40,7 @@
         android:layout_alignParentTop="true" >
         
 	    <LinearLayout
+	        android:id="@+id/new_sample_layout"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_gravity="top|center_horizontal"
@@ -175,15 +176,6 @@
 		            android:onClick="onClickAddTag" />
 		        
 		    </RelativeLayout>
-
-		    <RelativeLayout
-		        android:id="@+id/new_sample_tags"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginBottom="10dp"
-		        android:layout_marginTop="10dp" >
-		    </RelativeLayout>
-		    
 		</LinearLayout>
 	</ScrollView>
 

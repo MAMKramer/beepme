@@ -42,20 +42,20 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NewSampleActivity extends Activity {
+public class NewSampleActivity extends Activity implements OnClickListener {
 	
 	private static final int TAKE_PICTURE = 42;
 	private static final int THUMBNAIL_HEIGHT = 120; //in dp
 	private static final int THUMBNAIL_WIDTH = 80; //in dp
 	private static final String PICTURE_PREFIX = "beeper_img_";
 	private static final String TAG = "beeper";
+	private static final int ID_TAG_HOLDER = 14653;
 	
 	private Sample sample = new Sample();
 	private String photoUri = null;
-	private ArrayList<Button> tagList = null;
-	private int lastTagId = 0;
 	private boolean isEdit = false;
 	private boolean photoTaken = false;
+	private int lastTagId = 0;
 	
 	private final Handler imgLoadHandler = new Handler() {
 	    @Override
@@ -169,6 +169,16 @@ public class NewSampleActivity extends Activity {
         	}
         }
         
+        LinearLayout baseLayout = (LinearLayout)findViewById(R.id.new_sample_layout);
+		TagButtonContainer tagHolder = new TagButtonContainer(NewSampleActivity.this);
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		final float scale = getResources().getDisplayMetrics().density;
+		lp.setMargins(0, (int)(10 * scale + 0.5f), 0, (int)(10 * scale + 0.5f));
+		tagHolder.setLayoutParams(lp);
+		tagHolder.setId(ID_TAG_HOLDER);
+		tagHolder.setLastTagId(lastTagId);
+		baseLayout.addView(tagHolder);
+        
         if (isEdit) {
         	setTitle(R.string.edit_sample);
 			findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
@@ -183,33 +193,12 @@ public class NewSampleActivity extends Activity {
 			save.setWidth(width);
 			cancel.setWidth(width);
 			
-			RelativeLayout tagHolder = (RelativeLayout)findViewById(R.id.new_sample_tags);
-			tagList = new ArrayList<Button>();
 			Iterator<Tag> i = sample.getTags().iterator();
-			Button tagBtn = null;
-			int prevBtnId = 0;
 			Tag tag = null;
-			final float scale = getResources().getDisplayMetrics().density;
 			
 			while (i.hasNext()) {
 				tag = i.next();
-				tagBtn = new Button(NewSampleActivity.this);
-				tagBtn.setText(tag.getName());
-				lastTagId += 1;
-				tagBtn.setId(lastTagId);
-				RelativeLayout.LayoutParams btnLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				btnLayout.setMargins((int)(2 * scale + 0.5f), 0, (int)(2 * scale + 0.5f), 0);
-				if (prevBtnId != 0) {
-					btnLayout.addRule(RelativeLayout.RIGHT_OF, prevBtnId);
-				}
-				tagBtn.setOnClickListener(new OnClickListener() {
-					public void onClick(View view) {
-						onClickRemoveTag(view);
-					}
-				});
-				tagHolder.addView(tagBtn, btnLayout);
-				tagList.add(tagBtn);
-				prevBtnId = tagBtn.getId();
+				tagHolder.addTagButton(tag.getName(), this);
 			}
         }
         else {
@@ -219,7 +208,6 @@ public class NewSampleActivity extends Activity {
         		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
 				findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
 				
-				final float scale = getResources().getDisplayMetrics().density;
 				int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
 				AsyncImageLoader loader = new AsyncImageLoader(sample.getPhotoUri(), imageWidth, imgLoadHandler);
 				loader.start();
@@ -227,8 +215,6 @@ public class NewSampleActivity extends Activity {
         	
         	Button save = (Button)findViewById(R.id.new_sample_btn_save);
         	save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        	
-        	tagList = new ArrayList<Button>();
         }
         
         
@@ -262,60 +248,8 @@ public class NewSampleActivity extends Activity {
 			Tag t = new Tag();
 			t.setName(enteredTag.getText().toString().toLowerCase());
 			if (sample.addTag(t)) {
-			
-				Button tagBtn = new Button(NewSampleActivity.this);
-				tagBtn.setText(t.getName());
-				lastTagId += 1;
-				tagBtn.setId(lastTagId);
-				
-				RelativeLayout tagHolder = (RelativeLayout)findViewById(R.id.new_sample_tags);
-				RelativeLayout.LayoutParams btnLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				final float scale = getResources().getDisplayMetrics().density;
-				btnLayout.setMargins((int)(2 * scale + 0.5f), 0, (int)(2 * scale + 0.5f), 0);
-				tagBtn.setOnClickListener(new OnClickListener() {
-					public void onClick(View view) {
-						onClickRemoveTag(view);
-					}
-				});
-				
-				Comparator<Button> compare = new Comparator<Button>() {
-			      public int compare(Button b1, Button b2) {
-			        return b1.getText().toString().compareTo(b2.getText().toString());
-			      }
-			    };
-				
-				int pos = Collections.binarySearch(tagList, tagBtn, compare);
-				pos = -pos - 1;
-				if (pos >= 0) {
-					Button left = null;
-					Button right = null;
-					if (pos > 0) {
-						left = tagList.get(pos - 1);
-					}
-					if (pos < tagList.size()) {
-						right = tagList.get(pos);
-					}
-					
-					if (left != null && right != null) {
-						btnLayout.addRule(RelativeLayout.RIGHT_OF, left.getId());
-						RelativeLayout.LayoutParams rightLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-						rightLayout.setMargins((int)(2 * scale + 0.5f), 0, (int)(2 * scale + 0.5f), 0);
-						rightLayout.addRule(RelativeLayout.RIGHT_OF, tagBtn.getId());
-						right.setLayoutParams(rightLayout);
-					}
-					else if (left == null && right != null) {
-						RelativeLayout.LayoutParams rightLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-						rightLayout.setMargins((int)(2 * scale + 0.5f), 0, (int)(2 * scale + 0.5f), 0);
-						rightLayout.addRule(RelativeLayout.RIGHT_OF, tagBtn.getId());
-						right.setLayoutParams(rightLayout);
-					}
-					else if (left != null && right == null) {
-						btnLayout.addRule(RelativeLayout.RIGHT_OF, left.getId());
-					}
-					
-					tagList.add(pos, tagBtn);
-					tagHolder.addView(tagBtn, pos, btnLayout);
-				}
+				TagButtonContainer tagHolder = (TagButtonContainer)findViewById(ID_TAG_HOLDER);
+				tagHolder.addTagButton(t.getName(), this);
 				enteredTag.setText("");
 			}
 			else {
@@ -327,32 +261,9 @@ public class NewSampleActivity extends Activity {
 	public void onClickRemoveTag(View view) {
 		Tag t = new Tag();
 		t.setName(((Button)view).getText().toString());
-		int pos = tagList.indexOf(view);
-		RelativeLayout tagHolder = (RelativeLayout)findViewById(R.id.new_sample_tags);
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		
-		if (pos != -1) {
-			Button left = null;
-			Button right = null;
-			if (pos > 0) {
-				left = tagList.get(pos - 1);
-			}
-			if (pos < tagList.size() - 1) {
-				right = tagList.get(pos + 1);
-			}
-			
-			if (left != null && right != null) {
-				lp.addRule(RelativeLayout.RIGHT_OF, left.getId());
-				right.setLayoutParams(lp);
-			}
-			else if (left == null && right != null) {
-				right.setLayoutParams(lp);
-			}
-			
-			tagHolder.removeView(view);
-			tagList.remove(view);
-			sample.removeTag(t);
-		}
+		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(ID_TAG_HOLDER);
+		tagHolder.removeTagButton((Button)view);
+		sample.removeTag(t);
 	}
 	
 	public void onClickSave(View view) {
@@ -473,5 +384,10 @@ public class NewSampleActivity extends Activity {
 		}
 		
 		savedState.putInt("tagId", lastTagId);
+	}
+
+	@Override
+	public void onClick(View v) {
+		onClickRemoveTag(v);
 	}
 }
