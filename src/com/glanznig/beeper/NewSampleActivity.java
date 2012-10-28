@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +25,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -38,7 +35,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -192,14 +188,6 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 			int width = (display.getWidth() - 10) / 2;
 			save.setWidth(width);
 			cancel.setWidth(width);
-			
-			Iterator<Tag> i = sample.getTags().iterator();
-			Tag tag = null;
-			
-			while (i.hasNext()) {
-				tag = i.next();
-				tagHolder.addTagButton(tag.getName(), this);
-			}
         }
         else {
         	setTitle(R.string.new_sample);
@@ -240,6 +228,14 @@ public class NewSampleActivity extends Activity implements OnClickListener {
     	//after how many chars should auto-complete list appear?
     	autocompleteTags.setThreshold(2);
     	//autocompleteTags.setMaxLines(5);
+    	
+    	Iterator<Tag> i = sample.getTags().iterator();
+		Tag tag = null;
+		
+		while (i.hasNext()) {
+			tag = i.next();
+			tagHolder.addTagButton(tag.getName(), this);
+		}
 	}
 	
 	public void onClickAddTag(View view) {
