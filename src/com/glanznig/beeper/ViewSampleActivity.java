@@ -103,7 +103,7 @@ public class ViewSampleActivity extends Activity {
 					tagsOutput = i.next().getName();
 				}
 				while (i.hasNext()) {
-					tagsOutput += ", " + i.next().getName();
+					tagsOutput += "   " + i.next().getName();
 				}
 				
 				TextView tagsView = (TextView)findViewById(R.id.view_sample_tags);

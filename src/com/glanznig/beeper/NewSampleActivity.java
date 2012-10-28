@@ -173,7 +173,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		TagButtonContainer tagHolder = new TagButtonContainer(NewSampleActivity.this);
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		final float scale = getResources().getDisplayMetrics().density;
-		lp.setMargins(0, (int)(10 * scale + 0.5f), 0, (int)(10 * scale + 0.5f));
+		lp.setMargins(0, (int)(10 * scale + 0.5f), 0, 0);
 		tagHolder.setLayoutParams(lp);
 		tagHolder.setId(ID_TAG_HOLDER);
 		tagHolder.setLastTagId(lastTagId);

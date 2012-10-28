@@ -246,6 +246,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 	    else {
 	    	values.put("accepted", "0");
 	    }
+	    values.put("photoUri", s.getPhotoUri());
 	    
 	    int numRows = db.update(SAMPLE_TBL_NAME, values, "id=?", new String[] { String.valueOf(s.getId()) });
 	    db.close();

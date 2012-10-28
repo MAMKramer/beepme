@@ -161,11 +161,13 @@
 	            android:id="@+id/new_sample_description"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
+	            android:layout_marginBottom="10dp"
 	            android:layout_marginTop="3dp"
 	            android:ems="10"
 	            android:gravity="top"
 	            android:inputType="textMultiLine"
 	            android:lines="5" />
+
 	    </LinearLayout>
 
 	</ScrollView>
