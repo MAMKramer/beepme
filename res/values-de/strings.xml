@@ -9,6 +9,8 @@
     <string name="new_sample_replace_img_title">Foto ersetzen</string>
     <string name="new_sample_replace_img_msg">Möchten Sie das Foto ersetzen?</string>
     <string name="new_sample_replace_img_delete">Foto wurde gelöscht.</string>
+    <string name="new_sample_back_warning_title">Eintrag wird gespeichert</string>
+    <string name="new_sample_back_warning_msg">Der Eintrag wird mit den eingetragenen Werten gespeichert. Wollen Sie zurück gehen?</string>
     <string name="new_sample_save_success">Eintrag wurde erstellt.</string>
     <string name="new_sample_add_tag_error">Tag ist bereits vorhanden.</string>
     <string name="edit_sample">Eintrag bearbeiten</string>
@@ -24,5 +26,6 @@
     <string name="cancel">Abbrechen</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="sample_untitled">Unbenannt</string>
     <string name="view_sample">Eintrag ansehen</string>
 </resources>

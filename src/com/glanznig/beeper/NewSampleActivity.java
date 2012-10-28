@@ -177,7 +177,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		tagHolder.setLayoutParams(lp);
 		tagHolder.setId(ID_TAG_HOLDER);
 		tagHolder.setLastTagId(lastTagId);
-		baseLayout.addView(tagHolder);
+		baseLayout.addView(tagHolder, 5);
         
         if (isEdit) {
         	setTitle(R.string.edit_sample);
@@ -267,6 +267,15 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	}
 	
 	public void onClickSave(View view) {
+		saveSample();
+		
+		if (!isEdit) {
+			Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
+		}
+		finish();
+	}
+	
+	public void saveSample() {
 		BeeperApp app = (BeeperApp)getApplication();
 		
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
@@ -275,12 +284,6 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
 		app.editSample(sample);
-		
-		if (!isEdit) {
-			app.editSample(sample);
-			Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
-		}
-		finish();
 	}
 	
 	public void onClickCancel(View view) {
@@ -304,10 +307,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
             	}
             }
         });
-        replaceImgBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
-        });
+        replaceImgBuilder.setNegativeButton(R.string.no, null);
         
         replaceImgBuilder.create().show();
 	}
@@ -388,6 +388,30 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		onClickRemoveTag(v);
+		if (v.getParent() instanceof TagButtonRow) {
+			onClickRemoveTag(v);
+		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (!isEdit) {
+			AlertDialog.Builder sampleSavedBuilder = new AlertDialog.Builder(NewSampleActivity.this);
+			//sampleSavedBuilder.setIcon(icon);
+	        sampleSavedBuilder.setTitle(R.string.new_sample_back_warning_title);
+	        sampleSavedBuilder.setMessage(R.string.new_sample_back_warning_msg);
+	        sampleSavedBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	            	NewSampleActivity.this.saveSample();
+	            	NewSampleActivity.this.finish();
+	            }
+	        });
+	        sampleSavedBuilder.setNegativeButton(R.string.no, null);
+	        
+	        sampleSavedBuilder.create().show();
+		}
+		else {
+			super.onBackPressed();
+		}
 	}
 }

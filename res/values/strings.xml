@@ -9,6 +9,8 @@
     <string name="new_sample_replace_img_title">Replace Photo</string>
     <string name="new_sample_replace_img_msg">Do you want to replace the photo?</string>
     <string name="new_sample_replace_img_delete">Photo has been deleted.</string>
+    <string name="new_sample_back_warning_title">Sample is saved</string>
+    <string name="new_sample_back_warning_msg">The sample is saved with the current values. Do you want to go back?</string>
     <string name="new_sample_save_success">Sample has been recorded.</string>
     <string name="new_sample_add_tag_error">Tag has already been added.</string>
     <string name="edit_sample">Edit Sample</string>
@@ -24,5 +26,6 @@
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="sample_untitled">Untitled</string>
     <string name="view_sample">View Sample</string>
 </resources>

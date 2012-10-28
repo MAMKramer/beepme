@@ -87,7 +87,7 @@ public class ViewSampleActivity extends Activity {
 			}
 			
 			TextView description = (TextView)findViewById(R.id.view_sample_description);
-			if (s.getDescription() != null) {
+			if (s.getDescription() != null && s.getDescription().length() > 0) {
 				description.setText(s.getDescription());
 			}
 			else {

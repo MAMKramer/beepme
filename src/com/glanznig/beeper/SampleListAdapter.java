@@ -49,7 +49,12 @@ public class SampleListAdapter extends ArrayAdapter<Sample> {
 		
 		ViewHolder holder = (ViewHolder)rowView.getTag();
 		
-		holder.title.setText(samples.get(position).getTitle());
+		if (samples.get(position).getTitle() != null && samples.get(position).getTitle().length() > 0) {
+			holder.title.setText(samples.get(position).getTitle());
+		}
+		else {
+			holder.title.setText(R.string.sample_untitled);
+		}
 		holder.timestamp.setText(dateFormat.format(samples.get(position).getTimestamp()));
 		return rowView;
 	}

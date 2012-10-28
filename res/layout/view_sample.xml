@@ -41,7 +41,7 @@
 	        android:fillViewport="true"
 	        android:orientation="vertical"
 	        android:paddingBottom="8dp" >
-	        
+
 	        <TextView
 	            android:id="@+id/view_sample_timestamp"
 	            android:layout_width="wrap_content"
@@ -80,39 +80,39 @@
 	            android:adjustViewBounds="true"
 	            android:contentDescription="image"
 	            android:visibility="gone" />
-		
-		    <TextView
-		        android:id="@+id/view_sample_label_description"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="10dp"
-		        android:text="@string/sample_description"
-		        android:textSize="17dp"
-		        android:textStyle="bold" />
-		
-		    <TextView
-		        android:id="@+id/view_sample_description"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:textSize="17dp" />
-		    
-		    <TextView
-		        android:id="@+id/view_sample_label_tags"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="10dp"
-		        android:text="@string/sample_tags"
-		        android:textSize="17dp"
-		        android:textStyle="bold" />
-		    
-		    <TextView
+
+	        <TextView
+	            android:id="@+id/view_sample_label_tags"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp"
+	            android:text="@string/sample_tags"
+	            android:textSize="17dp"
+	            android:textStyle="bold" />
+
+	        <TextView
 	            android:id="@+id/view_sample_tags"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp"
+	            android:textSize="17dp" />
+
+	        <TextView
+	            android:id="@+id/view_sample_label_description"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp"
+	            android:text="@string/sample_description"
 	            android:textSize="17dp"
-	            android:layout_marginTop="10dp" />
-		    
+	            android:textStyle="bold" />
+
+	        <TextView
+	            android:id="@+id/view_sample_description"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:textSize="17dp" />
 	    </LinearLayout>
+
 	</ScrollView>
     
 </RelativeLayout>
