@@ -12,6 +12,7 @@ public class BeeperApp extends Application {
 	
 	private StorageHandler store;
 	private boolean beeperActive;
+	private boolean accompanyBeepWithVibrate;
 	
 	public StorageHandler getDataStore() {
 		return store;
@@ -24,6 +25,7 @@ public class BeeperApp extends Application {
 		store = new StorageHandler(this.getApplicationContext());
 		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, 0);
 		beeperActive = prefs.getBoolean("beeperActive", false);
+		accompanyBeepWithVibrate = prefs.getBoolean("accompanyBeepWithVibrate", true);
 	}
 	
 	public boolean isBeeperActive() {
@@ -37,6 +39,10 @@ public class BeeperApp extends Application {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean("beeperActive", beeperActive);
 		editor.commit();
+	}
+	
+	public boolean isAccompanyBeepWithVibrate() {
+		return accompanyBeepWithVibrate;
 	}
 	
 	public void beep() {
