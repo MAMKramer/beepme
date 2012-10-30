@@ -1,4 +1,4 @@
-package com.glanznig.beeper;
+package com.glanznig.beeper.helper;
 
 import java.io.FileInputStream;
 

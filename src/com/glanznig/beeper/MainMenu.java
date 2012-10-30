@@ -2,11 +2,15 @@ package com.glanznig.beeper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.PorterDuff.Mode;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 public class MainMenu extends Activity {
 	
@@ -15,12 +19,48 @@ public class MainMenu extends Activity {
 		setContentView(R.layout.main_menu);
 	}
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		populateFields();
+	}
+	
+	private void populateFields() {
+		BeeperApp app = (BeeperApp)getApplication();
+		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(96, 191, 96), Mode.MULTIPLY);
+		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(191, 96, 96), Mode.MULTIPLY);
+		Button beeperStateToggle = (Button)findViewById(R.id.btn_main_menu_beeper_state_toggle);
+		
+		if (app.isBeeperActive()) {
+			beeperStateToggle.setText(R.string.pause_beeper);
+			beeperStateToggle.getBackground().setColorFilter(red);
+		}
+		else {
+			beeperStateToggle.setText(R.string.start_beeper);
+			beeperStateToggle.getBackground().setColorFilter(green);
+		}
+	}
+	
+	public void onClickBeeperStateToggle(View view) {
+		BeeperApp app = (BeeperApp)getApplication();
+		if (app.isBeeperActive()) {
+			app.setBeeperActive(false);
+		}
+		else {
+			app.setBeeperActive(true);
+		}
+		
+		populateFields();
+	}
+	
 	public void onClickListSamples(View view) {
 		startActivity(new Intent(MainMenu.this, ListSamplesActivity.class));
 	}
 	
-	public void onClickNewSample(View view) {
-		startActivity(new Intent(MainMenu.this, NewSampleActivity.class));
+	public void onClickBeep(View view) {
+		BeeperApp app = (BeeperApp)getApplication();
+		app.beep();
 	}
 	
 	@Override

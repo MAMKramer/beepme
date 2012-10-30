@@ -22,6 +22,10 @@
 	    
 	    <activity android:name=".Preferences" android:label="@string/preferences"></activity>
 	    
+	    <activity android:name=".BeepActivity" android:label="@string/beep"
+	        android:launchMode="singleTask">
+	    </activity>
+	    
 	    <activity android:name=".ListSamplesActivity" android:label="@string/list_samples">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beeper.MainMenu" />
 	    </activity>

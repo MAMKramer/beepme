@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.glanznig.beeper.data.Sample;
 import com.glanznig.beeper.data.Tag;
+import com.glanznig.beeper.helper.AsyncImageLoader;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -57,7 +58,7 @@ public class ViewSampleActivity extends Activity {
 		else {
 			Bundle b = getIntent().getExtras();
 			if (b != null) {
-				sampleId = b.getLong("sampleId");
+				sampleId = b.getLong(getApplication().getClass().getPackage().getName() + ".SampleId");
 			}
 		}
 	}
@@ -72,7 +73,7 @@ public class ViewSampleActivity extends Activity {
 	private void populateFields() {
 		if (sampleId != 0L) {
 			BeeperApp app = (BeeperApp)getApplication();
-			Sample s = app.getSampleWithTags(sampleId);
+			Sample s = app.getDataStore().getSampleWithTags(sampleId);
 			
 			TextView timestamp = (TextView)findViewById(R.id.view_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -130,9 +131,7 @@ public class ViewSampleActivity extends Activity {
 	
 	public void onClickEdit(View view) {
 		Intent i = new Intent(ViewSampleActivity.this, NewSampleActivity.class);
-		Bundle b = new Bundle();
-		b.putLong("sampleId", sampleId);
-		i.putExtras(b);
+		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", sampleId);
 		startActivity(i);
 	}
 	

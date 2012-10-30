@@ -73,7 +73,7 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
                 if (constraint != null) {
                     // Retrieve the auto-complete results.
                 	BeeperApp app = (BeeperApp)((NewSampleActivity)ctx).getApplication();
-            		resultList = (ArrayList<Tag>)app.getTags(constraint.toString());
+            		resultList = (ArrayList<Tag>)app.getDataStore().getTags(constraint.toString());
                     
                     // Assign the data to the FilterResults
                     filterResults.values = resultList;

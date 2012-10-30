@@ -39,7 +39,7 @@ public class ListSamplesActivity extends ListActivity implements OnSharedPrefere
 	
 	private void populateList() {
 		BeeperApp app = (BeeperApp)getApplication();
-		List<Sample> samplesList = app.getSamples();
+		List<Sample> samplesList = app.getDataStore().getSamples();
         SampleListAdapter samples = new SampleListAdapter(this, samplesList);
         setListAdapter(samples);
 	}
@@ -48,9 +48,7 @@ public class ListSamplesActivity extends ListActivity implements OnSharedPrefere
 	public void onListItemClick(ListView listView, View view, int position, long id) {
 		Sample s = (Sample)listView.getItemAtPosition(position);
 		Intent i = new Intent(ListSamplesActivity.this, ViewSampleActivity.class);
-		Bundle b = new Bundle();
-		b.putLong("sampleId", s.getId());
-		i.putExtras(b);
+		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", s.getId());
 		startActivity(i);
 	}
 

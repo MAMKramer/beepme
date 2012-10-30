@@ -1,49 +1,50 @@
 package com.glanznig.beeper;
 
-import java.util.List;
-
-import com.glanznig.beeper.data.Sample;
 import com.glanznig.beeper.data.StorageHandler;
-import com.glanznig.beeper.data.Tag;
 
 import android.app.Application;
+import android.content.Intent;
+import android.content.SharedPreferences;
 
 public class BeeperApp extends Application {
 	
+	private static final String PREFS_NAME = "beeperPrefs";
+	
 	private StorageHandler store;
+	private boolean beeperActive;
 	
-	public Sample getSample(long id) {
-		return store.getSample(id);
+	public StorageHandler getDataStore() {
+		return store;
 	}
 	
-	public Sample getSampleWithTags(long id) {
-		return store.getSampleWithTags(id);
-	}
-	
-	public List<Sample> getSamples() {
-		return store.getSamples();
-	}
-	
-	public Sample addSample(Sample s) {
-		return store.addSample(s);
-	}
-	
-	public boolean editSample(Sample s) {
-		return store.editSample(s);
-	}
-	
-	public List<Tag> getTags(String search) {
-		return store.getTags(search);
-	}
-	
-	public List<Tag> getTags() {
-		return store.getTags();
-	}
-	
+	@Override
 	public void onCreate() {
 		super.onCreate();
 		
 		store = new StorageHandler(this.getApplicationContext());
+		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, 0);
+		beeperActive = prefs.getBoolean("beeperActive", false);
+	}
+	
+	public boolean isBeeperActive() {
+		return beeperActive;
+	}
+	
+	public void setBeeperActive(boolean state) {
+		beeperActive = state;
+		
+		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, 0);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean("beeperActive", beeperActive);
+		editor.commit();
+	}
+	
+	public void beep() {
+		if (beeperActive) {
+			Intent beep = new Intent(BeeperApp.this, BeepActivity.class);
+			beep.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(beep);
+		}
 	}
 
 }

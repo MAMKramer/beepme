@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.glanznig.beeper.data.Sample;
 import com.glanznig.beeper.data.Tag;
+import com.glanznig.beeper.helper.AsyncImageLoader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -87,7 +88,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		if (savedState != null) {
 			if (savedState.getLong("sampleId") != 0L) {
 				BeeperApp app = (BeeperApp)getApplication();
-				sample = app.getSampleWithTags(savedState.getLong("sampleId"));
+				sample = app.getDataStore().getSampleWithTags(savedState.getLong("sampleId"));
 			}
 			
 			if (savedState.getLong("timestamp") != 0L) {
@@ -125,19 +126,21 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		else {
 			Bundle b = getIntent().getExtras();
 			if (b != null) {
-				long sampleId = b.getLong("sampleId");
 				BeeperApp app = (BeeperApp)getApplication();
-				sample = app.getSampleWithTags(sampleId);
 				lastTagId = 0;
 				
-				isEdit = true;
-			}
-			else {
-				sample.setTimestamp(new Date());
-				sample.setAccepted(true);
-				BeeperApp app = (BeeperApp)getApplication();
-				sample = app.addSample(sample);
-				lastTagId = 0;
+				if (b.containsKey(getApplication().getClass().getPackage().getName() + ".SampleId")) { 
+					long sampleId = b.getLong(getApplication().getClass().getPackage().getName() + ".SampleId");
+					sample = app.getDataStore().getSampleWithTags(sampleId);
+					isEdit = true;
+				}
+				
+				if (b.containsKey(getApplication().getClass().getPackage().getName() + ".Timestamp")) {
+					long timestamp = b.getLong(getApplication().getClass().getPackage().getName() + ".Timestamp");
+					sample.setTimestamp(new Date(timestamp));
+					sample.setAccepted(true);
+					sample = app.getDataStore().addSample(sample);
+				}
 			}
 		}
 	}
@@ -279,7 +282,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
-		app.editSample(sample);
+		app.getDataStore().editSample(sample);
 	}
 	
 	public void onClickCancel(View view) {

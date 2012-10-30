@@ -16,6 +16,7 @@
     <string name="edit_sample">Edit Sample</string>
     <string name="main_menu_samples_list">Samples List</string>
     <string name="main_menu_new_sample">New Sample</string>
+    <string name="main_menu_beep">Beep!</string>
     <string name="refresh">Refresh</string>
     <string name="sample_title">Title</string>
     <string name="sample_description">Description</string>
@@ -26,6 +27,12 @@
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="beep_accept">Accept</string>
+    <string name="beep_decline">Decline</string>
+    <string name="beep_decline_pause">Decline/Pause Beeper</string>
+    <string name="pause_beeper">Pause Beeper</string>
+    <string name="start_beeper">Start Beeper</string>
+    <string name="beep">Beep!</string>
     <string name="sample_untitled">Untitled</string>
     <string name="view_sample">View Sample</string>
 </resources>

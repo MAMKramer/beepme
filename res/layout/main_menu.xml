@@ -14,11 +14,18 @@
         android:onClick="onClickListSamples" />
     
     <Button
-        android:id="@+id/btn_main_menu_new_sample"
+        android:id="@+id/btn_main_menu_beep"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="@string/main_menu_new_sample"
-        android:onClick="onClickNewSample" />
+        android:text="@string/main_menu_beep"
+        android:onClick="onClickBeep" />
+
+    <Button
+        android:id="@+id/btn_main_menu_beeper_state_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:onClick="onClickBeeperStateToggle" />
 
 </LinearLayout>

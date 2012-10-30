@@ -16,6 +16,7 @@
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="main_menu_samples_list">Samples Liste</string>
     <string name="main_menu_new_sample">Neues Sample</string>
+    <string name="main_menu_beep">Beep!</string>
     <string name="refresh">Neu laden</string>
     <string name="sample_title">Titel</string>
     <string name="sample_description">Beschreibung</string>
@@ -26,6 +27,12 @@
     <string name="cancel">Abbrechen</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="beep_accept">Annehmen</string>
+    <string name="beep_decline">Ablehnen</string>
+    <string name="beep_decline_pause">Ablehnen/Beeper pausieren</string>
+    <string name="pause_beeper">Beeper pausieren</string>
+    <string name="start_beeper">Beeper starten</string>
+    <string name="beep">Beep!</string>
     <string name="sample_untitled">Unbenannt</string>
     <string name="view_sample">Eintrag ansehen</string>
 </resources>
