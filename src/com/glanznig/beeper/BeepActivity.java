@@ -50,6 +50,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	private MediaPlayer player = null;
 	private Vibrator vibrator = null;
 	private PowerManager.WakeLock lock = null;
+	private TimeoutHandler handler = null;
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -71,6 +72,10 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	@Override
 	public void onPause() {
 		super.onPause();
+		
+		if (handler != null) {
+			handler.removeMessages(1);
+		}
 		
 		//release wake lock
 		if (lock != null && lock.isHeld()) {
@@ -97,7 +102,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.beep);
 		
-		TimeoutHandler handler = new TimeoutHandler(BeepActivity.this);
+		handler = new TimeoutHandler(BeepActivity.this);
 		handler.sendEmptyMessageDelayed(1, 60000); // 1 minute timeout for activity
 		
 		//acquire wake lock
@@ -130,8 +135,8 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		int width = (display.getWidth() - 40) / 2;
 		decline.setWidth(width);
 		decline_pause.setWidth(width);
-		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(96, 191, 96), Mode.MULTIPLY);
-		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(191, 96, 96), Mode.MULTIPLY);
+		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(130, 217, 130), Mode.MULTIPLY); // was 96, 191, 96
+		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(217, 130, 130), Mode.MULTIPLY); // was 191, 96, 96
 		accept.getBackground().setColorFilter(green);
 		decline.getBackground().setColorFilter(red);
 		decline_pause.getBackground().setColorFilter(red);

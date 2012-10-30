@@ -28,8 +28,8 @@ public class MainMenu extends Activity {
 	
 	private void populateFields() {
 		BeeperApp app = (BeeperApp)getApplication();
-		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(96, 191, 96), Mode.MULTIPLY);
-		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(191, 96, 96), Mode.MULTIPLY);
+		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(130, 217, 130), Mode.MULTIPLY);
+		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(217, 130, 130), Mode.MULTIPLY);
 		Button beeperStateToggle = (Button)findViewById(R.id.btn_main_menu_beeper_state_toggle);
 		
 		if (app.isBeeperActive()) {
