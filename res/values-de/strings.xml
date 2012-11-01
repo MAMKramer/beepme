@@ -3,6 +3,10 @@
     <string name="app_name">Beeper</string>
     <string name="samples_list_no_samples">Derzeit noch keine Einträge.</string>
     <string name="preferences">Einstellungen</string>
+    <string name="pref_title_vibrate_beep">Vibrieren bei Alarm</string>
+    <string name="pref_summary_vibrate_beep">Vibrieren und Ton abspielen.</string>
+    <string name="pref_title_warn_no_wifi">Kein W-Lan Warnung</string>
+    <string name="pref_summary_warn_no_wifi">Warnen, wenn Daten über mobiles Datennetz gesendet werden.</string>
     <string name="list_samples">Aufgezeichnete Einträge</string>
     <string name="new_sample">Neues Sample</string>
     <string name="new_sample_take_photo">Foto machen</string>
@@ -16,7 +20,7 @@
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="main_menu_samples_list">Samples Liste</string>
     <string name="main_menu_new_sample">Neues Sample</string>
-    <string name="main_menu_beep">Beep!</string>
+    <string name="main_menu_beep">Alarm</string>
     <string name="refresh">Neu laden</string>
     <string name="sample_title">Titel</string>
     <string name="sample_description">Beschreibung</string>
@@ -32,7 +36,7 @@
     <string name="beep_decline_pause">Ablehnen/Beeper pausieren</string>
     <string name="pause_beeper">Beeper pausieren</string>
     <string name="start_beeper">Beeper starten</string>
-    <string name="beep">Beep!</string>
+    <string name="beep">Was geht in Ihrem Geist vor?</string>
     <string name="sample_untitled">Unbenannt</string>
     <string name="view_sample">Eintrag ansehen</string>
 </resources>

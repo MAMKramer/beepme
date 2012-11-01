@@ -7,28 +7,17 @@ import com.glanznig.beeper.data.Sample;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ListView;
 
 
-public class ListSamplesActivity extends ListActivity implements OnSharedPreferenceChangeListener {
+public class ListSamplesActivity extends ListActivity {
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.samples_list);
-        
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(this);
-    }
-	
-	@Override
-    public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-        populateList();
     }
 	
 	@Override

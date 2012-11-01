@@ -117,7 +117,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 			BeeperApp app = (BeeperApp)getApplication();
 			
 			initSound();
-			if (app.isAccompanyBeepWithVibrate()) {
+			if (app.getPreferences().isVibrateAtBeep()) {
 				initVibration();
 			}
 		}
@@ -210,7 +210,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		}
 		
 		BeeperApp app = (BeeperApp)getApplication();
-		app.setBeeperActive(false);
+		app.getPreferences().setBeeperActive(false);
 		decline();
 	}
 	
