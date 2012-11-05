@@ -1,7 +1,9 @@
 package com.glanznig.beeper.data;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +20,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 	
 	private static final String TAG = "beeper";
 	private static final String DB_NAME = "beeper";
-	private static final int DB_VERSION = 7;
+	private static final int DB_VERSION = 8;
 	
 	private static final String SAMPLE_TBL_NAME = "sample";
 	private static final String SAMPLE_TBL_CREATE =
@@ -48,6 +50,14 @@ public class StorageHandler extends SQLiteOpenHelper {
 			"FOREIGN KEY(tag_id) REFERENCES tag(id)" +
 			")";
 	
+	private static final String UPTIME_TBL_NAME = "uptime";
+	private static final String UPTIME_TBL_CREATE = 
+			"CREATE TABLE " + UPTIME_TBL_NAME + " (" +
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			"start INTEGER NOT NULL UNIQUE, " +
+			"end INTEGER UNIQUE" +
+			")";
+	
 	public StorageHandler(Context ctx) {
 		super(ctx, DB_NAME, null, DB_VERSION);
 	}
@@ -57,6 +67,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		db.execSQL(SAMPLE_TBL_CREATE);
 		db.execSQL(TAG_TBL_CREATE);
 		db.execSQL(SAMPLE_TAG_TBL_CREATE);
+		db.execSQL(UPTIME_TBL_CREATE);
 	}
 
 	@Override
@@ -64,6 +75,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + SAMPLE_TAG_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + SAMPLE_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TAG_TBL_NAME);
+		db.execSQL("DROP TABLE IF EXISTS " + UPTIME_TBL_NAME);
 		onCreate(db);
 	}
 	
@@ -172,8 +184,8 @@ public class StorageHandler extends SQLiteOpenHelper {
 				sampleList.add(s);
 			}
 			while (cursor.moveToNext());
+			cursor.close();
 		}
-		cursor.close();
 		db.close();
 		
 		return sampleList;
@@ -454,6 +466,162 @@ public class StorageHandler extends SQLiteOpenHelper {
 		}
 		
 		return list;
+	}
+	
+	public long startUptime(Date start) {
+		if (start != null) {
+			SQLiteDatabase db = this.getWritableDatabase();
+			ContentValues values = new ContentValues();
+			values.put("start", start.getTime());
+			
+			long id = db.insert(UPTIME_TBL_NAME, null, values);
+			db.close();
+			
+			return id;
+		}
+	
+		return 0L;
+	}
+	
+	public boolean endUptime(long uptimeId, Date end) {
+		int numRows = 0;
+		
+		if (uptimeId != 0L && end != null) {
+			SQLiteDatabase db = this.getWritableDatabase();
+			ContentValues values = new ContentValues();
+			values.put("end", end.getTime());
+			numRows = db.update(UPTIME_TBL_NAME, values, "id=?", new String[] { String.valueOf(uptimeId) });
+		    db.close();
+		}
+		
+		return numRows == 1 ? true : false;
+	}
+	
+	public long getUptimeDurToday() {
+		return (long)getAvgUpDurToday(false);
+	}
+	
+	public double getAvgUptimeDurToday() {
+		return getAvgUpDurToday(true);
+	}
+	
+	private double getAvgUpDurToday(boolean avg) {
+		long duration = 0L;
+		int count = 0;
+		SQLiteDatabase db = this.getReadableDatabase();
+		Calendar now = Calendar.getInstance();
+		int year = now.get(Calendar.YEAR);
+		int month = now.get(Calendar.MONTH);
+		int day = now.get(Calendar.DAY_OF_MONTH);
+		GregorianCalendar today = new GregorianCalendar(year, month, day);
+		long startOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, true);
+		long endOfDay = today.getTimeInMillis();
+		
+		Cursor cursor = db.query(UPTIME_TBL_NAME, new String[] { "start", "end" },
+				"start between ? and ?", new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			do {
+				count += 1;
+				duration += cursor.getLong(1) - cursor.getLong(0);
+			}
+			while (cursor.moveToNext());
+			cursor.close();
+		}
+		db.close();
+		
+		if (avg) {
+			return duration/count;
+		}
+		else {
+			return duration;
+		}
+	}
+	
+	public float getRatioAcceptedToday() {
+		int count = 0;
+		int accepted = 0;
+		
+		SQLiteDatabase db = this.getReadableDatabase();
+		Calendar now = Calendar.getInstance();
+		int year = now.get(Calendar.YEAR);
+		int month = now.get(Calendar.MONTH);
+		int day = now.get(Calendar.DAY_OF_MONTH);
+		GregorianCalendar today = new GregorianCalendar(year, month, day);
+		long startOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, true);
+		long endOfDay = today.getTimeInMillis();
+		
+		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"accepted"}, "timestamp between ? and ?",
+				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			
+			do {
+				count += 1;
+				if (cursor.getInt(0) == 1) {
+					accepted += 1;
+				}
+			}
+			while (cursor.moveToNext());
+			cursor.close();
+		}
+		db.close();
+		
+		return accepted/count;
+	}
+	
+	public int getNumAcceptedToday() {
+		int count = 0;
+		
+		SQLiteDatabase db = this.getReadableDatabase();
+		Calendar now = Calendar.getInstance();
+		int year = now.get(Calendar.YEAR);
+		int month = now.get(Calendar.MONTH);
+		int day = now.get(Calendar.DAY_OF_MONTH);
+		GregorianCalendar today = new GregorianCalendar(year, month, day);
+		long startOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, true);
+		long endOfDay = today.getTimeInMillis();
+		
+		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"id"}, "timestamp between ? and ? and accepted = 1",
+				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			count = cursor.getCount();
+			cursor.close();
+		}
+		db.close();
+		
+		return count;
+	}
+	
+	public float getSampleCountToday() {
+		int count = 0;
+		
+		SQLiteDatabase db = this.getReadableDatabase();
+		Calendar now = Calendar.getInstance();
+		int year = now.get(Calendar.YEAR);
+		int month = now.get(Calendar.MONTH);
+		int day = now.get(Calendar.DAY_OF_MONTH);
+		GregorianCalendar today = new GregorianCalendar(year, month, day);
+		long startOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, true);
+		long endOfDay = today.getTimeInMillis();
+		
+		Cursor cursor = db.query(SAMPLE_TBL_NAME, new String[] {"accepted"}, "timestamp between ? and ?",
+				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			count = cursor.getCount();
+			cursor.close();
+		}
+		db.close();
+		
+		return count;
 	}
 
 }

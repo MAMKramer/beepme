@@ -7,6 +7,9 @@
     <string name="pref_summary_vibrate_beep">Vibrieren und Ton abspielen.</string>
     <string name="pref_title_warn_no_wifi">Kein W-Lan Warnung</string>
     <string name="pref_summary_warn_no_wifi">Warnen, wenn Daten über mobiles Datennetz gesendet werden.</string>
+    <string name="pref_title_timer_profile">Beeper Profil</string>
+    <string name="pref_summary_timer_profile">Anpassen des Beepers an verschiedene Einsatzzwecke.</string>
+    <string name="general_profile">Allgemein</string>
     <string name="list_samples">Aufgezeichnete Einträge</string>
     <string name="new_sample">Neues Sample</string>
     <string name="new_sample_take_photo">Foto machen</string>

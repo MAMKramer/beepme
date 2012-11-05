@@ -9,11 +9,17 @@ public class PreferenceHandler {
 	public static final String KEY_BEEPER_ACTIVE = "beeperActive";
 	public static final String KEY_VIBRATE_AT_BEEP = "vibrateAtBeep";
 	public static final String KEY_WARN_NO_WIFI = "warnNoWifi";
+	public static final String KEY_TIMER_PROFILE = "timerProfile";
 	
 	private Context ctx;
 	
 	public PreferenceHandler(Context ctx) {
 		this.ctx = ctx;
+	}
+	
+	public void registerOnPreferenceChangeListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		prefs.registerOnSharedPreferenceChangeListener(listener);
 	}
 	
 	public boolean isBeeperActive() {
@@ -49,6 +55,18 @@ public class PreferenceHandler {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(KEY_WARN_NO_WIFI, warn);
+		editor.commit();
+	}
+	
+	public String getTimerProfile() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		return prefs.getString(KEY_TIMER_PROFILE, "general");
+	}
+	
+	public void setTimerProfile(String profile) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putString(KEY_TIMER_PROFILE, profile);
 		editor.commit();
 	}
 }

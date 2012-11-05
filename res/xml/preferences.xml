@@ -8,4 +8,8 @@
         android:title="@string/pref_title_warn_no_wifi"
         android:summary="@string/pref_summary_warn_no_wifi"
         android:defaultValue="true" />
+    <ListPreference android:key="timerProfile"
+        android:title="@string/pref_title_timer_profile"
+        android:summary="@string/pref_summary_timer_profile"
+        android:defaultValue="general" />
 </PreferenceScreen>

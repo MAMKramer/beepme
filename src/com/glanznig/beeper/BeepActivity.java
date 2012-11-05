@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 
 public class BeepActivity extends Activity implements AudioManager.OnAudioFocusChangeListener {
@@ -100,6 +101,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.beep);
 		
 		handler = new TimeoutHandler(BeepActivity.this);
@@ -210,7 +212,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		}
 		
 		BeeperApp app = (BeeperApp)getApplication();
-		app.getPreferences().setBeeperActive(false);
+		app.setBeeperActive(false);
 		decline();
 	}
 	

@@ -7,6 +7,9 @@
     <string name="pref_summary_vibrate_beep">Vibrate and play sound notification.</string>
     <string name="pref_title_warn_no_wifi">No WiFi Warning</string>
     <string name="pref_summary_warn_no_wifi">Warn when sending data over mobile network.</string>
+    <string name="pref_title_timer_profile">Beeper Profile</string>
+    <string name="pref_summary_timer_profile">Adjust beeper to different usage scenarios.</string>
+    <string name="general_profile">General</string>
     <string name="list_samples">Recorded Samples</string>
     <string name="new_sample">New Sample</string>
     <string name="new_sample_take_photo">Take Photo</string>

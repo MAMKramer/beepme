@@ -44,11 +44,13 @@ public class MainMenu extends Activity {
 	
 	public void onClickBeeperStateToggle(View view) {
 		BeeperApp app = (BeeperApp)getApplication();
-		if (app.getPreferences().isBeeperActive()) {
-			app.getPreferences().setBeeperActive(false);
+		if (app.isBeeperActive()) {
+			app.setBeeperActive(false);
+			app.clearTimer();
 		}
 		else {
-			app.getPreferences().setBeeperActive(true);
+			app.setBeeperActive(true);
+			app.setTimer();
 		}
 		
 		populateFields();
