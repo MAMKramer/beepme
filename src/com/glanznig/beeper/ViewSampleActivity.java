@@ -1,6 +1,7 @@
 package com.glanznig.beeper;
 
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import android.os.Message;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ViewSampleActivity extends Activity {
@@ -73,6 +75,12 @@ public class ViewSampleActivity extends Activity {
 		if (sampleId != 0L) {
 			BeeperApp app = (BeeperApp)getApplication();
 			Sample s = app.getDataStore().getSampleWithTags(sampleId);
+			
+			LinearLayout editBtn = (LinearLayout)findViewById(R.id.view_sample_buttons);
+			//not editable if more than a day old
+			if ((s.getTimestamp().getTime() - new Date().getTime()) >= 24 * 60 * 60 * 1000) {
+				editBtn.setVisibility(View.GONE);
+			}
 			
 			TextView timestamp = (TextView)findViewById(R.id.view_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);

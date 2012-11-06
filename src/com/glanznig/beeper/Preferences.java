@@ -11,7 +11,7 @@ import android.preference.PreferenceActivity;
 public class Preferences extends PreferenceActivity {
 	
 	private boolean vibrateAtBeep;
-	private boolean warnNoWifi;
+	//private boolean warnNoWifi;
 	private String timerProfile;
 	private boolean testMode;
 	
@@ -24,7 +24,7 @@ public class Preferences extends PreferenceActivity {
 		
 		PreferenceHandler prefs = ((BeeperApp)getApplication()).getPreferences();
 		vibrateAtBeep = prefs.isVibrateAtBeep();
-		warnNoWifi = prefs.isWarnNoWifi();
+		//warnNoWifi = prefs.isWarnNoWifi();
 		timerProfile = prefs.getTimerProfile();
 		testMode = prefs.isTestMode();
         
@@ -40,8 +40,8 @@ public class Preferences extends PreferenceActivity {
 	private void populateFields() {
 		CheckBoxPreference boxVibrateAtBeep = (CheckBoxPreference)findPreference(PreferenceHandler.KEY_VIBRATE_AT_BEEP);
         boxVibrateAtBeep.setChecked(vibrateAtBeep);
-        CheckBoxPreference boxWarnNoWifi = (CheckBoxPreference)findPreference(PreferenceHandler.KEY_WARN_NO_WIFI);
-        boxWarnNoWifi.setChecked(warnNoWifi);
+        //CheckBoxPreference boxWarnNoWifi = (CheckBoxPreference)findPreference(PreferenceHandler.KEY_WARN_NO_WIFI);
+        //boxWarnNoWifi.setChecked(warnNoWifi);
         ConfirmCheckBoxPreference boxTestMode = (ConfirmCheckBoxPreference)findPreference(PreferenceHandler.KEY_TEST_MODE);
         boxTestMode.setChecked(testMode);
         

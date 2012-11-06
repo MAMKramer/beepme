@@ -174,8 +174,8 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	private void initVibration() {
 		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 		//whole length 2353 ms
-		//start at 0, vibrate 800 ms, pause 1553 ms
-		long[] pattern = { 0, 800, 1553 };
+		//start at 100, vibrate 800 ms, pause 1453 ms
+		long[] pattern = { 100, 800, 1453 };
 		vibrator.vibrate(pattern, 0);
 	}
 	
