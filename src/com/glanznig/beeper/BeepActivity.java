@@ -27,6 +27,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class BeepActivity extends Activity implements AudioManager.OnAudioFocusChangeListener {
 	
@@ -104,6 +107,17 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.beep);
 		
+		LinearLayout buttons = (LinearLayout)findViewById(R.id.beep_buttons);
+		buttons.measure(0, 0);
+		int buttonsHeight = buttons.getMeasuredHeight();
+		int displayHeight = getWindowManager().getDefaultDisplay().getHeight();
+		ImageView beepIcon = (ImageView)findViewById(R.id.beep_icon);
+		beepIcon.measure(0, 0);
+		int iconHeight = beepIcon.getMeasuredHeight();
+		beepIcon.setPadding(0, (displayHeight - buttonsHeight) / 2 - iconHeight / 2, 0, 0);
+		
+		BeeperApp app = (BeeperApp)getApplication();
+		
 		handler = new TimeoutHandler(BeepActivity.this);
 		handler.sendEmptyMessageDelayed(1, 60000); // 1 minute timeout for activity
 		
@@ -116,7 +130,6 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		
 		AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-			BeeperApp app = (BeeperApp)getApplication();
 			
 			initSound();
 			if (app.getPreferences().isVibrateAtBeep()) {
@@ -142,6 +155,17 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		accept.getBackground().setColorFilter(green);
 		decline.getBackground().setColorFilter(red);
 		decline_pause.getBackground().setColorFilter(red);
+		
+		int numAccepted = app.getDataStore().getNumAcceptedToday();
+		int numDeclined = app.getDataStore().getSampleCountToday() - numAccepted;
+		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
+		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
+		String accepted = String.format(getString(R.string.beep_accepted_today), numAccepted);
+		String declined = String.format(getString(R.string.beep_declined_today), numDeclined);
+		acceptedToday.setText(accepted);
+		acceptedToday.setTextColor(Color.rgb(130, 217, 130));
+		declinedToday.setText(declined);
+		declinedToday.setTextColor(Color.rgb(217, 130, 130));
 		
 		//record beep time
 		beepTime = new Date();

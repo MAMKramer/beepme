@@ -14,7 +14,7 @@ public abstract class TimerProfile {
 		return store.getNumAcceptedToday();
 	}
 	
-	public float getSampleCountToday() {
+	public int getSampleCountToday() {
 		return store.getSampleCountToday();
 	}
 	

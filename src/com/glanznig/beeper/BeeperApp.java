@@ -1,5 +1,8 @@
 package com.glanznig.beeper;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -12,16 +15,23 @@ import com.glanznig.beeper.helper.TimerProfile;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Application;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
+import android.os.Environment;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.provider.MediaStore;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 public class BeeperApp extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
-	
-	private static final String TAG = "beeper";
 	
 	private StorageHandler dataStore;
 	private PreferenceHandler preferences;
@@ -30,6 +40,8 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	private TimerProfile timerProfile;
 	
 	private static final int ALARM_INTENT_ID = 5332;
+	private static final int NOTIFICATION_ID = 1283;
+	private static final String TAG = "beeper";
 	
 	public StorageHandler getDataStore() {
 		return dataStore;
@@ -47,10 +59,51 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		getPreferences().setBeeperActive(active);
 		if (active) {
 			currentUptimeId = getDataStore().startUptime(new Date());
+			createNotification();
 		}
 		else if (currentUptimeId != 0L) {
 			getDataStore().endUptime(currentUptimeId, new Date());
+			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+			manager.cancel(NOTIFICATION_ID);
 		}
+	}
+	
+	private void createNotification() {
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
+		
+		if (android.os.Build.VERSION.SDK_INT >= 11) {
+			notificationBuilder.setSmallIcon(R.drawable.notification_icon);
+		}
+		else {
+			notificationBuilder.setSmallIcon(R.drawable.notification_icon_legacy);
+		}
+		PackageManager pm = getApplicationContext().getPackageManager();
+		try {
+			notificationBuilder.setContentTitle(pm.getApplicationLabel(pm.getApplicationInfo(this.getPackageName(), 0)));
+		}
+		catch (NameNotFoundException ne) {
+			notificationBuilder.setContentTitle("Beeper");
+		}
+		notificationBuilder.setContentText(getString(R.string.beeper_active));
+		//set as ongoing, so it cannot be cleared
+		notificationBuilder.setOngoing(true);
+		// Creates an explicit intent for an Activity in your app
+		Intent resultIntent = new Intent(this, MainMenu.class);
+
+		// The stack builder object will contain an artificial back stack for the
+		// started Activity.
+		// This ensures that navigating backward from the Activity leads out of
+		// your application to the Home screen.
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		// Adds the back stack for the Intent (but not the Intent itself)
+		stackBuilder.addParentStack(MainMenu.class);
+		// Adds the Intent that starts the Activity to the top of the stack
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+		notificationBuilder.setContentIntent(resultPendingIntent);
+		NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		// notification_id allows you to update the notification later on.
+		manager.notify(NOTIFICATION_ID, notificationBuilder.build());
 	}
 	
 	@Override
@@ -106,6 +159,20 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(PreferenceHandler.KEY_TIMER_PROFILE)) {
 			setTimerProfile();
+		}
+		
+		if (key.equals(PreferenceHandler.KEY_TEST_MODE)) {
+			//delete data in database
+			getDataStore().truncateTables();
+			
+			//delete pictures
+			if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+				File picDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+				File[] allFiles = picDir.listFiles();
+				for (int i = 0; i < allFiles.length; i++) {
+					allFiles[i].delete();
+				}
+			}
 		}
 	}
 

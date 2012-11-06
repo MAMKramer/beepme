@@ -1,6 +1,7 @@
 package com.glanznig.beeper;
 
 import com.glanznig.beeper.data.PreferenceHandler;
+import com.glanznig.beeper.helper.ConfirmCheckBoxPreference;
 
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -12,6 +13,9 @@ public class Preferences extends PreferenceActivity {
 	private boolean vibrateAtBeep;
 	private boolean warnNoWifi;
 	private String timerProfile;
+	private boolean testMode;
+	
+	private static final String TAG = "beeper";
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -22,6 +26,7 @@ public class Preferences extends PreferenceActivity {
 		vibrateAtBeep = prefs.isVibrateAtBeep();
 		warnNoWifi = prefs.isWarnNoWifi();
 		timerProfile = prefs.getTimerProfile();
+		testMode = prefs.isTestMode();
         
         populateFields();
 	}
@@ -37,6 +42,9 @@ public class Preferences extends PreferenceActivity {
         boxVibrateAtBeep.setChecked(vibrateAtBeep);
         CheckBoxPreference boxWarnNoWifi = (CheckBoxPreference)findPreference(PreferenceHandler.KEY_WARN_NO_WIFI);
         boxWarnNoWifi.setChecked(warnNoWifi);
+        ConfirmCheckBoxPreference boxTestMode = (ConfirmCheckBoxPreference)findPreference(PreferenceHandler.KEY_TEST_MODE);
+        boxTestMode.setChecked(testMode);
+        
         ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE);
         formTimerProfile.setEntries(new String[] { "HCI", getResources().getString(R.string.general_profile) });
         formTimerProfile.setEntryValues(new String[] { "hci", "general" });

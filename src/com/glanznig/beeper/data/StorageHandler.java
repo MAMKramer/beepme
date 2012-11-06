@@ -72,11 +72,21 @@ public class StorageHandler extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		dropTables();
+		onCreate(db);
+	}
+	
+	public void dropTables() {
+		SQLiteDatabase db = this.getWritableDatabase();
 		db.execSQL("DROP TABLE IF EXISTS " + SAMPLE_TAG_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + SAMPLE_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TAG_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + UPTIME_TBL_NAME);
-		onCreate(db);
+	}
+	
+	public void truncateTables() {
+		dropTables();
+		onCreate(this.getWritableDatabase());
 	}
 	
 	public Sample getSample(long id) {
@@ -524,13 +534,18 @@ public class StorageHandler extends SQLiteOpenHelper {
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
 			do {
-				count += 1;
-				duration += cursor.getLong(1) - cursor.getLong(0);
+				if (!cursor.isNull(0) && !cursor.isNull(1)) {
+					count += 1;
+					duration += cursor.getLong(1) - cursor.getLong(0);
+				}
 			}
 			while (cursor.moveToNext());
 			cursor.close();
 		}
 		db.close();
+		
+		//transform from millseconds to seconds
+		duration = duration / 1000;
 		
 		if (avg) {
 			return duration/count;
@@ -599,7 +614,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 		return count;
 	}
 	
-	public float getSampleCountToday() {
+	public int getSampleCountToday() {
 		int count = 0;
 		
 		SQLiteDatabase db = this.getReadableDatabase();

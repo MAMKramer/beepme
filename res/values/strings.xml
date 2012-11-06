@@ -7,12 +7,16 @@
     <string name="pref_summary_vibrate_beep">Vibrate and play sound notification.</string>
     <string name="pref_title_warn_no_wifi">No WiFi Warning</string>
     <string name="pref_summary_warn_no_wifi">Warn when sending data over mobile network.</string>
+    <string name="pref_title_test_mode">Test Mode</string>
+    <string name="pref_summary_test_mode">Activates/deactivates test mode. Existing data are deleted.</string>
     <string name="pref_title_timer_profile">Beeper Profile</string>
     <string name="pref_summary_timer_profile">Adjust beeper to different usage scenarios.</string>
     <string name="general_profile">General</string>
     <string name="list_samples">Recorded Samples</string>
     <string name="new_sample">New Sample</string>
     <string name="new_sample_take_photo">Take Photo</string>
+    <string name="warn_test_mode_title">Warning</string>
+    <string name="warn_test_mode_msg">All data are being deleted. Do you want to proceed?</string>
     <string name="new_sample_replace_img_title">Replace Photo</string>
     <string name="new_sample_replace_img_msg">Do you want to replace the photo?</string>
     <string name="new_sample_replace_img_delete">Photo has been deleted.</string>
@@ -23,7 +27,7 @@
     <string name="edit_sample">Edit Sample</string>
     <string name="main_menu_samples_list">Samples List</string>
     <string name="main_menu_new_sample">New Sample</string>
-    <string name="main_menu_beep">Beep</string>
+    <string name="main_menu_test_beep">Generate Test Beep</string>
     <string name="refresh">Refresh</string>
     <string name="sample_title">Title</string>
     <string name="sample_description">Description</string>
@@ -39,7 +43,12 @@
     <string name="beep_decline_pause">Decline/Pause Beeper</string>
     <string name="pause_beeper">Pause Beeper</string>
     <string name="start_beeper">Start Beeper</string>
+    <string name="beeper_active">Beeper is active.</string>
     <string name="beep">What is on your mind?</string>
+    <string name="beep_accepted_today">Accepted: %1$s</string>
+    <string name="beep_declined_today">Declined: %1$s</string>
+    <string name="time_beeper_active">Beeper active:  %1$s</string>
+    <string name="today">Today</string>
     <string name="sample_untitled">Untitled</string>
     <string name="view_sample">View Sample</string>
 </resources>

@@ -1,31 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
-
-    <Button
-        android:id="@+id/btn_main_menu_samples_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:text="@string/main_menu_samples_list"
-        android:onClick="onClickListSamples" />
+    android:orientation="vertical" >
     
-    <Button
-        android:id="@+id/btn_main_menu_beep"
+    <ImageView
+        android:id="@+id/beeper_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:text="@string/main_menu_beep"
-        android:onClick="onClickBeep" />
-
-    <Button
-        android:id="@+id/btn_main_menu_beeper_state_toggle"
-        android:layout_width="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/beeper_status_active" />
+    
+    <TextView
+        android:id="@+id/main_menu_label_test_mode"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:onClick="onClickBeeperStateToggle" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:text="@string/pref_title_test_mode"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-</LinearLayout>
+	<LinearLayout
+	    android:id="@+id/main_buttons"
+	    android:orientation="vertical"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@id/beeper_status"
+	    android:layout_alignParentBottom="true">
+	
+	    <Button
+	        android:id="@+id/btn_main_menu_samples_list"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="10dp"
+	        android:layout_marginLeft="10dp"
+	        android:layout_marginRight="10dp"
+	        android:onClick="onClickListSamples"
+	        android:text="@string/main_menu_samples_list" />
+	    
+	    <Button
+	        android:id="@+id/btn_main_menu_test_beep"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="10dp"
+	        android:layout_marginLeft="10dp"
+	        android:layout_marginRight="10dp"
+	        android:onClick="onClickBeep"
+	        android:text="@string/main_menu_test_beep" />
+	    
+	    <Button
+	        android:id="@+id/btn_main_menu_beeper_state_toggle"
+	        android:layout_width="match_parent"
+	        android:layout_height="60dp"
+	        android:layout_marginLeft="10dp"
+	        android:layout_marginRight="10dp"
+	        android:onClick="onClickBeeperStateToggle" />
+	    
+	    <TextView
+		        android:id="@+id/beep_today"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginBottom="5dp"
+		        android:layout_marginLeft="15dp"
+		        android:layout_marginRight="15dp"
+		        android:layout_marginTop="10dp"
+		        android:text="@string/today" />
+		
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="5dp"
+	        android:layout_marginLeft="15dp"
+	        android:layout_marginRight="15dp" >
+	
+	        <TextView
+	            android:id="@+id/beep_accepted_today"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginRight="5dp"
+	            android:layout_weight="0.5" />
+	
+	        <TextView
+	            android:id="@+id/beep_declined_today"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="5dp"
+	            android:layout_weight="0.5" />
+	
+	    </LinearLayout>
+	    
+	    <TextView
+	        android:id="@+id/main_beeper_active_today"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="15dp"
+	        android:layout_marginLeft="15dp"
+	        android:layout_marginRight="15dp" />
+	
+	</LinearLayout>
+</RelativeLayout>
