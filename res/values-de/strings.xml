@@ -51,4 +51,7 @@
     <string name="time_beeper_active">Beeper aktiv:  %1$s</string>
     <string name="sample_untitled">Unbenannt</string>
     <string name="view_sample">Eintrag ansehen</string>
+    <string name="export_data">Daten exportieren</string>
+    <string name="export_data_success">Daten wurden erfolgreich exportiert.</string>
+    <string name="sdcard_error">SD Karte nicht eingesetzt oder nicht beschreibbar.</string>
 </resources>

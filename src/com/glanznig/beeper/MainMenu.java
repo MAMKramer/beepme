@@ -1,5 +1,9 @@
 package com.glanznig.beeper;
 
+import java.lang.ref.WeakReference;
+
+import com.glanznig.beeper.data.DataExporter;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -7,6 +11,10 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.PorterDuff.Mode;
 import android.opengl.Visibility;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,10 +22,57 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+import android.widget.RelativeLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class MainMenu extends Activity {
 	
+	private static final String TAG = "MainMenu";
+	
+	private static class ExportHandler extends Handler {
+		WeakReference<MainMenu> mainMenu;
+		
+		ExportHandler(MainMenu activity) {
+			mainMenu = new WeakReference<MainMenu>(activity);
+		}
+		
+		@Override
+		public void handleMessage(Message message) {
+			if (mainMenu != null) {
+				Bundle data = message.getData();
+				if (data.getString("fileName") != null) {
+					Toast.makeText(mainMenu.get(), R.string.export_data_success, Toast.LENGTH_SHORT).show();
+				}
+			}
+		}
+	}
+	
+	private static class ExportRunnable implements Runnable {
+		WeakReference<MainMenu> mainMenu;
+		WeakReference<ExportHandler> handler;
+		
+		ExportRunnable(MainMenu activity, ExportHandler handler) {
+			mainMenu = new WeakReference<MainMenu>(activity);
+			this.handler = new WeakReference<ExportHandler>(handler); 
+		}
+		@Override
+	    public void run() {
+			if (mainMenu != null) {
+				DataExporter exporter = new DataExporter(mainMenu.get().getApplicationContext());
+				String fileName = exporter.exportToZipFile();
+				if (handler != null) {
+					Message msg = new Message();
+					Bundle bundle = new Bundle();
+					bundle.putString("fileName", fileName);
+					msg.setData(bundle);
+					handler.get().sendMessage(msg);
+				}
+			}
+	    }
+	}
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_menu);
@@ -45,6 +100,8 @@ public class MainMenu extends Activity {
 			labelTestMode.setVisibility(View.GONE);
 		}
 		
+		labelTestMode.measure(0, 0);
+		int labelHeight = labelTestMode.getMeasuredHeight();
 		LinearLayout buttons = (LinearLayout)findViewById(R.id.main_buttons);
 		buttons.measure(0, 0);
 		int buttonsHeight = buttons.getMeasuredHeight();
@@ -62,7 +119,10 @@ public class MainMenu extends Activity {
 		
 		beeperStatus.measure(0, 0);
 		int iconHeight = beeperStatus.getMeasuredHeight();
-		beeperStatus.setPadding(0, (displayHeight - buttonsHeight) / 2 - iconHeight / 2, 0, 0);
+		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		float scale = getResources().getDisplayMetrics().density;
+		lp.setMargins(0, ((displayHeight - buttonsHeight - labelHeight - (int)(5 * scale + 0.5f)) / 2) - (iconHeight / 2) - 10, 0, 0);
+		beeperStatus.setLayoutParams(lp);
 		
 		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(130, 217, 130), Mode.MULTIPLY);
 		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(217, 130, 130), Mode.MULTIPLY);
@@ -83,10 +143,12 @@ public class MainMenu extends Activity {
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
 		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
 		TextView beeperActive = (TextView)findViewById(R.id.main_beeper_active_today);
+		
 		String accepted = String.format(getString(R.string.beep_accepted_today), numAccepted);
 		String declined = String.format(getString(R.string.beep_declined_today), numDeclined);
 		String timeActive = String.format("%d:%02d:%02d", uptimeDur/3600, (uptimeDur%3600)/60, (uptimeDur%60));
 		String active = String.format(getString(R.string.time_beeper_active), timeActive);
+		
 		acceptedToday.setText(accepted);
 		acceptedToday.setTextColor(Color.rgb(130, 217, 130));
 		declinedToday.setText(declined);
@@ -132,6 +194,14 @@ public class MainMenu extends Activity {
                 Intent iSettings = new Intent(this, Preferences.class);
                 startActivity(iSettings);
                 return true;
+            case R.id.menu_export:
+            	if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            		new Thread(new ExportRunnable(MainMenu.this, new ExportHandler(MainMenu.this))).start();
+            	}
+            	else {
+            		Toast.makeText(MainMenu.this, R.string.sdcard_error, Toast.LENGTH_SHORT).show();
+            	}
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }

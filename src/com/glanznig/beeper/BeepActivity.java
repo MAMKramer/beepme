@@ -29,11 +29,13 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.RelativeLayout.LayoutParams;
 
 public class BeepActivity extends Activity implements AudioManager.OnAudioFocusChangeListener {
 	
-	private static final String TAG = "beeper";
+	private static final String TAG = "BeepActivity";
 	
 	private static class TimeoutHandler extends Handler {
 		WeakReference<BeepActivity> beepActivity;
@@ -114,7 +116,9 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		ImageView beepIcon = (ImageView)findViewById(R.id.beep_icon);
 		beepIcon.measure(0, 0);
 		int iconHeight = beepIcon.getMeasuredHeight();
-		beepIcon.setPadding(0, (displayHeight - buttonsHeight) / 2 - iconHeight / 2, 0, 0);
+		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		lp.setMargins(0, ((displayHeight - buttonsHeight) / 2) - (iconHeight / 2), 0, 0);
+		beepIcon.setLayoutParams(lp);
 		
 		BeeperApp app = (BeeperApp)getApplication();
 		
