@@ -7,15 +7,15 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.util.Log;
 
-public class AsyncImageLoader extends Thread {
+public class AsyncImageScaler extends Thread {
 	
 	public static final int BITMAP_MSG = 32;
-	private static final String TAG = "beeper";
+	private static final String TAG = "AsyncImageLoader";
 	private String uri;
 	private int imageWidth;
 	private Handler handler;
 	
-	public AsyncImageLoader(String uri, int imageWidth, Handler handler) {
+	public AsyncImageScaler(String uri, int imageWidth, Handler handler) {
 		this.uri = uri;
 		this.imageWidth = imageWidth;
 		this.handler = handler;

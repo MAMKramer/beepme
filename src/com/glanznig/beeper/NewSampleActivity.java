@@ -1,7 +1,10 @@
 package com.glanznig.beeper;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,7 +14,7 @@ import java.util.List;
 
 import com.glanznig.beeper.data.Sample;
 import com.glanznig.beeper.data.Tag;
-import com.glanznig.beeper.helper.AsyncImageLoader;
+import com.glanznig.beeper.helper.AsyncImageScaler;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,6 +23,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -44,8 +48,10 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	private static final int TAKE_PICTURE = 42;
 	private static final int THUMBNAIL_HEIGHT = 120; //in dp
 	private static final int THUMBNAIL_WIDTH = 80; //in dp
+	private static final int IMG_MAX_DIM = 1024; //in px
+	private static final int IMG_QUALITY = 75;
 	private static final String PICTURE_PREFIX = "beeper_img_";
-	private static final String TAG = "beeper";
+	private static final String TAG = "newSampleActivity";
 	private static final int ID_TAG_HOLDER = 14653;
 	
 	private Sample sample = new Sample();
@@ -54,20 +60,54 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	private boolean photoTaken = false;
 	private int lastTagId = 0;
 	
-	private final Handler imgLoadHandler = new Handler() {
+	private static class ImgLoadHandler extends Handler {
+		WeakReference<NewSampleActivity> newSampleActivity;
+		
+		ImgLoadHandler(NewSampleActivity activity) {
+			newSampleActivity = new WeakReference<NewSampleActivity>(activity);
+		}
+		
 	    @Override
 	    public void handleMessage(Message msg) {
-	    	if (msg.what == AsyncImageLoader.BITMAP_MSG) {
+	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
-	    		if (imageBitmap != null) {
-					NewSampleActivity.this.findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
-					ImageView imageView = (ImageView)NewSampleActivity.this.findViewById(R.id.new_sample_thumb);
-					imageView.setImageBitmap(imageBitmap);
-					imageView.setVisibility(View.VISIBLE);
-				}
-				else {
-					NewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
-				}
+	    		if (newSampleActivity != null) {
+		    		if (imageBitmap != null) {
+						newSampleActivity.get().findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
+						ImageView imageView = (ImageView)newSampleActivity.get().findViewById(R.id.new_sample_thumb);
+						imageView.setImageBitmap(imageBitmap);
+						imageView.setVisibility(View.VISIBLE);
+					}
+					else {
+						newSampleActivity.get().findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+					}
+	    		}
+	    	}
+	    }
+	}
+	
+	private static class ImgScaleHandler extends Handler {
+		WeakReference<Sample> sample;
+		
+		ImgScaleHandler(Sample sample) {
+			this.sample = new WeakReference<Sample>(sample);
+		}
+		
+	    @Override
+	    public void handleMessage(Message msg) {
+	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
+	    		Bitmap imageBitmap = (Bitmap)msg.obj;
+	    		if (sample != null) {
+	    			//save downscaled image to file
+	    			if (imageBitmap != null) {
+	    				try {
+							FileOutputStream outStream = new FileOutputStream(sample.get().getPhotoUri());
+							imageBitmap.compress(CompressFormat.JPEG, IMG_QUALITY, outStream);
+						} catch (Exception e) {
+							Log.e(TAG, "error while writing downscaled image", e);
+						}
+	    			}
+	    		}
 	    	}
 	    }
 	};
@@ -200,7 +240,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 				findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
 				
 				int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
-				AsyncImageLoader loader = new AsyncImageLoader(sample.getPhotoUri(), imageWidth, imgLoadHandler);
+				AsyncImageScaler loader = new AsyncImageScaler(sample.getPhotoUri(), imageWidth, new ImgLoadHandler(NewSampleActivity.this));
 				loader.start();
         	}
         	
@@ -341,8 +381,10 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
-				photoTaken = true;
 				sample.setPhotoUri(photoUri);
+				AsyncImageScaler loader = new AsyncImageScaler(sample.getPhotoUri(), IMG_MAX_DIM, new ImgScaleHandler(sample));
+				loader.start();
+				photoTaken = true;
 				photoUri = null;
 			}
 			else if (resultCode == Activity.RESULT_CANCELED) {

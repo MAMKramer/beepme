@@ -1,5 +1,6 @@
 package com.glanznig.beeper;
 
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -7,7 +8,7 @@ import java.util.List;
 
 import com.glanznig.beeper.data.Sample;
 import com.glanznig.beeper.data.Tag;
-import com.glanznig.beeper.helper.AsyncImageLoader;
+import com.glanznig.beeper.helper.AsyncImageScaler;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -23,23 +24,31 @@ import android.widget.TextView;
 
 public class ViewSampleActivity extends Activity {
 	
-	private static final String TAG = "beeper";
+	private static final String TAG = "ViewSampleActivity";
 	private long sampleId;
 	
-	private final Handler imgLoadHandler = new Handler() {
+	private static class ImgLoadHandler extends Handler {
+		WeakReference<ViewSampleActivity> viewSampleActivity;
+		
+		ImgLoadHandler(ViewSampleActivity activity) {
+			viewSampleActivity = new WeakReference<ViewSampleActivity>(activity);
+		}
+		
 	    @Override
 	    public void handleMessage(Message msg) {
-	    	if (msg.what == AsyncImageLoader.BITMAP_MSG) {
+	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
-		    	if (imageBitmap != null) {
-					ViewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
-					ImageView image = (ImageView)ViewSampleActivity.this.findViewById(R.id.view_sample_image);
-					image.setImageBitmap(imageBitmap);
-					image.setVisibility(View.VISIBLE);
-				}
-				else {
-					ViewSampleActivity.this.findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
-				}
+	    		if (viewSampleActivity != null) {
+			    	if (imageBitmap != null) {
+						viewSampleActivity.get().findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+						ImageView image = (ImageView)viewSampleActivity.get().findViewById(R.id.view_sample_image);
+						image.setImageBitmap(imageBitmap);
+						image.setVisibility(View.VISIBLE);
+					}
+					else {
+						viewSampleActivity.get().findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+					}
+	    		}
 	    	}
 	    }
 	};
@@ -130,7 +139,7 @@ public class ViewSampleActivity extends Activity {
 				//get display dimensions
 				Display display = getWindowManager().getDefaultDisplay();
 				int imageWidth = display.getWidth() - 20;
-				AsyncImageLoader loader = new AsyncImageLoader(s.getPhotoUri(), imageWidth, imgLoadHandler);
+				AsyncImageScaler loader = new AsyncImageScaler(s.getPhotoUri(), imageWidth, new ImgLoadHandler(ViewSampleActivity.this));
 				loader.start();
 			}
 		}
