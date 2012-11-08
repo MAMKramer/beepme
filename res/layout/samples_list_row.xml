@@ -1,29 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+<!--
+This file is part of BeepMe.
 
-        <TextView
-            android:id="@+id/sample_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="15dp"
-            android:layout_weight="0.50"
-            android:textSize="17dp" />
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-        <TextView
-            android:id="@+id/sample_timestamp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginBottom="10dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="10dp"
-            android:layout_weight="0.50"
-            android:gravity="right"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textSize="12dp" />
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
 
-    </LinearLayout>
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright since 2012 Michael Glanznig
+http://beepme.glanznig.com
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/sample_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="15dp"
+        android:layout_weight="0.50"
+        android:textSize="17dp" />
+
+    <TextView
+        android:id="@+id/sample_timestamp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="0.50"
+        android:gravity="right"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="12dp" />
+
+</LinearLayout>
