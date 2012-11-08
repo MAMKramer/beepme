@@ -52,6 +52,9 @@
     <string name="sample_untitled">Unbenannt</string>
     <string name="view_sample">Eintrag ansehen</string>
     <string name="export_data">Daten exportieren</string>
-    <string name="export_data_success">Daten wurden erfolgreich exportiert.</string>
+    <string name="export_success_send_mail_title">Erfolgreich exportiert</string>
+    <string name="export_send_mail_msg">Das Archiv ist %1$s groß. Möchten Sie es per Mail versenden?</string>
     <string name="sdcard_error">SD Karte nicht eingesetzt oder nicht beschreibbar.</string>
+    <string name="error_no_mail_apps">Es sind keine E-Mail Apps verfügbar.</string>
+    <string name="mail_chooser_title">Wählen Sie die App zum Senden</string>
 </resources>

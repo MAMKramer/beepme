@@ -1,4 +1,4 @@
-package com.glanznig.beeper.helper;
+package com.glanznig.beeper;
 
 import com.glanznig.beeper.R;
 

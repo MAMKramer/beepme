@@ -12,7 +12,7 @@
         android:title="@string/pref_title_timer_profile"
         android:summary="@string/pref_summary_timer_profile"
         android:defaultValue="general" />
-    <com.glanznig.beeper.helper.ConfirmCheckBoxPreference android:key="testMode"
+    <com.glanznig.beeper.ConfirmCheckBoxPreference android:key="testMode"
         android:title="@string/pref_title_test_mode"
         android:summary="@string/pref_summary_test_mode"
         android:defaultValue="false" />

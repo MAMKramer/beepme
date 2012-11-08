@@ -52,6 +52,9 @@
     <string name="sample_untitled">Untitled</string>
     <string name="view_sample">View Sample</string>
     <string name="export_data">Export Data</string>
-    <string name="export_data_success">Data were exported successfully.</string>
+    <string name="export_success_send_mail_title">Exported successfully</string>
+    <string name="export_send_mail_msg">The archive has the size of %1$s. Do you want to send it by mail?</string>
     <string name="sdcard_error">SD card not inserted or not writable.</string>
+    <string name="error_no_mail_apps">There are no mail apps available.</string>
+    <string name="mail_chooser_title">Choose app to send</string>
 </resources>

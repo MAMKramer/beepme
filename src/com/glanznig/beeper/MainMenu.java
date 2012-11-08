@@ -1,20 +1,23 @@
 package com.glanznig.beeper;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
 
 import com.glanznig.beeper.data.DataExporter;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.PorterDuff.Mode;
-import android.opengl.Visibility;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,17 +36,48 @@ public class MainMenu extends Activity {
 	
 	private static class ExportHandler extends Handler {
 		WeakReference<MainMenu> mainMenu;
+		Bundle data;
 		
 		ExportHandler(MainMenu activity) {
 			mainMenu = new WeakReference<MainMenu>(activity);
 		}
 		
+		public static String readableFileSize(long size) {
+		    if(size <= 0) return "0";
+		    final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
+		    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+		    return DecimalFormat.getInstance().format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+		}
+		
 		@Override
 		public void handleMessage(Message message) {
 			if (mainMenu != null) {
-				Bundle data = message.getData();
+				data = message.getData();
 				if (data.getString("fileName") != null) {
-					Toast.makeText(mainMenu.get(), R.string.export_data_success, Toast.LENGTH_SHORT).show();
+					
+					AlertDialog.Builder sendMailBuilder = new AlertDialog.Builder(mainMenu.get());
+			        sendMailBuilder.setTitle(R.string.export_success_send_mail_title);
+			        File dataFile = new File(data.getString("fileName"));
+			        String msg = String.format(mainMenu.get().getString(R.string.export_send_mail_msg),
+			        		readableFileSize(dataFile.length()));
+			        sendMailBuilder.setMessage(msg);
+			        sendMailBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+			            public void onClick(DialogInterface dialog, int id) {
+			            	
+			            	Uri fUri = Uri.fromFile(new File(data.getString("fileName")));
+							Intent sendIntent = new Intent(Intent.ACTION_SEND);
+							sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Beeper Data Export");
+							sendIntent.putExtra(Intent.EXTRA_STREAM, fUri);
+							sendIntent.setType("text/rfc822");
+							try {
+							    mainMenu.get().startActivity(Intent.createChooser(sendIntent, mainMenu.get().getString((R.string.mail_chooser_title))));
+							} catch (android.content.ActivityNotFoundException ex) {
+							    Toast.makeText(mainMenu.get(), R.string.error_no_mail_apps, Toast.LENGTH_SHORT).show();
+							}
+			            }
+			        });
+			        sendMailBuilder.setNegativeButton(R.string.no, null);
+			        sendMailBuilder.create().show();
 				}
 			}
 		}

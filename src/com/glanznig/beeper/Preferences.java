@@ -1,7 +1,6 @@
 package com.glanznig.beeper;
 
 import com.glanznig.beeper.data.PreferenceHandler;
-import com.glanznig.beeper.helper.ConfirmCheckBoxPreference;
 
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
