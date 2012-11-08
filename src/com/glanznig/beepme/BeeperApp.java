@@ -1,4 +1,4 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,11 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.glanznig.beeper.data.PreferenceHandler;
-import com.glanznig.beeper.data.StorageHandler;
-import com.glanznig.beeper.helper.GeneralTimerProfile;
-import com.glanznig.beeper.helper.HciTimerProfile;
-import com.glanznig.beeper.helper.TimerProfile;
+import com.glanznig.beepme.data.PreferenceHandler;
+import com.glanznig.beepme.data.StorageHandler;
+import com.glanznig.beepme.helper.GeneralTimerProfile;
+import com.glanznig.beepme.helper.HciTimerProfile;
+import com.glanznig.beepme.helper.TimerProfile;
 
 import android.app.Activity;
 import android.app.AlarmManager;

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.glanznig.beeper"
+    package="com.glanznig.beepme"
     android:versionCode="2"
     android:versionName="0.5"
     android:installLocation="auto">
@@ -33,15 +33,15 @@
 	    </activity>
 	    
 	    <activity android:name=".ListSamplesActivity" android:label="@string/list_samples">
-	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beeper.MainMenu" />
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.MainMenu" />
 	    </activity>
 	    
 	    <activity android:name=".NewSampleActivity" android:label="@string/new_sample" android:windowSoftInputMode="adjustPan">
-	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beeper.MainMenu" />
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.MainMenu" />
 	    </activity>
 	    
 	    <activity android:name=".ViewSampleActivity" android:label="@string/view_sample">
-	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beeper.ListSamplesActivity" />
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.ListSamplesActivity" />
 	    </activity>
 	    
 	  </application>

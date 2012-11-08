@@ -1,4 +1,4 @@
-package com.glanznig.beeper.data;
+package com.glanznig.beepme.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -1,8 +1,8 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
 import java.util.ArrayList;
 
-import com.glanznig.beeper.data.Tag;
+import com.glanznig.beepme.data.Tag;
 
 import android.content.Context;
 import android.view.LayoutInflater;

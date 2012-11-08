@@ -1,10 +1,11 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
-import com.glanznig.beeper.data.DataExporter;
+import com.glanznig.beepme.data.DataExporter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,7 +47,9 @@ public class MainMenu extends Activity {
 		    if(size <= 0) return "0";
 		    final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
 		    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
-		    return DecimalFormat.getInstance().format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+		    NumberFormat numFormat = DecimalFormat.getInstance();
+		    numFormat.setMaximumFractionDigits(1);
+		    return numFormat.format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
 		}
 		
 		@Override

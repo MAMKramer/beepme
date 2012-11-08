@@ -1,4 +1,4 @@
-package com.glanznig.beeper.data;
+package com.glanznig.beepme.data;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

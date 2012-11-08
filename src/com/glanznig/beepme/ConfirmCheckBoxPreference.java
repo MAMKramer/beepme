@@ -1,6 +1,6 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
-import com.glanznig.beeper.R;
+import com.glanznig.beepme.R;
 
 import android.app.AlertDialog;
 import android.content.Context;

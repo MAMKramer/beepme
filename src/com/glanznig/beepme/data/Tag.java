@@ -1,4 +1,4 @@
-package com.glanznig.beeper.data;
+package com.glanznig.beepme.data;
 
 public class Tag {
 	

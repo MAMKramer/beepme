@@ -1,6 +1,6 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
-import com.glanznig.beeper.data.PreferenceHandler;
+import com.glanznig.beepme.data.PreferenceHandler;
 
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;

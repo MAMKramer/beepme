@@ -1,9 +1,9 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
 import java.util.List;
 import java.text.DateFormat;
 
-import com.glanznig.beeper.data.Sample;
+import com.glanznig.beepme.data.Sample;
 
 import android.content.Context;
 import android.view.LayoutInflater;

@@ -1,6 +1,6 @@
-package com.glanznig.beeper.helper;
+package com.glanznig.beepme.helper;
 
-import com.glanznig.beeper.data.StorageHandler;
+import com.glanznig.beepme.data.StorageHandler;
 
 public abstract class TimerProfile {
 	

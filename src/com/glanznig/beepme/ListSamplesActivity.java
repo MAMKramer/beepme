@@ -1,9 +1,9 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
 import java.util.List;
 
-import com.glanznig.beeper.R;
-import com.glanznig.beeper.data.Sample;
+import com.glanznig.beepme.R;
+import com.glanznig.beepme.data.Sample;
 
 import android.app.ListActivity;
 import android.content.Intent;

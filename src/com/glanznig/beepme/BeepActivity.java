@@ -1,9 +1,9 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
 
-import com.glanznig.beeper.data.Sample;
+import com.glanznig.beepme.data.Sample;
 
 import android.app.Activity;
 import android.content.Context;

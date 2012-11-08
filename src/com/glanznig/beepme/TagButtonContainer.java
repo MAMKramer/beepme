@@ -1,4 +1,4 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
 import java.util.List;
 

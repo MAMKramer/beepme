@@ -1,4 +1,4 @@
-package com.glanznig.beeper;
+package com.glanznig.beepme;
 
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
@@ -6,9 +6,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.glanznig.beeper.data.Sample;
-import com.glanznig.beeper.data.Tag;
-import com.glanznig.beeper.helper.AsyncImageScaler;
+import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.data.Tag;
+import com.glanznig.beepme.helper.AsyncImageScaler;
 
 import android.app.Activity;
 import android.content.Intent;
