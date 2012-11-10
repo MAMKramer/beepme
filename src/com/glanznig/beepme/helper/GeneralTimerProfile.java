@@ -20,6 +20,8 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.helper;
 
+import android.util.Log;
+
 import com.glanznig.beepme.data.StorageHandler;
 
 public class GeneralTimerProfile extends TimerProfile {
@@ -27,16 +29,78 @@ public class GeneralTimerProfile extends TimerProfile {
 	//all times in seconds
 	private static final int avgBeepInterval = 3600; //1 h
 	private static final int maxBeepInterval = 5400; //90 min
-	private static final int minBeepInterval = 1800; //30 min
+	private static final int minBeepInterval = 600; //10 min
+	
+	private static final int uptimeCountMoveToAverage = 3;
+	private static final int numCancelledBeepsMoveToAverage = 2;
+	
+	private static final String TAG = "GeneralTimerProfile";
+	
+	private MersenneTwister rand;
 	
 	public GeneralTimerProfile(StorageHandler datastore) {
 		super(datastore);
+		rand = new MersenneTwister();
 	}
 
 	@Override
-	public int getTimer() {
-		// TODO Auto-generated method stub
-		return 0;
+	public long getTimer() {
+		boolean negative = rand.nextBoolean();
+		long randTime = 0;
+		
+		long avg = 0;
+		long min = 0;
+		long max = 0;
+		
+		int uptimeCount = getUptimeCountToday();
+		int numLastCancelled = getNumLastSubsequentCancelledBeeps();
+		
+		//start with approximation values
+		if (uptimeCount <= uptimeCountMoveToAverage && numLastCancelled < numCancelledBeepsMoveToAverage) {
+			avg = avgBeepInterval;
+			if (negative) {
+				max = avg;
+				min = minBeepInterval;
+			}
+			else {
+				max = maxBeepInterval;
+				min = avg;
+			}
+		}
+		//later, try to fit beep into "avg beeper uptime today" interval
+		else {
+			double avgUptimeDuration = getAvgUptimeDurationToday();
+			
+			avg = Math.round(avgUptimeDuration / 2);
+			if (negative) {
+				max = avg;
+				if (MIN_UPTIME_DURATION < max) {
+					min = (long)MIN_UPTIME_DURATION;
+				}
+				else {
+					min = 0;
+				}
+			}
+			else {
+				max = Math.round(avgUptimeDuration);
+				min = avg;
+			}
+		}
+		
+		long randTerm = rand.nextLong(max - min);
+		if (negative) {
+			randTime = avg - randTerm;
+		}
+		else {
+			randTime = avg + randTerm;
+		}
+		
+		//clamp timer with min(MIN_UPTIME_DURATION)
+		if (randTime < MIN_UPTIME_DURATION) {
+			randTime = MIN_UPTIME_DURATION;
+		}
+		
+		return randTime;
 	}
 
 }

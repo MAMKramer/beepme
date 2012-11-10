@@ -343,6 +343,10 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
 		app.getDataStore().editSample(sample);
+		
+		if (!isEdit) {
+			app.setTimer();
+		}
 	}
 	
 	public void onClickCancel(View view) {

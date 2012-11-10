@@ -57,11 +57,12 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	private PreferenceHandler preferences;
 	private PendingIntent alarmIntent;
 	private long currentUptimeId = 0L;
+	private long scheduledBeepId = 0L;
 	private TimerProfile timerProfile;
 	
 	private static final int ALARM_INTENT_ID = 5332;
 	private static final int NOTIFICATION_ID = 1283;
-	private static final String TAG = "beeper";
+	private static final String TAG = "BeeperApp";
 	
 	public StorageHandler getDataStore() {
 		return dataStore;
@@ -143,14 +144,17 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		if (profile.equals("hci")) {
 			timerProfile =  new HciTimerProfile(dataStore);
 		}
-		
-		timerProfile = new GeneralTimerProfile(dataStore);
+		else {
+			timerProfile = new GeneralTimerProfile(dataStore);
+		}
 	}
 	
 	public void setTimer() {
 		if (preferences.isBeeperActive()) {
 			Calendar alarmTime = Calendar.getInstance();
-	        alarmTime.add(Calendar.SECOND, timerProfile.getTimer());
+			long timer = timerProfile.getTimer();
+	        alarmTime.add(Calendar.SECOND, (int)timer);
+	        scheduledBeepId = getDataStore().addScheduledBeep(alarmTime.getTimeInMillis(), currentUptimeId);
 	        
 	        Intent intent = new Intent(this, BeepActivity.class);
 	        alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
@@ -163,8 +167,13 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	public void clearTimer() {
 		if (alarmIntent != null) {
 			alarmIntent.cancel();
+			cancelCurrentScheduledBeep();
 			alarmIntent = null;
 		}
+	}
+	
+	public void cancelCurrentScheduledBeep() {
+		getDataStore().cancelScheduledBeep(scheduledBeepId);
 	}
 	
 	public void beep() {

@@ -1,6 +1,6 @@
-BeepMe - an Android app to aid you in performing Descriptive
-Experience Sampling (DES) created by Russell T. Hurlburt and
-colleagues.
+BeepMe - an Android app to aid you in performing a modified
+form of Descriptive Experience Sampling (DES) originially
+created by Russell T. Hurlburt and colleagues.
 
 Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
@@ -22,3 +22,8 @@ OTHER WORK INCLUDED IN THIS SOFTWARE
 The beep sound is a modified version of JustinBW's buttonchime02up.wav
 and is originally available under the Creative Commons Attribution
 license (CC-BY) at http://www.freesound.org/people/JustinBW/sounds/80921/
+
+This app uses a Mersenne Twister implementation by Sean Luke as
+random number generator. The implementation can be distributed and modified
+freely as long as the license information is retained. For further
+information see MersenneTwister.java

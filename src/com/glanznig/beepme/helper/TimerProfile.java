@@ -25,6 +25,7 @@ import com.glanznig.beepme.data.StorageHandler;
 public abstract class TimerProfile {
 	
 	private StorageHandler store;
+	public static final long MIN_UPTIME_DURATION = 60; //s = 1 min
 	
 	public TimerProfile(StorageHandler datastore) {
 		store = datastore;
@@ -50,6 +51,14 @@ public abstract class TimerProfile {
 		return store.getAvgUptimeDurToday();
 	}
 	
-	public abstract int getTimer();
+	public int getUptimeCountToday() {
+		return store.getUptimeCountToday();
+	}
+	
+	public int getNumLastSubsequentCancelledBeeps() {
+		return store.getNumLastSubsequentCancelledBeeps();
+	}
+	
+	public abstract long getTimer();
 
 }

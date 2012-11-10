@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import com.glanznig.beepme.helper.TimerProfile;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -40,7 +42,7 @@ public class StorageHandler extends SQLiteOpenHelper {
 	
 	private static final String TAG = "beeper";
 	public static final String DB_NAME = "beeper";
-	private static final int DB_VERSION = 8;
+	private static final int DB_VERSION = 9;
 	
 	private static final String SAMPLE_TBL_NAME = "sample";
 	private static final String SAMPLE_TBL_CREATE =
@@ -66,8 +68,8 @@ public class StorageHandler extends SQLiteOpenHelper {
 			"sample_id INTEGER NOT NULL, " +
 			"tag_id INTEGER NOT NULL, " +
 			"PRIMARY KEY(sample_id, tag_id), " +
-			"FOREIGN KEY(sample_id) REFERENCES sample(id), " +
-			"FOREIGN KEY(tag_id) REFERENCES tag(id)" +
+			"FOREIGN KEY(sample_id) REFERENCES " + SAMPLE_TBL_NAME + "(id), " +
+			"FOREIGN KEY(tag_id) REFERENCES " + TAG_TBL_NAME + "(id)" +
 			")";
 	
 	private static final String UPTIME_TBL_NAME = "uptime";
@@ -76,6 +78,16 @@ public class StorageHandler extends SQLiteOpenHelper {
 			"id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"start INTEGER NOT NULL UNIQUE, " +
 			"end INTEGER UNIQUE" +
+			")";
+	
+	private static final String SCHEDULED_BEEP_TBL_NAME = "scheduled_beep";
+	private static final String SCHEDULED_BEEP_TBL_CREATE =
+			"CREATE TABLE " + SCHEDULED_BEEP_TBL_NAME + " (" +
+			"id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			"timestamp INTEGER NOT NULL, " +
+			"cancelled INTEGER NOT NULL, " +
+			"uptime_id INTEGER NOT NULL, " +
+			"FOREIGN KEY(uptime_id) REFERENCES "+ UPTIME_TBL_NAME +"(id)" +
 			")";
 	
 	public StorageHandler(Context ctx) {
@@ -88,24 +100,25 @@ public class StorageHandler extends SQLiteOpenHelper {
 		db.execSQL(TAG_TBL_CREATE);
 		db.execSQL(SAMPLE_TAG_TBL_CREATE);
 		db.execSQL(UPTIME_TBL_CREATE);
+		db.execSQL(SCHEDULED_BEEP_TBL_CREATE);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		dropTables();
+		dropTables(db);
 		onCreate(db);
 	}
 	
-	public void dropTables() {
-		SQLiteDatabase db = this.getWritableDatabase();
+	public void dropTables(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + SAMPLE_TAG_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + SAMPLE_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TAG_TBL_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + UPTIME_TBL_NAME);
+		db.execSQL("DROP TABLE IF EXISTS " + SCHEDULED_BEEP_TBL_NAME);
 	}
 	
 	public void truncateTables() {
-		dropTables();
+		dropTables(this.getWritableDatabase());
 		onCreate(this.getWritableDatabase());
 	}
 	
@@ -515,12 +528,31 @@ public class StorageHandler extends SQLiteOpenHelper {
 	
 	public boolean endUptime(long uptimeId, Date end) {
 		int numRows = 0;
+		long startTime = 0L;
 		
 		if (uptimeId != 0L && end != null) {
 			SQLiteDatabase db = this.getWritableDatabase();
-			ContentValues values = new ContentValues();
-			values.put("end", end.getTime());
-			numRows = db.update(UPTIME_TBL_NAME, values, "id=?", new String[] { String.valueOf(uptimeId) });
+			
+			Cursor cursor = db.query(UPTIME_TBL_NAME, new String[] { "start" },
+					"id = ?", new String[] { String.valueOf(uptimeId) }, null, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				startTime = cursor.getLong(0);
+				cursor.close();
+			}
+			
+			//remove very short uptimes from statistics
+			if (startTime != 0L && end.getTime() - startTime > TimerProfile.MIN_UPTIME_DURATION * 1000) {
+				ContentValues values = new ContentValues();
+				values.put("end", end.getTime());
+				numRows = db.update(UPTIME_TBL_NAME, values, "id=?", new String[] { String.valueOf(uptimeId) });
+			}
+			else if (startTime != 0L) {
+				numRows = db.delete(UPTIME_TBL_NAME, "id = ?", new String[] { String.valueOf(uptimeId) });
+				if (numRows == 1) {
+					db.delete(SCHEDULED_BEEP_TBL_NAME, "uptime_id = ?", new String[] { String.valueOf(uptimeId) });
+				}
+			}
 		    db.close();
 		}
 		
@@ -528,14 +560,18 @@ public class StorageHandler extends SQLiteOpenHelper {
 	}
 	
 	public long getUptimeDurToday() {
-		return (long)getAvgUpDurToday(false);
+		return (long)getAvgUpDurToday("dur");
+	}
+	
+	public int getUptimeCountToday() {
+		return (int)getAvgUpDurToday("cnt");
 	}
 	
 	public double getAvgUptimeDurToday() {
-		return getAvgUpDurToday(true);
+		return getAvgUpDurToday("avg");
 	}
 	
-	private double getAvgUpDurToday(boolean avg) {
+	private double getAvgUpDurToday(String returnType) {
 		long duration = 0L;
 		int count = 0;
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -558,24 +594,40 @@ public class StorageHandler extends SQLiteOpenHelper {
 					count += 1;
 					duration += cursor.getLong(1) - cursor.getLong(0);
 				}
+				//provided that there were no force closes, a missing end time as last row should
+				//indicate the currently running uptime interval, include it with end time "now".
+				//if the currently running uptime interval's duration is larger than TimerProfile.MIN_UPTIME_DURATION
+				else if (cursor.isNull(1) && cursor.isLast()) {
+					long nowTime = new Date().getTime();
+					if (nowTime - cursor.getLong(0) > TimerProfile.MIN_UPTIME_DURATION * 1000) {
+						count += 1;
+						duration += nowTime - cursor.getLong(0);
+					}
+				}
 			}
 			while (cursor.moveToNext());
 			cursor.close();
 		}
 		db.close();
 		
-		//transform from millseconds to seconds
+		//transform from milliseconds to seconds
 		duration = duration / 1000;
 		
-		if (avg) {
+		if (returnType.equals("avg")) {
 			return duration/count;
 		}
-		else {
+		else if (returnType.equals("dur")) {
 			return duration;
+		}
+		else if (returnType.equals("cnt")) {
+			return count;
+		}
+		else {
+			return 0;
 		}
 	}
 	
-	public float getRatioAcceptedToday() {
+	public double getRatioAcceptedToday() {
 		int count = 0;
 		int accepted = 0;
 		
@@ -605,6 +657,10 @@ public class StorageHandler extends SQLiteOpenHelper {
 			cursor.close();
 		}
 		db.close();
+		
+		if (count == 0) {
+			return 0;
+		}
 		
 		return accepted/count;
 	}
@@ -652,6 +708,71 @@ public class StorageHandler extends SQLiteOpenHelper {
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			count = cursor.getCount();
+			cursor.close();
+		}
+		db.close();
+		
+		return count;
+	}
+	
+	public long addScheduledBeep(long time, long uptimeId) {
+		long beepId = 0L;
+		
+		if (time != 0L && uptimeId != 0L) {
+			SQLiteDatabase db = this.getWritableDatabase();
+			 
+		    ContentValues values = new ContentValues();
+		    values.put("timestamp", time);
+		    values.put("cancelled", 0);
+		    values.put("uptime_id", uptimeId);
+		    beepId = db.insert(SCHEDULED_BEEP_TBL_NAME, null, values);
+		    db.close();
+		}
+		
+		return beepId;
+	}
+	
+	public boolean cancelScheduledBeep(long beepId) {
+		int numRows = 0;
+		
+		if (beepId != 0L) {
+			SQLiteDatabase db = this.getWritableDatabase();
+			ContentValues values = new ContentValues();
+			values.put("cancelled", 1);
+			numRows = db.update(SCHEDULED_BEEP_TBL_NAME, values, "id=?", new String[] { String.valueOf(beepId) });
+			db.close();
+		}
+	
+		return numRows == 1 ? true : false;
+	}
+	
+	public int getNumLastSubsequentCancelledBeeps() {
+		int count = 0;
+		
+		SQLiteDatabase db = this.getReadableDatabase();
+		Calendar now = Calendar.getInstance();
+		int year = now.get(Calendar.YEAR);
+		int month = now.get(Calendar.MONTH);
+		int day = now.get(Calendar.DAY_OF_MONTH);
+		GregorianCalendar today = new GregorianCalendar(year, month, day);
+		long startOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, true);
+		long endOfDay = today.getTimeInMillis();
+		
+		Cursor cursor = db.query(SCHEDULED_BEEP_TBL_NAME, new String[] {"cancelled"}, "timestamp between ? and ?",
+				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToLast();
+			do {
+				if (cursor.getInt(0) == 1) {
+					count += 1;
+				}
+				else {
+					break;
+				}
+			} while (cursor.moveToPrevious());
+			
 			cursor.close();
 		}
 		db.close();

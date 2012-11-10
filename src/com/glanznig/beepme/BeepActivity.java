@@ -278,6 +278,8 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		sample.setTimestamp(beepTime);
 		sample.setAccepted(false);
 		app.getDataStore().addSample(sample);
+		app.cancelCurrentScheduledBeep(); //mark beep as cancelled/unsuccessful because it was declined
+		app.setTimer();
 		finish();
 	}
 	

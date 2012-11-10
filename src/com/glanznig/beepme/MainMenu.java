@@ -216,8 +216,8 @@ public class MainMenu extends Activity {
 	public void onClickBeeperStateToggle(View view) {
 		BeeperApp app = (BeeperApp)getApplication();
 		if (app.isBeeperActive()) {
+			app.clearTimer(); //call before setBeeperActive
 			app.setBeeperActive(false);
-			app.clearTimer();
 		}
 		else {
 			app.setBeeperActive(true);
