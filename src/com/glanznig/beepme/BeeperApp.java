@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.glanznig.beepme.data.PreferenceHandler;
 import com.glanznig.beepme.data.StorageHandler;
@@ -152,15 +153,17 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	public void setTimer() {
 		if (preferences.isBeeperActive()) {
 			Calendar alarmTime = Calendar.getInstance();
+			Calendar alarmTimeUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			long timer = timerProfile.getTimer();
 	        alarmTime.add(Calendar.SECOND, (int)timer);
+	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
 	        scheduledBeepId = getDataStore().addScheduledBeep(alarmTime.getTimeInMillis(), currentUptimeId);
 	        
 	        Intent intent = new Intent(this, BeepActivity.class);
 	        alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
 	        		PendingIntent.FLAG_CANCEL_CURRENT);
 	        AlarmManager manager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
-	        manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), alarmIntent);
+	        manager.set(AlarmManager.RTC_WAKEUP, alarmTimeUTC.getTimeInMillis(), alarmIntent);
 		}
 	}
 	
