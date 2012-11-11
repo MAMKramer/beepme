@@ -86,7 +86,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		else if (currentUptimeId != 0L) {
 			getDataStore().endUptime(currentUptimeId, new Date());
 			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-			manager.cancel(NOTIFICATION_ID);
+			manager.cancel(TAG, NOTIFICATION_ID);
 		}
 	}
 	
@@ -125,7 +125,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		notificationBuilder.setContentIntent(resultPendingIntent);
 		NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		// notification_id allows you to update the notification later on.
-		manager.notify(NOTIFICATION_ID, notificationBuilder.build());
+		manager.notify(TAG, NOTIFICATION_ID, notificationBuilder.build());
 	}
 	
 	@Override
@@ -155,7 +155,6 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			Calendar alarmTime = Calendar.getInstance();
 			Calendar alarmTimeUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			long timer = timerProfile.getTimer();
-			timer = 30;
 	        alarmTime.add(Calendar.SECOND, (int)timer);
 	        Log.i(TAG, "alarm in " + timer + " seconds.");
 	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);

@@ -26,8 +26,10 @@ import java.util.Date;
 import com.glanznig.beepme.data.Sample;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -73,11 +75,30 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		}
 	}
 	
+	private static class ScreenStateReceiver extends BroadcastReceiver {
+		WeakReference<BeepActivity> beepActivity;
+		
+		ScreenStateReceiver(BeepActivity activity) {
+			beepActivity = new WeakReference<BeepActivity>(activity);
+		}
+
+	    @Override
+	    public void onReceive(final Context context, final Intent intent) {
+	        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+	            if (beepActivity != null) {
+	            	beepActivity.get().finish();
+	            }
+	        }
+	    }
+
+	}
+	
 	private Date beepTime = null;
 	private MediaPlayer player = null;
 	private Vibrator vibrator = null;
 	private PowerManager.WakeLock lock = null;
 	private TimeoutHandler handler = null;
+	private ScreenStateReceiver receiver = null;
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -97,9 +118,13 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	}
 	
 	@Override
-	public void onPause() {
-		super.onPause();
-		Log.i(TAG, "onPause");
+	public void onStop() {
+		super.onStop();
+		Log.i(TAG, "onStop");
+		
+		if (receiver != null) {
+			unregisterReceiver(receiver);
+		}
 		
 		if (handler != null) {
 			handler.removeMessages(1);
@@ -133,6 +158,10 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+		receiver = new ScreenStateReceiver(BeepActivity.this);
+        registerReceiver(receiver, filter);
         
 		setContentView(R.layout.beep);
 		

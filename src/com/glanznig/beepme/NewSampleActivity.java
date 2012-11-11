@@ -93,13 +93,27 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
 	    		if (newSampleActivity != null) {
 		    		if (imageBitmap != null) {
-						newSampleActivity.get().findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
+						NewSampleActivity nsa = newSampleActivity.get();
+						if (nsa != null) {
+							View progressBar = nsa.findViewById(R.id.new_sample_image_load);
+							if (progressBar != null) {
+								progressBar.setVisibility(View.GONE);
+							}
+						}
 						ImageView imageView = (ImageView)newSampleActivity.get().findViewById(R.id.new_sample_thumb);
-						imageView.setImageBitmap(imageBitmap);
-						imageView.setVisibility(View.VISIBLE);
+						if (imageView != null) {
+							imageView.setImageBitmap(imageBitmap);
+							imageView.setVisibility(View.VISIBLE);
+						}
 					}
 					else {
-						newSampleActivity.get().findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
+						NewSampleActivity nsa = newSampleActivity.get();
+						if (nsa != null) {
+							View progressBar = nsa.findViewById(R.id.view_sample_image_load);
+							if (progressBar != null) {
+								progressBar.setVisibility(View.GONE);
+							}
+						}
 					}
 	    		}
 	    	}

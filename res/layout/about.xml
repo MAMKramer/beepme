@@ -43,12 +43,21 @@ http://beepme.glanznig.com
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp" />
+        
+        <TextView
+            android:id="@+id/app_website"
+            android:layout_below="@id/app_name_version"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="http://beepme.glanznig.com" />
 
         <TextView
             android:id="@+id/app_copyright"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/app_name_version"
+            android:layout_below="@id/app_website"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:text="@string/app_copyright" />

@@ -36,7 +36,7 @@ http://beepme.glanznig.com
     <string name="new_sample">Neues Sample</string>
     <string name="new_sample_take_photo">Foto machen</string>
     <string name="warn_test_mode_title">Warnung</string>
-    <string name="warn_test_mode_msg">Alle Daten werden gelöscht. Wollen Sie fortfahren?</string>
+    <string name="warn_test_mode_msg">Alle Daten der App werden gelöscht. Wollen Sie fortfahren?</string>
     <string name="new_sample_replace_img_title">Foto ersetzen</string>
     <string name="new_sample_replace_img_msg">Möchten Sie das Foto ersetzen?</string>
     <string name="new_sample_replace_img_delete">Foto wurde gelöscht.</string>
