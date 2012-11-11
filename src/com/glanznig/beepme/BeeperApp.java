@@ -155,7 +155,9 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			Calendar alarmTime = Calendar.getInstance();
 			Calendar alarmTimeUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			long timer = timerProfile.getTimer();
+			timer = 30;
 	        alarmTime.add(Calendar.SECOND, (int)timer);
+	        Log.i(TAG, "alarm in " + timer + " seconds.");
 	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
 	        scheduledBeepId = getDataStore().addScheduledBeep(alarmTime.getTimeInMillis(), currentUptimeId);
 	        

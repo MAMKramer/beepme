@@ -259,6 +259,10 @@ public class MainMenu extends Activity {
             		Toast.makeText(MainMenu.this, R.string.sdcard_error, Toast.LENGTH_SHORT).show();
             	}
             	return true;
+            case R.id.menu_info:
+            	Intent iAbout = new Intent(this, AboutActivity.class);
+                startActivity(iAbout);
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }

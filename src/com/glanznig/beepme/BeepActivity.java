@@ -46,6 +46,7 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -98,6 +99,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	@Override
 	public void onPause() {
 		super.onPause();
+		Log.i(TAG, "onPause");
 		
 		if (handler != null) {
 			handler.removeMessages(1);
@@ -126,7 +128,12 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i(TAG, "onCreate");
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        
 		setContentView(R.layout.beep);
 		
 		LinearLayout buttons = (LinearLayout)findViewById(R.id.beep_buttons);

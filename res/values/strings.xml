@@ -77,4 +77,7 @@ http://beepme.glanznig.com
     <string name="sdcard_error">SD card not inserted or not writable.</string>
     <string name="error_no_mail_apps">There are no mail apps available.</string>
     <string name="mail_chooser_title">Choose app to send</string>
+    <string name="about">About</string>
+    <string name="app_copyright">Copyright 2012 Michael Glanznig</string>
+    <string name="app_info">BeepMe - an Android app to aid you in performing a modified form of Descriptive Experience Sampling (DES) originially created by Russell T. Hurlburt and colleagues.</string>
 </resources>

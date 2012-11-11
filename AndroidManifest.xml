@@ -48,6 +48,8 @@ http://beepme.glanznig.com
 	    
 	    <activity android:name=".Preferences" android:label="@string/preferences"></activity>
 	    
+	    <activity android:name=".AboutActivity" android:label="@string/about"></activity>
+	    
 	    <activity android:name=".BeepActivity" android:label="@string/beep"
 	        android:launchMode="singleTask"
 	        android:screenOrientation="portrait">
