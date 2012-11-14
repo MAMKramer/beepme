@@ -27,8 +27,8 @@ import com.glanznig.beepme.data.StorageHandler;
 public class GeneralTimerProfile extends TimerProfile {
 	
 	//all times in seconds
-	private static final int avgBeepInterval = 3600; //1 h
-	private static final int maxBeepInterval = 5400; //90 min
+	private static final int avgBeepInterval = 1800; //30 min
+	private static final int maxBeepInterval = 3600; //60 min
 	private static final int minBeepInterval = 600; //10 min
 	
 	private static final int uptimeCountMoveToAverage = 3;

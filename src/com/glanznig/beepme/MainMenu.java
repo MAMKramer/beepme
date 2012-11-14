@@ -29,16 +29,19 @@ import com.glanznig.beepme.data.DataExporter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.PorterDuff.Mode;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -54,6 +57,7 @@ import android.widget.TextView;
 public class MainMenu extends Activity {
 	
 	private static final String TAG = "MainMenu";
+	private AudioManager audioManager = null;
 	
 	private static class ExportHandler extends Handler {
 		WeakReference<MainMenu> mainMenu;
@@ -133,6 +137,8 @@ public class MainMenu extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_menu);
+		
+		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 	}
 	
 	@Override
@@ -234,6 +240,28 @@ public class MainMenu extends Activity {
 	public void onClickBeep(View view) {
 		BeeperApp app = (BeeperApp)getApplication();
 		app.beep();
+	}
+	
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		int action = event.getAction();
+		int keyCode = event.getKeyCode();
+		switch (keyCode) {
+			case KeyEvent.KEYCODE_VOLUME_UP:
+				if (action == KeyEvent.ACTION_UP) {
+					audioManager.adjustStreamVolume(AudioManager.STREAM_ALARM,
+							AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+				}
+				return true;
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+				if (action == KeyEvent.ACTION_DOWN) {
+					audioManager.adjustStreamVolume(AudioManager.STREAM_ALARM,
+							AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+				}
+				return true;
+			default:
+				return super.dispatchKeyEvent(event);
+		}
 	}
 	
 	@Override

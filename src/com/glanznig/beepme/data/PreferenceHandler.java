@@ -57,7 +57,7 @@ public class PreferenceHandler {
 	
 	public boolean isVibrateAtBeep() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-		return prefs.getBoolean(KEY_VIBRATE_AT_BEEP, true);
+		return prefs.getBoolean(KEY_VIBRATE_AT_BEEP, false);
 	}
 	
 	public void setVibateAtBeep(boolean vibrate) {
