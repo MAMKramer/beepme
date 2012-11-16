@@ -166,6 +166,12 @@ http://beepme.glanznig.com
 	                android:onClick="onClickAddTag"
 	                android:text="@string/add" />
 	        </RelativeLayout>
+	        
+	        <com.glanznig.beepme.TagButtonContainer
+	            android:id="@+id/new_sample_tag_container"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp" />
 
 	        <!-- <TextView
 	            android:id="@+id/new_sample_label_description"

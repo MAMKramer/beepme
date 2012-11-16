@@ -21,7 +21,6 @@ http://beepme.glanznig.com
 package com.glanznig.beepme;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -72,7 +71,6 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	private static final int IMG_QUALITY = 75;
 	private static final String PICTURE_PREFIX = "beeper_img_";
 	private static final String TAG = "NewSampleActivity";
-	private static final int ID_TAG_HOLDER = 14653;
 	
 	private Sample sample = new Sample();
 	private String photoUri = null;
@@ -226,6 +224,8 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	}
 	
 	private void populateFields() {
+		final float scale = getResources().getDisplayMetrics().density;
+		
 		//check if device has camera feature
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
         	findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
@@ -243,14 +243,8 @@ public class NewSampleActivity extends Activity implements OnClickListener {
         }
         
         LinearLayout baseLayout = (LinearLayout)findViewById(R.id.new_sample_layout);
-		TagButtonContainer tagHolder = new TagButtonContainer(NewSampleActivity.this);
-		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		final float scale = getResources().getDisplayMetrics().density;
-		lp.setMargins(0, (int)(10 * scale + 0.5f), 0, 0);
-		tagHolder.setLayoutParams(lp);
-		tagHolder.setId(ID_TAG_HOLDER);
+		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_tag_container);
 		tagHolder.setLastTagId(lastTagId);
-		baseLayout.addView(tagHolder, 5);
         
         if (isEdit) {
         	setTitle(R.string.edit_sample);
@@ -321,7 +315,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 			Tag t = new Tag();
 			t.setName(enteredTag.getText().toString().toLowerCase());
 			if (sample.addTag(t)) {
-				TagButtonContainer tagHolder = (TagButtonContainer)findViewById(ID_TAG_HOLDER);
+				TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_tag_container);
 				tagHolder.addTagButton(t.getName(), this);
 				enteredTag.setText("");
 			}
@@ -334,7 +328,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	public void onClickRemoveTag(View view) {
 		Tag t = new Tag();
 		t.setName(((Button)view).getText().toString());
-		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(ID_TAG_HOLDER);
+		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_tag_container);
 		tagHolder.removeTagButton((Button)view);
 		sample.removeTag(t);
 	}
