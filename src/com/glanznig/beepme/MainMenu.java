@@ -93,7 +93,7 @@ public class MainMenu extends Activity {
 			            	
 			            	Uri fUri = Uri.fromFile(new File(data.getString("fileName")));
 							Intent sendIntent = new Intent(Intent.ACTION_SEND);
-							sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Beeper Data Export");
+							sendIntent.putExtra(Intent.EXTRA_SUBJECT, mainMenu.get().getString(R.string.export_mail_subject));
 							sendIntent.putExtra(Intent.EXTRA_STREAM, fUri);
 							sendIntent.setType("text/rfc822");
 							try {

@@ -20,62 +20,104 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme;
 
+import java.util.Date;
 import java.util.List;
 import java.text.DateFormat;
-
-import com.glanznig.beepme.data.Sample;
+import java.text.SimpleDateFormat;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class SampleListAdapter extends ArrayAdapter<Sample> {
+public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	
 	private final Context context;
-	private final List<Sample> samples;
+	private final List<SampleListItem> samples;
 	
-	static class ViewHolder {
+	static class EntryHolder {
 	    public TextView title;
 	    public TextView timestamp;
 	}
 	
-	public SampleListAdapter(Context context, List<Sample> values) {
+	static class HeaderHolder {
+	    public TextView title;
+	}
+	
+	public SampleListAdapter(Context context, List<SampleListItem> values) {
 	    super(context, R.layout.samples_list_row, values);
 	    this.context = context;
 	    this.samples = values;
-	  }
+	}
+	
+	@Override
+	public boolean isEnabled(int position) {
+		SampleListItem item = samples.get(position);
+		return !item.isSectionHeader();
+	}
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View rowView = null;
-		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+		SampleListItem item = samples.get(position);
 		
-		//performance optimization: reuse already inflated views
-		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			rowView = inflater.inflate(R.layout.samples_list_row, parent, false);
+		if (item.isSectionHeader()) {
+			//performance optimization: reuse already inflated views
+			if (convertView != null && convertView instanceof TextView) {
+				rowView = convertView;
+			}
+			else {
+				rowView = inflater.inflate(R.layout.samples_list_header, parent, false);
+				
+				HeaderHolder holder = new HeaderHolder();
+				holder.title = (TextView)rowView.findViewById(R.id.sample_list_header_title);
+				rowView.setTag(holder);
+			}
 			
-			ViewHolder holder = new ViewHolder();
-			holder.title = (TextView)rowView.findViewById(R.id.sample_title);
-			holder.timestamp = (TextView)rowView.findViewById(R.id.sample_timestamp);
-			rowView.setTag(holder);
+			HeaderHolder holder = (HeaderHolder)rowView.getTag();
+			
+			if (((SampleListSectionHeader)samples.get(position)).getDate() != null) {
+				Date viewDate = ((SampleListSectionHeader)samples.get(position)).getDate();
+				String content = "";
+				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+				if (format.format(new Date()).equals(format.format(viewDate))) {
+					content = context.getString(R.string.today) + " "; 
+				}
+				content += dateFormat.format(viewDate);
+				holder.title.setText(content);
+			}
 		}
 		else {
-			rowView = convertView;
+			//performance optimization: reuse already inflated views
+			if (convertView != null && convertView instanceof LinearLayout) {
+				rowView = convertView;
+			}
+			else {
+				rowView = inflater.inflate(R.layout.samples_list_row, parent, false);
+				
+				EntryHolder holder = new EntryHolder();
+				holder.title = (TextView)rowView.findViewById(R.id.sample_title);
+				holder.timestamp = (TextView)rowView.findViewById(R.id.sample_timestamp);
+				rowView.setTag(holder);
+			}
+			
+			EntryHolder holder = (EntryHolder)rowView.getTag();
+			
+			if (((SampleListEntry)samples.get(position)).getTitle() != null && ((SampleListEntry)samples.get(position)).getTitle().length() > 0) {
+				holder.title.setText(((SampleListEntry)samples.get(position)).getTitle());
+			}
+			else {
+				holder.title.setText(R.string.sample_untitled);
+			}
+			holder.timestamp.setText(dateTimeFormat.format(((SampleListEntry)samples.get(position)).getTimestamp()));
 		}
 		
-		ViewHolder holder = (ViewHolder)rowView.getTag();
-		
-		if (samples.get(position).getTitle() != null && samples.get(position).getTitle().length() > 0) {
-			holder.title.setText(samples.get(position).getTitle());
-		}
-		else {
-			holder.title.setText(R.string.sample_untitled);
-		}
-		holder.timestamp.setText(dateFormat.format(samples.get(position).getTimestamp()));
 		return rowView;
 	}
 

@@ -20,6 +20,8 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.glanznig.beepme.R;
@@ -49,13 +51,26 @@ public class ListSamplesActivity extends ListActivity {
 	private void populateList() {
 		BeeperApp app = (BeeperApp)getApplication();
 		List<Sample> samplesList = app.getDataStore().getSamples();
-        SampleListAdapter samples = new SampleListAdapter(this, samplesList);
+		ArrayList<SampleListItem> viewList = new ArrayList<SampleListItem>();
+		
+		Iterator<Sample> i = samplesList.iterator();
+		SampleListSectionHeader header = null;
+		while (i.hasNext()) {
+			Sample s = i.next();
+			if (header == null || !header.isSameDay(s.getTimestamp())) {
+				header = new SampleListSectionHeader(s.getTimestamp());
+				viewList.add(header);
+			}
+			viewList.add(new SampleListEntry(s));
+		}
+		
+        SampleListAdapter samples = new SampleListAdapter(this, viewList);
         setListAdapter(samples);
 	}
 	
 	@Override
 	public void onListItemClick(ListView listView, View view, int position, long id) {
-		Sample s = (Sample)listView.getItemAtPosition(position);
+		Sample s = ((SampleListEntry)listView.getItemAtPosition(position)).getSample();
 		Intent i = new Intent(ListSamplesActivity.this, ViewSampleActivity.class);
 		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", s.getId());
 		startActivity(i);

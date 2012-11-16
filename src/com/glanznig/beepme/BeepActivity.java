@@ -120,7 +120,6 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	@Override
 	public void onStop() {
 		super.onStop();
-		Log.i(TAG, "onStop");
 		
 		if (receiver != null) {
 			unregisterReceiver(receiver);
@@ -148,12 +147,13 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 			vibrator.cancel();
 		}
 		
-		finish();
+		if (!BeepActivity.this.isFinishing()) {
+			finish();
+		}
 	}
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i(TAG, "onCreate");
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -275,26 +275,10 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	}
 	
 	public void onClickDecline(View view) {
-		if (player != null) {
-			player.stop();
-		}
-		
-		if (vibrator != null) {
-			vibrator.cancel();
-		}
-		
 		decline();
 	}
 	
 	public void onClickDeclinePause(View view) {
-		if (player != null) {
-			player.stop();
-		}
-		
-		if (vibrator != null) {
-			vibrator.cancel();
-		}
-		
 		BeeperApp app = (BeeperApp)getApplication();
 		app.setBeeperActive(false);
 		decline();

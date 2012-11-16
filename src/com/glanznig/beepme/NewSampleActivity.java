@@ -71,7 +71,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	private static final int IMG_MAX_DIM = 1024; //in px
 	private static final int IMG_QUALITY = 75;
 	private static final String PICTURE_PREFIX = "beeper_img_";
-	private static final String TAG = "newSampleActivity";
+	private static final String TAG = "NewSampleActivity";
 	private static final int ID_TAG_HOLDER = 14653;
 	
 	private Sample sample = new Sample();
@@ -173,9 +173,9 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 				sample.setTitle(savedState.getCharSequence("title").toString());
 			}
 			
-			if (savedState.getCharSequence("description") != null) {
+			/*if (savedState.getCharSequence("description") != null) {
 				sample.setDescription(savedState.getCharSequence("description").toString());
-			}
+			}*/
 			
 			if (savedState.getCharSequence("photoUri") != null) {
 				sample.setPhotoUri(savedState.getCharSequence("photoUri").toString());
@@ -294,10 +294,10 @@ public class NewSampleActivity extends Activity implements OnClickListener {
         	titleWidget.setText(sample.getTitle());
         }
 		
-        if (sample.getDescription() != null) {
+        /*if (sample.getDescription() != null) {
         	EditText descriptionWidget = (EditText)findViewById(R.id.new_sample_description);
         	descriptionWidget.setText(sample.getDescription());
-        }
+        }*/
         
         AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_tag);
         TagAutocompleteAdapter adapter = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row);
@@ -352,10 +352,10 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		BeeperApp app = (BeeperApp)getApplication();
 		
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
-		EditText description = (EditText)findViewById(R.id.new_sample_description);
+		//EditText description = (EditText)findViewById(R.id.new_sample_description);
 		
 		sample.setTitle(title.getText().toString());
-		sample.setDescription(description.getText().toString());
+		//sample.setDescription(description.getText().toString());
 		app.getDataStore().editSample(sample);
 		
 		if (!isEdit) {
@@ -439,14 +439,14 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
-		EditText description = (EditText)findViewById(R.id.new_sample_description);
+		//EditText description = (EditText)findViewById(R.id.new_sample_description);
 		
 		if (sample.getTimestamp() != null) {
 			savedState.putLong("timestamp", sample.getTimestamp().getTime());
 		}
 		savedState.putLong("sampleId", sample.getId());
 		savedState.putCharSequence("title", title.getText());
-		savedState.putCharSequence("description", description.getText());
+		//savedState.putCharSequence("description", description.getText());
 		savedState.putBoolean("accepted", sample.getAccepted());
 		savedState.putCharSequence("photoUri", sample.getPhotoUri());
 		savedState.putBoolean("photoTaken", photoTaken);
@@ -476,7 +476,6 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	public void onBackPressed() {
 		if (!isEdit) {
 			AlertDialog.Builder sampleSavedBuilder = new AlertDialog.Builder(NewSampleActivity.this);
-			//sampleSavedBuilder.setIcon(icon);
 	        sampleSavedBuilder.setTitle(R.string.new_sample_back_warning_title);
 	        sampleSavedBuilder.setMessage(R.string.new_sample_back_warning_msg);
 	        sampleSavedBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -491,6 +490,16 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		}
 		else {
 			super.onBackPressed();
+		}
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		if (NewSampleActivity.this.isFinishing()) {
+			if (!isEdit) {
+				NewSampleActivity.this.saveSample();
+			}
 		}
 	}
 }

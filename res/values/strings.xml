@@ -37,6 +37,7 @@ http://beepme.glanznig.com
     <string name="edit_sample">Edit Sample</string>
     <string name="error_no_mail_apps">There are no mail apps available.</string>
     <string name="export_data">Export Data</string>
+    <string name="export_mail_subject">BeepMe Data Export</string>
     <string name="export_send_mail_msg">The archive has the size of %1$s. Do you want to send it by mail?</string>
     <string name="export_success_send_mail_title">Exported successfully</string>
     <string name="general_profile">General</string>
@@ -46,7 +47,7 @@ http://beepme.glanznig.com
     <string name="main_menu_samples_list">View Samples</string>
     <string name="main_menu_test_beep">Generate Test Beep</string>
     <string name="new_sample">New Sample</string>
-    <string name="new_sample_add_tag_error">Tag has already been added.</string>
+    <string name="new_sample_add_tag_error">Keyword has already been added.</string>
     <string name="new_sample_back_warning_msg">The sample is saved with the current values. Do you want to go back?</string>
     <string name="new_sample_back_warning_title">Sample is saved</string>
     <string name="new_sample_replace_img_delete">Photo has been deleted.</string>
@@ -67,7 +68,7 @@ http://beepme.glanznig.com
     <string name="preferences">Preferences</string>
     <string name="refresh">Refresh</string>
     <string name="sample_description">Description</string>
-    <string name="sample_tags">Tags</string>
+    <string name="sample_tags">Keywords</string>
     <string name="sample_title">Title</string>
     <string name="sample_untitled">Untitled</string>
     <string name="samples_list_no_samples">No samples yet.</string>

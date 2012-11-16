@@ -23,7 +23,7 @@ http://beepme.glanznig.com
     <CheckBoxPreference android:key="vibrateAtBeep"
         android:title="@string/pref_title_vibrate_beep"
         android:summary="@string/pref_summary_vibrate_beep"
-        android:defaultValue="true" />
+        android:defaultValue="false" />
     <!-- <CheckBoxPreference android:key="warnNoWifi"
         android:title="@string/pref_title_warn_no_wifi"
         android:summary="@string/pref_summary_warn_no_wifi"

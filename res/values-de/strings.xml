@@ -37,6 +37,7 @@ http://beepme.glanznig.com
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="error_no_mail_apps">Es sind keine E-Mail Apps verfügbar.</string>
     <string name="export_data">Daten exportieren</string>
+    <string name="export_mail_subject">BeepMe Datenexport</string>
     <string name="export_send_mail_msg">Das Archiv ist %1$s groß. Möchten Sie es per Mail versenden?</string>
     <string name="export_success_send_mail_title">Erfolgreich exportiert</string>
     <string name="general_profile">Allgemein</string>
@@ -46,7 +47,7 @@ http://beepme.glanznig.com
     <string name="main_menu_samples_list">Einträge ansehen</string>
     <string name="main_menu_test_beep">Testalarm generieren</string>
     <string name="new_sample">Neues Sample</string>
-    <string name="new_sample_add_tag_error">Tag ist bereits vorhanden.</string>
+    <string name="new_sample_add_tag_error">Stichwort ist bereits vorhanden.</string>
     <string name="new_sample_back_warning_msg">Der Eintrag wird mit den eingetragenen Werten gespeichert. Wollen Sie zurück gehen?</string>
     <string name="new_sample_back_warning_title">Eintrag wird gespeichert</string>
     <string name="new_sample_take_photo">Foto machen</string>
@@ -68,7 +69,7 @@ http://beepme.glanznig.com
     <string name="refresh">Neu laden</string>
     <string name="samples_list_no_samples">Derzeit noch keine Einträge.</string>
     <string name="sample_description">Beschreibung</string>
-    <string name="sample_tags">Tags</string>
+    <string name="sample_tags">Stichwörter</string>
     <string name="sample_title">Titel</string>
     <string name="sample_untitled">Unbenannt</string>
     <string name="save">Speichern</string>

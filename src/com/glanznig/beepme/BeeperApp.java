@@ -21,8 +21,6 @@ http://beepme.glanznig.com
 package com.glanznig.beepme;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -43,11 +41,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.net.Uri;
 import android.os.Environment;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
@@ -137,6 +131,9 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		preferences.registerOnPreferenceChangeListener(BeeperApp.this);
 		
 		setTimerProfile();
+		setBeeperActive(false);
+		NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		manager.cancelAll();
 	}
 	
 	public void setTimerProfile() {
@@ -156,7 +153,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			Calendar alarmTimeUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			long timer = timerProfile.getTimer();
 	        alarmTime.add(Calendar.SECOND, (int)timer);
-	        Log.i(TAG, "alarm in " + timer + " seconds.");
+	        //Log.i(TAG, "alarm in " + timer + " seconds.");
 	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
 	        scheduledBeepId = getDataStore().addScheduledBeep(alarmTime.getTimeInMillis(), currentUptimeId);
 	        
