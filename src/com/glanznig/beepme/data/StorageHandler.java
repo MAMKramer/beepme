@@ -40,7 +40,7 @@ import android.util.Log;
 
 public class StorageHandler extends SQLiteOpenHelper {
 	
-	private static final String TAG = "beeper";
+	private static final String TAG = "StorageHandler";
 	public static final String DB_NAME = "beeper";
 	private static final int DB_VERSION = 9;
 	

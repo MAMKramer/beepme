@@ -27,9 +27,9 @@ import com.glanznig.beepme.data.StorageHandler;
 public class HciTimerProfile extends TimerProfile {
 	
 	//all times in seconds
-	private static final int avgBeepInterval = 420; //7 min
-	private static final int maxBeepInterval = 900; //15 min
-	private static final int minBeepInterval = 180; //3 min
+	private static final int avgBeepInterval = 300; //5 min
+	private static final int maxBeepInterval = 600; //10 min
+	private static final int minBeepInterval = 120; //2 min
 	
 	private static final int uptimeCountMoveToAverage = 3;
 	private static final int numCancelledBeepsMoveToAverage = 2;
