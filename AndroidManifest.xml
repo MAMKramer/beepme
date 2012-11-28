@@ -40,7 +40,7 @@ http://beepme.glanznig.com
         android:allowBackup="false">
       
 	    <activity
-	        android:name=".MainMenu"
+	        android:name=".view.MainMenu"
 	        android:label="@string/app_name"
 	        android:screenOrientation="portrait">
 	        <intent-filter>
@@ -49,25 +49,25 @@ http://beepme.glanznig.com
 	         </intent-filter>
 	    </activity>
 	    
-	    <activity android:name=".Preferences" android:label="@string/preferences"></activity>
+	    <activity android:name=".view.Preferences" android:label="@string/preferences"></activity>
 	    
-	    <activity android:name=".AboutActivity" android:label="@string/about"></activity>
+	    <activity android:name=".view.AboutActivity" android:label="@string/about"></activity>
 	    
-	    <activity android:name=".BeepActivity" android:label="@string/beep"
+	    <activity android:name=".view.BeepActivity" android:label="@string/beep"
 	        android:launchMode="singleTask"
 	        android:screenOrientation="portrait">
 	    </activity>
 	    
-	    <activity android:name=".ListSamplesActivity" android:label="@string/list_samples">
-	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.MainMenu" />
+	    <activity android:name=".view.ListSamplesActivity" android:label="@string/list_samples">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.MainMenu" />
 	    </activity>
 	    
-	    <activity android:name=".NewSampleActivity" android:label="@string/new_sample" android:windowSoftInputMode="adjustPan">
-	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.MainMenu" />
+	    <activity android:name=".view.NewSampleActivity" android:label="@string/new_sample" android:windowSoftInputMode="adjustPan">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.MainMenu" />
 	    </activity>
 	    
-	    <activity android:name=".ViewSampleActivity" android:label="@string/view_sample">
-	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.ListSamplesActivity" />
+	    <activity android:name=".view.ViewSampleActivity" android:label="@string/view_sample">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.ListSamplesActivity" />
 	    </activity>
 	    
 	  </application>

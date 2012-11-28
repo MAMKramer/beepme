@@ -18,8 +18,12 @@ Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme;
+package com.glanznig.beepme.view;
 
+import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.R;
+import com.glanznig.beepme.R.string;
+import com.glanznig.beepme.R.xml;
 import com.glanznig.beepme.data.PreferenceHandler;
 
 import android.os.Bundle;

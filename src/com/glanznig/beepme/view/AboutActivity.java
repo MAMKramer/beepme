@@ -1,4 +1,9 @@
-package com.glanznig.beepme;
+package com.glanznig.beepme.view;
+
+import com.glanznig.beepme.R;
+import com.glanznig.beepme.R.id;
+import com.glanznig.beepme.R.layout;
+import com.glanznig.beepme.R.string;
 
 import android.app.Activity;
 import android.content.pm.PackageManager.NameNotFoundException;

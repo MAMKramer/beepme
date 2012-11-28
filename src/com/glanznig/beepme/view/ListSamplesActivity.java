@@ -18,13 +18,19 @@ Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme;
+package com.glanznig.beepme.view;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.SampleListAdapter;
+import com.glanznig.beepme.SampleListEntry;
+import com.glanznig.beepme.SampleListItem;
+import com.glanznig.beepme.SampleListSectionHeader;
+import com.glanznig.beepme.R.layout;
 import com.glanznig.beepme.data.Sample;
 
 import android.app.ListActivity;

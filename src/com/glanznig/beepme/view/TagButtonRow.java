@@ -18,7 +18,7 @@ Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme;
+package com.glanznig.beepme.view;
 
 import java.util.ArrayList;
 import java.util.Collections;

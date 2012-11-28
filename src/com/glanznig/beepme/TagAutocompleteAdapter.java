@@ -23,6 +23,7 @@ package com.glanznig.beepme;
 import java.util.ArrayList;
 
 import com.glanznig.beepme.data.Tag;
+import com.glanznig.beepme.view.NewSampleActivity;
 
 import android.content.Context;
 import android.view.LayoutInflater;

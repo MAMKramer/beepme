@@ -167,7 +167,7 @@ http://beepme.glanznig.com
 	                android:text="@string/add" />
 	        </RelativeLayout>
 	        
-	        <com.glanznig.beepme.TagButtonContainer
+	        <com.glanznig.beepme.view.TagButtonContainer
 	            android:id="@+id/new_sample_tag_container"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"

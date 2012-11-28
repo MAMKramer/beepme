@@ -18,13 +18,20 @@ Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme;
+package com.glanznig.beepme.view;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.R;
+import com.glanznig.beepme.R.drawable;
+import com.glanznig.beepme.R.id;
+import com.glanznig.beepme.R.layout;
+import com.glanznig.beepme.R.menu;
+import com.glanznig.beepme.R.string;
 import com.glanznig.beepme.data.DataExporter;
 
 import android.app.Activity;

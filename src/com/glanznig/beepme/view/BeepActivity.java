@@ -18,31 +18,29 @@ Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme;
+package com.glanznig.beepme.view;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
 
+import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.helper.BeepAlertManager;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffColorFilter;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -56,7 +54,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
 
-public class BeepActivity extends Activity implements AudioManager.OnAudioFocusChangeListener {
+public class BeepActivity extends Activity {
 	
 	private static final String TAG = "BeepActivity";
 	
@@ -94,8 +92,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	}
 	
 	private Date beepTime = null;
-	private MediaPlayer player = null;
-	private Vibrator vibrator = null;
+	private BeepAlertManager alertManager = null;
 	private PowerManager.WakeLock lock = null;
 	private TimeoutHandler handler = null;
 	private ScreenStateReceiver receiver = null;
@@ -134,17 +131,8 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 			lock.release();
 		}
 		
-		if (player != null) {
-			player.stop();
-			player.release();
-			
-			//abandon audio focus
-			AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-			audioManager.abandonAudioFocus(BeepActivity.this);
-		}
-		
-		if (vibrator != null) {
-			vibrator.cancel();
+		if (alertManager != null) {
+			alertManager.cleanUp();
 		}
 		
 		if (!BeepActivity.this.isFinishing()) {
@@ -188,19 +176,10 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 			lock.acquire();
 		}
 		
-		AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-			
-			initSound();
-			if (app.getPreferences().isVibrateAtBeep()) {
-				initVibration();
-			}
-		}
+		alertManager = new BeepAlertManager(BeepActivity.this);
+		alertManager.startAlert();
 		
-		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT
-				|| audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE) {
-			initVibration();
-		}
+		setVolumeControlStream(AudioManager.STREAM_ALARM);
 		
 		Button accept = (Button)findViewById(R.id.beep_btn_accept);
 		Button decline = (Button)findViewById(R.id.beep_btn_decline);
@@ -229,43 +208,7 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		
 		//record beep time
 		beepTime = new Date();
-	}
-	
-	private void initVibration() {
-		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-		//whole length 2353 ms
-		//start at 100, vibrate 800 ms, pause 1453 ms
-		long[] pattern = { 100, 800, 1453 };
-		vibrator.vibrate(pattern, 0);
-	}
-	
-	private void initSound() {
-		Resources res = getResources();
-		//beep sound is CC-BY JustinBW
-		AssetFileDescriptor alarmSound = res.openRawResourceFd(R.raw.beep);
-		player = new MediaPlayer();
-		player.setAudioStreamType(AudioManager.STREAM_ALARM);
-		setVolumeControlStream(AudioManager.STREAM_ALARM);
-		player.setLooping(true);
-		player.setOnPreparedListener(new OnPreparedListener() {
-			public void onPrepared(MediaPlayer mp) {
-				//request audio focus
-				AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-				int result = audioManager.requestAudioFocus(BeepActivity.this, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN);
-
-				if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-					mp.start();
-				}
-			}
-		});
-		
-		try {
-			player.setDataSource(alarmSound.getFileDescriptor(), alarmSound.getStartOffset(), alarmSound.getLength());
-			player.prepareAsync();
-		} catch (Exception e) {
-			Log.e(TAG, "error while playing beep sound", e);
-		}
-	}
+	}	
 	
 	public void onClickAccept(View view) {
 		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
@@ -285,12 +228,8 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 	}
 	
 	public void decline() {
-		if (player != null) {
-			player.stop();
-		}
-		
-		if (vibrator != null) {
-			vibrator.cancel();
+		if (alertManager != null) {
+			alertManager.stopAlert();
 		}
 		
 		BeeperApp app = (BeeperApp)getApplication();
@@ -301,46 +240,5 @@ public class BeepActivity extends Activity implements AudioManager.OnAudioFocusC
 		app.cancelCurrentScheduledBeep(); //mark beep as cancelled/unsuccessful because it was declined
 		app.setTimer();
 		finish();
-	}
-	
-	public void onAudioFocusChange(int focusChange) {
-	    switch (focusChange) {
-	        case AudioManager.AUDIOFOCUS_GAIN:
-	            // resume playback
-	            if (player == null) {
-	            	initSound();
-	            }
-	            else if (!player.isPlaying()) {
-	            	player.start();
-	            }
-	            player.setVolume(1.0f, 1.0f);
-	            break;
-
-	        case AudioManager.AUDIOFOCUS_LOSS:
-	            // Lost focus for an unbounded amount of time: stop playback and release media player
-	            if (player.isPlaying()) {
-	            	player.stop();
-	            }
-	            player.release();
-	            player = null;
-	            break;
-
-	        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-	            // Lost focus for a short time, but we have to stop
-	            // playback. We don't release the media player because playback
-	            // is likely to resume
-	            if (player.isPlaying()) {
-	            	player.pause();
-	            }
-	            break;
-
-	        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-	            // Lost focus for a short time, but it's ok to keep playing
-	            // at an attenuated level
-	            if (player.isPlaying()) {
-	            	player.setVolume(0.1f, 0.1f);
-	            }
-	            break;
-	    }
 	}
 }

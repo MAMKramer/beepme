@@ -30,6 +30,8 @@ import com.glanznig.beepme.data.StorageHandler;
 import com.glanznig.beepme.helper.GeneralTimerProfile;
 import com.glanznig.beepme.helper.HciTimerProfile;
 import com.glanznig.beepme.helper.TimerProfile;
+import com.glanznig.beepme.view.BeepActivity;
+import com.glanznig.beepme.view.MainMenu;
 
 import android.app.Activity;
 import android.app.AlarmManager;

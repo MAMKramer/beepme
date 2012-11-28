@@ -18,7 +18,7 @@ Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme;
+package com.glanznig.beepme.view;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +31,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.R;
+import com.glanznig.beepme.TagAutocompleteAdapter;
+import com.glanznig.beepme.R.id;
+import com.glanznig.beepme.R.layout;
+import com.glanznig.beepme.R.string;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
