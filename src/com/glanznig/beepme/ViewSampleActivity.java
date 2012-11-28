@@ -123,14 +123,14 @@ public class ViewSampleActivity extends Activity {
 				title.setVisibility(View.GONE);
 			}
 			
-			/*TextView description = (TextView)findViewById(R.id.view_sample_description);
+			TextView description = (TextView)findViewById(R.id.view_sample_description);
 			if (s.getDescription() != null && s.getDescription().length() > 0) {
 				description.setText(s.getDescription());
 			}
 			else {
 				findViewById(R.id.view_sample_label_description).setVisibility(View.GONE);
 				description.setVisibility(View.GONE);
-			}*/
+			}
 			
 			List<Tag> tags = s.getTags();
 			if (tags.size() > 0) {

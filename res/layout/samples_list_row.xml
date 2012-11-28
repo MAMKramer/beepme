@@ -19,32 +19,30 @@ Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:minHeight="?android:attr/listPreferredItemHeight" >
+    android:minHeight="?android:attr/listPreferredItemHeight">
 
     <TextView
         android:id="@+id/sample_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.7"
+        android:gravity="left"
+        android:paddingLeft="8dp"
         android:textSize="17dp" />
 
     <TextView
         android:id="@+id/sample_timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.3"
+        android:gravity="right"
+        android:paddingRight="8dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textSize="12dp" />
 
-</RelativeLayout>
+</LinearLayout>

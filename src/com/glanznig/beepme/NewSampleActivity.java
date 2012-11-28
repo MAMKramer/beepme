@@ -171,9 +171,9 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 				sample.setTitle(savedState.getCharSequence("title").toString());
 			}
 			
-			/*if (savedState.getCharSequence("description") != null) {
+			if (savedState.getCharSequence("description") != null) {
 				sample.setDescription(savedState.getCharSequence("description").toString());
-			}*/
+			}
 			
 			if (savedState.getCharSequence("photoUri") != null) {
 				sample.setPhotoUri(savedState.getCharSequence("photoUri").toString());
@@ -288,10 +288,10 @@ public class NewSampleActivity extends Activity implements OnClickListener {
         	titleWidget.setText(sample.getTitle());
         }
 		
-        /*if (sample.getDescription() != null) {
+        if (sample.getDescription() != null) {
         	EditText descriptionWidget = (EditText)findViewById(R.id.new_sample_description);
         	descriptionWidget.setText(sample.getDescription());
-        }*/
+        }
         
         AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_tag);
         TagAutocompleteAdapter adapter = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row);
@@ -346,10 +346,10 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		BeeperApp app = (BeeperApp)getApplication();
 		
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
-		//EditText description = (EditText)findViewById(R.id.new_sample_description);
+		EditText description = (EditText)findViewById(R.id.new_sample_description);
 		
 		sample.setTitle(title.getText().toString());
-		//sample.setDescription(description.getText().toString());
+		sample.setDescription(description.getText().toString());
 		app.getDataStore().editSample(sample);
 		
 		if (!isEdit) {
@@ -433,14 +433,14 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
-		//EditText description = (EditText)findViewById(R.id.new_sample_description);
+		EditText description = (EditText)findViewById(R.id.new_sample_description);
 		
 		if (sample.getTimestamp() != null) {
 			savedState.putLong("timestamp", sample.getTimestamp().getTime());
 		}
 		savedState.putLong("sampleId", sample.getId());
 		savedState.putCharSequence("title", title.getText());
-		//savedState.putCharSequence("description", description.getText());
+		savedState.putCharSequence("description", description.getText());
 		savedState.putBoolean("accepted", sample.getAccepted());
 		savedState.putCharSequence("photoUri", sample.getPhotoUri());
 		savedState.putBoolean("photoTaken", photoTaken);

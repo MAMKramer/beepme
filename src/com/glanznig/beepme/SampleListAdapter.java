@@ -38,13 +38,15 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	private final Context context;
 	private final List<SampleListItem> samples;
 	
+	private static final int MAX_TITLE_LENGTH = 60;
+	
 	static class EntryHolder {
 	    public TextView title;
 	    public TextView timestamp;
 	}
 	
 	static class HeaderHolder {
-	    public TextView title;
+	    public TextView headerTitle;
 	}
 	
 	public SampleListAdapter(Context context, List<SampleListItem> values) {
@@ -76,7 +78,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 				rowView = inflater.inflate(R.layout.samples_list_header, parent, false);
 				
 				HeaderHolder holder = new HeaderHolder();
-				holder.title = (TextView)rowView.findViewById(R.id.sample_list_header_title);
+				holder.headerTitle = (TextView)rowView.findViewById(R.id.sample_list_header_title);
 				rowView.setTag(holder);
 			}
 			
@@ -90,7 +92,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 					content = context.getString(R.string.today) + " "; 
 				}
 				content += dateFormat.format(viewDate);
-				holder.title.setText(content);
+				holder.headerTitle.setText(content);
 			}
 		}
 		else {
@@ -108,14 +110,20 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 			}
 			
 			EntryHolder holder = (EntryHolder)rowView.getTag();
+			SampleListEntry entry = (SampleListEntry)samples.get(position);
 			
-			if (((SampleListEntry)samples.get(position)).getTitle() != null && ((SampleListEntry)samples.get(position)).getTitle().length() > 0) {
-				holder.title.setText(((SampleListEntry)samples.get(position)).getTitle());
+			if (entry.getTitle() != null && entry.getTitle().length() > 0) {
+				String entryTitle = entry.getTitle();
+				if (entryTitle.length() > MAX_TITLE_LENGTH) {
+					entryTitle = entryTitle.substring(0, MAX_TITLE_LENGTH) + " ...";
+				}
+				
+				holder.title.setText(entryTitle);
 			}
 			else {
 				holder.title.setText(R.string.sample_untitled);
 			}
-			holder.timestamp.setText(dateTimeFormat.format(((SampleListEntry)samples.get(position)).getTimestamp()));
+			holder.timestamp.setText(dateTimeFormat.format(entry.getTimestamp()));
 		}
 		
 		return rowView;
