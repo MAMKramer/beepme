@@ -20,16 +20,11 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
@@ -38,21 +33,16 @@ import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
+import com.glanznig.beepme.helper.ImageHelper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -68,18 +58,12 @@ import android.widget.Toast;
 
 public class NewSampleActivity extends Activity implements OnClickListener {
 	
-	private static final int TAKE_PICTURE = 42;
-	private static final int THUMBNAIL_HEIGHT = 120; //in dp
 	private static final int THUMBNAIL_WIDTH = 80; //in dp
-	private static final int IMG_MAX_DIM = 1024; //in px
-	private static final int IMG_QUALITY = 75;
-	private static final String PICTURE_PREFIX = "beeper_img_";
 	private static final String TAG = "NewSampleActivity";
 	
 	private Sample sample = new Sample();
-	private String photoUri = null;
+	private ImageHelper img = null;
 	private boolean isEdit = false;
-	private boolean photoTaken = false;
 	private int lastTagId = 0;
 	
 	private static class ImgLoadHandler extends Handler {
@@ -122,32 +106,6 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	    }
 	}
 	
-	private static class ImgScaleHandler extends Handler {
-		WeakReference<Sample> sample;
-		
-		ImgScaleHandler(Sample sample) {
-			this.sample = new WeakReference<Sample>(sample);
-		}
-		
-	    @Override
-	    public void handleMessage(Message msg) {
-	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
-	    		Bitmap imageBitmap = (Bitmap)msg.obj;
-	    		if (sample != null) {
-	    			//save downscaled image to file
-	    			if (imageBitmap != null) {
-	    				try {
-							FileOutputStream outStream = new FileOutputStream(sample.get().getPhotoUri());
-							imageBitmap.compress(CompressFormat.JPEG, IMG_QUALITY, outStream);
-						} catch (Exception e) {
-							Log.e(TAG, "error while writing downscaled image", e);
-						}
-	    			}
-	    		}
-	    	}
-	    }
-	};
-	
 	@Override
 	public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -179,10 +137,6 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 				sample.setDescription(savedState.getCharSequence("description").toString());
 			}
 			
-			if (savedState.getCharSequence("photoUri") != null) {
-				sample.setPhotoUri(savedState.getCharSequence("photoUri").toString());
-			}
-			
 			if (savedState.getStringArrayList("tagList") != null) {
 				Iterator<String> i = savedState.getStringArrayList("tagList").iterator();
 				while (i.hasNext()) {
@@ -192,14 +146,20 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 				}
 			}
 			
+			if (savedState.getCharSequence("img") != null) {
+				img = new ImageHelper(NewSampleActivity.this);
+				img.setImageUri(savedState.getCharSequence("img").toString());
+			}
+			
 			lastTagId = savedState.getInt("tagId");
 			
 			sample.setAccepted(savedState.getBoolean("accepted"));
 			
 			isEdit = savedState.getBoolean("isEdit");
-			photoTaken = savedState.getBoolean("photoTaken");
 		}
 		else {
+			img = new ImageHelper(NewSampleActivity.this);
+			
 			Bundle b = getIntent().getExtras();
 			if (b != null) {
 				lastTagId = 0;
@@ -230,22 +190,10 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		final float scale = getResources().getDisplayMetrics().density;
 		
 		//check if device has camera feature
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-        	findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-        }
-        else {
-        	//check if device has app for taking images
-        	List<ResolveInfo> availApps = getPackageManager().queryIntentActivities(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), PackageManager.MATCH_DEFAULT_ONLY);
-        	if (availApps.size() == 0) {
-        		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-        	}
-        	//check if image can be saved to external storage
-        	else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-        		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-        	}
-        }
+		if (!img.isEnabled()) {
+			findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+		}
         
-        LinearLayout baseLayout = (LinearLayout)findViewById(R.id.new_sample_layout);
 		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_tag_container);
 		tagHolder.setLastTagId(lastTagId);
         
@@ -266,12 +214,12 @@ public class NewSampleActivity extends Activity implements OnClickListener {
         else {
         	setTitle(R.string.new_sample);
         	
-        	if (photoTaken && sample.getPhotoUri() != null) {
+        	if (img.getImageUri() != null) {
         		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
 				findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
 				
 				int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
-				AsyncImageScaler loader = new AsyncImageScaler(sample.getPhotoUri(), imageWidth, new ImgLoadHandler(NewSampleActivity.this));
+				AsyncImageScaler loader = new AsyncImageScaler(img.getImageUri(), imageWidth, new ImgLoadHandler(NewSampleActivity.this));
 				loader.start();
         	}
         	
@@ -353,6 +301,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
+		sample.setPhotoUri(img.getImageUri());
 		new SampleTable(this.getApplicationContext()).editSample(sample);
 		
 		if (!isEdit) {
@@ -371,13 +320,9 @@ public class NewSampleActivity extends Activity implements OnClickListener {
         replaceImgBuilder.setMessage(R.string.new_sample_replace_img_msg);
         replaceImgBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-            	if (sample.getPhotoUri() != null) {
-            		File pic = new File(sample.getPhotoUri());
-            		if (pic.delete()) {
-            			sample.setPhotoUri(null);
-            			findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
-                		takePhoto();
-            		}
+            	if (img.deleteImage()) {
+            		findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
+            		takePhoto();
             	}
             }
         });
@@ -391,44 +336,23 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	}
 	
 	private void takePhoto() {
-		//external storage is ready and writable - can be used
-		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			File picDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-			String picFilename = PICTURE_PREFIX + new SimpleDateFormat("yyyyMMddHHmmss").format(sample.getTimestamp()) + ".jpg";
-			File pictureFile = new File(picDir, picFilename);
-			try {
-                if(pictureFile.exists() == false) {
-                    pictureFile.getParentFile().mkdirs();
-                    pictureFile.createNewFile();
-                    photoUri = pictureFile.getAbsolutePath();
-                }
-            } catch (IOException e) {
-            	Log.e(TAG, "unable to create file.", e);
-            }
-			
-			Intent takePic = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			takePic = takePic.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(pictureFile));
-			startActivityForResult(takePic, TAKE_PICTURE);
+		Intent imgIntent = img.getIntent(sample.getTimestamp());
+		if (imgIntent != null) {
+			startActivityForResult(imgIntent, ImageHelper.TAKE_PICTURE);
 		}
 	}
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == TAKE_PICTURE) {
+		if (requestCode == ImageHelper.TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
-				sample.setPhotoUri(photoUri);
-				AsyncImageScaler loader = new AsyncImageScaler(sample.getPhotoUri(), IMG_MAX_DIM, new ImgScaleHandler(sample));
-				loader.start();
-				photoTaken = true;
-				photoUri = null;
+				img.captureSuccess();
 			}
 			else if (resultCode == Activity.RESULT_CANCELED) {
-				photoTaken = false;
-				if (sample.getPhotoUri() == null) {
-					findViewById(R.id.new_sample_btn_photo).setVisibility(View.VISIBLE);
-					findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
-					findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
-				}
+				img.setImageUri(null);
+				findViewById(R.id.new_sample_btn_photo).setVisibility(View.VISIBLE);
+				findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
+				findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
 			}
 		}
 	}
@@ -445,8 +369,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		savedState.putCharSequence("title", title.getText());
 		savedState.putCharSequence("description", description.getText());
 		savedState.putBoolean("accepted", sample.getAccepted());
-		savedState.putCharSequence("photoUri", sample.getPhotoUri());
-		savedState.putBoolean("photoTaken", photoTaken);
+		savedState.putCharSequence("imgUri", img.getImageUri());
 		savedState.putBoolean("isEdit", isEdit);
 		
 		if (sample.getTags().size() > 0) {
