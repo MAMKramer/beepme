@@ -34,10 +34,8 @@ import java.util.List;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.TagAutocompleteAdapter;
-import com.glanznig.beepme.R.id;
-import com.glanznig.beepme.R.layout;
-import com.glanznig.beepme.R.string;
 import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 
@@ -154,6 +152,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         setContentView(R.layout.new_sample);
+        SampleTable st = new SampleTable(this.getApplicationContext());
         
         ((ImageView)findViewById(R.id.new_sample_thumb)).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -165,8 +164,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		
 		if (savedState != null) {
 			if (savedState.getLong("sampleId") != 0L) {
-				BeeperApp app = (BeeperApp)getApplication();
-				sample = app.getDataStore().getSampleWithTags(savedState.getLong("sampleId"));
+				sample = st.getSampleWithTags(savedState.getLong("sampleId"));
 			}
 			
 			if (savedState.getLong("timestamp") != 0L) {
@@ -204,12 +202,11 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		else {
 			Bundle b = getIntent().getExtras();
 			if (b != null) {
-				BeeperApp app = (BeeperApp)getApplication();
 				lastTagId = 0;
 				
 				if (b.containsKey(getApplication().getClass().getPackage().getName() + ".SampleId")) { 
 					long sampleId = b.getLong(getApplication().getClass().getPackage().getName() + ".SampleId");
-					sample = app.getDataStore().getSampleWithTags(sampleId);
+					sample = st.getSampleWithTags(sampleId);
 					isEdit = true;
 				}
 				
@@ -217,7 +214,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 					long timestamp = b.getLong(getApplication().getClass().getPackage().getName() + ".Timestamp");
 					sample.setTimestamp(new Date(timestamp));
 					sample.setAccepted(true);
-					sample = app.getDataStore().addSample(sample);
+					sample = st.addSample(sample);
 				}
 			}
 		}
@@ -356,7 +353,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
-		app.getDataStore().editSample(sample);
+		new SampleTable(this.getApplicationContext()).editSample(sample);
 		
 		if (!isEdit) {
 			app.setTimer();

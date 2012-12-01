@@ -27,12 +27,9 @@ import java.text.NumberFormat;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.R.drawable;
-import com.glanznig.beepme.R.id;
-import com.glanznig.beepme.R.layout;
-import com.glanznig.beepme.R.menu;
-import com.glanznig.beepme.R.string;
 import com.glanznig.beepme.data.DataExporter;
+import com.glanznig.beepme.data.SampleTable;
+import com.glanznig.beepme.data.UptimeTable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -207,9 +204,10 @@ public class MainMenu extends Activity {
 			beeperStateToggle.getBackground().setColorFilter(green);
 		}
 		
-		int numAccepted = app.getDataStore().getNumAcceptedToday();
-		int numDeclined = app.getDataStore().getSampleCountToday() - numAccepted;
-		long uptimeDur = app.getDataStore().getUptimeDurToday();
+		SampleTable st = new SampleTable(this.getApplicationContext());
+		int numAccepted = st.getNumAcceptedToday();
+		int numDeclined = st.getSampleCountToday() - numAccepted;
+		long uptimeDur = new UptimeTable(this.getApplicationContext()).getUptimeDurToday();
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
 		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
 		TextView beeperActive = (TextView)findViewById(R.id.main_beeper_active_today);

@@ -20,6 +20,7 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.helper;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.glanznig.beepme.data.StorageHandler;
@@ -38,8 +39,8 @@ public class HciTimerProfile extends TimerProfile {
 	
 	private MersenneTwister rand;
 	
-	public HciTimerProfile(StorageHandler datastore) {
-		super(datastore);
+	public HciTimerProfile(Context ctx) {
+		super(ctx);
 		rand = new MersenneTwister();
 	}
 

@@ -30,8 +30,8 @@ import com.glanznig.beepme.SampleListAdapter;
 import com.glanznig.beepme.SampleListEntry;
 import com.glanznig.beepme.SampleListItem;
 import com.glanznig.beepme.SampleListSectionHeader;
-import com.glanznig.beepme.R.layout;
 import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.data.SampleTable;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -55,8 +55,7 @@ public class ListSamplesActivity extends ListActivity {
 	}
 	
 	private void populateList() {
-		BeeperApp app = (BeeperApp)getApplication();
-		List<Sample> samplesList = app.getDataStore().getSamples();
+		List<Sample> samplesList = new SampleTable(this.getApplicationContext()).getSamples();
 		ArrayList<SampleListItem> viewList = new ArrayList<SampleListItem>();
 		
 		Iterator<Sample> i = samplesList.iterator();

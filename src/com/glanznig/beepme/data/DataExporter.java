@@ -35,14 +35,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
 public class DataExporter {
 	
-	private static final String EXPORT_PREFIX = "beeper_data_";
+	private static final String EXPORT_PREFIX = "beepme_data_";
 	private static final String TAG = "DataExporter";
 	private static final int BUFFER = 2048;
 	Context ctx;
@@ -87,7 +85,7 @@ public class DataExporter {
 					fileList.add(picFiles[i]);
 				}
 			}
-			fileList.add(ctx.getDatabasePath(StorageHandler.DB_NAME));
+			fileList.add(ctx.getDatabasePath(StorageHandler.getDatabaseName()));
 			
 			return zipFiles(exportFile, fileList);
 		}

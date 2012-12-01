@@ -21,7 +21,6 @@ http://beepme.glanznig.com
 package com.glanznig.beepme.view;
 
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.R.string;
 
 import android.app.AlertDialog;
 import android.content.Context;

@@ -20,43 +20,47 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.helper;
 
-import com.glanznig.beepme.data.StorageHandler;
+import android.content.Context;
+
+import com.glanznig.beepme.data.SampleTable;
+import com.glanznig.beepme.data.ScheduledBeepTable;
+import com.glanznig.beepme.data.UptimeTable;
 
 public abstract class TimerProfile {
 	
-	private StorageHandler store;
+	private Context ctx;
 	public static final long MIN_UPTIME_DURATION = 60; //s = 1 min
 	
-	public TimerProfile(StorageHandler datastore) {
-		store = datastore;
+	public TimerProfile(Context ctx) {
+		this.ctx = ctx;
 	}
 	
 	public int getNumAcceptedToday() {
-		return store.getNumAcceptedToday();
+		return new SampleTable(ctx).getNumAcceptedToday();
 	}
 	
 	public int getSampleCountToday() {
-		return store.getSampleCountToday();
+		return new SampleTable(ctx).getSampleCountToday();
 	}
 	
 	public double getRatioAcceptedToday() {
-		return store.getRatioAcceptedToday();
+		return new SampleTable(ctx).getRatioAcceptedToday();
 	}
 	
 	public long getUptimeDurationToday() {
-		return store.getUptimeDurToday();
+		return new UptimeTable(ctx).getUptimeDurToday();
 	}
 	
 	public double getAvgUptimeDurationToday() {
-		return store.getAvgUptimeDurToday();
+		return new UptimeTable(ctx).getAvgUptimeDurToday();
 	}
 	
 	public int getUptimeCountToday() {
-		return store.getUptimeCountToday();
+		return new UptimeTable(ctx).getUptimeCountToday();
 	}
 	
 	public int getNumLastSubsequentCancelledBeeps() {
-		return store.getNumLastSubsequentCancelledBeeps();
+		return new ScheduledBeepTable(ctx).getNumLastSubsequentCancelledBeeps();
 	}
 	
 	public abstract long getTimer();

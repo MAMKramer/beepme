@@ -26,7 +26,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import com.glanznig.beepme.data.PreferenceHandler;
+import com.glanznig.beepme.data.ScheduledBeepTable;
 import com.glanznig.beepme.data.StorageHandler;
+import com.glanznig.beepme.data.UptimeTable;
 import com.glanznig.beepme.helper.GeneralTimerProfile;
 import com.glanznig.beepme.helper.HciTimerProfile;
 import com.glanznig.beepme.helper.TimerProfile;
@@ -50,7 +52,6 @@ import android.util.Log;
 
 public class BeeperApp extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
-	private StorageHandler dataStore;
 	private PreferenceHandler preferences;
 	private PendingIntent alarmIntent;
 	private long currentUptimeId = 0L;
@@ -61,10 +62,6 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	private static final int NOTIFICATION_ID = 1283;
 	private static final String TAG = "BeeperApp";
 	
-	public StorageHandler getDataStore() {
-		return dataStore;
-	}
-	
 	public PreferenceHandler getPreferences() {
 		return preferences;
 	}
@@ -74,13 +71,14 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public void setBeeperActive(boolean active) {
+		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext());
 		getPreferences().setBeeperActive(active);
 		if (active) {
-			currentUptimeId = getDataStore().startUptime(new Date());
+			currentUptimeId = uptimeTbl.startUptime(new Date());
 			createNotification();
 		}
 		else if (currentUptimeId != 0L) {
-			getDataStore().endUptime(currentUptimeId, new Date());
+			uptimeTbl.endUptime(currentUptimeId, new Date());
 			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			manager.cancel(TAG, NOTIFICATION_ID);
 		}
@@ -128,7 +126,6 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	public void onCreate() {
 		super.onCreate();
 		
-		dataStore = new StorageHandler(this.getApplicationContext());
 		preferences = new PreferenceHandler(this.getApplicationContext());
 		preferences.registerOnPreferenceChangeListener(BeeperApp.this);
 		
@@ -142,10 +139,10 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		String profile = preferences.getTimerProfile();
 		
 		if (profile.equals("hci")) {
-			timerProfile =  new HciTimerProfile(dataStore);
+			timerProfile =  new HciTimerProfile(this.getApplicationContext());
 		}
 		else {
-			timerProfile = new GeneralTimerProfile(dataStore);
+			timerProfile = new GeneralTimerProfile(this.getApplicationContext());
 		}
 	}
 	
@@ -157,7 +154,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	        alarmTime.add(Calendar.SECOND, (int)timer);
 	        //Log.i(TAG, "alarm in " + timer + " seconds.");
 	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
-	        scheduledBeepId = getDataStore().addScheduledBeep(alarmTime.getTimeInMillis(), currentUptimeId);
+	        scheduledBeepId = new ScheduledBeepTable(this.getApplicationContext()).addScheduledBeep(alarmTime.getTimeInMillis(), currentUptimeId);
 	        
 	        Intent intent = new Intent(this, BeepActivity.class);
 	        alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
@@ -176,7 +173,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public void cancelCurrentScheduledBeep() {
-		getDataStore().cancelScheduledBeep(scheduledBeepId);
+		new ScheduledBeepTable(this.getApplicationContext()).cancelScheduledBeep(scheduledBeepId);
 	}
 	
 	public void beep() {
@@ -195,7 +192,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		
 		if (key.equals(PreferenceHandler.KEY_TEST_MODE)) {
 			//delete data in database
-			getDataStore().truncateTables();
+			new StorageHandler(this.getApplicationContext()).truncateTables();
 			
 			//delete pictures
 			if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {

@@ -26,6 +26,7 @@ import java.util.Date;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.helper.BeepAlertManager;
 
 import android.app.Activity;
@@ -164,8 +165,6 @@ public class BeepActivity extends Activity {
 		lp.setMargins(0, ((displayHeight - buttonsHeight) / 2) - (iconHeight / 2), 0, 0);
 		beepIcon.setLayoutParams(lp);
 		
-		BeeperApp app = (BeeperApp)getApplication();
-		
 		handler = new TimeoutHandler(BeepActivity.this);
 		handler.sendEmptyMessageDelayed(1, 60000); // 1 minute timeout for activity
 		
@@ -195,8 +194,9 @@ public class BeepActivity extends Activity {
 		decline.getBackground().setColorFilter(red);
 		decline_pause.getBackground().setColorFilter(red);
 		
-		int numAccepted = app.getDataStore().getNumAcceptedToday();
-		int numDeclined = app.getDataStore().getSampleCountToday() - numAccepted;
+		SampleTable st = new SampleTable(this.getApplicationContext());
+		int numAccepted = st.getNumAcceptedToday();
+		int numDeclined = st.getSampleCountToday() - numAccepted;
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
 		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
 		String accepted = String.format(getString(R.string.beep_accepted_today), numAccepted);
@@ -236,7 +236,7 @@ public class BeepActivity extends Activity {
 		Sample sample = new Sample();
 		sample.setTimestamp(beepTime);
 		sample.setAccepted(false);
-		app.getDataStore().addSample(sample);
+		new SampleTable(this.getApplicationContext()).addSample(sample);
 		app.cancelCurrentScheduledBeep(); //mark beep as cancelled/unsuccessful because it was declined
 		app.setTimer();
 		finish();

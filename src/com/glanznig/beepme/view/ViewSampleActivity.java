@@ -28,9 +28,8 @@ import java.util.List;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.R.id;
-import com.glanznig.beepme.R.layout;
 import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 
@@ -106,8 +105,7 @@ public class ViewSampleActivity extends Activity {
 	
 	private void populateFields() {
 		if (sampleId != 0L) {
-			BeeperApp app = (BeeperApp)getApplication();
-			Sample s = app.getDataStore().getSampleWithTags(sampleId);
+			Sample s = new SampleTable(this.getApplicationContext()).getSampleWithTags(sampleId);
 			
 			LinearLayout editBtn = (LinearLayout)findViewById(R.id.view_sample_buttons);
 			//not editable if more than a day old

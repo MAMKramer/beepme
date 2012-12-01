@@ -23,7 +23,7 @@ package com.glanznig.beepme;
 import java.util.ArrayList;
 
 import com.glanznig.beepme.data.Tag;
-import com.glanznig.beepme.view.NewSampleActivity;
+import com.glanznig.beepme.data.TagTable;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -93,8 +93,7 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
                     // Retrieve the auto-complete results.
-                	BeeperApp app = (BeeperApp)((NewSampleActivity)ctx).getApplication();
-            		resultList = (ArrayList<Tag>)app.getDataStore().getTags(constraint.toString());
+            		resultList = (ArrayList<Tag>)new TagTable(ctx.getApplicationContext()).getTags(constraint.toString());
                     
                     // Assign the data to the FilterResults
                     filterResults.values = resultList;
