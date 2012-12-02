@@ -23,14 +23,12 @@ package com.glanznig.beepme.helper;
 import android.content.Context;
 import android.util.Log;
 
-import com.glanznig.beepme.data.StorageHandler;
-
 public class HciTimerProfile extends TimerProfile {
 	
 	//all times in seconds
-	private static final int avgBeepInterval = 300; //5 min
-	private static final int maxBeepInterval = 600; //10 min
-	private static final int minBeepInterval = 120; //2 min
+	public static final int avgBeepInterval = 300; //5 min
+	public static final int maxBeepInterval = 600; //10 min
+	public static final int minBeepInterval = 120; //2 min
 	
 	private static final int uptimeCountMoveToAverage = 3;
 	private static final int numCancelledBeepsMoveToAverage = 2;
@@ -72,18 +70,16 @@ public class HciTimerProfile extends TimerProfile {
 		else {
 			double avgUptimeDuration = getAvgUptimeDurationToday();
 			
-			avg = Math.round(avgUptimeDuration / 2);
+			avg = Math.min(Math.round(avgUptimeDuration / 2), GeneralTimerProfile.avgBeepInterval);
 			if (negative) {
 				max = avg;
-				if (MIN_UPTIME_DURATION < max) {
-					min = (long)MIN_UPTIME_DURATION;
-				}
-				else {
-					min = 0;
+				min = minBeepInterval;
+				if (min >= max) {
+					min = MIN_UPTIME_DURATION;
 				}
 			}
 			else {
-				max = Math.round(avgUptimeDuration);
+				max = Math.min(Math.round(avgUptimeDuration), GeneralTimerProfile.maxBeepInterval);
 				min = avg;
 			}
 		}
