@@ -29,6 +29,7 @@ import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.DataExporter;
 import com.glanznig.beepme.data.SampleTable;
+import com.glanznig.beepme.data.ScheduledBeepTable;
 import com.glanznig.beepme.data.UptimeTable;
 
 import android.app.Activity;
@@ -150,6 +151,22 @@ public class MainMenu extends Activity {
 		super.onResume();
 		
 		populateFields();
+		
+		//make sure that scheduled beeps do not expire do to an error
+		BeeperApp app = (BeeperApp)getApplication();
+		if (app.isBeeperActive()) {
+			long scheduledBeepId = app.getPreferences().getScheduledBeepId();
+			
+			if (scheduledBeepId != 0L) {
+				if (new ScheduledBeepTable(this.getApplicationContext()).isExpired(scheduledBeepId)) {
+					app.clearTimer();
+					app.setTimer();
+				}
+			}
+			else {
+				app.setTimer();
+			}
+		}
 	}
 	
 	private void populateFields() {

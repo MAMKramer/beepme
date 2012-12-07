@@ -52,10 +52,7 @@ import android.util.Log;
 
 public class BeeperApp extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
-	private PreferenceHandler preferences;
-	private PendingIntent alarmIntent;
-	private long currentUptimeId = 0L;
-	private long scheduledBeepId = 0L;
+	private PreferenceHandler preferences = null;
 	private TimerProfile timerProfile;
 	
 	private static final int ALARM_INTENT_ID = 5332;
@@ -63,6 +60,11 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	private static final String TAG = "BeeperApp";
 	
 	public PreferenceHandler getPreferences() {
+		if (preferences == null) {
+			preferences = new PreferenceHandler(this.getApplicationContext());
+			preferences.registerOnPreferenceChangeListener(BeeperApp.this);
+		}
+		
 		return preferences;
 	}
 	
@@ -74,13 +76,18 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext());
 		getPreferences().setBeeperActive(active);
 		if (active) {
-			currentUptimeId = uptimeTbl.startUptime(new Date());
+			getPreferences().setUptimeId(uptimeTbl.startUptime(new Date()));
 			createNotification();
 		}
-		else if (currentUptimeId != 0L) {
-			uptimeTbl.endUptime(currentUptimeId, new Date());
-			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-			manager.cancel(TAG, NOTIFICATION_ID);
+		else {
+			long uptimeId = getPreferences().getUptimeId();
+			
+			if (uptimeId != 0L) {
+				uptimeTbl.endUptime(uptimeId, new Date());
+				getPreferences().setUptimeId(0L);
+				NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+				manager.cancel(TAG, NOTIFICATION_ID);
+			}
 		}
 	}
 	
@@ -125,14 +132,53 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
-		preferences = new PreferenceHandler(this.getApplicationContext());
-		preferences.registerOnPreferenceChangeListener(BeeperApp.this);
-		
+		getPreferences();
 		setTimerProfile();
-		setBeeperActive(false);
-		NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		manager.cancelAll();
+		
+		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext());
+		
+		if (isBeeperActive()) {
+			long scheduledBeepId = getPreferences().getScheduledBeepId();
+			//is there a scheduled beep, if no, create one, if yes and it is expired, create a new one
+			if (scheduledBeepId != 0L) {
+				if (new ScheduledBeepTable(this.getApplicationContext()).isExpired(scheduledBeepId)) {
+					clearTimer();
+					setTimer();
+				}
+			}
+			else {
+				setTimer();
+			}
+			
+			//is there a notification, if no, create one
+			//cannot check if there is a notification or not, so call create, it will be replaced
+			createNotification();
+			
+			//is there a open uptime interval, if no, create one
+			long uptimeId = getPreferences().getUptimeId();
+			if (uptimeId == 0L) {
+				getPreferences().setUptimeId(uptimeTbl.startUptime(new Date()));
+			}
+		}
+		else {
+			long scheduledBeepId = getPreferences().getScheduledBeepId();
+			//is there a scheduled beep, if yes, cancel it
+			if (scheduledBeepId != 0L) {
+				clearTimer();
+			}
+			
+			//cancel notification
+			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+			manager.cancel(TAG, NOTIFICATION_ID);
+			
+			//is there a open uptime interval, if yes, end it
+			long uptimeId = getPreferences().getUptimeId();
+			
+			if (uptimeId != 0L) {
+				uptimeTbl.endUptime(uptimeId, new Date());
+				getPreferences().setUptimeId(0L);
+			}
+		}
 	}
 	
 	public void setTimerProfile() {
@@ -150,14 +196,21 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		if (preferences.isBeeperActive()) {
 			Calendar alarmTime = Calendar.getInstance();
 			Calendar alarmTimeUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+			
+			if (timerProfile == null) {
+				setTimerProfile();
+			}
+			
 			long timer = timerProfile.getTimer();
 	        alarmTime.add(Calendar.SECOND, (int)timer);
 	        //Log.i(TAG, "alarm in " + timer + " seconds.");
 	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
-	        scheduledBeepId = new ScheduledBeepTable(this.getApplicationContext()).addScheduledBeep(alarmTime.getTimeInMillis(), currentUptimeId);
+	        getPreferences().setScheduledBeepId(new ScheduledBeepTable(
+	        		this.getApplicationContext()).addScheduledBeep(alarmTime.getTimeInMillis(),
+	        		getPreferences().getUptimeId()));
 	        
 	        Intent intent = new Intent(this, BeepActivity.class);
-	        alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
+	        PendingIntent alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
 	        		PendingIntent.FLAG_CANCEL_CURRENT);
 	        AlarmManager manager = (AlarmManager)getSystemService(Activity.ALARM_SERVICE);
 	        manager.set(AlarmManager.RTC_WAKEUP, alarmTimeUTC.getTimeInMillis(), alarmIntent);
@@ -165,15 +218,16 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public void clearTimer() {
-		if (alarmIntent != null) {
-			alarmIntent.cancel();
-			cancelCurrentScheduledBeep();
-			alarmIntent = null;
-		}
+		Intent intent = new Intent(this, BeepActivity.class);
+        PendingIntent alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
+        		PendingIntent.FLAG_CANCEL_CURRENT);
+		alarmIntent.cancel();
+		cancelCurrentScheduledBeep();
 	}
 	
 	public void cancelCurrentScheduledBeep() {
-		new ScheduledBeepTable(this.getApplicationContext()).cancelScheduledBeep(scheduledBeepId);
+		new ScheduledBeepTable(this.getApplicationContext()).cancelScheduledBeep(getPreferences().getScheduledBeepId());
+		getPreferences().setScheduledBeepId(0L);
 	}
 	
 	public void beep() {

@@ -21,6 +21,7 @@ http://beepme.glanznig.com
 package com.glanznig.beepme.data;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import android.content.ContentValues;
@@ -92,6 +93,27 @@ public class ScheduledBeepTable extends StorageHandler {
 		}
 	
 		return numRows == 1 ? true : false;
+	}
+	
+	public boolean isExpired(long beepId) {
+		
+		if (beepId != 0L) {
+			SQLiteDatabase db = getDb();
+			Cursor cursor = db.query(getTableName(), new String[] {"timestamp"}, null, null, null, null, null);
+			
+			if (cursor != null && cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				long timestamp = cursor.getLong(0);
+				
+				if (timestamp < new Date().getTime()) {
+					return true;
+				}
+				cursor.close();
+			}
+			db.close();
+		}
+	
+		return false;
 	}
 	
 	public int getNumLastSubsequentCancelledBeeps() {

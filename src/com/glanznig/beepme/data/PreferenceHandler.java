@@ -31,6 +31,8 @@ public class PreferenceHandler {
 	public static final String KEY_WARN_NO_WIFI = "warnNoWifi";
 	public static final String KEY_TIMER_PROFILE = "timerProfile";
 	public static final String KEY_TEST_MODE = "testMode";
+	public static final String KEY_UPTIME_ID = "uptimeId";
+	public static final String KEY_SCHEDULED_BEEP_ID = "scheduledBeepId";
 	
 	private Context ctx;
 	
@@ -52,6 +54,30 @@ public class PreferenceHandler {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(KEY_BEEPER_ACTIVE, active);
+		editor.commit();
+	}
+	
+	public long getUptimeId() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		return prefs.getLong(KEY_UPTIME_ID, 0L);
+	}
+	
+	public void setUptimeId(long uptimeId) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putLong(KEY_UPTIME_ID, uptimeId);
+		editor.commit();
+	}
+	
+	public long getScheduledBeepId() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		return prefs.getLong(KEY_SCHEDULED_BEEP_ID, 0L);
+	}
+	
+	public void setScheduledBeepId(long beepId) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putLong(KEY_SCHEDULED_BEEP_ID, beepId);
 		editor.commit();
 	}
 	
