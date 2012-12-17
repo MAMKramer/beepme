@@ -37,6 +37,7 @@ http://beepme.glanznig.com
     <string name="edit">Eintrag ändern</string>
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="error_no_mail_apps">Es sind keine E-Mail Apps verfügbar.</string>
+    <string name="export_active">Daten werden exportiert.</string>
     <string name="export_data">Daten exportieren</string>
     <string name="export_mail_subject">BeepMe Datenexport</string>
     <string name="export_send_mail_msg">Das Archiv ist %1$s groß. Möchten Sie es per Mail versenden?</string>

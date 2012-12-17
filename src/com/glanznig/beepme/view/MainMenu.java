@@ -84,7 +84,7 @@ public class MainMenu extends Activity {
 		
 		@Override
 		public void handleMessage(Message message) {
-			if (mainMenu != null) {
+			if (mainMenu.get() != null) {
 				data = message.getData();
 				if (data.getString("fileName") != null) {
 					
@@ -129,10 +129,10 @@ public class MainMenu extends Activity {
 		}
 		@Override
 	    public void run() {
-			if (mainMenu != null) {
+			if (mainMenu.get() != null) {
 				DataExporter exporter = new DataExporter(mainMenu.get().getApplicationContext());
 				String fileName = exporter.exportToZipFile();
-				if (handler != null) {
+				if (handler.get() != null) {
 					Message msg = new Message();
 					Bundle bundle = new Bundle();
 					bundle.putString("fileName", fileName);

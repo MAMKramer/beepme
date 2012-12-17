@@ -77,7 +77,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	    public void handleMessage(Message msg) {
 	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
-	    		if (newSampleActivity != null) {
+	    		if (newSampleActivity.get() != null) {
 		    		if (imageBitmap != null) {
 						NewSampleActivity nsa = newSampleActivity.get();
 						if (nsa != null) {

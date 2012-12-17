@@ -37,6 +37,7 @@ http://beepme.glanznig.com
     <string name="edit">Edit Sample</string>
     <string name="edit_sample">Edit Sample</string>
     <string name="error_no_mail_apps">There are no mail apps available.</string>
+    <string name="export_active">Data are being exported.</string>
     <string name="export_data">Export Data</string>
     <string name="export_mail_subject">BeepMe Data Export</string>
     <string name="export_send_mail_msg">The archive has the size of %1$s. Do you want to send it by mail?</string>

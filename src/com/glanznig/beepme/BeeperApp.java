@@ -132,6 +132,9 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		getPreferences();
 		setTimerProfile();
 		
+		//set export running to false
+		getPreferences().setExportRunning(false);
+		
 		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext());
 		
 		if (isBeeperActive()) {

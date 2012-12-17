@@ -104,7 +104,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 		
 		@Override
 		public void handleMessage(Message message) {
-			if (progress != null) {
+			if (progress.get() != null) {
 				progress.get().cancel();
 			}
 		}
@@ -120,7 +120,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 		}
 		@Override
 	    public void run() {
-			if (activity != null) {
+			if (activity.get() != null) {
 				//delete data in database
 				new StorageHandler(activity.get().getApplicationContext()).truncateTables();
 				
@@ -133,7 +133,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 					}
 				}
 				
-				if (handler != null) {
+				if (handler.get() != null) {
 					Message msg = new Message();
 					handler.get().sendMessage(msg);
 				}

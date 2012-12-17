@@ -68,7 +68,7 @@ public class BeepActivity extends Activity {
 		
 		@Override
 		public void handleMessage(Message message) {
-			if (beepActivity != null) {
+			if (beepActivity.get() != null) {
 				beepActivity.get().decline();
 			}
 		}
@@ -84,7 +84,7 @@ public class BeepActivity extends Activity {
 	    @Override
 	    public void onReceive(final Context context, final Intent intent) {
 	        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-	            if (beepActivity != null) {
+	            if (beepActivity.get() != null) {
 	            	beepActivity.get().finish();
 	            }
 	        }

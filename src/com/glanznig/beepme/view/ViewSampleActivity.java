@@ -61,7 +61,7 @@ public class ViewSampleActivity extends Activity {
 	    public void handleMessage(Message msg) {
 	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
-	    		if (viewSampleActivity != null) {
+	    		if (viewSampleActivity.get() != null) {
 			    	if (imageBitmap != null) {
 						viewSampleActivity.get().findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
 						ImageView image = (ImageView)viewSampleActivity.get().findViewById(R.id.view_sample_image);
