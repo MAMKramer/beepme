@@ -23,10 +23,12 @@ package com.glanznig.beepme.helper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -51,26 +53,37 @@ public class ImageHelper {
 	
 	private static class ImgScaleHandler extends Handler {
 		String imageUri = null;
+		WeakReference<Activity> activity;
 		
-		ImgScaleHandler(String uri) {
+		ImgScaleHandler(String uri, Activity callback) {
 			this.imageUri = uri;
+			
+			activity = null;
+			if (callback != null) {
+				if (callback instanceof ImageHelperCallback) {
+					activity = new WeakReference<Activity>(callback);
+				}
+				else {
+					Log.e(TAG, "calling activity must implement ImageHelperCallback.");
+				}
+			}
 		}
 		
 	    @Override
 	    public void handleMessage(Message msg) {
-	    	Log.i(TAG, "what: " + msg.what);
 	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
-	    		Log.i(TAG, "message from image scaler");
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
 	    		if (imageUri != null) {
-	    			Log.i(TAG, "imageUri: "+ imageUri);
 	    			//save downscaled image to file
 	    			if (imageBitmap != null) {
-	    				Log.i(TAG, "imageBitmap is there");
 	    				try {
 							FileOutputStream outStream = new FileOutputStream(imageUri);
 							//TODO: save in copy, delete, rename?
 							imageBitmap.compress(CompressFormat.JPEG, IMG_QUALITY, outStream);
+							
+							if (activity != null && activity.get() != null) {
+								((ImageHelperCallback)activity.get()).imageScalingCompleted();
+							}
 						} catch (Exception e) {
 							Log.e(TAG, "error while writing downscaled image", e);
 						}
@@ -129,8 +142,12 @@ public class ImageHelper {
 	}
 	
 	public void scaleImage() {
+		scaleImage(null);
+	}
+	
+	public void scaleImage(Activity callback) {
 		if (imageUri != null) {
-			AsyncImageScaler loader = new AsyncImageScaler(imageUri, IMG_MAX_DIM, new ImgScaleHandler(imageUri));
+			AsyncImageScaler loader = new AsyncImageScaler(imageUri, IMG_MAX_DIM, new ImgScaleHandler(imageUri, callback));
 			loader.start();
 		}
 	}

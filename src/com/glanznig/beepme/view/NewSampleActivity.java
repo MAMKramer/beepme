@@ -34,6 +34,7 @@ import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.ImageHelper;
+import com.glanznig.beepme.helper.ImageHelperCallback;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -56,7 +57,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NewSampleActivity extends Activity implements OnClickListener {
+public class NewSampleActivity extends Activity implements OnClickListener, ImageHelperCallback {
 	
 	private static final int THUMBNAIL_WIDTH = 80; //in dp
 	private static final String TAG = "NewSampleActivity";
@@ -79,12 +80,9 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
 	    		if (newSampleActivity.get() != null) {
 		    		if (imageBitmap != null) {
-						NewSampleActivity nsa = newSampleActivity.get();
-						if (nsa != null) {
-							View progressBar = nsa.findViewById(R.id.new_sample_image_load);
-							if (progressBar != null) {
-								progressBar.setVisibility(View.GONE);
-							}
+						View progressBar = newSampleActivity.get().findViewById(R.id.new_sample_image_load);
+						if (progressBar != null) {
+							progressBar.setVisibility(View.GONE);
 						}
 						ImageView imageView = (ImageView)newSampleActivity.get().findViewById(R.id.new_sample_thumb);
 						if (imageView != null) {
@@ -93,12 +91,9 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 						}
 					}
 					else {
-						NewSampleActivity nsa = newSampleActivity.get();
-						if (nsa != null) {
-							View progressBar = nsa.findViewById(R.id.view_sample_image_load);
-							if (progressBar != null) {
-								progressBar.setVisibility(View.GONE);
-							}
+						View progressBar = newSampleActivity.get().findViewById(R.id.view_sample_image_load);
+						if (progressBar != null) {
+							progressBar.setVisibility(View.GONE);
 						}
 					}
 	    		}
@@ -187,8 +182,6 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 	}
 	
 	private void populateFields() {
-		final float scale = getResources().getDisplayMetrics().density;
-		
 		//check if device has camera feature
 		if (!img.isEnabled()) {
 			findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
@@ -217,10 +210,6 @@ public class NewSampleActivity extends Activity implements OnClickListener {
         	if (img.getImageUri() != null) {
         		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
 				findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
-				
-				int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
-				AsyncImageScaler loader = new AsyncImageScaler(img.getImageUri(), imageWidth, new ImgLoadHandler(NewSampleActivity.this));
-				loader.start();
         	}
         	
         	Button save = (Button)findViewById(R.id.new_sample_btn_save);
@@ -347,7 +336,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		if (requestCode == ImageHelper.TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
 				img.captureSuccess();
-				img.scaleImage();
+				img.scaleImage(NewSampleActivity.this);
 			}
 			else if (resultCode == Activity.RESULT_CANCELED) {
 				img.setImageUri(null);
@@ -422,5 +411,13 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 				NewSampleActivity.this.saveSample();
 			}
 		}
+	}
+
+	@Override
+	public void imageScalingCompleted() {
+		final float scale = getResources().getDisplayMetrics().density;
+		int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
+		AsyncImageScaler loader = new AsyncImageScaler(img.getImageUri(), imageWidth, new ImgLoadHandler(NewSampleActivity.this));
+		loader.start();
 	}
 }
