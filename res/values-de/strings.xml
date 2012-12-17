@@ -33,6 +33,7 @@ http://beepme.glanznig.com
     <string name="beep_declined_today">Abgelehnt: %1$s</string>
     <string name="beeper_active">Beeper ist aktiv.</string>
     <string name="cancel">Abbrechen</string>
+    <string name="data_delete_progress">Lösche Daten...</string>
     <string name="edit">Eintrag ändern</string>
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="error_no_mail_apps">Es sind keine E-Mail Apps verfügbar.</string>

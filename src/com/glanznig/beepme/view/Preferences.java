@@ -20,23 +20,33 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
+import java.io.File;
+import java.lang.ref.WeakReference;
+
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.PreferenceHandler;
+import com.glanznig.beepme.data.StorageHandler;
 
+import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 
-public class Preferences extends PreferenceActivity {
+public class Preferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
 	private boolean vibrateAtBeep;
 	//private boolean warnNoWifi;
 	private String timerProfile;
 	private boolean testMode;
 	
-	private static final String TAG = "beeper";
+	private static final String TAG = "Preferences";
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -44,6 +54,7 @@ public class Preferences extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences);
 		
 		PreferenceHandler prefs = ((BeeperApp)getApplication()).getPreferences();
+		prefs.registerOnPreferenceChangeListener(Preferences.this);
 		vibrateAtBeep = prefs.isVibrateAtBeep();
 		//warnNoWifi = prefs.isWarnNoWifi();
 		timerProfile = prefs.getTimerProfile();
@@ -69,5 +80,64 @@ public class Preferences extends PreferenceActivity {
         ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE);
         formTimerProfile.setEntries(new String[] { "HCI", getResources().getString(R.string.general_profile) });
         formTimerProfile.setEntryValues(new String[] { "hci", "general" });
+	}
+	
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals(PreferenceHandler.KEY_TEST_MODE)) {
+			ProgressDialog progress = new ProgressDialog(Preferences.this);
+            progress.setMessage(getString(R.string.data_delete_progress));
+            progress.setCancelable(false);
+            
+    		DeleteDataHandler handler = new DeleteDataHandler(progress);
+			progress.show();
+			new Thread(new DeleteDataRunnable(Preferences.this, handler)).start();
+		}
+	}
+	
+	private static class DeleteDataHandler extends Handler {
+		WeakReference<ProgressDialog> progress;
+		
+		DeleteDataHandler(ProgressDialog progress) {
+			this.progress = new WeakReference<ProgressDialog>(progress);
+		}
+		
+		@Override
+		public void handleMessage(Message message) {
+			if (progress != null) {
+				progress.get().cancel();
+			}
+		}
+	}
+	
+	private static class DeleteDataRunnable implements Runnable {
+		WeakReference<Preferences> activity;
+		WeakReference<DeleteDataHandler> handler;
+		
+		DeleteDataRunnable(Preferences activity, DeleteDataHandler handler) {
+			this.activity = new WeakReference<Preferences>(activity);
+			this.handler = new WeakReference<DeleteDataHandler>(handler); 
+		}
+		@Override
+	    public void run() {
+			if (activity != null) {
+				//delete data in database
+				new StorageHandler(activity.get().getApplicationContext()).truncateTables();
+				
+				//delete pictures
+				if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+					File picDir = activity.get().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+					File[] allFiles = picDir.listFiles();
+					for (int i = 0; i < allFiles.length; i++) {
+						allFiles[i].delete();
+					}
+				}
+				
+				if (handler != null) {
+					Message msg = new Message();
+					handler.get().sendMessage(msg);
+				}
+			}
+	    }
 	}
 }

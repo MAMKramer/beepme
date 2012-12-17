@@ -59,5 +59,4 @@ public class ConfirmCheckBoxPreference extends CheckBoxPreference {
         warnTestModeBuilder.setNegativeButton(R.string.no, null);
         warnTestModeBuilder.create().show();
 	}
-
 }

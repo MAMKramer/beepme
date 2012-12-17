@@ -20,14 +20,12 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
 import com.glanznig.beepme.data.PreferenceHandler;
 import com.glanznig.beepme.data.ScheduledBeepTable;
-import com.glanznig.beepme.data.StorageHandler;
 import com.glanznig.beepme.data.UptimeTable;
 import com.glanznig.beepme.helper.GeneralTimerProfile;
 import com.glanznig.beepme.helper.HciTimerProfile;
@@ -45,7 +43,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
@@ -247,21 +244,6 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		if (key.equals(PreferenceHandler.KEY_TIMER_PROFILE)) {
 			setTimerProfile();
 		}
-		
-		if (key.equals(PreferenceHandler.KEY_TEST_MODE)) {
-			//delete data in database
-			new StorageHandler(this.getApplicationContext()).truncateTables();
-			
-			//delete pictures
-			if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-				File picDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-				File[] allFiles = picDir.listFiles();
-				for (int i = 0; i < allFiles.length; i++) {
-					allFiles[i].delete();
-				}
-			}
-		}
 	}
-
 }
 
