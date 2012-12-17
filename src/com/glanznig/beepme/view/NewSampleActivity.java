@@ -347,6 +347,7 @@ public class NewSampleActivity extends Activity implements OnClickListener {
 		if (requestCode == ImageHelper.TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
 				img.captureSuccess();
+				img.scaleImage();
 			}
 			else if (resultCode == Activity.RESULT_CANCELED) {
 				img.setImageUri(null);

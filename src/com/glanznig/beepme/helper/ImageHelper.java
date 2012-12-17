@@ -58,11 +58,15 @@ public class ImageHelper {
 		
 	    @Override
 	    public void handleMessage(Message msg) {
+	    	Log.i(TAG, "what: " + msg.what);
 	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
+	    		Log.i(TAG, "message from image scaler");
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
 	    		if (imageUri != null) {
+	    			Log.i(TAG, "imageUri: "+ imageUri);
 	    			//save downscaled image to file
 	    			if (imageBitmap != null) {
+	    				Log.i(TAG, "imageBitmap is there");
 	    				try {
 							FileOutputStream outStream = new FileOutputStream(imageUri);
 							//TODO: save in copy, delete, rename?

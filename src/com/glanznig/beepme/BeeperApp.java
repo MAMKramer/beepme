@@ -142,7 +142,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			//is there a scheduled beep, if no, create one, if yes and it is expired, create a new one
 			if (scheduledBeepId != 0L) {
 				if (new ScheduledBeepTable(this.getApplicationContext()).isExpired(scheduledBeepId)) {
-					clearTimer();
+					expireTimer();
 					setTimer();
 				}
 			}
@@ -164,7 +164,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			long scheduledBeepId = getPreferences().getScheduledBeepId();
 			//is there a scheduled beep, if yes, cancel it
 			if (scheduledBeepId != 0L) {
-				clearTimer();
+				cancelTimer();
 			}
 			
 			//cancel notification
@@ -217,16 +217,20 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		}
 	}
 	
-	public void clearTimer() {
+	public void expireTimer() {
+		clearTimer(2);
+	}
+	
+	public void cancelTimer() {
+		clearTimer(1);
+	}
+	
+	public void clearTimer(int status) {
 		Intent intent = new Intent(this, BeepActivity.class);
         PendingIntent alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
         		PendingIntent.FLAG_CANCEL_CURRENT);
 		alarmIntent.cancel();
-		cancelCurrentScheduledBeep();
-	}
-	
-	public void cancelCurrentScheduledBeep() {
-		new ScheduledBeepTable(this.getApplicationContext()).cancelScheduledBeep(getPreferences().getScheduledBeepId());
+		new ScheduledBeepTable(this.getApplicationContext()).updateStatus(getPreferences().getScheduledBeepId(), status);
 		getPreferences().setScheduledBeepId(0L);
 	}
 	

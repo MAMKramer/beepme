@@ -211,6 +211,10 @@ public class BeepActivity extends Activity {
 	}	
 	
 	public void onClickAccept(View view) {
+		if (alertManager != null) {
+			alertManager.stopAlert();
+		}
+		
 		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
 		accept.putExtra(getApplication().getClass().getPackage().getName() + ".Timestamp", beepTime.getTime());
 		startActivity(accept);
@@ -237,7 +241,6 @@ public class BeepActivity extends Activity {
 		sample.setTimestamp(beepTime);
 		sample.setAccepted(false);
 		new SampleTable(this.getApplicationContext()).addSample(sample);
-		app.cancelCurrentScheduledBeep(); //mark beep as cancelled/unsuccessful because it was declined
 		app.setTimer();
 		finish();
 	}

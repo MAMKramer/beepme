@@ -30,7 +30,7 @@ import android.util.Log;
 public class AsyncImageScaler extends Thread {
 	
 	public static final int BITMAP_MSG = 32;
-	private static final String TAG = "AsyncImageLoader";
+	private static final String TAG = "AsyncImageScaler";
 	private String uri;
 	private int imageWidth;
 	private Handler handler;
@@ -43,6 +43,7 @@ public class AsyncImageScaler extends Thread {
 
 	@Override
 	public void run() {
+		Log.i(TAG, "running image scaler.");
 		try {
 			//Decode image size
 	        BitmapFactory.Options o = new BitmapFactory.Options();

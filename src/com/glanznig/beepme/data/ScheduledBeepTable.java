@@ -21,13 +21,13 @@ http://beepme.glanznig.com
 package com.glanznig.beepme.data;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class ScheduledBeepTable extends StorageHandler {
 	
@@ -38,7 +38,7 @@ public class ScheduledBeepTable extends StorageHandler {
 			"CREATE TABLE " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"timestamp INTEGER NOT NULL, " +
-			"cancelled INTEGER NOT NULL, " +
+			"status INTEGER NOT NULL, " +
 			"uptime_id INTEGER NOT NULL, " +
 			"FOREIGN KEY(uptime_id) REFERENCES "+ UptimeTable.getTableName() +"(_id)" +
 			")";
@@ -72,7 +72,7 @@ public class ScheduledBeepTable extends StorageHandler {
 			 
 		    ContentValues values = new ContentValues();
 		    values.put("timestamp", time);
-		    values.put("cancelled", 0);
+		    values.put("status", 0);
 		    values.put("uptime_id", uptimeId);
 		    beepId = db.insert(getTableName(), null, values);
 		    db.close();
@@ -81,13 +81,13 @@ public class ScheduledBeepTable extends StorageHandler {
 		return beepId;
 	}
 	
-	public boolean cancelScheduledBeep(long beepId) {
+	public boolean updateStatus(long beepId, int status) {
 		int numRows = 0;
 		
 		if (beepId != 0L) {
 			SQLiteDatabase db = getDb();
 			ContentValues values = new ContentValues();
-			values.put("cancelled", 1);
+			values.put("status", status);
 			numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beepId) });
 			db.close();
 		}
@@ -96,24 +96,26 @@ public class ScheduledBeepTable extends StorageHandler {
 	}
 	
 	public boolean isExpired(long beepId) {
+		boolean expired = false;
 		
 		if (beepId != 0L) {
 			SQLiteDatabase db = getDb();
-			Cursor cursor = db.query(getTableName(), new String[] {"timestamp"}, null, null, null, null, null);
+			Cursor cursor = db.query(getTableName(), new String[] {"timestamp"},
+					"_id=?", new String[] { String.valueOf(beepId) }, null, null, null);
 			
 			if (cursor != null && cursor.getCount() > 0) {
 				cursor.moveToFirst();
 				long timestamp = cursor.getLong(0);
 				
-				if (timestamp < new Date().getTime()) {
-					return true;
+				if (timestamp < Calendar.getInstance().getTimeInMillis()) {
+					expired = true;
 				}
 				cursor.close();
 			}
 			db.close();
 		}
 	
-		return false;
+		return expired;
 	}
 	
 	public int getNumLastSubsequentCancelledBeeps() {
@@ -129,13 +131,13 @@ public class ScheduledBeepTable extends StorageHandler {
 		today.roll(Calendar.DAY_OF_MONTH, true);
 		long endOfDay = today.getTimeInMillis();
 		
-		Cursor cursor = db.query(getTableName(), new String[] {"cancelled"}, "timestamp between ? and ?",
+		Cursor cursor = db.query(getTableName(), new String[] {"status"}, "timestamp between ? and ?",
 				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToLast();
 			do {
-				if (cursor.getInt(0) == 1) {
+				if (cursor.getInt(0) != 0) {
 					count += 1;
 				}
 				else {

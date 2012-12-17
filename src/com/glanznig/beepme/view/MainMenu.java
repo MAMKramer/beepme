@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -110,6 +111,9 @@ public class MainMenu extends Activity {
 			        });
 			        sendMailBuilder.setNegativeButton(R.string.no, null);
 			        sendMailBuilder.create().show();
+			        
+			        BeeperApp app = (BeeperApp)mainMenu.get().getApplication();
+			        app.getPreferences().setExportRunning(false);
 				}
 			}
 		}
@@ -159,7 +163,7 @@ public class MainMenu extends Activity {
 			
 			if (scheduledBeepId != 0L) {
 				if (new ScheduledBeepTable(this.getApplicationContext()).isExpired(scheduledBeepId)) {
-					app.clearTimer();
+					app.expireTimer();
 					app.setTimer();
 				}
 			}
@@ -244,7 +248,7 @@ public class MainMenu extends Activity {
 	public void onClickBeeperStateToggle(View view) {
 		BeeperApp app = (BeeperApp)getApplication();
 		if (app.isBeeperActive()) {
-			app.clearTimer(); //call before setBeeperActive
+			app.cancelTimer(); //call before setBeeperActive
 			app.setBeeperActive(false);
 		}
 		else {
@@ -303,7 +307,11 @@ public class MainMenu extends Activity {
                 return true;
             case R.id.menu_export:
             	if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            		new Thread(new ExportRunnable(MainMenu.this, new ExportHandler(MainMenu.this))).start();
+            		BeeperApp app = (BeeperApp)getApplication();
+            		if (!app.getPreferences().isExportRunning()) {
+            			app.getPreferences().setExportRunning(true);
+            			new Thread(new ExportRunnable(MainMenu.this, new ExportHandler(MainMenu.this))).start();
+            		}
             	}
             	else {
             		Toast.makeText(MainMenu.this, R.string.sdcard_error, Toast.LENGTH_SHORT).show();
