@@ -157,13 +157,14 @@ public class MainMenu extends Activity {
 		
 		populateFields();
 		
-		//make sure that scheduled beeps do not expire do to an error
+		//make sure that scheduled beeps do not expire due to an error
 		BeeperApp app = (BeeperApp)getApplication();
 		if (app.isBeeperActive()) {
 			long scheduledBeepId = app.getPreferences().getScheduledBeepId();
 			
 			if (scheduledBeepId != 0L) {
-				if (new ScheduledBeepTable(this.getApplicationContext()).isExpired(scheduledBeepId)) {
+				ScheduledBeepTable sbt = new ScheduledBeepTable(this.getApplicationContext());
+				if (sbt.getStatus(scheduledBeepId) != 3 && sbt.isExpired(scheduledBeepId)) {
 					app.expireTimer();
 					app.setTimer();
 				}

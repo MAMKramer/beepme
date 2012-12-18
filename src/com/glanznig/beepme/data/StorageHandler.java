@@ -32,7 +32,7 @@ public class StorageHandler {
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		
 		protected static final String DB_NAME = "beepme";
-		protected static final int DB_VERSION = 12;
+		protected static final int DB_VERSION = 13;
 		
 		public DatabaseHelper(Context ctx) {
 			super(ctx, DB_NAME, null, DB_VERSION);

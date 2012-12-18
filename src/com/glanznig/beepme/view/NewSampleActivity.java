@@ -306,10 +306,11 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	}
 	
 	public void onClickSave(View view) {
-		saveSample();
-		
 		if (!isEdit) {
 			Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
+		}
+		else {
+			saveSample();
 		}
 		finish();
 	}

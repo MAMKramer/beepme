@@ -215,6 +215,9 @@ public class BeepActivity extends Activity {
 			alertManager.stopAlert();
 		}
 		
+		BeeperApp app = (BeeperApp)getApplication();
+		app.acceptTimer();
+		
 		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
 		accept.putExtra(getApplication().getClass().getPackage().getName() + ".Timestamp", beepTime.getTime());
 		startActivity(accept);
@@ -241,6 +244,7 @@ public class BeepActivity extends Activity {
 		sample.setTimestamp(beepTime);
 		sample.setAccepted(false);
 		new SampleTable(this.getApplicationContext()).addSample(sample);
+		app.declineTimer();
 		app.setTimer();
 		finish();
 	}

@@ -38,6 +38,8 @@ public class ScheduledBeepTable extends StorageHandler {
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"timestamp INTEGER NOT NULL, " +
+			"created INTEGER NOT NULL, " +
+			"updated INTEGER, " +
 			"status INTEGER NOT NULL, " +
 			"uptime_id INTEGER NOT NULL, " +
 			"FOREIGN KEY(uptime_id) REFERENCES "+ UptimeTable.getTableName() +"(_id)" +
@@ -72,6 +74,7 @@ public class ScheduledBeepTable extends StorageHandler {
 			 
 		    ContentValues values = new ContentValues();
 		    values.put("timestamp", time);
+		    values.put("created", Calendar.getInstance().getTimeInMillis());
 		    values.put("status", 0);
 		    values.put("uptime_id", uptimeId);
 		    beepId = db.insert(getTableName(), null, values);
@@ -88,11 +91,31 @@ public class ScheduledBeepTable extends StorageHandler {
 			SQLiteDatabase db = getDb();
 			ContentValues values = new ContentValues();
 			values.put("status", status);
+			values.put("updated", Calendar.getInstance().getTimeInMillis());
 			numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beepId) });
 			db.close();
 		}
 	
 		return numRows == 1 ? true : false;
+	}
+	
+	public int getStatus(long beepId) {
+		int status = 0;
+		
+		if (beepId != 0L) {
+			SQLiteDatabase db = getDb();
+			Cursor cursor = db.query(getTableName(), new String[] {"status"},
+					"_id=?", new String[] { String.valueOf(beepId) }, null, null, null);
+			
+			if (cursor != null && cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				status = cursor.getInt(0);
+				cursor.close();
+			}
+			db.close();
+		}
+	
+		return status;
 	}
 	
 	public boolean isExpired(long beepId) {
@@ -107,7 +130,7 @@ public class ScheduledBeepTable extends StorageHandler {
 				cursor.moveToFirst();
 				long timestamp = cursor.getLong(0);
 				
-				if (timestamp < Calendar.getInstance().getTimeInMillis()) {
+				if ((Calendar.getInstance().getTimeInMillis() - timestamp) >= 60000) { //difference 1 min
 					expired = true;
 				}
 				cursor.close();
