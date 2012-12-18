@@ -66,11 +66,16 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	private ImageHelper img = null;
 	private boolean isEdit = false;
 	private int lastTagId = 0;
+	private boolean imgScalingRunning = false;
 	
 	private static class ImgLoadHandler extends Handler {
 		WeakReference<NewSampleActivity> newSampleActivity;
 		
 		ImgLoadHandler(NewSampleActivity activity) {
+			updateActivity(activity);
+		}
+		
+		public void updateActivity(NewSampleActivity activity) {
 			newSampleActivity = new WeakReference<NewSampleActivity>(activity);
 		}
 		
@@ -152,8 +157,11 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			sample.setAccepted(savedState.getBoolean("accepted"));
 			
 			isEdit = savedState.getBoolean("isEdit");
+			
+			imgScalingRunning = savedState.getBoolean("imgScalingRunning");
 		}
 		else {
+			imgScalingRunning = false;
 			img = new ImageHelper(NewSampleActivity.this);
 			
 			Bundle b = getIntent().getExtras();
@@ -180,6 +188,25 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	public void onResume() {
 		super.onResume();
 		populateFields();
+		
+		if (imgScalingRunning) {
+			ImageHelper.ImgScaleHandler handler = (ImageHelper.ImgScaleHandler)getLastNonConfigurationInstance();
+	        if (handler != null) {
+	        	handler.updateActivity(NewSampleActivity.this);
+	        }
+		}
+		else {
+			if (img.getImageUri() != null) {
+				startThumbnailLoading();
+			}
+		}
+	}
+	
+	private void startThumbnailLoading() {
+		final float scale = getResources().getDisplayMetrics().density;
+		int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
+		AsyncImageScaler loader = new AsyncImageScaler(img.getImageUri(), imageWidth, new ImgLoadHandler(NewSampleActivity.this));
+		loader.start();
 	}
 	
 	private void populateFields() {
@@ -342,6 +369,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			if (resultCode == Activity.RESULT_OK) {
 				img.captureSuccess();
 				sample.setPhotoUri(img.getImageUri());
+				imgScalingRunning = true;
 				img.scaleImage(NewSampleActivity.this);
 			}
 			else if (resultCode == Activity.RESULT_CANCELED) {
@@ -379,6 +407,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		}
 		
 		savedState.putInt("tagId", lastTagId);
+		savedState.putBoolean("imgScalingRunning", imgScalingRunning);
 	}
 
 	@Override
@@ -418,12 +447,19 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			}
 		}
 	}
+	
+	@Override
+    public Object onRetainNonConfigurationInstance() {
+		if (imgScalingRunning) {
+			return img.getImgScaleHandler();
+		}
+		
+		return null;
+    }
 
 	@Override
 	public void imageScalingCompleted() {
-		final float scale = getResources().getDisplayMetrics().density;
-		int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
-		AsyncImageScaler loader = new AsyncImageScaler(img.getImageUri(), imageWidth, new ImgLoadHandler(NewSampleActivity.this));
-		loader.start();
+		imgScalingRunning = false;
+		startThumbnailLoading();
 	}
 }

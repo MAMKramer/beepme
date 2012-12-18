@@ -72,9 +72,14 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 		else {
 			deleteDataRunning = false;
 		}
-        
-        populateFields();
-        handler = (DeleteDataHandler)getLastNonConfigurationInstance();
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		populateFields();
+		
+		handler = (DeleteDataHandler)getLastNonConfigurationInstance();
         if (handler != null) {
         	if (deleteDataRunning) {
         		progress = new ProgressDialog(Preferences.this);
@@ -87,12 +92,6 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
         else {
         	deleteDataRunning = false;
         }
-	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		populateFields();
 	}
 	
 	@Override

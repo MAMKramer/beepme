@@ -51,13 +51,16 @@ public class ImageHelper {
 	private static final int IMG_MAX_DIM = 1024; //in px
 	private static final int IMG_QUALITY = 75;
 	
-	private static class ImgScaleHandler extends Handler {
+	public static class ImgScaleHandler extends Handler {
 		String imageUri = null;
 		WeakReference<Activity> activity;
 		
 		ImgScaleHandler(String uri, Activity callback) {
 			this.imageUri = uri;
-			
+			updateActivity(callback);
+		}
+		
+		public void updateActivity(Activity callback) {
 			activity = null;
 			if (callback != null) {
 				if (callback instanceof ImageHelperCallback) {
@@ -96,6 +99,7 @@ public class ImageHelper {
 	private Context ctx = null;
 	private String imageUri = null;
 	private String uriPending = null;
+	private ImgScaleHandler imgScaleHandler = null;
 	
 	public ImageHelper(Context ctx) {
 		this.ctx = ctx;
@@ -147,9 +151,14 @@ public class ImageHelper {
 	
 	public void scaleImage(Activity callback) {
 		if (imageUri != null) {
-			AsyncImageScaler loader = new AsyncImageScaler(imageUri, IMG_MAX_DIM, new ImgScaleHandler(imageUri, callback));
+			imgScaleHandler = new ImgScaleHandler(imageUri, callback);
+			AsyncImageScaler loader = new AsyncImageScaler(imageUri, IMG_MAX_DIM, imgScaleHandler);
 			loader.start();
 		}
+	}
+	
+	public ImgScaleHandler getImgScaleHandler() {
+		return imgScaleHandler;
 	}
 	
 	public boolean deleteImage() {
