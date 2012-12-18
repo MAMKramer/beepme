@@ -43,7 +43,6 @@ public class AsyncImageScaler extends Thread {
 
 	@Override
 	public void run() {
-		Log.i(TAG, "running image scaler.");
 		try {
 			//Decode image size
 	        BitmapFactory.Options o = new BitmapFactory.Options();

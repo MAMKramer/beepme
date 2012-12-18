@@ -29,7 +29,7 @@ public class SampleTagTable extends StorageHandler {
 	
 	private static final String TBL_NAME = "sample_tag";
 	private static final String TBL_CREATE =
-			"CREATE TABLE " + TBL_NAME + " (" +
+			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"sample_id INTEGER NOT NULL, " +
 			"tag_id INTEGER NOT NULL, " +
 			"PRIMARY KEY(sample_id, tag_id), " +

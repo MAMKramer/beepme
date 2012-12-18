@@ -32,7 +32,7 @@ public class StorageHandler {
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		
 		protected static final String DB_NAME = "beepme";
-		protected static final int DB_VERSION = 11;
+		protected static final int DB_VERSION = 12;
 		
 		public DatabaseHelper(Context ctx) {
 			super(ctx, DB_NAME, null, DB_VERSION);
@@ -71,12 +71,14 @@ public class StorageHandler {
 		}
 	}
 	
-	private DatabaseHelper dbHelper = null;
+	private static DatabaseHelper dbHelper = null;
 	private Context ctx = null;
 	
 	public StorageHandler(Context ctx) {
 		this.ctx = ctx;
-		dbHelper = new DatabaseHelper(ctx);
+		if (dbHelper == null) {
+			dbHelper = new DatabaseHelper(ctx.getApplicationContext());
+		}
 	}
 	
 	public SQLiteDatabase getDb() {

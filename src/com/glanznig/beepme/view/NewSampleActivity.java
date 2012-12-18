@@ -141,9 +141,10 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 				}
 			}
 			
-			if (savedState.getCharSequence("img") != null) {
-				img = new ImageHelper(NewSampleActivity.this);
-				img.setImageUri(savedState.getCharSequence("img").toString());
+			img = new ImageHelper(NewSampleActivity.this);
+			if (savedState.getCharSequence("imgUri") != null) {
+				img.setImageUri(savedState.getCharSequence("imgUri").toString());
+				sample.setPhotoUri(savedState.getCharSequence("imgUri").toString());
 			}
 			
 			lastTagId = savedState.getInt("tagId");
@@ -203,6 +204,10 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			int width = (display.getWidth() - 10) / 2;
 			save.setWidth(width);
 			cancel.setWidth(width);
+			
+			if (sample.getPhotoUri() != null) {
+				img.setImageUri(sample.getPhotoUri());
+			}
         }
         else {
         	setTitle(R.string.new_sample);
@@ -336,6 +341,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		if (requestCode == ImageHelper.TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
 				img.captureSuccess();
+				sample.setPhotoUri(img.getImageUri());
 				img.scaleImage(NewSampleActivity.this);
 			}
 			else if (resultCode == Activity.RESULT_CANCELED) {

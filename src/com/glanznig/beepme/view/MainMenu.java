@@ -24,6 +24,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Calendar;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
@@ -113,7 +114,7 @@ public class MainMenu extends Activity {
 			        sendMailBuilder.create().show();
 			        
 			        BeeperApp app = (BeeperApp)mainMenu.get().getApplication();
-			        app.getPreferences().setExportRunning(false);
+			        app.getPreferences().setExportRunningSince(0L);
 				}
 			}
 		}
@@ -308,8 +309,10 @@ public class MainMenu extends Activity {
             case R.id.menu_export:
             	if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             		BeeperApp app = (BeeperApp)getApplication();
-            		if (!app.getPreferences().isExportRunning()) {
-            			app.getPreferences().setExportRunning(true);
+            		if (app.getPreferences().exportRunningSince() == 0L ||
+            				(Calendar.getInstance().getTimeInMillis() -
+            				app.getPreferences().exportRunningSince()) >= 120000) { //2 min
+            			app.getPreferences().setExportRunningSince(Calendar.getInstance().getTimeInMillis());
             			new Thread(new ExportRunnable(MainMenu.this, new ExportHandler(MainMenu.this))).start();
             		}
             	}

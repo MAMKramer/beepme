@@ -36,7 +36,7 @@ public class TagTable extends StorageHandler {
 	
 	private static final String TBL_NAME = "tag";
 	private static final String TBL_CREATE =
-			"CREATE TABLE " + TBL_NAME + " (" +
+			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"name TEXT NOT NULL UNIQUE" +
 			")";

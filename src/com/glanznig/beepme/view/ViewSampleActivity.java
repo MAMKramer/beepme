@@ -39,6 +39,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
@@ -120,6 +121,7 @@ public class ViewSampleActivity extends Activity {
 			TextView title = (TextView)findViewById(R.id.view_sample_title);
 			if (s.getTitle() != null) {
 				title.setText(s.getTitle());
+				title.setVisibility(View.VISIBLE);
 			}
 			else {
 				title.setVisibility(View.GONE);
@@ -128,6 +130,8 @@ public class ViewSampleActivity extends Activity {
 			TextView description = (TextView)findViewById(R.id.view_sample_description);
 			if (s.getDescription() != null && s.getDescription().length() > 0) {
 				description.setText(s.getDescription());
+				findViewById(R.id.view_sample_label_description).setVisibility(View.VISIBLE);
+				description.setVisibility(View.VISIBLE);
 			}
 			else {
 				findViewById(R.id.view_sample_label_description).setVisibility(View.GONE);

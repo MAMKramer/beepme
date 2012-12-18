@@ -35,7 +35,7 @@ public class ScheduledBeepTable extends StorageHandler {
 	
 	private static final String TBL_NAME = "scheduled_beep";
 	private static final String TBL_CREATE =
-			"CREATE TABLE " + TBL_NAME + " (" +
+			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"timestamp INTEGER NOT NULL, " +
 			"status INTEGER NOT NULL, " +

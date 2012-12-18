@@ -37,7 +37,7 @@ public class UptimeTable extends StorageHandler {
 	
 	private static final String TBL_NAME = "uptime";
 	private static final String TBL_CREATE = 
-			"CREATE TABLE " + TBL_NAME + " (" +
+			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"start INTEGER NOT NULL UNIQUE, " +
 			"end INTEGER UNIQUE" +

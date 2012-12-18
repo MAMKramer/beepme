@@ -29,6 +29,7 @@ import com.glanznig.beepme.data.PreferenceHandler;
 import com.glanznig.beepme.data.StorageHandler;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
@@ -46,6 +47,11 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 	private String timerProfile;
 	private boolean testMode;
 	
+	private boolean deleteDataRunning;
+	
+	private ProgressDialog progress;
+	private DeleteDataHandler handler;
+	
 	private static final String TAG = "Preferences";
 	
 	@Override
@@ -59,14 +65,51 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 		//warnNoWifi = prefs.isWarnNoWifi();
 		timerProfile = prefs.getTimerProfile();
 		testMode = prefs.isTestMode();
+		
+		if (savedState != null) {
+			deleteDataRunning = savedState.getBoolean("deleteDataRunning");
+		}
+		else {
+			deleteDataRunning = false;
+		}
         
         populateFields();
+        handler = (DeleteDataHandler)getLastNonConfigurationInstance();
+        if (handler != null) {
+        	if (deleteDataRunning) {
+        		progress = new ProgressDialog(Preferences.this);
+                progress.setMessage(getString(R.string.data_delete_progress));
+                progress.setCancelable(false);
+                progress.show();
+        		handler.updateActivity(Preferences.this);
+        	}
+        }
+        else {
+        	deleteDataRunning = false;
+        }
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
 		populateFields();
+	}
+	
+	@Override
+    protected void onPause() {
+        if (progress != null) {
+            progress.cancel();
+            progress = null;
+        }
+        super.onPause();
+    }
+	
+	public void deleteDataEnded() {
+		if (progress != null) {
+			progress.cancel();
+			progress = null;
+		}
+		deleteDataRunning = false;
 	}
 	
 	private void populateFields() {
@@ -83,59 +126,81 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 	}
 	
 	@Override
+	public void onSaveInstanceState(Bundle savedState) {
+		savedState.putBoolean("deleteDataRunning", deleteDataRunning);
+	}
+	
+	@Override
+    public Object onRetainNonConfigurationInstance() {
+        return handler;
+    }
+	
+	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(PreferenceHandler.KEY_TEST_MODE)) {
-			ProgressDialog progress = new ProgressDialog(Preferences.this);
+		if (!deleteDataRunning && key.equals(PreferenceHandler.KEY_TEST_MODE)) {
+			progress = new ProgressDialog(Preferences.this);
             progress.setMessage(getString(R.string.data_delete_progress));
             progress.setCancelable(false);
             
-    		DeleteDataHandler handler = new DeleteDataHandler(progress);
+    		handler = new DeleteDataHandler(Preferences.this);
 			progress.show();
+			deleteDataRunning = true;
 			new Thread(new DeleteDataRunnable(Preferences.this, handler)).start();
 		}
 	}
 	
 	private static class DeleteDataHandler extends Handler {
-		WeakReference<ProgressDialog> progress;
+		WeakReference<Preferences> activity;
 		
-		DeleteDataHandler(ProgressDialog progress) {
-			this.progress = new WeakReference<ProgressDialog>(progress);
+		DeleteDataHandler(Preferences activity) {
+			updateActivity(activity);
+		}
+		
+		public void updateActivity(Preferences activity) {
+			this.activity = new WeakReference<Preferences>(activity);
 		}
 		
 		@Override
 		public void handleMessage(Message message) {
-			if (progress.get() != null) {
-				progress.get().cancel();
+			if (activity.get() != null) {
+				try {
+					activity.get().deleteDataEnded();
+				}
+				// would rather use isChangingConfigurations() or similar but not available in API Level 8
+				catch(Exception e) {}
 			}
 		}
 	}
 	
 	private static class DeleteDataRunnable implements Runnable {
-		WeakReference<Preferences> activity;
-		WeakReference<DeleteDataHandler> handler;
+		WeakReference<Context> ctx;
+		DeleteDataHandler handler;
+		File picDir;
 		
 		DeleteDataRunnable(Preferences activity, DeleteDataHandler handler) {
-			this.activity = new WeakReference<Preferences>(activity);
-			this.handler = new WeakReference<DeleteDataHandler>(handler); 
+			this.ctx = new WeakReference<Context>(activity.getApplicationContext());
+			picDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+			this.handler = handler; 
 		}
 		@Override
 	    public void run() {
-			if (activity.get() != null) {
+			if (ctx.get() != null) {
 				//delete data in database
-				new StorageHandler(activity.get().getApplicationContext()).truncateTables();
+				new StorageHandler(ctx.get()).truncateTables();
+			}
 				
+			if (picDir != null) {
 				//delete pictures
 				if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-					File picDir = activity.get().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 					File[] allFiles = picDir.listFiles();
 					for (int i = 0; i < allFiles.length; i++) {
 						allFiles[i].delete();
 					}
 				}
 				
-				if (handler.get() != null) {
+				if (handler != null) {
 					Message msg = new Message();
-					handler.get().sendMessage(msg);
+					handler.sendMessage(msg);
 				}
 			}
 	    }

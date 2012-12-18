@@ -39,7 +39,7 @@ public class SampleTable extends StorageHandler {
 	
 	private static final String TBL_NAME = "sample";
 	private static final String TBL_CREATE =
-			"CREATE TABLE " + TBL_NAME + " (" +
+			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"timestamp INTEGER NOT NULL UNIQUE, " +
 			"title TEXT, " +

@@ -33,7 +33,7 @@ public class PreferenceHandler {
 	public static final String KEY_TEST_MODE = "testMode";
 	public static final String KEY_UPTIME_ID = "uptimeId";
 	public static final String KEY_SCHEDULED_BEEP_ID = "scheduledBeepId";
-	public static final String KEY_EXPORT_RUNNING = "exportIsRunning";
+	public static final String KEY_EXPORT_RUNNING_SINCE = "exportIsRunningSince";
 	
 	private Context ctx;
 	
@@ -82,15 +82,15 @@ public class PreferenceHandler {
 		editor.commit();
 	}
 	
-	public boolean isExportRunning() {
+	public long exportRunningSince() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-		return prefs.getBoolean(KEY_EXPORT_RUNNING, false);
+		return prefs.getLong(KEY_EXPORT_RUNNING_SINCE, 0L);
 	}
 	
-	public void setExportRunning(boolean running) {
+	public void setExportRunningSince(long running) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putBoolean(KEY_EXPORT_RUNNING, running);
+		editor.putLong(KEY_EXPORT_RUNNING_SINCE, running);
 		editor.commit();
 	}
 	
