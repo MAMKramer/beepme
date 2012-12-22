@@ -172,7 +172,7 @@ public class ViewSampleActivity extends Activity {
 	}
 	
 	public void onClickEdit(View view) {
-		Intent i = new Intent(ViewSampleActivity.this, NewSampleActivity.class);
+		Intent i = new Intent(ViewSampleActivity.this, EditSampleActivity.class);
 		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", sampleId);
 		startActivity(i);
 	}

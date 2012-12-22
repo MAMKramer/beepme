@@ -45,7 +45,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -64,7 +63,6 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	
 	private Sample sample = new Sample();
 	private ImageHelper img = null;
-	private boolean isEdit = false;
 	private int lastTagId = 0;
 	private boolean imgScalingRunning = false;
 	
@@ -153,11 +151,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			}
 			
 			lastTagId = savedState.getInt("tagId");
-			
 			sample.setAccepted(savedState.getBoolean("accepted"));
-			
-			isEdit = savedState.getBoolean("isEdit");
-			
 			imgScalingRunning = savedState.getBoolean("imgScalingRunning");
 		}
 		else {
@@ -167,12 +161,6 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			Bundle b = getIntent().getExtras();
 			if (b != null) {
 				lastTagId = 0;
-				
-				if (b.containsKey(getApplication().getClass().getPackage().getName() + ".SampleId")) { 
-					long sampleId = b.getLong(getApplication().getClass().getPackage().getName() + ".SampleId");
-					sample = st.getSampleWithTags(sampleId);
-					isEdit = true;
-				}
 				
 				if (b.containsKey(getApplication().getClass().getPackage().getName() + ".Timestamp")) {
 					long timestamp = b.getLong(getApplication().getClass().getPackage().getName() + ".Timestamp");
@@ -218,36 +206,15 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_tag_container);
 		tagHolder.setLastTagId(lastTagId);
         
-        if (isEdit) {
-        	setTitle(R.string.edit_sample);
-			findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-			
-			Button save = (Button)findViewById(R.id.new_sample_btn_save);
-			Button cancel = (Button)findViewById(R.id.new_sample_btn_cancel);
-			save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-			cancel.setVisibility(View.VISIBLE);
-			//get display dimensions
-			Display display = getWindowManager().getDefaultDisplay();
-			int width = (display.getWidth() - 10) / 2;
-			save.setWidth(width);
-			cancel.setWidth(width);
-			
-			if (sample.getPhotoUri() != null) {
-				img.setImageUri(sample.getPhotoUri());
-			}
-        }
-        else {
-        	setTitle(R.string.new_sample);
-        	
-        	if (img.getImageUri() != null) {
-        		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-				findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
-        	}
-        	
-        	Button save = (Button)findViewById(R.id.new_sample_btn_save);
-        	save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        }
-        
+    	setTitle(R.string.new_sample);
+    	
+    	if (img.getImageUri() != null) {
+    		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+			findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
+    	}
+    	
+    	Button save = (Button)findViewById(R.id.new_sample_btn_save);
+    	save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         
         if (sample.getTimestamp() != null) {
         	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);
@@ -306,12 +273,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	}
 	
 	public void onClickSave(View view) {
-		if (!isEdit) {
-			Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
-		}
-		else {
-			saveSample();
-		}
+		Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
 		finish();
 	}
 	
@@ -326,9 +288,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		sample.setPhotoUri(img.getImageUri());
 		new SampleTable(this.getApplicationContext()).editSample(sample);
 		
-		if (!isEdit) {
-			app.setTimer();
-		}
+		app.setTimer();
 	}
 	
 	public void onClickCancel(View view) {
@@ -395,7 +355,6 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		savedState.putCharSequence("description", description.getText());
 		savedState.putBoolean("accepted", sample.getAccepted());
 		savedState.putCharSequence("imgUri", img.getImageUri());
-		savedState.putBoolean("isEdit", isEdit);
 		
 		if (sample.getTags().size() > 0) {
 			Iterator<Tag> i = sample.getTags().iterator(); 
@@ -420,32 +379,25 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	
 	@Override
 	public void onBackPressed() {
-		if (!isEdit) {
-			AlertDialog.Builder sampleSavedBuilder = new AlertDialog.Builder(NewSampleActivity.this);
-	        sampleSavedBuilder.setTitle(R.string.new_sample_back_warning_title);
-	        sampleSavedBuilder.setMessage(R.string.new_sample_back_warning_msg);
-	        sampleSavedBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int id) {
-	            	NewSampleActivity.this.saveSample();
-	            	NewSampleActivity.this.finish();
-	            }
-	        });
-	        sampleSavedBuilder.setNegativeButton(R.string.no, null);
-	        
-	        sampleSavedBuilder.create().show();
-		}
-		else {
-			super.onBackPressed();
-		}
+		AlertDialog.Builder sampleSavedBuilder = new AlertDialog.Builder(NewSampleActivity.this);
+        sampleSavedBuilder.setTitle(R.string.new_sample_back_warning_title);
+        sampleSavedBuilder.setMessage(R.string.new_sample_back_warning_msg);
+        sampleSavedBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            	NewSampleActivity.this.saveSample();
+            	NewSampleActivity.this.finish();
+            }
+        });
+        sampleSavedBuilder.setNegativeButton(R.string.no, null);
+        
+        sampleSavedBuilder.create().show();
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		if (NewSampleActivity.this.isFinishing()) {
-			if (!isEdit) {
-				NewSampleActivity.this.saveSample();
-			}
+			NewSampleActivity.this.saveSample();
 		}
 	}
 	
