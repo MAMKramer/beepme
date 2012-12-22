@@ -28,12 +28,11 @@ import java.util.List;
 import android.content.Context;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.LinearLayout;
 
 public class TagButtonRow extends LinearLayout {
 	
-	private static final String TAG = "beeper";
+	private static final String TAG = "TagButtonRow";
 	
 	private int holderWidth = 0;
 	private int consumedWidth = 0;
@@ -48,13 +47,13 @@ public class TagButtonRow extends LinearLayout {
 		labels = new ArrayList<String>();
 	}
 	
-	public List<Button> addTagButtons(List<Button> btnList) {
-		Iterator<Button> i = btnList.iterator();
-		ArrayList<Button> returnList = new ArrayList<Button>();
+	public List<TagButton> addTagButtons(List<TagButton> btnList) {
+		Iterator<TagButton> i = btnList.iterator();
+		ArrayList<TagButton> returnList = new ArrayList<TagButton>();
 		
 		if (this.getChildCount() == 0) {
 			while (i.hasNext()) {
-				Button btn = i.next();
+				TagButton btn = i.next();
 				if (hasSpace(btn)) {
 					addTagButton(btn);
 				}
@@ -65,7 +64,7 @@ public class TagButtonRow extends LinearLayout {
 		}
 		else {
 			while (i.hasNext()) {
-				List<Button> ret = addTagButton(i.next());
+				List<TagButton> ret = addTagButton(i.next());
 				if (ret != null) {
 					returnList.addAll(0, ret);
 				}
@@ -79,7 +78,7 @@ public class TagButtonRow extends LinearLayout {
 		return returnList;
 	}
 	
-	public List<Button> addTagButton(Button child) {
+	public List<TagButton> addTagButton(TagButton child) {
 		LinearLayout.LayoutParams lp = ((LinearLayout.LayoutParams)child.getLayoutParams());
 		child.measure(0, 0);
 		consumedWidth += child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;
@@ -91,9 +90,9 @@ public class TagButtonRow extends LinearLayout {
 			labels.add(pos, child.getText().toString());
 			this.addView(child, pos);
 			
-			ArrayList<Button> removedBtns = new ArrayList<Button>();
+			ArrayList<TagButton> removedBtns = new ArrayList<TagButton>();
 			while (consumedWidth > holderWidth) {
-				Button last = (Button)this.getChildAt(this.getChildCount() - 1);
+				TagButton last = (TagButton)this.getChildAt(this.getChildCount() - 1);
 				removedBtns.add(last);
 				removeTagButton(last);
 			}
@@ -107,7 +106,7 @@ public class TagButtonRow extends LinearLayout {
 		return null;
 	}
 	
-	public void removeTagButton(Button child) {
+	public void removeTagButton(TagButton child) {
 		this.removeView(child);
 		labels.remove(child.getText().toString());
 		LinearLayout.LayoutParams lp = ((LinearLayout.LayoutParams)child.getLayoutParams());
@@ -131,7 +130,7 @@ public class TagButtonRow extends LinearLayout {
 		return null;
 	}
 	
-	public boolean hasSpace(Button btn) {
+	public boolean hasSpace(TagButton btn) {
 		LinearLayout.LayoutParams lp = ((LinearLayout.LayoutParams)btn.getLayoutParams());
 		btn.measure(0, 0);
 		int btnWidth = btn.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;

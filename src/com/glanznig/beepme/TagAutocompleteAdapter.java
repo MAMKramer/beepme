@@ -36,20 +36,22 @@ import android.widget.TextView;
 
 public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filterable {
 	
-	private static final String TAG = "beeper";
+	private static final String TAG = "TagAutocompleteAdapter";
 	
 	private ArrayList<Tag> resultList;
 	private Context ctx;
 	private int resourceId;
+	private long vocabularyId;
 	
 	static class ViewHolder {
 	    public TextView name;
 	}
     
-    public TagAutocompleteAdapter(Context context, int textViewResourceId) {
+    public TagAutocompleteAdapter(Context context, int textViewResourceId, long vocabularyId) {
         super(context, textViewResourceId);
         ctx = context;
         resourceId = textViewResourceId;
+        this.vocabularyId = vocabularyId;
     }
     
     @Override
@@ -93,7 +95,8 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
                     // Retrieve the auto-complete results.
-            		resultList = (ArrayList<Tag>)new TagTable(ctx.getApplicationContext()).getTags(constraint.toString());
+            		resultList = (ArrayList<Tag>)new TagTable(ctx.getApplicationContext())
+            						.getTags(vocabularyId, constraint.toString());
                     
                     // Assign the data to the FilterResults
                     filterResults.values = resultList;

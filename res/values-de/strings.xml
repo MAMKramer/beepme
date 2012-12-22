@@ -70,9 +70,12 @@ http://beepme.glanznig.com
     <string name="preferences">Einstellungen</string>
     <string name="refresh">Neu laden</string>
     <string name="samples_list_no_samples">Derzeit noch keine Einträge.</string>
-    <string name="sample_description">Beschreibung</string>
-    <string name="sample_tags">Stichwörter</string>
-    <string name="sample_title">Titel</string>
+    <string name="sample_description">Wie war Ihr Erleben beschaffen?</string>
+    <string name="sample_description_help">z.B. Stichwörter, Satzfragmente oder Sätze</string>
+    <string name="sample_moods">Wie fühlen Sie sich? In welcher Stimmung sind Sie?</string>
+    <string name="sample_moods_help">wählen Sie oder fügen Sie eigene hinzu, mehrere Werte möglich</string>
+    <string name="sample_title">Titel des Eintrags</string>
+    <string name="sample_title_help">z.B. ein Stichwort</string>
     <string name="sample_untitled">Unbenannt</string>
     <string name="save">Speichern</string>
     <string name="sdcard_error">SD Karte nicht eingesetzt oder nicht beschreibbar.</string>

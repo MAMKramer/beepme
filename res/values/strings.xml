@@ -69,9 +69,12 @@ http://beepme.glanznig.com
     <string name="pref_title_warn_no_wifi">No WiFi Warning</string>
     <string name="preferences">Preferences</string>
     <string name="refresh">Refresh</string>
-    <string name="sample_description">Description</string>
-    <string name="sample_tags">Keywords</string>
-    <string name="sample_title">Title</string>
+    <string name="sample_description">What was your experience like?</string>
+    <string name="sample_description_help">e.g. keywords, fragments or full-text</string>
+    <string name="sample_moods">How do you feel? In what mood are you?</string>
+    <string name="sample_moods_help">select or add your own, multiple values possible</string>
+    <string name="sample_title">Title of the Sample</string>
+    <string name="sample_title_help">e.g. a keyword</string>
     <string name="sample_untitled">Untitled</string>
     <string name="samples_list_no_samples">No samples yet.</string>
     <string name="save">Save</string>

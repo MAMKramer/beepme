@@ -20,19 +20,27 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.data;
 
+import android.util.Log;
+
 public class Tag {
 	
 	private Long id;
 	private String name;
+	private Long vocabularyId;
+	
+	private static final String delimiter = "_#_";
+	private static final String TAG = "Tag";
 	
 	public Tag() {
 		id = null;
 		name = null;
+		vocabularyId = null;
 	}
 	
 	public Tag(long id) {
 		setId(id);
 		name = null;
+		vocabularyId = null;
 	}
 	
 	private void setId(long id) {
@@ -51,16 +59,75 @@ public class Tag {
 		return name;
 	}
 	
+	public void setVocabularyId(long vocabulary) {
+		this.vocabularyId = Long.valueOf(vocabulary);
+	}
+	
+	public long getVocabularyId() {
+		long vid = 0L;
+		if (vocabularyId != null) {
+			vid = vocabularyId.longValue();
+		}
+		
+		return vid;
+	}
+	
 	public String toString() {
-		return name;
+		if (vocabularyId != null) {
+			return vocabularyId.toString() + delimiter + name;
+		}
+		else {
+			return name;
+		}
+	}
+	
+	public static Tag valueOf(String tagStr) {
+		Tag t = null;
+		if (tagStr.contains(delimiter)) {
+			t = new Tag();
+			try {
+				Long voc = Long.valueOf(tagStr.substring(0, tagStr.indexOf(delimiter) - 1));
+				t.setVocabularyId(voc.longValue());
+				t.setName(tagStr.substring(tagStr.indexOf(delimiter) + delimiter.length()));
+			}
+			catch(Exception e) {
+				t = null;
+			}
+		}
+		
+		return t;
 	}
 	
 	public int hashCode() {
-        return name != null ? name.toLowerCase().hashCode() : super.hashCode();
+        return toString().hashCode();
     }
 	
 	public boolean equals(Object other) {
-        return other instanceof Tag && (name != null) ? name.toLowerCase().equals(((Tag)other).getName().toLowerCase()) : (other == this);
+		boolean ret = false;
+		if (other instanceof Tag) {
+			Tag t = (Tag)other;
+			if (name != null && name.toLowerCase().equals(t.getName().toLowerCase())) {
+				ret = true;
+				
+				if (getVocabularyId() != 0L && t.getVocabularyId() != 0L) {
+					if (getVocabularyId() == t.getVocabularyId()) {
+						ret = true;
+					}
+					else {
+						ret = false;
+					}
+				}
+			}
+		}
+		else {
+			if (other == this) {
+				ret = true;
+			}
+		}
+		
+		Log.i(TAG, "equals: a=" + toString() + " b=" + other.toString() + " ret: " + ret);
+		
+		return ret;
     }
 
 }

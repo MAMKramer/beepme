@@ -122,7 +122,7 @@ public class SampleTable extends StorageHandler {
 		if (id != 0L) {
 			ArrayList<Tag> tagList = new ArrayList<Tag>();
 			SQLiteDatabase db = getDb();
-			Cursor cursor = db.rawQuery("SELECT t._id, t.name FROM " + TagTable.getTableName() + " t " +
+			Cursor cursor = db.rawQuery("SELECT t._id, t.name, t.vocabulary_id FROM " + TagTable.getTableName() + " t " +
 					"INNER JOIN " + SampleTagTable.getTableName() + " st ON st.tag_id = t._id WHERE st.sample_id = ?",
 					new String[] { String.valueOf(id) });
 			
@@ -132,6 +132,7 @@ public class SampleTable extends StorageHandler {
 				do {
 					t = new Tag(cursor.getLong(0));
 					t.setName(cursor.getString(1));
+					t.setVocabularyId(cursor.getLong(2));
 					tagList.add(t);
 				}
 				while (cursor.moveToNext());
@@ -236,7 +237,7 @@ public class SampleTable extends StorageHandler {
 		    	TagTable tt = new TagTable(this.getContext());
 		    	while (i.hasNext()) {
 		    		Tag t = i.next();
-		    		sCreated.addTag(tt.addTag(t.getName(), s.getId()));
+		    		sCreated.addTag(tt.addTag(t.getVocabularyId(), t.getName(), s.getId()));
 		    	}
 		    }
 		}
@@ -269,14 +270,16 @@ public class SampleTable extends StorageHandler {
 	    	//delete all
 	    	Iterator<Tag> i = dbTagList.iterator();
 	    	while (i.hasNext()) {
-	    		tt.removeTag(i.next().getName(), s.getId());
+	    		Tag t = i.next();
+	    		tt.removeTag(t.getVocabularyId(), t.getName(), s.getId());
 	    	}
 	    }
 	    else if (sTagList.size() > 0 && dbTagList == null) {
 	    	//add all
 	    	Iterator<Tag> i = sTagList.iterator();
 	    	while (i.hasNext()) {
-	    		tt.addTag(i.next().getName(), s.getId());
+	    		Tag t = i.next();
+	    		tt.addTag(t.getVocabularyId(), t.getName(), s.getId());
 	    	}
 	    }
 	    else if (sTagList.size() > 0 && dbTagList != null) {
@@ -301,7 +304,7 @@ public class SampleTable extends StorageHandler {
 	    		while (i.hasNext()) {
 	    			Tag t = i.next();
 	    			if (!dbTagSet.contains(t.getName())) {
-	    				tt.addTag(t.getName(), s.getId());
+	    				tt.addTag(t.getVocabularyId(), t.getName(), s.getId());
 	    			}
 	    		}
 	    		
@@ -310,7 +313,7 @@ public class SampleTable extends StorageHandler {
 	    		while (i.hasNext()) {
 	    			Tag t = i.next();
 	    			if (!sTagSet.contains(t.getName())) {
-	    				tt.removeTag(t.getName(), s.getId());
+	    				tt.removeTag(t.getVocabularyId(), t.getName(), s.getId());
 	    			}
 	    		}
 	    	}

@@ -136,42 +136,12 @@ http://beepme.glanznig.com
 
 	            <requestFocus />
 	        </EditText>
-
+	        
 	        <TextView
-	            android:id="@+id/new_sample_label_tags"
+	            android:id="@+id/new_sample_help_title"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp"
-	            android:text="@string/sample_tags"
-	            android:textSize="17dp"
-	            android:textStyle="bold" />
-
-	        <RelativeLayout
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="5dp" >
-
-	            <AutoCompleteTextView
-	                android:id="@+id/new_sample_add_tag"
-	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentLeft="true"
-	                android:layout_toLeftOf="@+id/new_sample_btn_add_tag" />
-
-	            <Button
-	                android:id="@+id/new_sample_btn_add_tag"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentRight="true"
-	                android:onClick="onClickAddTag"
-	                android:text="@string/add" />
-	        </RelativeLayout>
-	        
-	        <com.glanznig.beepme.view.TagButtonContainer
-	            android:id="@+id/new_sample_tag_container"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp" />
+	            android:text="@string/sample_title_help" />
 
 	        <TextView
 	            android:id="@+id/new_sample_label_description"
@@ -186,12 +156,60 @@ http://beepme.glanznig.com
 	            android:id="@+id/new_sample_description"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	            android:layout_marginBottom="10dp"
 	            android:layout_marginTop="3dp"
 	            android:ems="10"
 	            android:gravity="top"
 	            android:inputType="textMultiLine"
 	            android:lines="5" />
+	        
+	        <TextView
+	            android:id="@+id/new_sample_help_description"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/sample_description_help" />
+	        
+	        <TextView
+	            android:id="@+id/new_sample_label_moods"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp"
+	            android:text="@string/sample_moods"
+	            android:textSize="17dp"
+	            android:textStyle="bold" />
+
+	        <RelativeLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="5dp" >
+
+	            <AutoCompleteTextView
+	                android:id="@+id/new_sample_add_mood"
+	                android:layout_width="fill_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentLeft="true"
+	                android:layout_toLeftOf="@+id/new_sample_btn_add_mood" />
+
+	            <Button
+	                android:id="@+id/new_sample_btn_add_mood"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentRight="true"
+	                android:onClick="onClickAddMood"
+	                android:text="@string/add" />
+	        </RelativeLayout>
+	        
+	        <TextView
+	            android:id="@+id/new_sample_help_moods"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/sample_moods_help" />
+	        
+	        <com.glanznig.beepme.view.TagButtonContainer
+	            android:id="@+id/new_sample_mood_container"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp"
+	            android:layout_marginBottom="10dp" />
 
 	    </LinearLayout>
 

@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
@@ -119,7 +118,7 @@ public class ViewSampleActivity extends Activity {
 			timestamp.setText(dateFormat.format(s.getTimestamp()));
 			
 			TextView title = (TextView)findViewById(R.id.view_sample_title);
-			if (s.getTitle() != null) {
+			if (s.getTitle() != null && s.getTitle().length() > 0) {
 				title.setText(s.getTitle());
 				title.setVisibility(View.VISIBLE);
 			}
@@ -149,14 +148,14 @@ public class ViewSampleActivity extends Activity {
 					tagsOutput += "   " + i.next().getName();
 				}
 				
-				TextView tagsView = (TextView)findViewById(R.id.view_sample_tags);
+				TextView tagsView = (TextView)findViewById(R.id.view_sample_moods);
 				tagsView.setText(tagsOutput);
 				tagsView.setVisibility(View.VISIBLE);
-				findViewById(R.id.view_sample_label_tags).setVisibility(View.VISIBLE);
+				findViewById(R.id.view_sample_label_moods).setVisibility(View.VISIBLE);
 			}
 			else {
-				findViewById(R.id.view_sample_tags).setVisibility(View.GONE);
-				findViewById(R.id.view_sample_label_tags).setVisibility(View.GONE);
+				findViewById(R.id.view_sample_moods).setVisibility(View.GONE);
+				findViewById(R.id.view_sample_label_moods).setVisibility(View.GONE);
 			}
 			
 			if (s.getPhotoUri() != null) {

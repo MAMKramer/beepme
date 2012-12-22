@@ -33,6 +33,7 @@ import com.glanznig.beepme.data.Tag;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -49,7 +50,6 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	private static final String TAG = "EditSampleActivity";
 	
 	private Sample sample = new Sample();
-	private int lastTagId = 0;
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -77,20 +77,16 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 			if (savedState.getStringArrayList("tagList") != null) {
 				Iterator<String> i = savedState.getStringArrayList("tagList").iterator();
 				while (i.hasNext()) {
-					Tag t = new Tag();
-					t.setName(i.next());
+					Tag t = Tag.valueOf(i.next());
 					sample.addTag(t);
 				}
 			}
 			
-			lastTagId = savedState.getInt("tagId");
 			sample.setAccepted(savedState.getBoolean("accepted"));
 		}
 		else {
 			Bundle b = getIntent().getExtras();
 			if (b != null) {
-				lastTagId = 0;
-				
 				if (b.containsKey(getApplication().getClass().getPackage().getName() + ".SampleId")) { 
 					long sampleId = b.getLong(getApplication().getClass().getPackage().getName() + ".SampleId");
 					sample = st.getSampleWithTags(sampleId);
@@ -106,9 +102,6 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	}
 	
 	private void populateFields() {
-		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_tag_container);
-		tagHolder.setLastTagId(lastTagId);
-        
 		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
 		
 		Button save = (Button)findViewById(R.id.new_sample_btn_save);
@@ -137,29 +130,34 @@ public class EditSampleActivity extends Activity implements OnClickListener {
         	descriptionWidget.setText(sample.getDescription());
         }
         
-        AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_tag);
-        TagAutocompleteAdapter adapter = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row);
-    	autocompleteTags.setAdapter(adapter);
+        AutoCompleteTextView autocompleteMoodTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_mood);
+        TagAutocompleteAdapter adapter = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row, 1);
+    	autocompleteMoodTags.setAdapter(adapter);
     	//after how many chars should auto-complete list appear?
-    	autocompleteTags.setThreshold(2);
+    	autocompleteMoodTags.setThreshold(2);
     	//autocompleteTags.setMaxLines(5);
     	
+    	TagButtonContainer moodHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
+    	moodHolder.setVocabularyId(1);
     	Iterator<Tag> i = sample.getTags().iterator();
 		Tag tag = null;
 		
 		while (i.hasNext()) {
 			tag = i.next();
-			tagHolder.addTagButton(tag.getName(), this);
+			if (tag.getVocabularyId() == 1) {
+				moodHolder.addTagButton(tag.getName(), this);
+			}
 		}
 	}
 	
-	public void onClickAddTag(View view) {
-		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_tag);
+	public void onClickAddMood(View view) {
+		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
+		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_mood);
 		if (enteredTag.getText().length() > 0) {
 			Tag t = new Tag();
+			t.setVocabularyId(tagHolder.getVocabularyId());
 			t.setName(enteredTag.getText().toString().toLowerCase());
 			if (sample.addTag(t)) {
-				TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_tag_container);
 				tagHolder.addTagButton(t.getName(), this);
 				enteredTag.setText("");
 			}
@@ -170,11 +168,20 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	}
 	
 	public void onClickRemoveTag(View view) {
-		Tag t = new Tag();
-		t.setName(((Button)view).getText().toString());
-		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_tag_container);
-		tagHolder.removeTagButton((Button)view);
-		sample.removeTag(t);
+		if (view instanceof TagButton) {
+			TagButton btn = (TagButton)view;
+			
+			TagButtonContainer tagHolder = null;
+			if (btn.getVocabularyId() == 1) {
+				tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
+			}
+			
+			Tag t = new Tag();
+			t.setName((btn.getText()).toString());
+			t.setVocabularyId(btn.getVocabularyId());
+			tagHolder.removeTagButton(btn);
+			sample.removeTag(t);
+		}
 	}
 	
 	public void onClickSave(View view) {
@@ -210,12 +217,10 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 			ArrayList<String> tags = new ArrayList<String>();
 			
 			while (i.hasNext()) {
-				tags.add(i.next().getName());
+				tags.add(i.next().toString());
 			}
 			savedState.putStringArrayList("tagList", tags);
 		}
-		
-		savedState.putInt("tagId", lastTagId);
 	}
 
 	@Override

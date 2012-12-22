@@ -38,7 +38,9 @@ public class TagTable extends StorageHandler {
 	private static final String TBL_CREATE =
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-			"name TEXT NOT NULL UNIQUE" +
+			"name TEXT NOT NULL UNIQUE, " +
+			"vocabulary_id INTEGER NOT NULL, " +
+			"FOREIGN KEY(vocabulary_id) REFERENCES " + VocabularyTable.getTableName() + "(_id)" +
 			")";
 	
 	public TagTable(Context ctx) {
@@ -51,6 +53,8 @@ public class TagTable extends StorageHandler {
 	
 	public static void createTable(SQLiteDatabase db) {
 		db.execSQL(TBL_CREATE);
+		
+		createMoodEntries(db);
 	}
 	
 	public static void dropTable(SQLiteDatabase db) {
@@ -62,7 +66,231 @@ public class TagTable extends StorageHandler {
 		createTable(db);
 	}
 	
-	public Tag addTag(String tagName, long sampleId) {
+	private static void createMoodEntries(SQLiteDatabase db) {
+		ContentValues values = null;
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "begeistert");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "verzückt");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "hingerissen");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "wütend");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "aufgebracht");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "böse");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "traurig");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "bekümmert");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "niedergeschlagen");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "schüchtern");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "scheu");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "zurückhaltend");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "angeekelt");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "empört");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "entrüstet");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "erfreut");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "froh");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "glücklich");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "anmaßend");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "überheblich");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "herablassend");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "überrascht");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "erstaunt");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "verblüfft");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "vorsichtig");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "behutsam");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "zaghaft");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "cool");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "gespannt");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "aufgeregt");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "erregt");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "geil");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "genervt");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "erschrocken");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "einsam");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "zuversichtlich");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "optimistisch");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "eigensinnig");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "entschlossen");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "entschieden");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "energisch");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "selbstsicher");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "großartig");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
+		values.put("name", "brilliant");
+		db.insert(TBL_NAME, null, values);
+	}
+	
+	public Tag addTag(long vocabularyId, String tagName, long sampleId) {
 		
 		if (tagName != null && sampleId != 0L) {
 			SQLiteDatabase db = getDb();
@@ -71,11 +299,14 @@ public class TagTable extends StorageHandler {
 			boolean success = true;
 			db.beginTransaction();
 			
-			Cursor cursor = db.query(getTableName(), new String[] { "_id", "name" }, "name=?", new String[] { tagName.toLowerCase() }, null, null, null);
+			Cursor cursor = db.query(getTableName(), new String[] { "_id", "name", "vocabulary_id" },
+					"name=? AND vocabulary_id=?", new String[] { tagName.toLowerCase(), String.valueOf(vocabularyId) },
+					null, null, null);
 			
 			if (cursor != null && cursor.getCount() == 0) {
 			    values = new ContentValues();
 			    values.put("name", tagName.toLowerCase());
+			    values.put("vocabulary_id", vocabularyId);
 			    tagId = db.insert(getTableName(), null, values);
 			}
 			else {
@@ -115,6 +346,7 @@ public class TagTable extends StorageHandler {
 		    if (success) {
 		    	Tag t = new Tag(tagId);
 		    	t.setName(tagName.toLowerCase());
+		    	t.setVocabularyId(vocabularyId);
 		    	
 		    	return t;
 		    }
@@ -123,27 +355,29 @@ public class TagTable extends StorageHandler {
 	    return null;
 	}
 	
-	public boolean removeTag(String tagName, long sampleId) {
+	public boolean removeTag(long vocabularyId, String tagName, long sampleId) {
 		boolean success = true;
 		
-		if (tagName != null && sampleId != 0L) {
+		if (vocabularyId != 0L && tagName != null && sampleId != 0L) {
 			SQLiteDatabase db = getDb();
 			db.beginTransaction();
 			
 			//delete tag - sample relationship
 			int rows = db.delete(SampleTagTable.getTableName(),
-					"tag_id = (SELECT t._id FROM " + getTableName() + " t WHERE t.name = ?) AND sample_id = ?",
-					new String[] { tagName.toLowerCase(), String.valueOf(sampleId) });
+					"tag_id = (SELECT t._id FROM " + getTableName() +
+					" t WHERE t.name=? AND t.vocabulary_id=?) AND sample_id=?",
+					new String[] { tagName.toLowerCase(), String.valueOf(vocabularyId), String.valueOf(sampleId) });
 			
 			if (rows > 0) {
 				Cursor cursor = db.rawQuery("SELECT sample_id FROM " + SampleTagTable.getTableName() +
-						" st INNER JOIN " + getTableName() + " t ON st.tag_id = t._id WHERE t.name = ?",
-						new String[] { tagName.toLowerCase() });
+						" st INNER JOIN " + getTableName() + " t ON st.tag_id = t._id WHERE t.name=? AND t.vocabulary_id=?",
+						new String[] { tagName.toLowerCase(), String.valueOf(vocabularyId) });
 				
 				//if there are no other samples attached to this tag -> delete tag
 				if (cursor != null) {
 					if (cursor.getCount() == 0) {
-						rows = db.delete(getTableName(), "name = ?", new String[] { tagName.toLowerCase() });
+						rows = db.delete(getTableName(), "name=? AND vocabulary_id=?",
+								new String[] { tagName.toLowerCase(), String.valueOf(vocabularyId) });
 						if (rows == 0) {
 							success = false;
 						}
@@ -172,10 +406,12 @@ public class TagTable extends StorageHandler {
 		return success;
 	}
 	
-	public List<Tag> getTags(String search) {
+	public List<Tag> getTags(long vocabularyId, String search) {
 		ArrayList<Tag> list = new ArrayList<Tag>();
 		SQLiteDatabase db = getDb();
-		Cursor cursor = db.query(getTableName(), new String[] { "_id", "name" }, "name like '" + search + "%'", null, null, null, "name");
+		Cursor cursor = db.query(getTableName(), new String[] { "_id", "name" },
+				"name like '" + search + "%' AND vocabulary_id=?", new String[] { String.valueOf(vocabularyId) },
+				null, null, "name");
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
@@ -193,10 +429,11 @@ public class TagTable extends StorageHandler {
 		return list;
 	}
 	
-	public List<Tag> getTags() {
+	public List<Tag> getTags(long vocabularyId) {
 		ArrayList<Tag> list = new ArrayList<Tag>();
 		SQLiteDatabase db = getDb();
-		Cursor cursor = db.query(getTableName(), new String[] { "_id", "name" }, null, null, null, null, "name");
+		Cursor cursor = db.query(getTableName(), new String[] { "_id", "name" }, "vocabulary_id=?",
+				new String[] { String.valueOf(vocabularyId) }, null, null, "name");
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();

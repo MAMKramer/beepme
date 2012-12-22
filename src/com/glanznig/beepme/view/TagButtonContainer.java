@@ -30,16 +30,23 @@ import android.widget.LinearLayout;
 
 public class TagButtonContainer extends LinearLayout {
 	
-	private static final String TAG = "beeper";
+	private static final String TAG = "TagButtonContainer";
 	private static final int MARGIN = 1;
 	private static final int BTN_HEIGHT = 40;
 	
 	private final float scale = getResources().getDisplayMetrics().density;
 	private int lastTagId = 0;
-
+	private long vocabularyId = 0L;
+	
 	public TagButtonContainer(Context ctx) {
 		super(ctx);
 		this.setOrientation(LinearLayout.VERTICAL);
+	}
+
+	public TagButtonContainer(Context ctx, long vocabularyId) {
+		super(ctx);
+		this.setOrientation(LinearLayout.VERTICAL);
+		this.vocabularyId = vocabularyId;
 	}
 	
 	public TagButtonContainer(Context ctx, AttributeSet attrs) {
@@ -47,12 +54,12 @@ public class TagButtonContainer extends LinearLayout {
 		this.setOrientation(LinearLayout.VERTICAL);
 	}
 	
-	public int getLastTagId() {
-		return lastTagId;
+	public void setVocabularyId(long vocabulary) {
+		this.vocabularyId = vocabulary;
 	}
 	
-	public void setLastTagId(int id) {
-		lastTagId = id;
+	public long getVocabularyId() {
+		return vocabularyId;
 	}
 	
 	public void addTagButton(String name) {
@@ -60,7 +67,7 @@ public class TagButtonContainer extends LinearLayout {
 	}
 	
 	public void addTagButton(String name, OnClickListener listener) {
-		Button btn = new Button(this.getContext());
+		TagButton btn = new TagButton(vocabularyId, this.getContext());
 		lastTagId += 1;
 		btn.setId(lastTagId);
 		btn.setText(name);
@@ -74,7 +81,7 @@ public class TagButtonContainer extends LinearLayout {
 		int numRows = this.getChildCount();
 		
 		if (numRows > 0) {
-			List<Button> removedBtns = null;
+			List<TagButton> removedBtns = null;
 			boolean inserted = false;
 			for (int i = 0; i < numRows; i++) {
 				TagButtonRow row = (TagButtonRow)this.getChildAt(i);
@@ -123,7 +130,7 @@ public class TagButtonContainer extends LinearLayout {
 		}
 	}
 	
-	public void removeTagButton(Button btn) {
+	public void removeTagButton(TagButton btn) {
 		int numRows = this.getChildCount();
 		String name = btn.getText().toString();
 		boolean deleted = false;
@@ -140,20 +147,20 @@ public class TagButtonContainer extends LinearLayout {
 			if (deleted) {
 				if ((i - 1) >= 0) {
 					TagButtonRow prevRow = (TagButtonRow)this.getChildAt(i - 1);
-					Button b = (Button)row.getChildAt(0);
+					TagButton b = (TagButton)row.getChildAt(0);
 					while (prevRow.hasSpace(b)) {
 						row.removeTagButton(b);
 						prevRow.addTagButton(b);
-						b = (Button)row.getChildAt(0);
+						b = (TagButton)row.getChildAt(0);
 					}
 				}
 				if (this.getChildAt(i + 1) != null) {
 					TagButtonRow nextRow = (TagButtonRow)this.getChildAt(i + 1);
-					Button b = (Button)nextRow.getChildAt(0);
+					TagButton b = (TagButton)nextRow.getChildAt(0);
 					while (row.hasSpace(b)) {
 						nextRow.removeTagButton(b);
 						row.addTagButton(b);
-						b = (Button)nextRow.getChildAt(0);
+						b = (TagButton)nextRow.getChildAt(0);
 					}
 					
 					if (nextRow.getChildCount() == 0) {
