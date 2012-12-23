@@ -28,10 +28,10 @@ http://beepme.glanznig.com
         android:title="@string/pref_title_warn_no_wifi"
         android:summary="@string/pref_summary_warn_no_wifi"
         android:defaultValue="true" /> -->
-    <ListPreference android:key="timerProfile"
+    <ListPreference android:key="timerProfileId"
         android:title="@string/pref_title_timer_profile"
         android:summary="@string/pref_summary_timer_profile"
-        android:defaultValue="general" />
+        android:defaultValue="1" />
     <com.glanznig.beepme.view.ConfirmCheckBoxPreference android:key="testMode"
         android:title="@string/pref_title_test_mode"
         android:summary="@string/pref_summary_test_mode"

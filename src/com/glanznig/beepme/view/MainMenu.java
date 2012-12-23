@@ -230,7 +230,7 @@ public class MainMenu extends Activity {
 		SampleTable st = new SampleTable(this.getApplicationContext());
 		int numAccepted = st.getNumAcceptedToday();
 		int numDeclined = st.getSampleCountToday() - numAccepted;
-		long uptimeDur = new UptimeTable(this.getApplicationContext()).getUptimeDurToday();
+		long uptimeDur = new UptimeTable(this.getApplicationContext(), app.getTimerProfile()).getUptimeDurToday();
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
 		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
 		TextView beeperActive = (TextView)findViewById(R.id.main_beeper_active_today);

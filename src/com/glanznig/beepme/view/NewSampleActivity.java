@@ -322,6 +322,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
 		sample.setPhotoUri(img.getImageUri());
+		sample.setTimerProfileId(app.getTimerProfile().getId());
 		new SampleTable(this.getApplicationContext()).editSample(sample);
 		
 		app.setTimer();

@@ -42,7 +42,6 @@ http://beepme.glanznig.com
     <string name="export_mail_subject">BeepMe Data Export</string>
     <string name="export_send_mail_msg">The archive has the size of %1$s. Do you want to send it by mail?</string>
     <string name="export_success_send_mail_title">Exported successfully</string>
-    <string name="general_profile">General</string>
     <string name="list_samples">Recorded Samples</string>
     <string name="mail_chooser_title">Choose app to send</string>
     <string name="main_menu_new_sample">New Sample</string>

@@ -24,7 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import com.glanznig.beepme.helper.TimerProfile;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -43,8 +42,11 @@ public class UptimeTable extends StorageHandler {
 			"end INTEGER UNIQUE" +
 			")";
 	
-	public UptimeTable(Context ctx) {
+	private TimerProfile timerProfile;
+	
+	public UptimeTable(Context ctx, TimerProfile timerProfile) {
 		super(ctx);
+		this.timerProfile = timerProfile;
 	}
 	
 	public static String getTableName() {
@@ -95,7 +97,11 @@ public class UptimeTable extends StorageHandler {
 			}
 			
 			//remove very short uptimes from statistics
-			if (startTime != 0L && end.getTime() - startTime > TimerProfile.MIN_UPTIME_DURATION * 1000) {
+			int minUptimeDuration = 60;
+			if (timerProfile != null) {
+				minUptimeDuration = timerProfile.getMinUptimeDuration();
+			}
+			if (startTime != 0L && end.getTime() - startTime > minUptimeDuration * 1000) {
 				ContentValues values = new ContentValues();
 				values.put("end", end.getTime());
 				numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(uptimeId) });
@@ -152,7 +158,11 @@ public class UptimeTable extends StorageHandler {
 				//if the currently running uptime interval's duration is larger than TimerProfile.MIN_UPTIME_DURATION
 				else if (cursor.isNull(1) && cursor.isLast()) {
 					long nowTime = new Date().getTime();
-					if (nowTime - cursor.getLong(0) > TimerProfile.MIN_UPTIME_DURATION * 1000) {
+					int minUptimeDuration = 60;
+					if (timerProfile != null) {
+						minUptimeDuration = timerProfile.getMinUptimeDuration();
+					}
+					if (nowTime - cursor.getLong(0) > minUptimeDuration * 1000) {
 						count += 1;
 						duration += nowTime - cursor.getLong(0);
 					}

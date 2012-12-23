@@ -32,7 +32,7 @@ public class StorageHandler {
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		
 		protected static final String DB_NAME = "beepme";
-		protected static final int DB_VERSION = 15;
+		protected static final int DB_VERSION = 16;
 		
 		public DatabaseHelper(Context ctx) {
 			super(ctx, DB_NAME, null, DB_VERSION);
@@ -45,6 +45,8 @@ public class StorageHandler {
 			SampleTagTable.createTable(db);
 			UptimeTable.createTable(db);
 			ScheduledBeepTable.createTable(db);
+			VocabularyTable.createTable(db);
+			TimerProfileTable.createTable(db);
 		}
 
 		@Override
@@ -59,6 +61,8 @@ public class StorageHandler {
 			TagTable.dropTable(db);
 			UptimeTable.dropTable(db);
 			ScheduledBeepTable.dropTable(db);
+			VocabularyTable.dropTable(db);
+			TimerProfileTable.dropTable(db);
 		}
 		
 		public void truncateTables() {

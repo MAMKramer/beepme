@@ -26,10 +26,9 @@ import java.util.TimeZone;
 
 import com.glanznig.beepme.data.PreferenceHandler;
 import com.glanznig.beepme.data.ScheduledBeepTable;
+import com.glanznig.beepme.data.TimerProfile;
+import com.glanznig.beepme.data.TimerProfileTable;
 import com.glanznig.beepme.data.UptimeTable;
-import com.glanznig.beepme.helper.GeneralTimerProfile;
-import com.glanznig.beepme.helper.HciTimerProfile;
-import com.glanznig.beepme.helper.TimerProfile;
 import com.glanznig.beepme.view.BeepActivity;
 import com.glanznig.beepme.view.MainMenu;
 
@@ -70,7 +69,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public void setBeeperActive(boolean active) {
-		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext());
+		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext(), timerProfile);
 		getPreferences().setBeeperActive(active);
 		if (active) {
 			getPreferences().setUptimeId(uptimeTbl.startUptime(new Date()));
@@ -135,7 +134,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		//set export running to false
 		getPreferences().setExportRunningSince(0L);
 		
-		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext());
+		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext(), timerProfile);
 		
 		if (isBeeperActive()) {
 			long scheduledBeepId = getPreferences().getScheduledBeepId();
@@ -183,14 +182,12 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public void setTimerProfile() {
-		String profile = preferences.getTimerProfile();
-		
-		if (profile.equals("hci")) {
-			timerProfile =  new HciTimerProfile(this.getApplicationContext());
-		}
-		else {
-			timerProfile = new GeneralTimerProfile(this.getApplicationContext());
-		}
+		long profileId = preferences.getTimerProfileId();
+		timerProfile = new TimerProfileTable(this.getApplicationContext()).getTimerProfile(profileId);
+	}
+	
+	public TimerProfile getTimerProfile() {
+		return timerProfile;
 	}
 	
 	public void setTimer() {
@@ -202,7 +199,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 				setTimerProfile();
 			}
 			
-			long timer = timerProfile.getTimer();
+			long timer = timerProfile.getTimer(this.getApplicationContext());
 	        alarmTime.add(Calendar.SECOND, (int)timer);
 	        //Log.i(TAG, "alarm in " + timer + " seconds.");
 	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
@@ -257,7 +254,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(PreferenceHandler.KEY_TIMER_PROFILE)) {
+		if (key.equals(PreferenceHandler.KEY_TIMER_PROFILE_ID)) {
 			setTimerProfile();
 		}
 	}

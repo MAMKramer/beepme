@@ -35,6 +35,7 @@ public class Sample {
 	private Boolean accepted;
 	private String photoUri;
 	private ArrayList<Tag> tags;
+	private Long timerProfileId;
 	
 	public Sample() {
 		id = null;
@@ -44,6 +45,7 @@ public class Sample {
 		accepted = Boolean.FALSE;
 		photoUri = null;
 		tags = new ArrayList<Tag>();
+		timerProfileId = null;
 	}
 	
 	public Sample(long id) {
@@ -54,6 +56,7 @@ public class Sample {
 		accepted = Boolean.FALSE;
 		photoUri = null;
 		tags = new ArrayList<Tag>();
+		timerProfileId = null;
 	}
 	
 	public long getId() {
@@ -107,6 +110,19 @@ public class Sample {
 	
 	public String getPhotoUri() {
 		return photoUri;
+	}
+	
+	public void setTimerProfileId(long timerProfileId) {
+		this.timerProfileId = Long.valueOf(timerProfileId);
+	}
+	
+	public long getTimerProfileId() {
+		long timerId = 0L;
+		if (timerProfileId != null) {
+			timerId = timerProfileId.longValue();
+		}
+		
+		return timerId;
 	}
 	
 	public boolean addTag(Tag tag) {

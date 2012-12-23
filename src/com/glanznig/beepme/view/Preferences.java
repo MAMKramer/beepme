@@ -22,11 +22,15 @@ package com.glanznig.beepme.view;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.PreferenceHandler;
 import com.glanznig.beepme.data.StorageHandler;
+import com.glanznig.beepme.data.TimerProfile;
+import com.glanznig.beepme.data.TimerProfileTable;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -44,7 +48,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 	
 	private boolean vibrateAtBeep;
 	//private boolean warnNoWifi;
-	private String timerProfile;
+	private long timerProfileId;
 	private boolean testMode;
 	
 	private boolean deleteDataRunning;
@@ -63,7 +67,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 		prefs.registerOnPreferenceChangeListener(Preferences.this);
 		vibrateAtBeep = prefs.isVibrateAtBeep();
 		//warnNoWifi = prefs.isWarnNoWifi();
-		timerProfile = prefs.getTimerProfile();
+		timerProfileId = prefs.getTimerProfileId();
 		testMode = prefs.isTestMode();
 		
 		if (savedState != null) {
@@ -119,9 +123,18 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
         ConfirmCheckBoxPreference boxTestMode = (ConfirmCheckBoxPreference)findPreference(PreferenceHandler.KEY_TEST_MODE);
         boxTestMode.setChecked(testMode);
         
-        ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE);
-        formTimerProfile.setEntries(new String[] { "HCI", getResources().getString(R.string.general_profile) });
-        formTimerProfile.setEntryValues(new String[] { "hci", "general" });
+        ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE_ID);
+        Iterator<TimerProfile> profileList = new TimerProfileTable(this.getApplicationContext()).getTimerProfiles().iterator();
+        ArrayList<String> profileValues = new ArrayList<String>();
+        ArrayList<String> profileNames = new ArrayList<String>();
+        while (profileList.hasNext()) {
+        	TimerProfile tp = profileList.next();
+        	profileNames.add(tp.getName());
+        	profileValues.add(String.valueOf(tp.getId()));
+        }
+        
+        formTimerProfile.setEntries(profileNames.toArray(new String[profileNames.size()]));
+        formTimerProfile.setEntryValues(profileValues.toArray(new String[profileValues.size()]));
 	}
 	
 	@Override

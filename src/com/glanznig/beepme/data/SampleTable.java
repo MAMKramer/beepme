@@ -45,7 +45,9 @@ public class SampleTable extends StorageHandler {
 			"title TEXT, " +
 			"description TEXT, " +
 			"accepted INTEGER NOT NULL, " +
-			"photoUri TEXT" +
+			"photoUri TEXT, " +
+			"timerProfileId INTEGER NOT NULL, " +
+			"FOREIGN KEY (timerProfileId) REFERENCES "  + VocabularyTable.getTableName() + " (_id)" +
 			")";
 	
 	public SampleTable(Context ctx) {
@@ -73,7 +75,8 @@ public class SampleTable extends StorageHandler {
 		SQLiteDatabase db = getDb();
 		Sample s = null;
 		
-		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "timestamp", "title", "description", "accepted", "photoUri"},
+		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "timestamp", "title", "description", "accepted",
+				"photoUri", "timerProfileId"},
 				"_id=?", new String[] { String.valueOf(id) }, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -96,6 +99,9 @@ public class SampleTable extends StorageHandler {
 			}
 			if (!cursor.isNull(5)) {
 				s.setPhotoUri(cursor.getString(5));
+			}
+			if (!cursor.isNull(6)) {
+				s.setTimerProfileId(cursor.getLong(6));
 			}
 		}
 		cursor.close();
@@ -154,8 +160,8 @@ public class SampleTable extends StorageHandler {
 		SQLiteDatabase db = getDb();
 		List<Sample> sampleList = new ArrayList<Sample>();
 		
-		Cursor cursor = db.query(getTableName(), new String[] {"_id", "timestamp", "title", "description", "accepted", "photoUri"},
-				"accepted = 1", null, null, null, "timestamp DESC");
+		Cursor cursor = db.query(getTableName(), new String[] {"_id", "timestamp", "title", "description",
+				"accepted", "photoUri", "timerProfileId"}, "accepted = 1", null, null, null, "timestamp DESC");
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
@@ -178,6 +184,9 @@ public class SampleTable extends StorageHandler {
 				}
 				if (!cursor.isNull(5)) {
 					s.setPhotoUri(cursor.getString(5));
+				}
+				if (!cursor.isNull(6)) {
+					s.setTimerProfileId(cursor.getLong(6));
 				}
 				sampleList.add(s);
 			}
@@ -212,6 +221,7 @@ public class SampleTable extends StorageHandler {
 		    	values.put("accepted", "0");
 		    }
 		    values.put("photoUri", s.getPhotoUri());
+		    values.put("timerProfileId", s.getTimerProfileId());
 		 
 		    if (success) {
 		    	long sampleId = db.insert(getTableName(), null, values);
@@ -228,6 +238,9 @@ public class SampleTable extends StorageHandler {
 		    	}
 		    	if (s.getTitle() != null) {
 		    		sCreated.setTitle(s.getTitle());
+		    	}
+		    	if (s.getTimerProfileId() != 0L) {
+		    		sCreated.setTimerProfileId(s.getTimerProfileId());
 		    	}
 		    }
 		    db.close();
@@ -259,6 +272,7 @@ public class SampleTable extends StorageHandler {
 	    	values.put("accepted", "0");
 	    }
 	    values.put("photoUri", s.getPhotoUri());
+	    values.put("timerProfileId", s.getTimerProfileId());
 	    
 	    int numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(s.getId()) });
 	    db.close();
