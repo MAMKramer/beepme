@@ -138,24 +138,53 @@ public class ViewSampleActivity extends Activity {
 			}
 			
 			List<Tag> tags = s.getTags();
+			boolean hasMoodTags = false;
+			boolean hasAttitudeTags = false;
+			
 			if (tags.size() > 0) {
 				Iterator<Tag> i = tags.iterator();
-				String tagsOutput = "";
-				if (i.hasNext()) {
-					tagsOutput = i.next().getName();
-				}
+				String moodsOutput = "";
+				String attitudesOutput = "";
 				while (i.hasNext()) {
-					tagsOutput += "   " + i.next().getName();
+					Tag t = i.next();
+					if (t.getVocabularyId() == 1) {
+						if (moodsOutput.length() > 0) {
+							moodsOutput += "   ";
+						}
+						moodsOutput += t.getName();
+						hasMoodTags = true;
+					}
+					if (t.getVocabularyId() == 2) {
+						if (attitudesOutput.length() > 0) {
+							attitudesOutput += "   ";
+						}
+						attitudesOutput += t.getName();
+						hasAttitudeTags = true;
+					}
 				}
 				
-				TextView tagsView = (TextView)findViewById(R.id.view_sample_moods);
-				tagsView.setText(tagsOutput);
-				tagsView.setVisibility(View.VISIBLE);
-				findViewById(R.id.view_sample_label_moods).setVisibility(View.VISIBLE);
+				TextView moodsView = (TextView)findViewById(R.id.view_sample_moods);
+				TextView attitudesView = (TextView)findViewById(R.id.view_sample_attitudes);
+				moodsView.setText(moodsOutput);
+				attitudesView.setText(attitudesOutput);
 			}
-			else {
+			
+			if (!hasMoodTags) {
 				findViewById(R.id.view_sample_moods).setVisibility(View.GONE);
 				findViewById(R.id.view_sample_label_moods).setVisibility(View.GONE);
+			}
+			else {
+				findViewById(R.id.view_sample_moods).setVisibility(View.VISIBLE);
+				findViewById(R.id.view_sample_label_moods).setVisibility(View.VISIBLE);
+			}
+			
+			if (!hasAttitudeTags) {
+				findViewById(R.id.view_sample_attitudes).setVisibility(View.GONE);
+				findViewById(R.id.view_sample_label_attitudes).setVisibility(View.GONE);
+			}
+			else {
+				findViewById(R.id.view_sample_attitudes).setVisibility(View.VISIBLE);
+				findViewById(R.id.view_sample_label_attitudes).setVisibility(View.VISIBLE);
 			}
 			
 			if (s.getPhotoUri() != null) {

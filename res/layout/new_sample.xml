@@ -210,6 +210,49 @@ http://beepme.glanznig.com
 	            android:layout_height="wrap_content"
 	            android:layout_marginTop="10dp"
 	            android:layout_marginBottom="10dp" />
+	    
+	   		 <TextView
+	            android:id="@+id/new_sample_label_attitudes"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp"
+	            android:text="@string/sample_attitudes"
+	            android:textSize="17dp"
+	            android:textStyle="bold" />
+
+	        <RelativeLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="5dp" >
+
+	            <AutoCompleteTextView
+	                android:id="@+id/new_sample_add_attitude"
+	                android:layout_width="fill_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentLeft="true"
+	                android:layout_toLeftOf="@+id/new_sample_btn_add_attitude" />
+
+	            <Button
+	                android:id="@+id/new_sample_btn_add_attitude"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentRight="true"
+	                android:onClick="onClickAddAttitude"
+	                android:text="@string/add" />
+	        </RelativeLayout>
+	        
+	        <TextView
+	            android:id="@+id/new_sample_help_attitudes"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/sample_attitudes_help" />
+	        
+	        <com.glanznig.beepme.view.TagButtonContainer
+	            android:id="@+id/new_sample_attitude_container"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="10dp"
+	            android:layout_marginBottom="10dp" />
 
 	    </LinearLayout>
 

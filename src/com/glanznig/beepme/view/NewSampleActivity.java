@@ -224,15 +224,22 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
         	descriptionWidget.setText(sample.getDescription());
         }
         
-        AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_mood);
-        TagAutocompleteAdapter adapter = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row, 1);
-    	autocompleteTags.setAdapter(adapter);
+        AutoCompleteTextView autocompleteMoodTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_mood);
+        TagAutocompleteAdapter adapterMood = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row, 1);
+    	autocompleteMoodTags.setAdapter(adapterMood);
     	//after how many chars should auto-complete list appear?
-    	autocompleteTags.setThreshold(2);
-    	//autocompleteTags.setMaxLines(5);
+    	autocompleteMoodTags.setThreshold(2);
+    	
+    	AutoCompleteTextView autocompleteAttitudeTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_attitude);
+        TagAutocompleteAdapter adapterAttitude = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row, 2);
+    	autocompleteAttitudeTags.setAdapter(adapterAttitude);
+    	//after how many chars should auto-complete list appear?
+    	autocompleteAttitudeTags.setThreshold(2);
     	
     	TagButtonContainer moodHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
+    	TagButtonContainer attitudeHolder = (TagButtonContainer)findViewById(R.id.new_sample_attitude_container);
     	moodHolder.setVocabularyId(1);
+    	attitudeHolder.setVocabularyId(2);
     	Iterator<Tag> i = sample.getTags().iterator();
 		Tag tag = null;
 		
@@ -240,6 +247,9 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			tag = i.next();
 			if (tag.getVocabularyId() == 1) {
 				moodHolder.addTagButton(tag.getName(), this);
+			}
+			if (tag.getVocabularyId() == 2) {
+				attitudeHolder.addTagButton(tag.getName(), this);
 			}
 		}
 	}
@@ -261,6 +271,23 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		}
 	}
 	
+	public void onClickAddAttitude(View view) {
+		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_attitude_container);
+		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_attitude);
+		if (enteredTag.getText().length() > 0) {
+			Tag t = new Tag();
+			t.setVocabularyId(tagHolder.getVocabularyId());
+			t.setName(enteredTag.getText().toString().toLowerCase());
+			if (sample.addTag(t)) {
+				tagHolder.addTagButton(t.getName(), this);
+				enteredTag.setText("");
+			}
+			else {
+				Toast.makeText(getApplicationContext(), R.string.new_sample_add_tag_error, Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+	
 	public void onClickRemoveTag(View view) {
 		if (view instanceof TagButton) {
 			TagButton btn = (TagButton)view;
@@ -268,6 +295,9 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			TagButtonContainer tagHolder = null;
 			if (btn.getVocabularyId() == 1) {
 				tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
+			}
+			if (btn.getVocabularyId() == 2) {
+				tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_attitude_container);
 			}
 			
 			Tag t = new Tag();

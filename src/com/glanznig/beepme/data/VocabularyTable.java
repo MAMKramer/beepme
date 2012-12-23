@@ -61,7 +61,10 @@ private static final String TAG = "VocabularyTable";
 	private static void insertData(SQLiteDatabase db) {
 		ContentValues values = new ContentValues();
 		values.put("_id", 1);
-		values.put("name", "moods");
+		values.put("name", "mood");
+		db.insert(TBL_NAME, null, values);
+		values.put("_id", 2);
+		values.put("name", "attitude");
 		db.insert(TBL_NAME, null, values);
 	}
 }

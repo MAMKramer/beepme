@@ -129,7 +129,22 @@ http://beepme.glanznig.com
 	            android:id="@+id/view_sample_moods"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
+	            android:lineSpacingExtra="5dp"
+	            android:textSize="17dp" />
+	        
+	        <TextView
+	            android:id="@+id/view_sample_label_attitudes"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
 	            android:layout_marginTop="10dp"
+	            android:text="@string/sample_attitudes"
+	            android:textSize="17dp"
+	            android:textStyle="bold" />
+
+	        <TextView
+	            android:id="@+id/view_sample_attitudes"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
 	            android:lineSpacingExtra="5dp"
 	            android:textSize="17dp" />
 	    </LinearLayout>

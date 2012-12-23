@@ -69,6 +69,8 @@ http://beepme.glanznig.com
     <string name="pref_title_warn_no_wifi">No WiFi Warning</string>
     <string name="preferences">Preferences</string>
     <string name="refresh">Refresh</string>
+    <string name="sample_attitudes">What is your attitude towards the website?</string>
+    <string name="sample_attitudes_help">select or add your own, multiple values possible</string>
     <string name="sample_description">What was your experience like?</string>
     <string name="sample_description_help">e.g. keywords, fragments or full-text</string>
     <string name="sample_moods">How do you feel? In what mood are you?</string>

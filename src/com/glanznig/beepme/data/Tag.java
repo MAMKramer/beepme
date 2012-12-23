@@ -125,8 +125,6 @@ public class Tag {
 			}
 		}
 		
-		Log.i(TAG, "equals: a=" + toString() + " b=" + other.toString() + " ret: " + ret);
-		
 		return ret;
     }
 

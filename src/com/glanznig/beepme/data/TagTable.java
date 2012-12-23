@@ -38,7 +38,7 @@ public class TagTable extends StorageHandler {
 	private static final String TBL_CREATE =
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-			"name TEXT NOT NULL UNIQUE, " +
+			"name TEXT NOT NULL, " +
 			"vocabulary_id INTEGER NOT NULL, " +
 			"FOREIGN KEY(vocabulary_id) REFERENCES " + VocabularyTable.getTableName() + "(_id)" +
 			")";
@@ -73,220 +73,308 @@ public class TagTable extends StorageHandler {
 		values.put("vocabulary_id", 1);
 		values.put("name", "begeistert");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "verzückt");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "hingerissen");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "wütend");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "aufgebracht");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "böse");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "traurig");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "bekümmert");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "niedergeschlagen");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "schüchtern");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "scheu");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "zurückhaltend");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "angeekelt");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "empört");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "entrüstet");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "erfreut");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "froh");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "glücklich");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "anmaßend");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "überheblich");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "herablassend");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "überrascht");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "erstaunt");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "verblüfft");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "vorsichtig");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "behutsam");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "zaghaft");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "cool");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "gespannt");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "aufgeregt");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "erregt");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "geil");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "genervt");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "erschrocken");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "einsam");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "zuversichtlich");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "optimistisch");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "eigensinnig");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "entschlossen");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "entschieden");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "energisch");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "selbstsicher");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "großartig");
 		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
 		values.put("name", "brilliant");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
 		db.insert(TBL_NAME, null, values);
 	}
 	
