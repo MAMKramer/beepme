@@ -178,7 +178,7 @@ public class ViewSampleActivity extends Activity {
 				findViewById(R.id.view_sample_label_moods).setVisibility(View.VISIBLE);
 			}
 			
-			if (!hasAttitudeTags) {
+			if (!hasAttitudeTags || s.getTimerProfileId() == 1) {
 				findViewById(R.id.view_sample_attitudes).setVisibility(View.GONE);
 				findViewById(R.id.view_sample_label_attitudes).setVisibility(View.GONE);
 			}

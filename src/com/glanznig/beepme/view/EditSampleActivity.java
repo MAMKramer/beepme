@@ -158,6 +158,14 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 				attitudeHolder.addTagButton(tag.getName(), this);
 			}
 		}
+		
+		if (sample.getTimerProfileId() == 1) {
+			findViewById(R.id.new_sample_label_attitudes).setVisibility(View.GONE);
+			findViewById(R.id.new_sample_add_attitude).setVisibility(View.GONE);
+			findViewById(R.id.new_sample_btn_add_attitude).setVisibility(View.GONE);
+			findViewById(R.id.new_sample_help_attitudes).setVisibility(View.GONE);
+			findViewById(R.id.new_sample_attitude_container).setVisibility(View.GONE);
+		}
 	}
 	
 	public void onClickAddMood(View view) {
