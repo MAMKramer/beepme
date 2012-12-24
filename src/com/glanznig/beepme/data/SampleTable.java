@@ -47,6 +47,7 @@ public class SampleTable extends StorageHandler {
 			"accepted INTEGER NOT NULL, " +
 			"photoUri TEXT, " +
 			"timerProfileId INTEGER NOT NULL, " +
+			"presence TEXT, " +
 			"FOREIGN KEY (timerProfileId) REFERENCES "  + VocabularyTable.getTableName() + " (_id)" +
 			")";
 	
@@ -76,7 +77,7 @@ public class SampleTable extends StorageHandler {
 		Sample s = null;
 		
 		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "timestamp", "title", "description", "accepted",
-				"photoUri", "timerProfileId"},
+				"photoUri", "timerProfileId", "presence"},
 				"_id=?", new String[] { String.valueOf(id) }, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -102,6 +103,9 @@ public class SampleTable extends StorageHandler {
 			}
 			if (!cursor.isNull(6)) {
 				s.setTimerProfileId(cursor.getLong(6));
+			}
+			if (!cursor.isNull(7)) {
+				s.setPresence(cursor.getString(7));
 			}
 		}
 		cursor.close();
@@ -161,7 +165,7 @@ public class SampleTable extends StorageHandler {
 		List<Sample> sampleList = new ArrayList<Sample>();
 		
 		Cursor cursor = db.query(getTableName(), new String[] {"_id", "timestamp", "title", "description",
-				"accepted", "photoUri", "timerProfileId"}, "accepted = 1", null, null, null, "timestamp DESC");
+				"accepted", "photoUri", "timerProfileId", "presence"}, "accepted = 1", null, null, null, "timestamp DESC");
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
@@ -187,6 +191,9 @@ public class SampleTable extends StorageHandler {
 				}
 				if (!cursor.isNull(6)) {
 					s.setTimerProfileId(cursor.getLong(6));
+				}
+				if (!cursor.isNull(7)) {
+					s.setPresence(cursor.getString(7));
 				}
 				sampleList.add(s);
 			}
@@ -222,6 +229,7 @@ public class SampleTable extends StorageHandler {
 		    }
 		    values.put("photoUri", s.getPhotoUri());
 		    values.put("timerProfileId", s.getTimerProfileId());
+		    values.put("presence", s.getPresence());
 		 
 		    if (success) {
 		    	long sampleId = db.insert(getTableName(), null, values);
@@ -241,6 +249,9 @@ public class SampleTable extends StorageHandler {
 		    	}
 		    	if (s.getTimerProfileId() != 0L) {
 		    		sCreated.setTimerProfileId(s.getTimerProfileId());
+		    	}
+		    	if (s.getPresence() != null) {
+		    		sCreated.setPresence(s.getPresence());
 		    	}
 		    }
 		    db.close();
@@ -273,6 +284,7 @@ public class SampleTable extends StorageHandler {
 	    }
 	    values.put("photoUri", s.getPhotoUri());
 	    values.put("timerProfileId", s.getTimerProfileId());
+	    values.put("presence", s.getPresence());
 	    
 	    int numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(s.getId()) });
 	    db.close();

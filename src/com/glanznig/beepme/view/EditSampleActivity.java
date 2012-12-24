@@ -74,6 +74,10 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 				sample.setDescription(savedState.getCharSequence("description").toString());
 			}
 			
+			if (savedState.getCharSequence("presence") != null) {
+				sample.setPresence(savedState.getCharSequence("presence").toString());
+			}
+			
 			if (savedState.getStringArrayList("tagList") != null) {
 				Iterator<String> i = savedState.getStringArrayList("tagList").iterator();
 				while (i.hasNext()) {
@@ -129,6 +133,15 @@ public class EditSampleActivity extends Activity implements OnClickListener {
         	EditText descriptionWidget = (EditText)findViewById(R.id.new_sample_description);
         	descriptionWidget.setText(sample.getDescription());
         }
+        
+        AutoCompleteTextView presenceWidget = (AutoCompleteTextView)findViewById(R.id.new_sample_presence);
+        if (sample.getPresence() != null) {
+        	presenceWidget.setText(sample.getPresence());
+        }
+        TagAutocompleteAdapter adapterPresence = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row, 3);
+    	presenceWidget.setAdapter(adapterPresence);
+    	//after how many chars should auto-complete list appear?
+    	presenceWidget.setThreshold(2);
         
         AutoCompleteTextView autocompleteMoodTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_mood);
         TagAutocompleteAdapter adapterMood = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row, 1);
@@ -225,9 +238,11 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	public void onClickSave(View view) {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
+		EditText presence = (EditText)findViewById(R.id.new_sample_presence);
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
+		sample.setPresence(presence.getText().toString());
 		new SampleTable(this.getApplicationContext()).editSample(sample);
 		
 		finish();
@@ -241,6 +256,7 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	public void onSaveInstanceState(Bundle savedState) {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
+		EditText presence = (EditText)findViewById(R.id.new_sample_presence);
 		
 		if (sample.getTimestamp() != null) {
 			savedState.putLong("timestamp", sample.getTimestamp().getTime());
@@ -248,6 +264,7 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 		savedState.putLong("sampleId", sample.getId());
 		savedState.putCharSequence("title", title.getText());
 		savedState.putCharSequence("description", description.getText());
+		savedState.putCharSequence("presence", presence.getText());
 		savedState.putBoolean("accepted", sample.getAccepted());
 		
 		if (sample.getTags().size() > 0) {

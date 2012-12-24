@@ -74,6 +74,8 @@ http://beepme.glanznig.com
     <string name="sample_description_help">e.g. keywords, fragments or full-text</string>
     <string name="sample_moods">How do you feel? In what mood are you?</string>
     <string name="sample_moods_help">select or add your own, multiple values possible</string>
+    <string name="sample_presence">How present/attentive are you?</string>
+    <string name="sample_presence_help">e.g. not present, very present or in your own words</string>
     <string name="sample_title">Title of the Sample</string>
     <string name="sample_title_help">e.g. a keyword</string>
     <string name="sample_untitled">Untitled</string>

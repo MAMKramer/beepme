@@ -99,6 +99,13 @@ public class TagTable extends StorageHandler {
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 1);
+		values.put("name", "zornig");
+		db.insert(TBL_NAME, null, values);
+		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 1);
 		values.put("name", "aufgebracht");
 		db.insert(TBL_NAME, null, values);
 		values.put("vocabulary_id", 2);
@@ -375,6 +382,31 @@ public class TagTable extends StorageHandler {
 		values.put("name", "brilliant");
 		db.insert(TBL_NAME, null, values);
 		values.put("vocabulary_id", 2);
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "nicht aufmerksam");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "wenig aufmerksam");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "eher aufmerksam");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "aufmerksam");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "sehr aufmerksam");
 		db.insert(TBL_NAME, null, values);
 	}
 	

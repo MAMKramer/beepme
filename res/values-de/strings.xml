@@ -75,6 +75,8 @@ http://beepme.glanznig.com
     <string name="sample_description_help">z.B. Stichwörter, Satzfragmente oder Sätze</string>
     <string name="sample_moods">Wie fühlen Sie sich? In welcher Stimmung sind Sie?</string>
     <string name="sample_moods_help">wählen Sie oder fügen Sie eigene hinzu, mehrere Werte möglich</string>
+    <string name="sample_presence">Wie präsent/aufmerksam sind Sie?</string>
+    <string name="sample_presence_help">z.B. nicht aufmerksam, sehr aufmerksam oder in Ihren eigenen Worten</string>
     <string name="sample_title">Titel des Eintrags</string>
     <string name="sample_title_help">z.B. ein Stichwort</string>
     <string name="sample_untitled">Unbenannt</string>

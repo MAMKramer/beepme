@@ -137,6 +137,17 @@ public class ViewSampleActivity extends Activity {
 				description.setVisibility(View.GONE);
 			}
 			
+			TextView presence = (TextView)findViewById(R.id.view_sample_presence);
+			if (s.getPresence() != null && s.getPresence().length() > 0) {
+				presence.setText(s.getPresence());
+				findViewById(R.id.view_sample_label_presence).setVisibility(View.VISIBLE);
+				presence.setVisibility(View.VISIBLE);
+			}
+			else {
+				findViewById(R.id.view_sample_label_presence).setVisibility(View.GONE);
+				presence.setVisibility(View.GONE);
+			}
+			
 			List<Tag> tags = s.getTags();
 			boolean hasMoodTags = false;
 			boolean hasAttitudeTags = false;

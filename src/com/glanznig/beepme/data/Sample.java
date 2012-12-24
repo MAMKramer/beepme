@@ -36,6 +36,7 @@ public class Sample {
 	private String photoUri;
 	private ArrayList<Tag> tags;
 	private Long timerProfileId;
+	private String presence;
 	
 	public Sample() {
 		id = null;
@@ -46,6 +47,7 @@ public class Sample {
 		photoUri = null;
 		tags = new ArrayList<Tag>();
 		timerProfileId = null;
+		presence = null;
 	}
 	
 	public Sample(long id) {
@@ -57,6 +59,7 @@ public class Sample {
 		photoUri = null;
 		tags = new ArrayList<Tag>();
 		timerProfileId = null;
+		presence = null;
 	}
 	
 	public long getId() {
@@ -123,6 +126,14 @@ public class Sample {
 		}
 		
 		return timerId;
+	}
+	
+	public void setPresence(String presence) {
+		this.presence = presence;
+	}
+	
+	public String getPresence() {
+		return presence;
 	}
 	
 	public boolean addTag(Tag tag) {

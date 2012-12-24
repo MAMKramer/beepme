@@ -134,6 +134,10 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 				sample.setDescription(savedState.getCharSequence("description").toString());
 			}
 			
+			if (savedState.getCharSequence("presence") != null) {
+				sample.setPresence(savedState.getCharSequence("presence").toString());
+			}
+			
 			if (savedState.getStringArrayList("tagList") != null) {
 				Iterator<String> i = savedState.getStringArrayList("tagList").iterator();
 				while (i.hasNext()) {
@@ -223,6 +227,12 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
         	EditText descriptionWidget = (EditText)findViewById(R.id.new_sample_description);
         	descriptionWidget.setText(sample.getDescription());
         }
+        
+        AutoCompleteTextView presenceWidget = (AutoCompleteTextView)findViewById(R.id.new_sample_presence);
+        TagAutocompleteAdapter adapterPresence = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row, 3);
+    	presenceWidget.setAdapter(adapterPresence);
+    	//after how many chars should auto-complete list appear?
+    	presenceWidget.setThreshold(2);
         
         AutoCompleteTextView autocompleteMoodTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_mood);
         TagAutocompleteAdapter adapterMood = new TagAutocompleteAdapter(NewSampleActivity.this, R.layout.tag_autocomplete_list_row, 1);
@@ -327,11 +337,13 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
+		EditText presence = (EditText)findViewById(R.id.new_sample_presence);
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
 		sample.setPhotoUri(img.getImageUri());
 		sample.setTimerProfileId(app.getTimerProfile().getId());
+		sample.setPresence(presence.getText().toString());
 		new SampleTable(this.getApplicationContext()).editSample(sample);
 		
 		app.setTimer();
