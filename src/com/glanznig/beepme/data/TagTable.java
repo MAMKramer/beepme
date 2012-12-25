@@ -386,17 +386,32 @@ public class TagTable extends StorageHandler {
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 3);
-		values.put("name", "nicht aufmerksam");
+		values.put("name", "gar nicht");
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 3);
-		values.put("name", "wenig aufmerksam");
+		values.put("name", "nicht");
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 3);
-		values.put("name", "eher aufmerksam");
+		values.put("name", "eher nicht");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "wenig");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "kaum");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "eher schon");
 		db.insert(TBL_NAME, null, values);
 		
 		values = new ContentValues();
@@ -406,7 +421,17 @@ public class TagTable extends StorageHandler {
 		
 		values = new ContentValues();
 		values.put("vocabulary_id", 3);
-		values.put("name", "sehr aufmerksam");
+		values.put("name", "eher sehr");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "sehr");
+		db.insert(TBL_NAME, null, values);
+		
+		values = new ContentValues();
+		values.put("vocabulary_id", 3);
+		values.put("name", "vollkommen");
 		db.insert(TBL_NAME, null, values);
 	}
 	
