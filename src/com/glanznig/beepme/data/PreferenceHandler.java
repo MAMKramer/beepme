@@ -132,13 +132,13 @@ public class PreferenceHandler {
 	
 	public long getTimerProfileId() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-		return prefs.getLong(KEY_TIMER_PROFILE_ID, 1L);
+		return Long.valueOf(prefs.getString(KEY_TIMER_PROFILE_ID, "1"));
 	}
 	
 	public void setTimerProfileId(long profileId) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putLong(KEY_TIMER_PROFILE_ID, profileId);
+		editor.putString(KEY_TIMER_PROFILE_ID, String.valueOf(profileId));
 		editor.commit();
 	}
 }
