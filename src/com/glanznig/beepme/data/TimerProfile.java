@@ -33,6 +33,7 @@ public class TimerProfile {
 	private int avgBeepInterval;
 	private int maxBeepInterval;
 	private int minBeepInterval;
+	private int minSizeBeepInterval;
 	private int uptimeCountMoveToAverage;
 	private int numCancelledBeepsMoveToAverage;
 	
@@ -86,7 +87,8 @@ public class TimerProfile {
 				max = maxBeepInterval;
 				min = avg;
 			}
-		}
+		} // max > min iff min < avg < max
+		
 		//later, try to fit beep into "avg beeper uptime today" interval
 		else {
 			double avgUptimeDuration = new UptimeTable(ctx, this).getAvgUptimeDurToday();
@@ -97,14 +99,21 @@ public class TimerProfile {
 				min = minBeepInterval;
 				if (min >= max) {
 					min = minUptimeDuration;
+					if (min >= max) {
+						min = max - minSizeBeepInterval;
+					}
 				}
 			}
 			else {
 				max = Math.min(Math.round(avgUptimeDuration), maxBeepInterval);
 				min = avg;
+				if (min >= max) {
+					max = min + minSizeBeepInterval;
+				}
 			}
-		}
+		} // if max <= min, interval is of size minSizeBeepInterval to make sure that max > min
 		
+		//must be max > min
 		long randTerm = randomGenerator.nextLong(max - min);
 		if (negative) {
 			randTime = avg - randTerm;
@@ -151,6 +160,14 @@ public class TimerProfile {
 
 	public void setMinBeepInterval(int minBeepInterval) {
 		this.minBeepInterval = minBeepInterval;
+	}
+	
+	public int getMinSizeBeepInterval() {
+		return minSizeBeepInterval;
+	}
+	
+	public void setMinSizeBeepInterval(int minSizeBeepInterval) {
+		this.minSizeBeepInterval = minSizeBeepInterval;
 	}
 
 	public int getUptimeCountMoveToAverage() {

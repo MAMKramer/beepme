@@ -21,8 +21,8 @@ http://beepme.glanznig.com
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.glanznig.beepme"
-    android:versionCode="10"
-    android:versionName="1.2.1"
+    android:versionCode="11"
+    android:versionName="1.2.2"
     android:installLocation="auto">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8" />

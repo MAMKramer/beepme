@@ -41,6 +41,7 @@ private static final String TAG = "TimerProfileTable";
 			"avgBeepInterval INTEGER NOT NULL, " +
 			"maxBeepInterval INTEGER NOT NULL, " +
 			"minBeepInterval INTEGER NOT NULL, " +
+			"minSizeBeepInterval INTEGER NOT NULL, " +
 			"uptimeCountMoveToAverage INTEGER NOT NULL, " +
 			"numCancelledBeepsMoveToAverage INTEGER NOT NULL" +
 			")";
@@ -71,13 +72,19 @@ private static final String TAG = "TimerProfileTable";
 	public static void insertData(SQLiteDatabase db) {
 		ContentValues values = null;
 		
+		// base unit is seconds
+		// minBeepInterval < avgBeepInterval < maxBeepInterval
+		// minSizeBeepInterval > 0
+		// minUptimeDuration should be < minBeepInterval
+		
 		values = new ContentValues();
 		values.put("_id", 1);
 		values.put("name", "General");
 		values.put("minUptimeDuration", 60); //1 min
+		values.put("minBeepInterval", 600); //10 min
 		values.put("avgBeepInterval", 1800); //30 min
 		values.put("maxBeepInterval", 3600); //60 min
-		values.put("minBeepInterval", 600); //10 min
+		values.put("minSizeBeepInterval", 60); //1 min
 		values.put("uptimeCountMoveToAverage", 3);
 		values.put("numCancelledBeepsMoveToAverage", 2);
 		db.insert(TBL_NAME, null, values);
@@ -86,9 +93,10 @@ private static final String TAG = "TimerProfileTable";
 		values.put("_id", 2);
 		values.put("name", "HCI");
 		values.put("minUptimeDuration", 60); //1 min
+		values.put("minBeepInterval", 120); //2 min
 		values.put("avgBeepInterval", 300); //5 min
 		values.put("maxBeepInterval", 600); //10 min
-		values.put("minBeepInterval", 120); //2 min
+		values.put("minSizeBeepInterval", 60); //1 min
 		values.put("uptimeCountMoveToAverage", 3);
 		values.put("numCancelledBeepsMoveToAverage", 2);
 		db.insert(TBL_NAME, null, values);
@@ -99,7 +107,8 @@ private static final String TAG = "TimerProfileTable";
 		TimerProfile tp = null;
 		
 		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "name", "minUptimeDuration", "avgBeepInterval",
-				"maxBeepInterval", "minBeepInterval", "uptimeCountMoveToAverage", "numCancelledBeepsMoveToAverage"},
+				"maxBeepInterval", "minBeepInterval", "uptimeCountMoveToAverage",
+				"numCancelledBeepsMoveToAverage", "minSizeBeepInterval"},
 				"_id=?", new String[] { String.valueOf(id) }, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -113,6 +122,7 @@ private static final String TAG = "TimerProfileTable";
 			tp.setMinBeepInterval(cursor.getInt(5));
 			tp.setUptimeCountMoveToAverage(cursor.getInt(6));
 			tp.setNumCancelledBeepsMoveToAverage(cursor.getInt(7));
+			tp.setMinSizeBeepInterval(cursor.getInt(8));
 		}
 		cursor.close();
 		db.close();
@@ -125,7 +135,8 @@ private static final String TAG = "TimerProfileTable";
 		List<TimerProfile> profileList = new ArrayList<TimerProfile>();
 		
 		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "name", "minUptimeDuration", "avgBeepInterval",
-				"maxBeepInterval", "minBeepInterval", "uptimeCountMoveToAverage", "numCancelledBeepsMoveToAverage"},
+				"maxBeepInterval", "minBeepInterval", "uptimeCountMoveToAverage",
+				"numCancelledBeepsMoveToAverage", "minSizeBeepInterval"},
 				null, null, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -140,6 +151,7 @@ private static final String TAG = "TimerProfileTable";
 				tp.setMinBeepInterval(cursor.getInt(5));
 				tp.setUptimeCountMoveToAverage(cursor.getInt(6));
 				tp.setNumCancelledBeepsMoveToAverage(cursor.getInt(7));
+				tp.setMinSizeBeepInterval(cursor.getInt(8));
 				
 				profileList.add(tp);
 			}
