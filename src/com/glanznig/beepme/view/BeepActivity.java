@@ -243,6 +243,9 @@ public class BeepActivity extends Activity {
 		Sample sample = new Sample();
 		sample.setTimestamp(beepTime);
 		sample.setAccepted(false);
+		if (app.getTimerProfile() != null) {
+			sample.setTimerProfileId(app.getTimerProfile().getId());
+		}
 		new SampleTable(this.getApplicationContext()).addSample(sample);
 		app.declineTimer();
 		app.setTimer();
