@@ -94,25 +94,33 @@ public class TagButtonContainer extends LinearLayout {
 					String first = row.getFirstLabel();
 					String last = row.getLastLabel();
 					
-					//insert in between OR at beginning 
-					if ((name.compareToIgnoreCase(first) > 0 && name.compareToIgnoreCase(last) < 0)
-							|| name.compareToIgnoreCase(first) < 0) {
-						removedBtns = row.addTagButton(btn);
-						inserted = true;
-					}
-					
-					// insert at the end (if enough space), otherwise add new row
-					if ((name.compareToIgnoreCase(last) > 0 && this.getChildAt(i + 1) == null)) {
-						if (row.hasSpace(btn)) {
+					// if buttons in row
+					if (first != null && last != null) {
+						// insert in between OR at beginning 
+						if ((name.compareToIgnoreCase(first) > 0 && name.compareToIgnoreCase(last) < 0)
+								|| name.compareToIgnoreCase(first) < 0) {
 							removedBtns = row.addTagButton(btn);
 							inserted = true;
 						}
-						else {
-							TagButtonRow newRow = new TagButtonRow(this.getContext());
-							this.addView(newRow);
-							newRow.addTagButton(btn);
-							inserted = true;
+						
+						// insert at the end (if enough space), otherwise add new row
+						if ((name.compareToIgnoreCase(last) > 0 && this.getChildAt(i + 1) == null)) {
+							if (row.hasSpace(btn)) {
+								removedBtns = row.addTagButton(btn);
+								inserted = true;
+							}
+							else {
+								TagButtonRow newRow = new TagButtonRow(this.getContext());
+								this.addView(newRow);
+								newRow.addTagButton(btn);
+								inserted = true;
+							}
 						}
+					}
+					// no buttons in row
+					else {
+						removedBtns = row.addTagButton(btn);
+						inserted = true;
 					}
 				}
 			}
@@ -148,7 +156,8 @@ public class TagButtonContainer extends LinearLayout {
 				if ((i - 1) >= 0) {
 					TagButtonRow prevRow = (TagButtonRow)this.getChildAt(i - 1);
 					TagButton b = (TagButton)row.getChildAt(0);
-					while (prevRow.hasSpace(b)) {
+					
+					while (b != null && prevRow.hasSpace(b)) {
 						row.removeTagButton(b);
 						prevRow.addTagButton(b);
 						b = (TagButton)row.getChildAt(0);
@@ -157,16 +166,27 @@ public class TagButtonContainer extends LinearLayout {
 				if (this.getChildAt(i + 1) != null) {
 					TagButtonRow nextRow = (TagButtonRow)this.getChildAt(i + 1);
 					TagButton b = (TagButton)nextRow.getChildAt(0);
-					while (row.hasSpace(b)) {
+					
+					while (b != null && row.hasSpace(b)) {
 						nextRow.removeTagButton(b);
 						row.addTagButton(b);
 						b = (TagButton)nextRow.getChildAt(0);
 					}
 					
-					if (nextRow.getChildCount() == 0) {
+					if (nextRow != null && nextRow.getChildCount() == 0) {
 						this.removeView(nextRow);
+						numRows--;
 					}
 				}
+			}
+		}
+		
+		// delete empty rows
+		for (int i = 0; i < numRows; i++) {
+			TagButtonRow row = (TagButtonRow)this.getChildAt(i);
+			
+			if (row != null && row.getChildCount() == 0) {
+				this.removeView(row);
 			}
 		}
 	}
