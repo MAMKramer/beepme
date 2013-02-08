@@ -21,8 +21,8 @@ http://beepme.glanznig.com
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.glanznig.beepme"
-    android:versionCode="11"
-    android:versionName="1.3"
+    android:versionCode="12"
+    android:versionName="1.3.1"
     android:installLocation="auto">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8" />
@@ -62,11 +62,11 @@ http://beepme.glanznig.com
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.MainMenu" />
 	    </activity>
 	    
-	    <activity android:name=".view.NewSampleActivity" android:label="@string/new_sample" android:windowSoftInputMode="adjustPan">
+	    <activity android:name=".view.NewSampleActivity" android:label="@string/new_sample" android:windowSoftInputMode="adjustResize">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.MainMenu" />
 	    </activity>
 	    
-	    <activity android:name=".view.EditSampleActivity" android:label="@string/edit_sample" android:windowSoftInputMode="adjustPan">
+	    <activity android:name=".view.EditSampleActivity" android:label="@string/edit_sample" android:windowSoftInputMode="adjustResize">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.ViewSampleActivity" />
 	    </activity>
 	    

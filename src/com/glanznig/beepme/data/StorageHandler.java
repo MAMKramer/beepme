@@ -58,7 +58,7 @@ public class StorageHandler {
 				onCreate(db);
 			}
 			
-			if (oldVersion == 16 && newVersion == 17) {
+			if (oldVersion == 16 && newVersion >= 17) {
 				db.execSQL("ALTER TABLE " + TimerProfileTable.getTableName() +
 						" ADD COLUMN minSizeBeepInterval INTEGER NOT NULL DEFAULT 60");
 				ContentValues values = new ContentValues();

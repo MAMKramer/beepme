@@ -86,7 +86,7 @@ public class Tag {
 		if (tagStr.contains(delimiter)) {
 			t = new Tag();
 			try {
-				Long voc = Long.valueOf(tagStr.substring(0, tagStr.indexOf(delimiter) - 1));
+				Long voc = Long.valueOf(tagStr.substring(0, tagStr.indexOf(delimiter)));
 				t.setVocabularyId(voc.longValue());
 				t.setName(tagStr.substring(tagStr.indexOf(delimiter) + delimiter.length()));
 			}

@@ -78,11 +78,23 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 				sample.setPresence(savedState.getCharSequence("presence").toString());
 			}
 			
+			if (savedState.getCharSequence("mood") != null) {
+				EditText mood = (EditText)findViewById(R.id.new_sample_add_mood);
+				mood.setText(savedState.getCharSequence("mood"));
+			}
+			
+			if (savedState.getCharSequence("attitude") != null) {
+				EditText attitude = (EditText)findViewById(R.id.new_sample_add_attitude);
+				attitude.setText(savedState.getCharSequence("attitude"));
+			}
+			
 			if (savedState.getStringArrayList("tagList") != null) {
 				Iterator<String> i = savedState.getStringArrayList("tagList").iterator();
 				while (i.hasNext()) {
 					Tag t = Tag.valueOf(i.next());
-					sample.addTag(t);
+					if (t != null) {
+						sample.addTag(t);
+					}
 				}
 			}
 			
@@ -243,6 +255,26 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
 		sample.setPresence(presence.getText().toString());
+		
+		// also save non-added keywords
+		TagButtonContainer moodTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
+		EditText mood = (EditText)findViewById(R.id.new_sample_add_mood);
+		if (mood.getText().length() > 0) {
+			Tag t = new Tag();
+			t.setVocabularyId(moodTagHolder.getVocabularyId());
+			t.setName(mood.getText().toString().toLowerCase());
+			sample.addTag(t);
+		}
+		
+		TagButtonContainer attitudeTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_attitude_container);
+		EditText attitude = (EditText)findViewById(R.id.new_sample_add_attitude);
+		if (attitude.getText().length() > 0) {
+			Tag t = new Tag();
+			t.setVocabularyId(attitudeTagHolder.getVocabularyId());
+			t.setName(attitude.getText().toString().toLowerCase());
+			sample.addTag(t);
+		}
+		
 		new SampleTable(this.getApplicationContext()).editSample(sample);
 		
 		finish();
@@ -257,6 +289,8 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
 		EditText presence = (EditText)findViewById(R.id.new_sample_presence);
+		EditText mood = (EditText)findViewById(R.id.new_sample_add_mood);
+		EditText attitude = (EditText)findViewById(R.id.new_sample_add_attitude);
 		
 		if (sample.getTimestamp() != null) {
 			savedState.putLong("timestamp", sample.getTimestamp().getTime());
@@ -266,6 +300,13 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 		savedState.putCharSequence("description", description.getText());
 		savedState.putCharSequence("presence", presence.getText());
 		savedState.putBoolean("accepted", sample.getAccepted());
+		
+		if (mood.getText().length() > 0) {
+			savedState.putCharSequence("mood", mood.getText());
+		}
+		if (attitude.getText().length() > 0) {
+			savedState.putCharSequence("attitude", attitude.getText());
+		}
 		
 		if (sample.getTags().size() > 0) {
 			Iterator<Tag> i = sample.getTags().iterator(); 
