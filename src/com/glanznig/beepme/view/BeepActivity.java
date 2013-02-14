@@ -92,11 +92,14 @@ public class BeepActivity extends Activity {
 
 	}
 	
+	public static final String CANCEL_INTENT = "com.glanznig.beepme.DECLINE_BEEP";
+	
 	private Date beepTime = null;
 	private BeepAlertManager alertManager = null;
 	private PowerManager.WakeLock lock = null;
 	private TimeoutHandler handler = null;
 	private ScreenStateReceiver receiver = null;
+	private BroadcastReceiver cancelReceiver = null;
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -143,6 +146,33 @@ public class BeepActivity extends Activity {
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		//record beep time
+		beepTime = new Date();
+		
+		//decline and pause beeper if active call
+		BeeperApp app = (BeeperApp)getApplication();
+		if (app.getPreferences().getPauseBeeperDuringCall() && app.getPreferences().isCall()) {
+			app.setBeeperActive(BeeperApp.BEEPER_INACTIVE_AFTER_CALL);
+			decline();
+			return;
+		}
+		
+		//set up broadcast receiver to decline beep at incoming call
+		cancelReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (intent.getAction().equals(CANCEL_INTENT)) {
+					BeeperApp app = (BeeperApp)getApplication();
+					if (app.getPreferences().getPauseBeeperDuringCall()) {
+						app.setBeeperActive(BeeperApp.BEEPER_INACTIVE_AFTER_CALL);
+						decline();
+					}
+				}
+			}
+		};
+		this.registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
+		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -205,9 +235,6 @@ public class BeepActivity extends Activity {
 		acceptedToday.setTextColor(Color.rgb(130, 217, 130));
 		declinedToday.setText(declined);
 		declinedToday.setTextColor(Color.rgb(217, 130, 130));
-		
-		//record beep time
-		beepTime = new Date();
 	}	
 	
 	public void onClickAccept(View view) {
@@ -230,7 +257,7 @@ public class BeepActivity extends Activity {
 	
 	public void onClickDeclinePause(View view) {
 		BeeperApp app = (BeeperApp)getApplication();
-		app.setBeeperActive(false);
+		app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
 		decline();
 	}
 	

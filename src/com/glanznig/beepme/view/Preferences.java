@@ -50,6 +50,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 	//private boolean warnNoWifi;
 	private long timerProfileId;
 	private boolean testMode;
+	private boolean pauseDuringCall;
 	
 	private boolean deleteDataRunning;
 	
@@ -69,6 +70,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 		//warnNoWifi = prefs.isWarnNoWifi();
 		timerProfileId = prefs.getTimerProfileId();
 		testMode = prefs.isTestMode();
+		pauseDuringCall = prefs.getPauseBeeperDuringCall();
 		
 		if (savedState != null) {
 			deleteDataRunning = savedState.getBoolean("deleteDataRunning");
@@ -122,6 +124,8 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
         //boxWarnNoWifi.setChecked(warnNoWifi);
         ConfirmCheckBoxPreference boxTestMode = (ConfirmCheckBoxPreference)findPreference(PreferenceHandler.KEY_TEST_MODE);
         boxTestMode.setChecked(testMode);
+        CheckBoxPreference boxPauseDuringCall = (CheckBoxPreference)findPreference(PreferenceHandler.KEY_PAUSE_BEEPER_DURING_CALL);
+        boxPauseDuringCall.setChecked(pauseDuringCall);
         
         ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE_ID);
         Iterator<TimerProfile> profileList = new TimerProfileTable(this.getApplicationContext()).getTimerProfiles().iterator();

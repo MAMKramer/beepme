@@ -20,6 +20,7 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme;
 
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -44,16 +45,23 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class BeeperApp extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
 	private PreferenceHandler preferences = null;
 	private TimerProfile timerProfile;
+	private BeeperApp.CallStateListener callStateListener;
 	
 	private static final int ALARM_INTENT_ID = 5332;
 	private static final int NOTIFICATION_ID = 1283;
 	private static final String TAG = "BeeperApp";
+	
+	public static final int BEEPER_INACTIVE = 0;
+	public static final int BEEPER_ACTIVE = 1;
+	public static final int BEEPER_INACTIVE_AFTER_CALL = 2;
 	
 	public PreferenceHandler getPreferences() {
 		if (preferences == null) {
@@ -65,13 +73,19 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public boolean isBeeperActive() {
-		return getPreferences().isBeeperActive();
+		int active = getPreferences().getBeeperActive();
+		if (active == BEEPER_ACTIVE) {
+			return true;
+		}
+		
+		return false;
 	}
 	
-	public void setBeeperActive(boolean active) {
+	public void setBeeperActive(int active) {
 		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext(), timerProfile);
 		getPreferences().setBeeperActive(active);
-		if (active) {
+		
+		if (active == BEEPER_ACTIVE) {
 			getPreferences().setUptimeId(uptimeTbl.startUptime(new Date()));
 			createNotification();
 		}
@@ -130,6 +144,13 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		super.onCreate();
 		getPreferences();
 		setTimerProfile();
+		
+		// listen to call events
+		if (callStateListener == null) {
+			callStateListener = new CallStateListener(BeeperApp.this);
+		}
+		TelephonyManager telManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+		telManager.listen(callStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 		
 		//set export running to false
 		getPreferences().setExportRunningSince(0L);
@@ -191,7 +212,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public void setTimer() {
-		if (preferences.isBeeperActive()) {
+		if (isBeeperActive()) {
 			Calendar alarmTime = Calendar.getInstance();
 			Calendar alarmTimeUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			
@@ -245,7 +266,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public void beep() {
-		if (preferences.isBeeperActive()) {
+		if (isBeeperActive()) {
 			Intent beep = new Intent(BeeperApp.this, BeepActivity.class);
 			beep.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(beep);
@@ -256,6 +277,41 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(PreferenceHandler.KEY_TIMER_PROFILE_ID)) {
 			setTimerProfile();
+		}
+	}
+	
+	private static class CallStateListener extends PhoneStateListener {
+		
+		private WeakReference<BeeperApp> appRef;
+		
+		public CallStateListener() {
+			
+		}
+		
+		public CallStateListener(BeeperApp app) {
+			appRef = new WeakReference<BeeperApp>(app);
+		}
+		
+		@Override
+		public void onCallStateChanged(int state, String incomingNumber) {
+			if (appRef != null && appRef.get() != null) {
+				BeeperApp app = appRef.get();
+				switch (state) {
+				case TelephonyManager.CALL_STATE_IDLE:
+					app.getPreferences().setCall(false);
+					// beeper was paused by call, reactivate it
+					if (app.getPreferences().getBeeperActive() == BeeperApp.BEEPER_INACTIVE_AFTER_CALL) {
+						app.setBeeperActive(BeeperApp.BEEPER_ACTIVE);
+					}
+					break;
+				case TelephonyManager.CALL_STATE_OFFHOOK:
+					app.getPreferences().setCall(true);
+					break;
+				case TelephonyManager.CALL_STATE_RINGING:
+					app.getPreferences().setCall(true);
+					break;
+				}
+			}
 		}
 	}
 }

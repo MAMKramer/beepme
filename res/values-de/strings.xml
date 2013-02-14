@@ -58,6 +58,8 @@ http://beepme.glanznig.com
     <string name="new_sample_save_success">Eintrag wurde erstellt.</string>
     <string name="no">Nein</string>
     <string name="pause_beeper">Beeper pausieren</string>
+    <string name="pref_summary_pause_beeper_during_call">Pausiert den Beeper während eines Telefonanrufs.</string>
+    <string name="pref_title_pause_beeper_during_call">Pause während Anruf</string>
     <string name="pref_summary_test_mode">Aktiviert/deaktiviert den Testmodus.</string>
     <string name="pref_title_test_mode">Testmodus</string>
     <string name="pref_summary_timer_profile">Anpassen des Beepers an verschiedene Einsatzzwecke.</string>

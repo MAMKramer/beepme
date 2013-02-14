@@ -58,6 +58,8 @@ http://beepme.glanznig.com
     <string name="new_sample_take_photo">Take Photo</string>
     <string name="no">No</string>
     <string name="pause_beeper">Pause Beeper</string>
+    <string name="pref_summary_pause_beeper_during_call">Pause beeper during phone call.</string>
+    <string name="pref_title_pause_beeper_during_call">Pause during call</string>
     <string name="pref_summary_test_mode">Activates/deactivates test mode.</string>
     <string name="pref_title_test_mode">Test Mode</string>
     <string name="pref_summary_timer_profile">Adjust beeper to different usage scenarios.</string>

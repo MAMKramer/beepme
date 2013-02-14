@@ -32,6 +32,7 @@ http://beepme.glanznig.com
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     
     <application android:icon="@drawable/ic_launcher"
@@ -73,6 +74,13 @@ http://beepme.glanznig.com
 	    <activity android:name=".view.ViewSampleActivity" android:label="@string/view_sample">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.ListSamplesActivity" />
 	    </activity>
+	    
+	    <receiver android:name=".helper.PhoneStateReceiver">
+	        <intent-filter>
+	            <action android:name="android.intent.action.PHONE_STATE">
+	            </action>
+	        </intent-filter>
+	    </receiver>
 	    
 	  </application>
 

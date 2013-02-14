@@ -36,4 +36,8 @@ http://beepme.glanznig.com
         android:title="@string/pref_title_test_mode"
         android:summary="@string/pref_summary_test_mode"
         android:defaultValue="false" />
+    <CheckBoxPreference android:key="pauseBeeperDuringCall"
+        android:title="@string/pref_title_pause_beeper_during_call"
+        android:summary="@string/pref_summary_pause_beeper_during_call"
+        android:defaultValue="true" />
 </PreferenceScreen>

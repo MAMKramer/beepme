@@ -218,7 +218,7 @@ public class MainMenu extends Activity {
 		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(217, 130, 130), Mode.MULTIPLY);
 		Button beeperStateToggle = (Button)findViewById(R.id.btn_main_menu_beeper_state_toggle);
 		
-		if (app.getPreferences().isBeeperActive()) {
+		if (app.isBeeperActive()) {
 			beeperStateToggle.setText(R.string.pause_beeper);
 			beeperStateToggle.getBackground().setColorFilter(red);
 		}
@@ -251,10 +251,10 @@ public class MainMenu extends Activity {
 		BeeperApp app = (BeeperApp)getApplication();
 		if (app.isBeeperActive()) {
 			app.cancelTimer(); //call before setBeeperActive
-			app.setBeeperActive(false);
+			app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
 		}
 		else {
-			app.setBeeperActive(true);
+			app.setBeeperActive(BeeperApp.BEEPER_ACTIVE);
 			app.setTimer();
 		}
 		

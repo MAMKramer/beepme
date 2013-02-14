@@ -26,7 +26,7 @@ import android.preference.PreferenceManager;
 
 public class PreferenceHandler {
 	
-	public static final String KEY_BEEPER_ACTIVE = "beeperActive";
+	public static final String KEY_BEEPER_ACTIVE = "beeperActivated";
 	public static final String KEY_VIBRATE_AT_BEEP = "vibrateAtBeep";
 	public static final String KEY_WARN_NO_WIFI = "warnNoWifi";
 	public static final String KEY_TIMER_PROFILE_ID = "timerProfileId";
@@ -34,6 +34,8 @@ public class PreferenceHandler {
 	public static final String KEY_UPTIME_ID = "uptimeId";
 	public static final String KEY_SCHEDULED_BEEP_ID = "scheduledBeepId";
 	public static final String KEY_EXPORT_RUNNING_SINCE = "exportIsRunningSince";
+	public static final String KEY_IS_CALL = "isCall";
+	public static final String KEY_PAUSE_BEEPER_DURING_CALL = "pauseBeeperDuringCall";
 	
 	private Context ctx;
 	
@@ -46,15 +48,15 @@ public class PreferenceHandler {
 		prefs.registerOnSharedPreferenceChangeListener(listener);
 	}
 	
-	public boolean isBeeperActive() {
+	public int getBeeperActive() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-		return prefs.getBoolean(KEY_BEEPER_ACTIVE, false);
+		return prefs.getInt(KEY_BEEPER_ACTIVE, 0);
 	}
 	
-	public void setBeeperActive(boolean active) {
+	public void setBeeperActive(int active) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putBoolean(KEY_BEEPER_ACTIVE, active);
+		editor.putInt(KEY_BEEPER_ACTIVE, active);
 		editor.commit();
 	}
 	
@@ -139,6 +141,30 @@ public class PreferenceHandler {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString(KEY_TIMER_PROFILE_ID, String.valueOf(profileId));
+		editor.commit();
+	}
+	
+	public boolean isCall() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		return prefs.getBoolean(KEY_IS_CALL, false);
+	}
+	
+	public void setCall(boolean call) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(KEY_IS_CALL, call);
+		editor.commit();
+	}
+	
+	public boolean getPauseBeeperDuringCall() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		return prefs.getBoolean(KEY_PAUSE_BEEPER_DURING_CALL, true);
+	}
+	
+	public void setPauseBeeperDuringCall(boolean pause) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(KEY_PAUSE_BEEPER_DURING_CALL, pause);
 		editor.commit();
 	}
 }
