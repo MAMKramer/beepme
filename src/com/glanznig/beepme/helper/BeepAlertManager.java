@@ -62,6 +62,9 @@ public class BeepAlertManager implements AudioManager.OnAudioFocusChangeListener
 		
 		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT
 				|| audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE) {
+			// request audio focus that other playing audio is stopped
+			audioManager.requestAudioFocus(BeepAlertManager.this, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN);
+			
 			initVibration();
 		}
 	}
