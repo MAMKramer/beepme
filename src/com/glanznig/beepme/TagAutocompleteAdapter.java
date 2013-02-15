@@ -73,13 +73,13 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
 		
 		ViewHolder holder = (ViewHolder)rowView.getTag();
 		
-		holder.name.setText(resultList.get(position).getName());
+		holder.name.setText(getItem(position));
 		return rowView;
 	}
 	
 	@Override
     public int getCount() {
-        return resultList.size();
+        return resultList != null ? resultList.size() : 0;
     }
 
     @Override
@@ -95,12 +95,12 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
                     // Retrieve the auto-complete results.
-            		resultList = (ArrayList<Tag>)new TagTable(ctx.getApplicationContext())
+            		ArrayList<Tag> results = (ArrayList<Tag>)new TagTable(ctx.getApplicationContext())
             						.getTags(vocabularyId, constraint.toString());
                     
                     // Assign the data to the FilterResults
-                    filterResults.values = resultList;
-                    filterResults.count = resultList.size();
+                    filterResults.values = results;
+                    filterResults.count = results.size();
                 }
                 return filterResults;
             }
@@ -108,7 +108,10 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.count > 0) {
-                    notifyDataSetChanged();
+                	if (results.values instanceof ArrayList) {
+                		resultList = (ArrayList<Tag>)results.values;
+                		notifyDataSetChanged();
+                	}
                 }
                 else {
                     notifyDataSetInvalidated();
