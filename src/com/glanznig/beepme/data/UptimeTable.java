@@ -157,7 +157,7 @@ public class UptimeTable extends StorageHandler {
 				//indicate the currently running uptime interval, include it with end time "now".
 				//if the currently running uptime interval's duration is larger than TimerProfile.MIN_UPTIME_DURATION
 				else if (cursor.isNull(1) && cursor.isLast()) {
-					long nowTime = new Date().getTime();
+					long nowTime = Calendar.getInstance().getTimeInMillis();
 					int minUptimeDuration = 60;
 					if (timerProfile != null) {
 						minUptimeDuration = timerProfile.getMinUptimeDuration();

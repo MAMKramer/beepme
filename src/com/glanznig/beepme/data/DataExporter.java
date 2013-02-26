@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -81,7 +82,7 @@ public class DataExporter {
 					exports[i].delete();
 				}
 			}
-			String exportFilename = EXPORT_PREFIX + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".zip";
+			String exportFilename = EXPORT_PREFIX + new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime()) + ".zip";
 			File exportFile = new File(exportDir, exportFilename);
 			
 			ArrayList<File> fileList = new ArrayList<File>();

@@ -33,7 +33,7 @@ public class StorageHandler {
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		
 		protected static final String DB_NAME = "beepme";
-		protected static final int DB_VERSION = 17;
+		protected static final int DB_VERSION = 18;
 		
 		public DatabaseHelper(Context ctx) {
 			super(ctx, DB_NAME, null, DB_VERSION);
@@ -58,13 +58,30 @@ public class StorageHandler {
 				onCreate(db);
 			}
 			
-			if (oldVersion == 16 && newVersion >= 17) {
+			if (oldVersion == 16 && newVersion == 17) {
 				db.execSQL("ALTER TABLE " + TimerProfileTable.getTableName() +
 						" ADD COLUMN minSizeBeepInterval INTEGER NOT NULL DEFAULT 60");
 				ContentValues values = new ContentValues();
 				values.put("minSizeBeepInterval", 60);
 				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "1" });
 				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "2" });
+			}
+			
+			if (oldVersion == 16 && newVersion == 18) {
+				db.execSQL("ALTER TABLE " + TimerProfileTable.getTableName() +
+						" ADD COLUMN minSizeBeepInterval INTEGER NOT NULL DEFAULT 60");
+				ContentValues values = new ContentValues();
+				values.put("minSizeBeepInterval", 60);
+				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "1" });
+				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "2" });
+				
+				db.execSQL("ALTER TABLE " + ScheduledBeepTable.getTableName() +
+						" ADD COLUMN received INTEGER");
+			}
+			
+			if (oldVersion == 17 && newVersion == 18) {
+				db.execSQL("ALTER TABLE " + ScheduledBeepTable.getTableName() +
+						" ADD COLUMN received INTEGER");
 			}
 		}
 		

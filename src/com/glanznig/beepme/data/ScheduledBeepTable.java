@@ -39,6 +39,7 @@ public class ScheduledBeepTable extends StorageHandler {
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"timestamp INTEGER NOT NULL, " +
 			"created INTEGER NOT NULL, " +
+			"received INTEGER, " +
 			"updated INTEGER, " +
 			"status INTEGER NOT NULL, " +
 			"uptime_id INTEGER NOT NULL, " +
@@ -92,6 +93,20 @@ public class ScheduledBeepTable extends StorageHandler {
 			ContentValues values = new ContentValues();
 			values.put("status", status);
 			values.put("updated", Calendar.getInstance().getTimeInMillis());
+			numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beepId) });
+			db.close();
+		}
+	
+		return numRows == 1 ? true : false;
+	}
+	
+	public boolean receivedScheduledBeep(long beepId, long timestamp) {
+		int numRows = 0;
+		
+		if (beepId != 0L) {
+			SQLiteDatabase db = getDb();
+			ContentValues values = new ContentValues();
+			values.put("received", timestamp);
 			numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beepId) });
 			db.close();
 		}

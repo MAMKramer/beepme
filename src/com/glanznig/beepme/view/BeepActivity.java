@@ -21,12 +21,14 @@ http://beepme.glanznig.com
 package com.glanznig.beepme.view;
 
 import java.lang.ref.WeakReference;
+import java.util.Calendar;
 import java.util.Date;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
+import com.glanznig.beepme.data.ScheduledBeepTable;
 import com.glanznig.beepme.helper.BeepAlertManager;
 
 import android.app.Activity;
@@ -147,11 +149,20 @@ public class BeepActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		//acquire wake lock
+		PowerManager powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
+		lock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
+		if (lock != null && !lock.isHeld()) {
+			lock.acquire();
+		}
+		
 		//record beep time
-		beepTime = new Date();
+		beepTime = Calendar.getInstance().getTime();
+		
+		BeeperApp app = (BeeperApp)getApplication();
+		new ScheduledBeepTable(this.getApplicationContext()).receivedScheduledBeep(app.getPreferences().getScheduledBeepId(), Calendar.getInstance().getTimeInMillis());
 		
 		//decline and pause beeper if active call
-		BeeperApp app = (BeeperApp)getApplication();
 		if (app.getPreferences().getPauseBeeperDuringCall() && app.getPreferences().isCall()) {
 			app.setBeeperActive(BeeperApp.BEEPER_INACTIVE_AFTER_CALL);
 			decline();
@@ -197,13 +208,6 @@ public class BeepActivity extends Activity {
 		
 		handler = new TimeoutHandler(BeepActivity.this);
 		handler.sendEmptyMessageDelayed(1, 60000); // 1 minute timeout for activity
-		
-		//acquire wake lock
-		PowerManager powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
-		lock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, TAG);
-		if (lock != null && !lock.isHeld()) {
-			lock.acquire();
-		}
 		
 		alertManager = new BeepAlertManager(BeepActivity.this);
 		alertManager.startAlert();

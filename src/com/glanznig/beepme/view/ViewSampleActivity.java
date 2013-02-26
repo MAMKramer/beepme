@@ -22,6 +22,7 @@ package com.glanznig.beepme.view;
 
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -109,7 +110,7 @@ public class ViewSampleActivity extends Activity {
 			
 			LinearLayout editBtn = (LinearLayout)findViewById(R.id.view_sample_buttons);
 			//not editable if more than a day old
-			if ((new Date().getTime() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
+			if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
 				editBtn.setVisibility(View.GONE);
 			}
 			

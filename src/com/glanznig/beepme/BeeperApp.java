@@ -86,14 +86,14 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		getPreferences().setBeeperActive(active);
 		
 		if (active == BEEPER_ACTIVE) {
-			getPreferences().setUptimeId(uptimeTbl.startUptime(new Date()));
+			getPreferences().setUptimeId(uptimeTbl.startUptime(Calendar.getInstance().getTime()));
 			createNotification();
 		}
 		else {
 			long uptimeId = getPreferences().getUptimeId();
 			
 			if (uptimeId != 0L) {
-				uptimeTbl.endUptime(uptimeId, new Date());
+				uptimeTbl.endUptime(uptimeId, Calendar.getInstance().getTime());
 				getPreferences().setUptimeId(0L);
 				NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 				manager.cancel(TAG, NOTIFICATION_ID);
@@ -178,7 +178,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			//is there a open uptime interval, if no, create one
 			long uptimeId = getPreferences().getUptimeId();
 			if (uptimeId == 0L) {
-				getPreferences().setUptimeId(uptimeTbl.startUptime(new Date()));
+				getPreferences().setUptimeId(uptimeTbl.startUptime(Calendar.getInstance().getTime()));
 			}
 		}
 		else {
@@ -196,7 +196,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			long uptimeId = getPreferences().getUptimeId();
 			
 			if (uptimeId != 0L) {
-				uptimeTbl.endUptime(uptimeId, new Date());
+				uptimeTbl.endUptime(uptimeId, Calendar.getInstance().getTime());
 				getPreferences().setUptimeId(0L);
 			}
 		}
