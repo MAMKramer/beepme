@@ -128,6 +128,10 @@ public class BeepActivity extends Activity {
 			unregisterReceiver(receiver);
 		}
 		
+		if (cancelReceiver != null) {
+			unregisterReceiver(cancelReceiver);
+		}
+		
 		if (handler != null) {
 			handler.removeMessages(1);
 		}
@@ -182,7 +186,7 @@ public class BeepActivity extends Activity {
 				}
 			}
 		};
-		this.registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
+		registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
 		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
