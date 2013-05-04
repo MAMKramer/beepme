@@ -46,9 +46,8 @@ public class SampleTable extends StorageHandler {
 			"description TEXT, " +
 			"accepted INTEGER NOT NULL, " +
 			"photoUri TEXT, " +
-			"timerProfileId INTEGER NOT NULL, " +
-			"presence TEXT, " +
-			"FOREIGN KEY (timerProfileId) REFERENCES "  + VocabularyTable.getTableName() + " (_id)" +
+			"uptimeId INTEGER, " + //add NOT NULL
+			"FOREIGN KEY (uptimeId) REFERENCES "  + UptimeTable.getTableName() + " (_id)" +
 			")";
 	
 	public SampleTable(Context ctx) {
@@ -77,7 +76,7 @@ public class SampleTable extends StorageHandler {
 		Sample s = null;
 		
 		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "timestamp", "title", "description", "accepted",
-				"photoUri", "timerProfileId", "presence"},
+				"photoUri", "uptimeId"},
 				"_id=?", new String[] { String.valueOf(id) }, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -102,10 +101,7 @@ public class SampleTable extends StorageHandler {
 				s.setPhotoUri(cursor.getString(5));
 			}
 			if (!cursor.isNull(6)) {
-				s.setTimerProfileId(cursor.getLong(6));
-			}
-			if (!cursor.isNull(7)) {
-				s.setPresence(cursor.getString(7));
+				s.setUptimeId(cursor.getLong(6));
 			}
 		}
 		cursor.close();
@@ -165,7 +161,7 @@ public class SampleTable extends StorageHandler {
 		List<Sample> sampleList = new ArrayList<Sample>();
 		
 		Cursor cursor = db.query(getTableName(), new String[] {"_id", "timestamp", "title", "description",
-				"accepted", "photoUri", "timerProfileId", "presence"}, "accepted = 1", null, null, null, "timestamp DESC");
+				"accepted", "photoUri", "uptimeId"}, "accepted = 1", null, null, null, "timestamp DESC");
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
@@ -190,10 +186,7 @@ public class SampleTable extends StorageHandler {
 					s.setPhotoUri(cursor.getString(5));
 				}
 				if (!cursor.isNull(6)) {
-					s.setTimerProfileId(cursor.getLong(6));
-				}
-				if (!cursor.isNull(7)) {
-					s.setPresence(cursor.getString(7));
+					s.setUptimeId(cursor.getLong(6));
 				}
 				sampleList.add(s);
 			}
@@ -228,8 +221,7 @@ public class SampleTable extends StorageHandler {
 		    	values.put("accepted", "0");
 		    }
 		    values.put("photoUri", s.getPhotoUri());
-		    values.put("timerProfileId", s.getTimerProfileId());
-		    values.put("presence", s.getPresence());
+		    values.put("uptimeId", s.getUptimeId());
 		 
 		    if (success) {
 		    	long sampleId = db.insert(getTableName(), null, values);
@@ -247,11 +239,8 @@ public class SampleTable extends StorageHandler {
 		    	if (s.getTitle() != null) {
 		    		sCreated.setTitle(s.getTitle());
 		    	}
-		    	if (s.getTimerProfileId() != 0L) {
-		    		sCreated.setTimerProfileId(s.getTimerProfileId());
-		    	}
-		    	if (s.getPresence() != null) {
-		    		sCreated.setPresence(s.getPresence());
+		    	if (s.getUptimeId() != 0L) {
+		    		sCreated.setUptimeId(s.getUptimeId());
 		    	}
 		    }
 		    db.close();
@@ -283,8 +272,7 @@ public class SampleTable extends StorageHandler {
 	    	values.put("accepted", "0");
 	    }
 	    values.put("photoUri", s.getPhotoUri());
-	    values.put("timerProfileId", s.getTimerProfileId());
-	    values.put("presence", s.getPresence());
+	    values.put("uptimeId", s.getUptimeId());
 	    
 	    int numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(s.getId()) });
 	    db.close();

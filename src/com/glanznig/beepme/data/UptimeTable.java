@@ -39,7 +39,9 @@ public class UptimeTable extends StorageHandler {
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"start INTEGER NOT NULL UNIQUE, " +
-			"end INTEGER UNIQUE" +
+			"end INTEGER UNIQUE, " +
+			"timerProfileId INTEGER, " + //add NOT NULL
+			"FOREIGN KEY (timerProfileId) REFERENCES "  + TimerProfileTable.getTableName() + " (_id)" +
 			")";
 	
 	private TimerProfile timerProfile;
@@ -71,6 +73,7 @@ public class UptimeTable extends StorageHandler {
 			SQLiteDatabase db = getDb();
 			ContentValues values = new ContentValues();
 			values.put("start", start.getTime());
+			values.put("timerProfileId", timerProfile.getId());
 			
 			long id = db.insert(getTableName(), null, values);
 			db.close();
@@ -177,7 +180,12 @@ public class UptimeTable extends StorageHandler {
 		duration = duration / 1000;
 		
 		if (returnType.equals("avg")) {
-			return duration/count;
+			if (count > 0) {
+				return duration/count;
+			}
+			else {
+				return 0;
+			}
 		}
 		else if (returnType.equals("dur")) {
 			return duration;

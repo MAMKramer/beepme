@@ -35,7 +35,7 @@ public class Sample {
 	private Boolean accepted;
 	private String photoUri;
 	private ArrayList<Tag> tags;
-	private Long timerProfileId;
+	private Long uptimeId;
 	private String presence;
 	
 	public Sample() {
@@ -46,7 +46,7 @@ public class Sample {
 		accepted = Boolean.FALSE;
 		photoUri = null;
 		tags = new ArrayList<Tag>();
-		timerProfileId = null;
+		uptimeId = null;
 		presence = null;
 	}
 	
@@ -58,7 +58,7 @@ public class Sample {
 		accepted = Boolean.FALSE;
 		photoUri = null;
 		tags = new ArrayList<Tag>();
-		timerProfileId = null;
+		uptimeId = null;
 		presence = null;
 	}
 	
@@ -115,25 +115,17 @@ public class Sample {
 		return photoUri;
 	}
 	
-	public void setTimerProfileId(long timerProfileId) {
-		this.timerProfileId = Long.valueOf(timerProfileId);
+	public void setUptimeId(long uptimeId) {
+		this.uptimeId = Long.valueOf(uptimeId);
 	}
 	
-	public long getTimerProfileId() {
-		long timerId = 0L;
-		if (timerProfileId != null) {
-			timerId = timerProfileId.longValue();
+	public long getUptimeId() {
+		long upId = 0L;
+		if (uptimeId != null) {
+			upId = uptimeId.longValue();
 		}
 		
-		return timerId;
-	}
-	
-	public void setPresence(String presence) {
-		this.presence = presence;
-	}
-	
-	public String getPresence() {
-		return presence;
+		return upId;
 	}
 	
 	public boolean addTag(Tag tag) {

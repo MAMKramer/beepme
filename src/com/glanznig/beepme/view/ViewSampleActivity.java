@@ -138,65 +138,34 @@ public class ViewSampleActivity extends Activity {
 				description.setVisibility(View.GONE);
 			}
 			
-			TextView presence = (TextView)findViewById(R.id.view_sample_presence);
-			if (s.getPresence() != null && s.getPresence().length() > 0) {
-				presence.setText(s.getPresence());
-				findViewById(R.id.view_sample_label_presence).setVisibility(View.VISIBLE);
-				presence.setVisibility(View.VISIBLE);
-			}
-			else {
-				findViewById(R.id.view_sample_label_presence).setVisibility(View.GONE);
-				presence.setVisibility(View.GONE);
-			}
-			
 			List<Tag> tags = s.getTags();
-			boolean hasMoodTags = false;
-			boolean hasAttitudeTags = false;
+			boolean hasKeywordTags = false;
 			
 			if (tags.size() > 0) {
 				Iterator<Tag> i = tags.iterator();
-				String moodsOutput = "";
-				String attitudesOutput = "";
+				String keywordsOutput = "";
 				while (i.hasNext()) {
 					Tag t = i.next();
 					if (t.getVocabularyId() == 1) {
-						if (moodsOutput.length() > 0) {
-							moodsOutput += "   ";
+						if (keywordsOutput.length() > 0) {
+							keywordsOutput += "   ";
 						}
-						moodsOutput += t.getName();
-						hasMoodTags = true;
-					}
-					if (t.getVocabularyId() == 2) {
-						if (attitudesOutput.length() > 0) {
-							attitudesOutput += "   ";
-						}
-						attitudesOutput += t.getName();
-						hasAttitudeTags = true;
+						keywordsOutput += t.getName();
+						hasKeywordTags = true;
 					}
 				}
 				
-				TextView moodsView = (TextView)findViewById(R.id.view_sample_moods);
-				TextView attitudesView = (TextView)findViewById(R.id.view_sample_attitudes);
-				moodsView.setText(moodsOutput);
-				attitudesView.setText(attitudesOutput);
+				TextView keywordsView = (TextView)findViewById(R.id.view_sample_keywords);
+				keywordsView.setText(keywordsOutput);
 			}
 			
-			if (!hasMoodTags) {
-				findViewById(R.id.view_sample_moods).setVisibility(View.GONE);
-				findViewById(R.id.view_sample_label_moods).setVisibility(View.GONE);
+			if (!hasKeywordTags) {
+				findViewById(R.id.view_sample_keywords).setVisibility(View.GONE);
+				findViewById(R.id.view_sample_label_keywords).setVisibility(View.GONE);
 			}
 			else {
-				findViewById(R.id.view_sample_moods).setVisibility(View.VISIBLE);
-				findViewById(R.id.view_sample_label_moods).setVisibility(View.VISIBLE);
-			}
-			
-			if (!hasAttitudeTags || s.getTimerProfileId() == 1) {
-				findViewById(R.id.view_sample_attitudes).setVisibility(View.GONE);
-				findViewById(R.id.view_sample_label_attitudes).setVisibility(View.GONE);
-			}
-			else {
-				findViewById(R.id.view_sample_attitudes).setVisibility(View.VISIBLE);
-				findViewById(R.id.view_sample_label_attitudes).setVisibility(View.VISIBLE);
+				findViewById(R.id.view_sample_keywords).setVisibility(View.VISIBLE);
+				findViewById(R.id.view_sample_label_keywords).setVisibility(View.VISIBLE);
 			}
 			
 			if (s.getPhotoUri() != null) {

@@ -74,18 +74,9 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 				sample.setDescription(savedState.getCharSequence("description").toString());
 			}
 			
-			if (savedState.getCharSequence("presence") != null) {
-				sample.setPresence(savedState.getCharSequence("presence").toString());
-			}
-			
-			if (savedState.getCharSequence("mood") != null) {
-				EditText mood = (EditText)findViewById(R.id.new_sample_add_mood);
-				mood.setText(savedState.getCharSequence("mood"));
-			}
-			
-			if (savedState.getCharSequence("attitude") != null) {
-				EditText attitude = (EditText)findViewById(R.id.new_sample_add_attitude);
-				attitude.setText(savedState.getCharSequence("attitude"));
+			if (savedState.getCharSequence("keyword") != null) {
+				EditText keyword = (EditText)findViewById(R.id.new_sample_add_keyword);
+				keyword.setText(savedState.getCharSequence("keyword"));
 			}
 			
 			if (savedState.getStringArrayList("tagList") != null) {
@@ -146,73 +137,28 @@ public class EditSampleActivity extends Activity implements OnClickListener {
         	descriptionWidget.setText(sample.getDescription());
         }
         
-        AutoCompleteTextView presenceWidget = (AutoCompleteTextView)findViewById(R.id.new_sample_presence);
-        if (sample.getPresence() != null) {
-        	presenceWidget.setText(sample.getPresence());
-        }
-        TagAutocompleteAdapter adapterPresence = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row, 3);
-    	presenceWidget.setAdapter(adapterPresence);
+        AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_keyword);
+        TagAutocompleteAdapter adapterKeyword = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row, 1);
+    	autocompleteTags.setAdapter(adapterKeyword);
     	//after how many chars should auto-complete list appear?
-    	presenceWidget.setThreshold(2);
-        
-        AutoCompleteTextView autocompleteMoodTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_mood);
-        TagAutocompleteAdapter adapterMood = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row, 1);
-    	autocompleteMoodTags.setAdapter(adapterMood);
-    	//after how many chars should auto-complete list appear?
-    	autocompleteMoodTags.setThreshold(2);
+    	autocompleteTags.setThreshold(2);
     	
-    	AutoCompleteTextView autocompleteAttitudeTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_attitude);
-        TagAutocompleteAdapter adapterAttitude = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row, 2);
-    	autocompleteAttitudeTags.setAdapter(adapterAttitude);
-    	//after how many chars should auto-complete list appear?
-    	autocompleteAttitudeTags.setThreshold(2);
-    	
-    	TagButtonContainer moodHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
-    	TagButtonContainer attitudeHolder = (TagButtonContainer)findViewById(R.id.new_sample_attitude_container);
-    	moodHolder.setVocabularyId(1);
-    	attitudeHolder.setVocabularyId(2);
+    	TagButtonContainer keywordHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
+    	keywordHolder.setVocabularyId(1);
     	Iterator<Tag> i = sample.getTags().iterator();
 		Tag tag = null;
 		
 		while (i.hasNext()) {
 			tag = i.next();
 			if (tag.getVocabularyId() == 1) {
-				moodHolder.addTagButton(tag.getName(), this);
-			}
-			if (tag.getVocabularyId() == 2) {
-				attitudeHolder.addTagButton(tag.getName(), this);
-			}
-		}
-		
-		if (sample.getTimerProfileId() == 1) {
-			findViewById(R.id.new_sample_label_attitudes).setVisibility(View.GONE);
-			findViewById(R.id.new_sample_add_attitude).setVisibility(View.GONE);
-			findViewById(R.id.new_sample_btn_add_attitude).setVisibility(View.GONE);
-			findViewById(R.id.new_sample_help_attitudes).setVisibility(View.GONE);
-			findViewById(R.id.new_sample_attitude_container).setVisibility(View.GONE);
-		}
-	}
-	
-	public void onClickAddMood(View view) {
-		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
-		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_mood);
-		if (enteredTag.getText().length() > 0) {
-			Tag t = new Tag();
-			t.setVocabularyId(tagHolder.getVocabularyId());
-			t.setName(enteredTag.getText().toString().toLowerCase());
-			if (sample.addTag(t)) {
-				tagHolder.addTagButton(t.getName(), this);
-				enteredTag.setText("");
-			}
-			else {
-				Toast.makeText(getApplicationContext(), R.string.new_sample_add_tag_error, Toast.LENGTH_SHORT).show();
+				keywordHolder.addTagButton(tag.getName(), this);
 			}
 		}
 	}
 	
-	public void onClickAddAttitude(View view) {
-		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_attitude_container);
-		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_attitude);
+	public void onClickAddKeyword(View view) {
+		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
+		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_keyword);
 		if (enteredTag.getText().length() > 0) {
 			Tag t = new Tag();
 			t.setVocabularyId(tagHolder.getVocabularyId());
@@ -233,10 +179,7 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 			
 			TagButtonContainer tagHolder = null;
 			if (btn.getVocabularyId() == 1) {
-				tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
-			}
-			if (btn.getVocabularyId() == 2) {
-				tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_attitude_container);
+				tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
 			}
 			
 			Tag t = new Tag();
@@ -250,28 +193,17 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	public void onClickSave(View view) {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
-		EditText presence = (EditText)findViewById(R.id.new_sample_presence);
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
-		sample.setPresence(presence.getText().toString());
 		
 		// also save non-added keywords
-		TagButtonContainer moodTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_mood_container);
-		EditText mood = (EditText)findViewById(R.id.new_sample_add_mood);
-		if (mood.getText().length() > 0) {
+		TagButtonContainer keywordTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
+		EditText keyword = (EditText)findViewById(R.id.new_sample_add_keyword);
+		if (keyword.getText().length() > 0) {
 			Tag t = new Tag();
-			t.setVocabularyId(moodTagHolder.getVocabularyId());
-			t.setName(mood.getText().toString().toLowerCase());
-			sample.addTag(t);
-		}
-		
-		TagButtonContainer attitudeTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_attitude_container);
-		EditText attitude = (EditText)findViewById(R.id.new_sample_add_attitude);
-		if (attitude.getText().length() > 0) {
-			Tag t = new Tag();
-			t.setVocabularyId(attitudeTagHolder.getVocabularyId());
-			t.setName(attitude.getText().toString().toLowerCase());
+			t.setVocabularyId(keywordTagHolder.getVocabularyId());
+			t.setName(keyword.getText().toString().toLowerCase());
 			sample.addTag(t);
 		}
 		
@@ -288,9 +220,7 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	public void onSaveInstanceState(Bundle savedState) {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
-		EditText presence = (EditText)findViewById(R.id.new_sample_presence);
-		EditText mood = (EditText)findViewById(R.id.new_sample_add_mood);
-		EditText attitude = (EditText)findViewById(R.id.new_sample_add_attitude);
+		EditText keyword = (EditText)findViewById(R.id.new_sample_add_keyword);
 		
 		if (sample.getTimestamp() != null) {
 			savedState.putLong("timestamp", sample.getTimestamp().getTime());
@@ -298,14 +228,10 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 		savedState.putLong("sampleId", sample.getId());
 		savedState.putCharSequence("title", title.getText());
 		savedState.putCharSequence("description", description.getText());
-		savedState.putCharSequence("presence", presence.getText());
 		savedState.putBoolean("accepted", sample.getAccepted());
 		
-		if (mood.getText().length() > 0) {
-			savedState.putCharSequence("mood", mood.getText());
-		}
-		if (attitude.getText().length() > 0) {
-			savedState.putCharSequence("attitude", attitude.getText());
+		if (keyword.getText().length() > 0) {
+			savedState.putCharSequence("keyword", keyword.getText());
 		}
 		
 		if (sample.getTags().size() > 0) {

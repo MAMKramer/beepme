@@ -97,6 +97,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
         }
         else {
         	deleteDataRunning = false;
+        	progress = null;
         }
 	}
 	
@@ -115,6 +116,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 			progress = null;
 		}
 		deleteDataRunning = false;
+		handler = null;
 	}
 	
 	private void populateFields() {
@@ -154,12 +156,19 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (!deleteDataRunning && key.equals(PreferenceHandler.KEY_TEST_MODE)) {
+			BeeperApp app = (BeeperApp)getApplication();
+			if (app.isBeeperActive()) {
+				app.setBeeperActive(app.BEEPER_INACTIVE);
+			}
+			
 			progress = new ProgressDialog(Preferences.this);
             progress.setMessage(getString(R.string.data_delete_progress));
             progress.setCancelable(false);
             
     		handler = new DeleteDataHandler(Preferences.this);
-			progress.show();
+			if (!isFinishing()) {
+				progress.show();
+			}
 			deleteDataRunning = true;
 			new Thread(new DeleteDataRunnable(Preferences.this, handler)).start();
 		}

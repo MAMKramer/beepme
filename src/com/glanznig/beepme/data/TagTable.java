@@ -54,7 +54,7 @@ public class TagTable extends StorageHandler {
 	public static void createTable(SQLiteDatabase db) {
 		db.execSQL(TBL_CREATE);
 		
-		createMoodEntries(db);
+		//createMoodEntries(db);
 	}
 	
 	public static void dropTable(SQLiteDatabase db) {

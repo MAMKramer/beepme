@@ -117,51 +117,21 @@ http://beepme.glanznig.com
 	            android:textSize="17dp" />
 	        
 	        <TextView
-	            android:id="@+id/view_sample_label_presence"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp"
-	            android:textSize="17dp"
-	            android:text="@string/sample_presence"
-	            android:textStyle="bold" />
-	        
-	        <TextView
-	            android:id="@+id/view_sample_presence"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:textSize="17dp" />
-	        
-	        <TextView
-	            android:id="@+id/view_sample_label_moods"
+	            android:id="@+id/view_sample_label_keywords"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:layout_marginTop="10dp"
-	            android:text="@string/sample_moods"
+	            android:text="@string/sample_keywords"
 	            android:textSize="17dp"
 	            android:textStyle="bold" />
 
 	        <TextView
-	            android:id="@+id/view_sample_moods"
+	            android:id="@+id/view_sample_keywords"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:lineSpacingExtra="5dp"
 	            android:textSize="17dp" />
 	        
-	        <TextView
-	            android:id="@+id/view_sample_label_attitudes"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp"
-	            android:text="@string/sample_attitudes"
-	            android:textSize="17dp"
-	            android:textStyle="bold" />
-
-	        <TextView
-	            android:id="@+id/view_sample_attitudes"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:lineSpacingExtra="5dp"
-	            android:textSize="17dp" />
 	    </LinearLayout>
 
 	</ScrollView>

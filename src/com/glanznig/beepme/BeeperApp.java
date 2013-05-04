@@ -276,7 +276,14 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(PreferenceHandler.KEY_TIMER_PROFILE_ID)) {
-			setTimerProfile();
+			if (isBeeperActive()) {
+				setBeeperActive(BEEPER_INACTIVE);
+				setTimerProfile();
+				setBeeperActive(BEEPER_ACTIVE);
+			}
+			else {
+				setTimerProfile();
+			}
 		}
 	}
 	

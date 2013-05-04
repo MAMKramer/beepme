@@ -169,35 +169,11 @@ http://beepme.glanznig.com
 	            android:text="@string/sample_description_help" />
 	        
 	        <TextView
-	            android:id="@+id/new_sample_label_presence"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="5dp"
-	            android:text="@string/sample_presence"
-	            android:textSize="17dp"
-	            android:textStyle="bold" />
-
-	        <AutoCompleteTextView
-	            android:id="@+id/new_sample_presence"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="3dp"
-	            android:ems="10"
-	            android:inputType="text" >
-	        </AutoCompleteTextView>
-	        
-	        <TextView
-	            android:id="@+id/new_sample_help_presence"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/sample_presence_help" />
-	        
-	        <TextView
-	            android:id="@+id/new_sample_label_moods"
+	            android:id="@+id/new_sample_label_keywords"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:layout_marginTop="10dp"
-	            android:text="@string/sample_moods"
+	            android:text="@string/sample_keywords"
 	            android:textSize="17dp"
 	            android:textStyle="bold" />
 
@@ -207,72 +183,29 @@ http://beepme.glanznig.com
 	            android:layout_marginTop="5dp" >
 
 	            <AutoCompleteTextView
-	                android:id="@+id/new_sample_add_mood"
+	                android:id="@+id/new_sample_add_keyword"
 	                android:layout_width="fill_parent"
 	                android:layout_height="wrap_content"
 	                android:layout_alignParentLeft="true"
-	                android:layout_toLeftOf="@+id/new_sample_btn_add_mood" />
+	                android:layout_toLeftOf="@+id/new_sample_btn_add_keyword" />
 
 	            <Button
-	                android:id="@+id/new_sample_btn_add_mood"
+	                android:id="@+id/new_sample_btn_add_keyword"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
 	                android:layout_alignParentRight="true"
-	                android:onClick="onClickAddMood"
+	                android:onClick="onClickAddKeyword"
 	                android:text="@string/add" />
 	        </RelativeLayout>
 	        
 	        <TextView
-	            android:id="@+id/new_sample_help_moods"
+	            android:id="@+id/new_sample_help_keywords"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:text="@string/sample_moods_help" />
+	            android:text="@string/sample_keywords_help" />
 	        
 	        <com.glanznig.beepme.view.TagButtonContainer
-	            android:id="@+id/new_sample_mood_container"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp"
-	            android:layout_marginBottom="10dp" />
-	    
-	   		 <TextView
-	            android:id="@+id/new_sample_label_attitudes"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp"
-	            android:text="@string/sample_attitudes"
-	            android:textSize="17dp"
-	            android:textStyle="bold" />
-
-	        <RelativeLayout
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="5dp" >
-
-	            <AutoCompleteTextView
-	                android:id="@+id/new_sample_add_attitude"
-	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentLeft="true"
-	                android:layout_toLeftOf="@+id/new_sample_btn_add_attitude" />
-
-	            <Button
-	                android:id="@+id/new_sample_btn_add_attitude"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentRight="true"
-	                android:onClick="onClickAddAttitude"
-	                android:text="@string/add" />
-	        </RelativeLayout>
-	        
-	        <TextView
-	            android:id="@+id/new_sample_help_attitudes"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/sample_attitudes_help" />
-	        
-	        <com.glanznig.beepme.view.TagButtonContainer
-	            android:id="@+id/new_sample_attitude_container"
+	            android:id="@+id/new_sample_keyword_container"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:layout_marginTop="10dp"
