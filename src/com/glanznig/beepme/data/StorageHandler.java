@@ -125,7 +125,7 @@ public class StorageHandler {
 				db.execSQL("DROP TABLE " + UptimeTable.getTableName());
 				db.execSQL("ALTER TABLE uptime2 RENAME TO " + UptimeTable.getTableName());
 				
-				db.execSQL("UPDATE TABLE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
+				db.execSQL("UPDATE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
 			}
 			
 			if (oldVersion == 17 && newVersion == 19) {
@@ -159,7 +159,7 @@ public class StorageHandler {
 				db.execSQL("DROP TABLE " + UptimeTable.getTableName());
 				db.execSQL("ALTER TABLE uptime2 RENAME TO " + UptimeTable.getTableName());
 				
-				db.execSQL("UPDATE TABLE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
+				db.execSQL("UPDATE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
 			}
 			
 			if (oldVersion == 18 && newVersion == 19) {
@@ -190,7 +190,7 @@ public class StorageHandler {
 				db.execSQL("DROP TABLE " + UptimeTable.getTableName());
 				db.execSQL("ALTER TABLE uptime2 RENAME TO " + UptimeTable.getTableName());
 				
-				db.execSQL("UPDATE TABLE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
+				db.execSQL("UPDATE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
 			}
 		}
 		
