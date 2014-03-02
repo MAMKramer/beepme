@@ -104,20 +104,15 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	private void createNotification() {
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
 		
-		if (android.os.Build.VERSION.SDK_INT >= 11) {
-			notificationBuilder.setSmallIcon(R.drawable.notification_icon);
+		if (this.getPreferences().isTestMode()) {
+			notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify_testmode);
+			notificationBuilder.setContentTitle(getString(R.string.notify_title_testmode));
 		}
 		else {
-			notificationBuilder.setSmallIcon(R.drawable.notification_icon_legacy);
+			notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
+			notificationBuilder.setContentTitle(getString(R.string.notify_title));	
 		}
-		PackageManager pm = getApplicationContext().getPackageManager();
-		try {
-			notificationBuilder.setContentTitle(pm.getApplicationLabel(pm.getApplicationInfo(this.getPackageName(), 0)));
-		}
-		catch (NameNotFoundException ne) {
-			notificationBuilder.setContentTitle("Beeper");
-		}
-		notificationBuilder.setContentText(getString(R.string.beeper_active));
+		notificationBuilder.setContentText(getString(R.string.notify_content));
 		//set as ongoing, so it cannot be cleared
 		notificationBuilder.setOngoing(true);
 		// Creates an explicit intent for an Activity in your app

@@ -20,7 +20,13 @@ http://beepme.glanznig.com
 -->
 
 <resources>
-    <string name="about">Über</string>
+    <string name="action_about">Info</string>
+    <string name="action_beeper_off">Beeper ausschalten</string>
+    <string name="action_beeper_on">Beeper einschalten</string>
+    <string name="action_edit_sample">Eintrag ändern</string>
+    <string name="action_export">Daten exportieren</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="action_test_beep">Alarm generieren</string>
     <string name="add">Hinzufügen</string>
     <string name="app_copyright">Copyright 2012 Michael Glanznig</string>
     <string name="app_info">BeepMe - eine Android App zur Unterstützung der Durchführung einer modifizierten Form von Descriptive Experience Sampling (DES). Dies ist eine Methode zur Erforschung der Struktur des persönlichen Erlebens (Experience), die ursprünglich von Russell T. Hurlburt und Kollegen entwickelt wurde.</string>
@@ -31,14 +37,11 @@ http://beepme.glanznig.com
     <string name="beep_decline_pause">Ablehnen/Beeper pausieren</string>
     <string name="beep_accepted_today">Angenommen: %1$s</string>
     <string name="beep_declined_today">Abgelehnt: %1$s</string>
-    <string name="beeper_active">Beeper ist aktiv.</string>
     <string name="cancel">Abbrechen</string>
     <string name="data_delete_progress">Lösche Daten...</string>
-    <string name="edit">Eintrag ändern</string>
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="error_no_mail_apps">Es sind keine E-Mail Apps verfügbar.</string>
     <string name="export_active">Daten werden exportiert.</string>
-    <string name="export_data">Daten exportieren</string>
     <string name="export_mail_subject">BeepMe Datenexport</string>
     <string name="export_send_mail_msg">Das Archiv ist %1$s groß. Möchten Sie es per Mail versenden?</string>
     <string name="export_success_send_mail_title">Erfolgreich exportiert</string>
@@ -46,7 +49,6 @@ http://beepme.glanznig.com
     <string name="mail_chooser_title">Wählen Sie die App zum Senden</string>
     <string name="main_menu_new_sample">Neues Sample</string>
     <string name="main_menu_samples_list">Einträge ansehen</string>
-    <string name="main_menu_test_beep">Testalarm generieren</string>
     <string name="new_sample">Neues Sample</string>
     <string name="new_sample_add_tag_error">Stichwort ist bereits vorhanden.</string>
     <string name="new_sample_back_warning_msg">Der Eintrag wird mit den eingetragenen Werten gespeichert. Wollen Sie zurück gehen?</string>
@@ -57,10 +59,13 @@ http://beepme.glanznig.com
     <string name="new_sample_replace_img_title">Foto ersetzen</string>
     <string name="new_sample_save_success">Eintrag wurde erstellt.</string>
     <string name="no">Nein</string>
+    <string name="notify_content">Beeper ist aktiv</string>
+    <string name="notify_title">BeepMe</string>
+    <string name="notify_title_testmode">BeepMe (Testmodus)</string>
     <string name="pause_beeper">Beeper pausieren</string>
     <string name="pref_summary_pause_beeper_during_call">Pausiert den Beeper während eines Telefonanrufs.</string>
     <string name="pref_title_pause_beeper_during_call">Pause während Anruf</string>
-    <string name="pref_summary_test_mode">Aktiviert/deaktiviert den Testmodus.</string>
+    <string name="pref_summary_test_mode">Ermöglicht die Verwendung von BeepMe kennenzulernen.</string>
     <string name="pref_title_test_mode">Testmodus</string>
     <string name="pref_summary_timer_profile">Anpassen des Beepers an verschiedene Einsatzzwecke.</string>
     <string name="pref_title_timer_profile">Beeper Profil</string>
@@ -68,7 +73,6 @@ http://beepme.glanznig.com
     <string name="pref_title_vibrate_beep">Vibrieren bei Alarm</string>
     <string name="pref_summary_warn_no_wifi">Warnen, wenn Daten über mobiles Datennetz gesendet werden.</string>
     <string name="pref_title_warn_no_wifi">Kein W-Lan Warnung</string>
-    <string name="preferences">Einstellungen</string>
     <string name="refresh">Neu laden</string>
     <string name="samples_list_no_samples">Derzeit noch keine Einträge.</string>
     <string name="sample_description">Wie war Ihr Erleben beschaffen?</string>

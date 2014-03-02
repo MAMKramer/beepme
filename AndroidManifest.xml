@@ -25,7 +25,7 @@ http://beepme.glanznig.com
     android:versionName="1.4.1"
     android:installLocation="auto">
 
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8" />
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
     
     <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -35,9 +35,10 @@ http://beepme.glanznig.com
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     
-    <application android:icon="@drawable/ic_launcher"
+    <application android:icon="@drawable/ic_launcher_beepme"
         android:label="@string/app_name"
         android:name=".BeeperApp"
+        android:theme="@android:style/Theme.Holo.Light"
         android:allowBackup="false">
       
 	    <activity
@@ -50,17 +51,31 @@ http://beepme.glanznig.com
 	         </intent-filter>
 	    </activity>
 	    
-	    <activity android:name=".view.Preferences" android:label="@string/preferences"></activity>
+	    <activity
+	        android:name=".view.Preferences"
+	        android:label="@string/action_settings"
+	        android:parentActivityName=".view.MainMenu">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.MainMenu" />
+	    </activity>
 	    
-	    <activity android:name=".view.AboutActivity" android:label="@string/about"></activity>
+	    <activity
+	        android:name=".view.AboutActivity"
+	        android:label="@string/action_about"
+	        android:parentActivityName=".view.MainMenu">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.MainMenu" />
+	        
+	    </activity>
 	    
 	    <activity android:name=".view.BeepActivity" android:label="@string/beep"
 	        android:launchMode="singleTask"
 	        android:screenOrientation="portrait">
 	    </activity>
 	    
-	    <activity android:name=".view.ListSamplesActivity" android:label="@string/list_samples">
-	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.MainMenu" />
+	    <activity
+	        android:name=".view.ListSamplesActivity"
+	        android:label="@string/list_samples"
+	        android:parentActivityName=".view.MainMenu">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.MainMenu" />
 	    </activity>
 	    
 	    <activity android:name=".view.NewSampleActivity" android:label="@string/new_sample" android:windowSoftInputMode="adjustResize">
@@ -71,8 +86,11 @@ http://beepme.glanznig.com
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.ViewSampleActivity" />
 	    </activity>
 	    
-	    <activity android:name=".view.ViewSampleActivity" android:label="@string/view_sample">
-	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.ListSamplesActivity" />
+	    <activity
+	        android:name=".view.ViewSampleActivity"
+	        android:label="@string/view_sample"
+	        android:parentActivityName=".view.ListSamplesActivity">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.ListSamplesActivity" />
 	    </activity>
 	    
 	    <receiver android:name=".helper.PhoneStateReceiver">

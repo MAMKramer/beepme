@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
@@ -37,14 +38,19 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ViewSampleActivity extends Activity {
 	
@@ -107,12 +113,6 @@ public class ViewSampleActivity extends Activity {
 	private void populateFields() {
 		if (sampleId != 0L) {
 			Sample s = new SampleTable(this.getApplicationContext()).getSampleWithTags(sampleId);
-			
-			LinearLayout editBtn = (LinearLayout)findViewById(R.id.view_sample_buttons);
-			//not editable if more than a day old
-			if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
-				editBtn.setVisibility(View.GONE);
-			}
 			
 			TextView timestamp = (TextView)findViewById(R.id.view_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -180,14 +180,45 @@ public class ViewSampleActivity extends Activity {
 		}
 	}
 	
-	public void onClickEdit(View view) {
-		Intent i = new Intent(ViewSampleActivity.this, EditSampleActivity.class);
-		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", sampleId);
-		startActivity(i);
-	}
-	
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
 		savedState.putLong("sampleId", sampleId);
 	}
+	
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.view_sample, menu);
+        
+        MenuItem edit = menu.findItem(R.id.action_edit_sample);
+        if (sampleId != 0L) {
+			Sample s = new SampleTable(this.getApplicationContext()).getSampleWithTags(sampleId);
+			
+			//not editable if more than a day old
+			if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
+				edit.setVisible(false);
+			}
+			else {
+				edit.setVisible(true);
+			}
+        }
+        else {
+        	edit.setVisible(false);
+        }
+        
+        return super.onCreateOptionsMenu(menu);
+    }
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        	case R.id.action_edit_sample:
+        		Intent i = new Intent(ViewSampleActivity.this, EditSampleActivity.class);
+        		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", sampleId);
+        		startActivity(i);
+        		
+        		return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

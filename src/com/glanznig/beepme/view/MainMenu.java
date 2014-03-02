@@ -33,6 +33,7 @@ import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.ScheduledBeepTable;
 import com.glanznig.beepme.data.UptimeTable;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -65,6 +66,7 @@ public class MainMenu extends Activity {
 	
 	private static final String TAG = "MainMenu";
 	private AudioManager audioManager = null;
+	private Menu actionMenu = null;
 	
 	private static class ExportHandler extends Handler {
 		WeakReference<MainMenu> mainMenu;
@@ -178,53 +180,9 @@ public class MainMenu extends Activity {
 	private void populateFields() {
 		BeeperApp app = (BeeperApp)getApplication();
 		
-		Button testBeep = (Button)findViewById(R.id.btn_main_menu_test_beep);
-		TextView labelTestMode = (TextView)findViewById(R.id.main_menu_label_test_mode);
-		
+		ActionBar bar = getActionBar();
 		if (app.getPreferences().isTestMode()) {
-			testBeep.setVisibility(View.VISIBLE);
-			labelTestMode.setVisibility(View.VISIBLE);
-		}
-		else {
-			testBeep.setVisibility(View.GONE);
-			labelTestMode.setVisibility(View.GONE);
-		}
-		
-		labelTestMode.measure(0, 0);
-		int labelHeight = labelTestMode.getMeasuredHeight();
-		LinearLayout buttons = (LinearLayout)findViewById(R.id.main_buttons);
-		buttons.measure(0, 0);
-		int buttonsHeight = buttons.getMeasuredHeight();
-		int displayHeight = getWindowManager().getDefaultDisplay().getHeight();
-		ImageView beeperStatus = (ImageView)findViewById(R.id.beeper_status);
-		
-		if (app.isBeeperActive()) {
-			beeperStatus.setImageResource(R.drawable.beeper_status_active);
-			testBeep.setEnabled(true);
-		}
-		else {
-			beeperStatus.setImageResource(R.drawable.beeper_status_paused);
-			testBeep.setEnabled(false);
-		}
-		
-		beeperStatus.measure(0, 0);
-		int iconHeight = beeperStatus.getMeasuredHeight();
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		float scale = getResources().getDisplayMetrics().density;
-		lp.setMargins(0, ((displayHeight - buttonsHeight - labelHeight - (int)(5 * scale + 0.5f)) / 2) - (iconHeight / 2) - 10, 0, 0);
-		beeperStatus.setLayoutParams(lp);
-		
-		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(130, 217, 130), Mode.MULTIPLY);
-		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(217, 130, 130), Mode.MULTIPLY);
-		Button beeperStateToggle = (Button)findViewById(R.id.btn_main_menu_beeper_state_toggle);
-		
-		if (app.isBeeperActive()) {
-			beeperStateToggle.setText(R.string.pause_beeper);
-			beeperStateToggle.getBackground().setColorFilter(red);
-		}
-		else {
-			beeperStateToggle.setText(R.string.start_beeper);
-			beeperStateToggle.getBackground().setColorFilter(green);
+			bar.setSubtitle(getString(R.string.pref_title_test_mode));
 		}
 		
 		SampleTable st = new SampleTable(this.getApplicationContext());
@@ -247,27 +205,8 @@ public class MainMenu extends Activity {
 		beeperActive.setText(active);
 	}
 	
-	public void onClickBeeperStateToggle(View view) {
-		BeeperApp app = (BeeperApp)getApplication();
-		if (app.isBeeperActive()) {
-			app.cancelTimer(); //call before setBeeperActive
-			app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
-		}
-		else {
-			app.setBeeperActive(BeeperApp.BEEPER_ACTIVE);
-			app.setTimer();
-		}
-		
-		populateFields();
-	}
-	
 	public void onClickListSamples(View view) {
 		startActivity(new Intent(MainMenu.this, ListSamplesActivity.class));
-	}
-	
-	public void onClickBeep(View view) {
-		BeeperApp app = (BeeperApp)getApplication();
-		app.beep();
 	}
 	
 	@Override
@@ -294,22 +233,69 @@ public class MainMenu extends Activity {
 	
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
+		BeeperApp app = (BeeperApp)getApplication();
         MenuInflater mi = getMenuInflater();
         mi.inflate(R.menu.main_menu, menu);
-        return true;
+        this.actionMenu = menu;
+        
+        // hide/show test beep menu entry
+        MenuItem testBeep = menu.findItem(R.id.action_test_beep);
+        if (app.getPreferences().isTestMode() && app.isBeeperActive()) {
+        	testBeep.setVisible(true);
+        }
+        else {
+        	testBeep.setVisible(false);
+        }
+        
+        // update toggle beeper icon
+        MenuItem item = menu.findItem(R.id.action_toggle_beeper);
+        if (app.isBeeperActive()) {
+			item.setIcon(R.drawable.ic_menu_beeper_on);
+		}
+		else {
+			item.setIcon(R.drawable.ic_menu_beeper_off);
+		}
+        
+        return super.onCreateOptionsMenu(menu);
     }
 	
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
+		BeeperApp app = (BeeperApp)getApplication();
+		
         switch (item.getItemId()) {
-            case R.id.menu_settings:
-                Intent iSettings = new Intent(this, Preferences.class);
-                startActivity(iSettings);
-                return true;
-            case R.id.menu_export:
+        	case R.id.action_toggle_beeper:
+        		if (app.isBeeperActive()) {
+        			app.cancelTimer(); //call before setBeeperActive
+        			app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
+        			item.setIcon(R.drawable.ic_menu_beeper_off);
+        			
+        			// hide generate beep menu entry
+        			if (this.actionMenu != null && app.getPreferences().isTestMode()) {
+        				MenuItem testBeep = actionMenu.findItem(R.id.action_test_beep);
+        				testBeep.setVisible(false);
+        			}
+        		}
+        		else {
+        			app.setBeeperActive(BeeperApp.BEEPER_ACTIVE);
+        			app.setTimer();
+        			item.setIcon(R.drawable.ic_menu_beeper_on);
+        			
+        			// show generate beep menu entry
+        			if (this.actionMenu != null && app.getPreferences().isTestMode()) {
+        				MenuItem testBeep = actionMenu.findItem(R.id.action_test_beep);
+        				testBeep.setVisible(true);
+        			}
+        		}
+        		
+        		return true;
+        		
+        	case R.id.action_test_beep:
+        		app.beep();
+        		return true;
+        		
+            case R.id.action_export:
             	if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            		BeeperApp app = (BeeperApp)getApplication();
             		if (app.getPreferences().exportRunningSince() == 0L ||
             				(Calendar.getInstance().getTimeInMillis() -
             				app.getPreferences().exportRunningSince()) >= 120000) { //2 min
@@ -321,7 +307,13 @@ public class MainMenu extends Activity {
             		Toast.makeText(MainMenu.this, R.string.sdcard_error, Toast.LENGTH_SHORT).show();
             	}
             	return true;
-            case R.id.menu_info:
+            	
+            case R.id.action_settings:
+                Intent iSettings = new Intent(this, Preferences.class);
+                startActivity(iSettings);
+                return true;
+                
+            case R.id.action_about:
             	Intent iAbout = new Intent(this, AboutActivity.class);
                 startActivity(iAbout);
             	return true;

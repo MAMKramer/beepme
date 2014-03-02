@@ -148,13 +148,7 @@ public class DataExporter {
 	
 	private void createNotification() {
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(ctx.getApplicationContext());
-		
-		if (android.os.Build.VERSION.SDK_INT >= 11) {
-			notificationBuilder.setSmallIcon(R.drawable.notification_icon);
-		}
-		else {
-			notificationBuilder.setSmallIcon(R.drawable.notification_icon_legacy);
-		}
+		notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
 		PackageManager pm = ctx.getApplicationContext().getPackageManager();
 		try {
 			notificationBuilder.setContentTitle(pm.getApplicationLabel(pm.getApplicationInfo(ctx.getApplicationContext().getPackageName(), 0)));
