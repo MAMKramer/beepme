@@ -31,7 +31,7 @@ import com.glanznig.beepme.data.TimerProfile;
 import com.glanznig.beepme.data.TimerProfileTable;
 import com.glanznig.beepme.data.UptimeTable;
 import com.glanznig.beepme.view.BeepActivity;
-import com.glanznig.beepme.view.MainMenu;
+import com.glanznig.beepme.view.MainActivity;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -116,7 +116,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		//set as ongoing, so it cannot be cleared
 		notificationBuilder.setOngoing(true);
 		// Creates an explicit intent for an Activity in your app
-		Intent resultIntent = new Intent(this, MainMenu.class);
+		Intent resultIntent = new Intent(this, MainActivity.class);
 
 		// The stack builder object will contain an artificial back stack for the
 		// started Activity.
@@ -124,7 +124,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		// your application to the Home screen.
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		// Adds the back stack for the Intent (but not the Intent itself)
-		stackBuilder.addParentStack(MainMenu.class);
+		stackBuilder.addParentStack(MainActivity.class);
 		// Adds the Intent that starts the Activity to the top of the stack
 		stackBuilder.addNextIntent(resultIntent);
 		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);

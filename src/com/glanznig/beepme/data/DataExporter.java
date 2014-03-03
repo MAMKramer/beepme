@@ -36,7 +36,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.view.MainMenu;
+import com.glanznig.beepme.view.MainActivity;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -160,7 +160,7 @@ public class DataExporter {
 		//set as ongoing, so it cannot be cleared
 		notificationBuilder.setOngoing(true);
 		// Creates an explicit intent for an Activity in your app
-		Intent resultIntent = new Intent(ctx.getApplicationContext(), MainMenu.class);
+		Intent resultIntent = new Intent(ctx.getApplicationContext(), MainActivity.class);
 		
 		//add progress bar (indeterminate)
 		if (android.os.Build.VERSION.SDK_INT >= 14) {
@@ -173,7 +173,7 @@ public class DataExporter {
 		// your application to the Home screen.
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(ctx.getApplicationContext());
 		// Adds the back stack for the Intent (but not the Intent itself)
-		stackBuilder.addParentStack(MainMenu.class);
+		stackBuilder.addParentStack(MainActivity.class);
 		// Adds the Intent that starts the Activity to the top of the stack
 		stackBuilder.addNextIntent(resultIntent);
 		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);

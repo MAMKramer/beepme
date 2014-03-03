@@ -27,6 +27,7 @@ import java.text.NumberFormat;
 import java.util.Calendar;
 
 import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.DataExporter;
 import com.glanznig.beepme.data.SampleTable;
@@ -34,46 +35,48 @@ import com.glanznig.beepme.data.ScheduledBeepTable;
 import com.glanznig.beepme.data.UptimeTable;
 
 import android.app.ActionBar;
+import android.app.ActionBar.Tab;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.graphics.Color;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.PorterDuff.Mode;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
-import android.widget.RelativeLayout.LayoutParams;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class MainMenu extends Activity {
+public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
 	
-	private static final String TAG = "MainMenu";
+	private static final String TAG = "MainActivity";
 	private AudioManager audioManager = null;
 	private Menu actionMenu = null;
+	private MainSectionsPagerAdapter pagerAdapter = null;
+	private ViewPager pager = null;
 	
 	private static class ExportHandler extends Handler {
-		WeakReference<MainMenu> mainMenu;
+		WeakReference<MainActivity> mainMenu;
 		Bundle data;
 		
-		ExportHandler(MainMenu activity) {
-			mainMenu = new WeakReference<MainMenu>(activity);
+		ExportHandler(MainActivity activity) {
+			mainMenu = new WeakReference<MainActivity>(activity);
 		}
 		
 		public static String readableFileSize(long size) {
@@ -123,11 +126,11 @@ public class MainMenu extends Activity {
 	}
 	
 	private static class ExportRunnable implements Runnable {
-		WeakReference<MainMenu> mainMenu;
+		WeakReference<MainActivity> mainMenu;
 		WeakReference<ExportHandler> handler;
 		
-		ExportRunnable(MainMenu activity, ExportHandler handler) {
-			mainMenu = new WeakReference<MainMenu>(activity);
+		ExportRunnable(MainActivity activity, ExportHandler handler) {
+			mainMenu = new WeakReference<MainActivity>(activity);
 			this.handler = new WeakReference<ExportHandler>(handler); 
 		}
 		@Override
@@ -148,16 +151,47 @@ public class MainMenu extends Activity {
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_menu);
+		setContentView(R.layout.main);
 		
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		
+        pagerAdapter = new MainSectionsPagerAdapter(getSupportFragmentManager(), this);
+        final ActionBar actionBar = getActionBar();
+        
+        BeeperApp app = (BeeperApp)getApplication();
+        
+        if (app.getPreferences().isTestMode()) {
+        	actionBar.setSubtitle(getString(R.string.pref_title_test_mode));
+        }
+        
+        // displaying tabs in the action bar
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        pager = (ViewPager)findViewById(R.id.main_tab_pager);
+        pager.setAdapter(pagerAdapter);
+        
+        // listening for page changes
+        pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+        });
+
+        // for each of the sections in the app, add a tab to the action bar
+        for (int i = 0; i < pagerAdapter.getCount(); i++) {
+            // Create a tab with text corresponding to the page title defined by the adapter.
+            // Also specify this Activity object, which implements the TabListener interface, as the
+            // listener for when this tab is selected.
+            actionBar.addTab(actionBar.newTab()
+                            .setText(pagerAdapter.getPageTitle(i))
+                            .setTabListener(this));
+        }
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
-		
-		populateFields();
 		
 		//make sure that scheduled beeps do not expire due to an error
 		BeeperApp app = (BeeperApp)getApplication();
@@ -177,36 +211,8 @@ public class MainMenu extends Activity {
 		}
 	}
 	
-	private void populateFields() {
-		BeeperApp app = (BeeperApp)getApplication();
-		
-		ActionBar bar = getActionBar();
-		if (app.getPreferences().isTestMode()) {
-			bar.setSubtitle(getString(R.string.pref_title_test_mode));
-		}
-		
-		SampleTable st = new SampleTable(this.getApplicationContext());
-		int numAccepted = st.getNumAcceptedToday();
-		int numDeclined = st.getSampleCountToday() - numAccepted;
-		long uptimeDur = new UptimeTable(this.getApplicationContext(), app.getTimerProfile()).getUptimeDurToday();
-		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
-		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
-		TextView beeperActive = (TextView)findViewById(R.id.main_beeper_active_today);
-		
-		String accepted = String.format(getString(R.string.beep_accepted_today), numAccepted);
-		String declined = String.format(getString(R.string.beep_declined_today), numDeclined);
-		String timeActive = String.format("%d:%02d:%02d", uptimeDur/3600, (uptimeDur%3600)/60, (uptimeDur%60));
-		String active = String.format(getString(R.string.time_beeper_active), timeActive);
-		
-		acceptedToday.setText(accepted);
-		acceptedToday.setTextColor(Color.rgb(130, 217, 130));
-		declinedToday.setText(declined);
-		declinedToday.setTextColor(Color.rgb(217, 130, 130));
-		beeperActive.setText(active);
-	}
-	
 	public void onClickListSamples(View view) {
-		startActivity(new Intent(MainMenu.this, ListSamplesActivity.class));
+		startActivity(new Intent(MainActivity.this, ListSamplesFragment.class));
 	}
 	
 	@Override
@@ -300,11 +306,11 @@ public class MainMenu extends Activity {
             				(Calendar.getInstance().getTimeInMillis() -
             				app.getPreferences().exportRunningSince()) >= 120000) { //2 min
             			app.getPreferences().setExportRunningSince(Calendar.getInstance().getTimeInMillis());
-            			new Thread(new ExportRunnable(MainMenu.this, new ExportHandler(MainMenu.this))).start();
+            			new Thread(new ExportRunnable(MainActivity.this, new ExportHandler(MainActivity.this))).start();
             		}
             	}
             	else {
-            		Toast.makeText(MainMenu.this, R.string.sdcard_error, Toast.LENGTH_SHORT).show();
+            		Toast.makeText(MainActivity.this, R.string.sdcard_error, Toast.LENGTH_SHORT).show();
             	}
             	return true;
             	
@@ -314,11 +320,54 @@ public class MainMenu extends Activity {
                 return true;
                 
             case R.id.action_about:
-            	Intent iAbout = new Intent(this, AboutActivity.class);
-                startActivity(iAbout);
-            	return true;
+            	
+            	// thanks to F-Droid for the inspiration
+				View view = null;
+				LayoutInflater inflater = LayoutInflater.from(this);
+				view = inflater.inflate(R.layout.about, null);
+				
+				try {
+					PackageInfo pkgInfo = getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0);
+					((TextView)view.findViewById(R.id.about_version)).setText(pkgInfo.versionName);
+				} catch (Exception e) {}
+				
+				AlertDialog.Builder alertBuilder = null;
+				alertBuilder = new AlertDialog.Builder(this).setView(view);
+				 
+				AlertDialog dia = alertBuilder.create();
+				dia.setIcon(R.drawable.ic_launcher_beepme);
+				dia.setTitle(getString(R.string.about_title));
+				dia.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.about_website_button),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int whichButton) {
+								Uri uri = Uri.parse("http://beepme.glanznig.com");
+								startActivity(new Intent(Intent.ACTION_VIEW, uri));
+							}
+						});
+				
+				dia.setButton(AlertDialog.BUTTON_NEGATIVE, getString(android.R.string.ok),
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int whichButton) {}
+				});
+				dia.show();
+				return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		pager.setCurrentItem(tab.getPosition());
+	}
+
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+	}
 
 }

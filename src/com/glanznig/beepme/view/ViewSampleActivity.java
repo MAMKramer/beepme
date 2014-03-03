@@ -34,6 +34,7 @@ import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -111,6 +112,8 @@ public class ViewSampleActivity extends Activity {
 	}
 	
 	private void populateFields() {
+		final ActionBar actionBar = getActionBar();
+		
 		if (sampleId != 0L) {
 			Sample s = new SampleTable(this.getApplicationContext()).getSampleWithTags(sampleId);
 			
@@ -122,6 +125,7 @@ public class ViewSampleActivity extends Activity {
 			if (s.getTitle() != null && s.getTitle().length() > 0) {
 				title.setText(s.getTitle());
 				title.setVisibility(View.VISIBLE);
+				actionBar.setTitle(s.getTitle());
 			}
 			else {
 				title.setVisibility(View.GONE);

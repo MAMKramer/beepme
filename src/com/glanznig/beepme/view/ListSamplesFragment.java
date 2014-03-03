@@ -32,30 +32,35 @@ import com.glanznig.beepme.SampleListItem;
 import com.glanznig.beepme.SampleListSectionHeader;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
+import com.glanznig.beepme.data.UptimeTable;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
-public class ListSamplesActivity extends ListActivity {
+public class ListSamplesFragment extends ListFragment {
 	
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.samples_list);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.samples_list, container, false);
+        return rootView;
     }
 	
 	@Override
 	public void onResume() {
 		super.onResume();
 		populateList();
+		updateStats();
 	}
 	
 	private void populateList() {
-		List<Sample> samplesList = new SampleTable(this.getApplicationContext()).getSamples();
+		List<Sample> samplesList = new SampleTable(getActivity().getApplicationContext()).getSamples();
 		ArrayList<SampleListItem> viewList = new ArrayList<SampleListItem>();
 		
 		Iterator<Sample> i = samplesList.iterator();
@@ -69,15 +74,35 @@ public class ListSamplesActivity extends ListActivity {
 			viewList.add(new SampleListEntry(s));
 		}
 		
-        SampleListAdapter samples = new SampleListAdapter(this, viewList);
+        SampleListAdapter samples = new SampleListAdapter(getActivity(), viewList);
         setListAdapter(samples);
+	}
+	
+	private void updateStats() {
+		BeeperApp app = (BeeperApp)getActivity().getApplication();
+		
+		SampleTable st = new SampleTable(getActivity().getApplicationContext());
+		
+		int numAccepted = st.getNumAcceptedToday();
+		int numDeclined = st.getSampleCountToday() - numAccepted;
+		long uptimeDur = new UptimeTable(getActivity().getApplicationContext(), app.getTimerProfile()).getUptimeDurToday();
+		
+		TextView acceptedToday = (TextView)getView().findViewById(R.id.samples_list_today_accepted);
+		TextView declinedToday = (TextView)getView().findViewById(R.id.samples_list_today_declined);
+		TextView beeperActive = (TextView)getView().findViewById(R.id.samples_list_today_elapsed);
+
+		String timeActive = String.format("%02d:%02d:%02d", uptimeDur/3600, (uptimeDur%3600)/60, (uptimeDur%60));
+
+		acceptedToday.setText(String.valueOf(numAccepted));
+		declinedToday.setText(String.valueOf(numDeclined));
+		beeperActive.setText(String.valueOf(timeActive));
 	}
 	
 	@Override
 	public void onListItemClick(ListView listView, View view, int position, long id) {
 		Sample s = ((SampleListEntry)listView.getItemAtPosition(position)).getSample();
-		Intent i = new Intent(ListSamplesActivity.this, ViewSampleActivity.class);
-		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", s.getId());
+		Intent i = new Intent(getActivity(), ViewSampleActivity.class);
+		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", s.getId());
 		startActivity(i);
 	}
 
