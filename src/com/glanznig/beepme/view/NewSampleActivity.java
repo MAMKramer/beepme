@@ -23,6 +23,7 @@ package com.glanznig.beepme.view;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -36,6 +37,7 @@ import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.ImageHelper;
 import com.glanznig.beepme.helper.ImageHelperCallback;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -45,14 +47,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -106,6 +110,25 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	@Override
 	public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
+        
+        final LayoutInflater inflater = (LayoutInflater) getActionBar().getThemedContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        final View customActionBarView = inflater.inflate(R.layout.actionbar_custom_done, null);
+        customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClickDone(v);
+                    }
+                });
+
+        // Show the custom action bar view and hide the normal Home icon and title.
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        actionBar.setCustomView(customActionBarView,
+                new ActionBar.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+        
         setContentView(R.layout.new_sample);
         SampleTable st = new SampleTable(this.getApplicationContext());
         
@@ -211,9 +234,6 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
     		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
 			findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
     	}
-    	
-    	Button save = (Button)findViewById(R.id.new_sample_btn_save);
-    	save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         
         if (sample.getTimestamp() != null) {
         	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);
@@ -284,7 +304,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		}
 	}
 	
-	public void onClickSave(View view) {
+	public void onClickDone(View view) {
 		Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
 		finish();
 	}
@@ -443,4 +463,35 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		imgScalingRunning = false;
 		startThumbnailLoading();
 	}
+	
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.new_sample, menu);
+        
+        //check if device has camera feature
+        MenuItem photoItem = menu.findItem(R.id.action_take_photo);
+        if (!img.isEnabled()) {
+        	photoItem.setVisible(false);
+        }
+        else {
+        	photoItem.setVisible(true);
+        }
+        
+        return super.onCreateOptionsMenu(menu);
+    }
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        	case R.id.action_take_photo:
+        		Intent imgIntent = img.getIntent(sample.getTimestamp());
+        		if (imgIntent != null) {
+        			startActivityForResult(imgIntent, ImageHelper.TAKE_PICTURE);
+        		}
+        		
+        		return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

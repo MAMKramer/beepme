@@ -33,6 +33,7 @@ http://beepme.glanznig.com
     <string name="action_edit_sample">Eintrag ändern</string>
     <string name="action_export">Daten exportieren</string>
     <string name="action_settings">Einstellungen</string>
+    <string name="action_take_photo">Foto machen</string>
     <string name="action_test_beep">Alarm generieren</string>
     <string name="add">Hinzufügen</string>
     <string name="app_copyright">Copyright 2012 Michael Glanznig</string>
@@ -41,10 +42,9 @@ http://beepme.glanznig.com
     <string name="beep_accept">Annehmen</string>
     <string name="beep_decline">Ablehnen</string>
     <string name="beep_decline_pause">Ablehnen/Beeper pausieren</string>
-    <string name="beep_accepted_today">Angenommen</string>
-    <string name="beep_declined_today">Abgelehnt</string>
-    <string name="cancel">Abbrechen</string>
+    <string name="cancel">Verwerfen</string>
     <string name="data_delete_progress">Lösche Daten...</string>
+    <string name="done">Fertig</string>
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="error_no_mail_apps">Es sind keine E-Mail Apps verfügbar.</string>
     <string name="export_active">Daten werden exportiert.</string>
@@ -59,7 +59,6 @@ http://beepme.glanznig.com
     <string name="new_sample_add_tag_error">Stichwort ist bereits vorhanden.</string>
     <string name="new_sample_back_warning_msg">Der Eintrag wird mit den eingetragenen Werten gespeichert. Wollen Sie zurück gehen?</string>
     <string name="new_sample_back_warning_title">Eintrag wird gespeichert</string>
-    <string name="new_sample_take_photo">Foto machen</string>
     <string name="new_sample_replace_img_delete">Foto wurde gelöscht.</string>
     <string name="new_sample_replace_img_msg">Möchten Sie das Foto ersetzen?</string>
     <string name="new_sample_replace_img_title">Foto ersetzen</string>
@@ -89,7 +88,6 @@ http://beepme.glanznig.com
     <string name="sample_untitled">Unbenannt</string>
     <string name="samples">Momente</string>
     <string name="samples_list_no_samples">Ihre gesammelten Momente finden Sie hier.</string>
-    <string name="save">Speichern</string>
     <string name="sdcard_error">SD Karte nicht eingesetzt oder nicht beschreibbar.</string>
     <string name="start_beeper">Beeper starten</string>
     <string name="time_beeper_active">Aktiv</string>

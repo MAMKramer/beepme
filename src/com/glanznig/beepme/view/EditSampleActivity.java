@@ -31,17 +31,16 @@ import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
+import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +53,32 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
+        
+        final LayoutInflater inflater = (LayoutInflater) getActionBar().getThemedContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        final View customActionBarView = inflater.inflate(R.layout.actionbar_custom_done_cancel, null);
+        customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClickDone(v);
+                    }
+                });
+        customActionBarView.findViewById(R.id.actionbar_cancel).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClickCancel(v);
+                    }
+                });
+
+        // Show the custom action bar view and hide the normal Home icon and title.
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        actionBar.setCustomView(customActionBarView,
+                new ActionBar.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+     
         setContentView(R.layout.new_sample);
         SampleTable st = new SampleTable(this.getApplicationContext());
 		
@@ -110,16 +135,6 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	
 	private void populateFields() {
 		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-		
-		Button save = (Button)findViewById(R.id.new_sample_btn_save);
-		Button cancel = (Button)findViewById(R.id.new_sample_btn_cancel);
-		save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-		cancel.setVisibility(View.VISIBLE);
-		//get display dimensions
-		Display display = getWindowManager().getDefaultDisplay();
-		int width = (display.getWidth() - 10) / 2;
-		save.setWidth(width);
-		cancel.setWidth(width);
         
         if (sample.getTimestamp() != null) {
         	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);
@@ -190,7 +205,7 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 		}
 	}
 	
-	public void onClickSave(View view) {
+	public void onClickDone(View view) {
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
 		

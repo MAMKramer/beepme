@@ -29,6 +29,7 @@ import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.ScheduledBeepTable;
+import com.glanznig.beepme.data.UptimeTable;
 import com.glanznig.beepme.helper.BeepAlertManager;
 
 import android.app.Activity;
@@ -199,17 +200,6 @@ public class BeepActivity extends Activity {
         
 		setContentView(R.layout.beep);
 		
-		LinearLayout buttons = (LinearLayout)findViewById(R.id.beep_buttons);
-		buttons.measure(0, 0);
-		int buttonsHeight = buttons.getMeasuredHeight();
-		int displayHeight = getWindowManager().getDefaultDisplay().getHeight();
-		ImageView beepIcon = (ImageView)findViewById(R.id.beep_icon);
-		beepIcon.measure(0, 0);
-		int iconHeight = beepIcon.getMeasuredHeight();
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		lp.setMargins(0, ((displayHeight - buttonsHeight) / 2) - (iconHeight / 2), 0, 0);
-		beepIcon.setLayoutParams(lp);
-		
 		handler = new TimeoutHandler(BeepActivity.this);
 		handler.sendEmptyMessageDelayed(1, 60000); // 1 minute timeout for activity
 		
@@ -235,14 +225,17 @@ public class BeepActivity extends Activity {
 		SampleTable st = new SampleTable(this.getApplicationContext());
 		int numAccepted = st.getNumAcceptedToday();
 		int numDeclined = st.getSampleCountToday() - numAccepted;
+		long uptimeDur = new UptimeTable(this.getApplicationContext(), app.getTimerProfile()).getUptimeDurToday();
+		
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
 		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
-		String accepted = String.format(getString(R.string.beep_accepted_today), numAccepted);
-		String declined = String.format(getString(R.string.beep_declined_today), numDeclined);
-		acceptedToday.setText(accepted);
-		acceptedToday.setTextColor(Color.rgb(130, 217, 130));
-		declinedToday.setText(declined);
-		declinedToday.setTextColor(Color.rgb(217, 130, 130));
+		TextView beeperActive = (TextView)findViewById(R.id.beep_elapsed_today);
+		
+		String timeActive = String.format("%02d:%02d:%02d", uptimeDur/3600, (uptimeDur%3600)/60, (uptimeDur%60));
+		
+		acceptedToday.setText(String.valueOf(numAccepted));
+		declinedToday.setText(String.valueOf(numDeclined));
+		beeperActive.setText(String.valueOf(timeActive));
 	}	
 	
 	public void onClickAccept(View view) {

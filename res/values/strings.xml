@@ -20,7 +20,7 @@ http://beepme.glanznig.com
 -->
 
 <resources>
-    <string name="about_app_info">Aids you in performing experience sampling (DES/ESM) by delivering beeps at random times.</string>
+    <string name="about_app_info">Helps you in performing experience sampling (DES/ESM) by delivering beeps at random times.</string>
     <string name="about_title">About BeepMe</string>
     <string name="about_email">E-Mail:</string>
     <string name="about_license">Copyright 2012-2014 Michael Glanznig.\nLicensed under GNU GPL v3 and provided AS IS without any warranty.</string>
@@ -33,6 +33,7 @@ http://beepme.glanznig.com
     <string name="action_edit_sample">Edit Sample</string>
     <string name="action_export">Export Data</string>
     <string name="action_settings">Settings</string>
+    <string name="action_take_photo">Take Photo</string>
     <string name="action_test_beep">Generate Beep</string>
     <string name="add">Add</string>
     <string name="app_name">BeepMe</string>
@@ -40,10 +41,9 @@ http://beepme.glanznig.com
     <string name="beep_accept">Accept</string>
     <string name="beep_decline">Decline</string>
     <string name="beep_decline_pause">Decline/Pause Beeper</string>
-    <string name="beep_accepted_today">Accepted</string>
-    <string name="beep_declined_today">Declined</string>
     <string name="cancel">Cancel</string>
     <string name="data_delete_progress">Deleting data...</string>
+    <string name="done">Done</string>
     <string name="edit_sample">Edit Sample</string>
     <string name="error_no_mail_apps">There are no mail apps available.</string>
     <string name="export_active">Data are being exported.</string>
@@ -62,7 +62,6 @@ http://beepme.glanznig.com
     <string name="new_sample_replace_img_msg">Do you want to replace the photo?</string>
     <string name="new_sample_replace_img_title">Replace Photo</string>
     <string name="new_sample_save_success">Sample has been recorded.</string>
-    <string name="new_sample_take_photo">Take Photo</string>
     <string name="no">No</string>
     <string name="notify_content">Beeper is active</string>
     <string name="notify_title">BeepMe</string>
@@ -88,7 +87,6 @@ http://beepme.glanznig.com
     <string name="sample_untitled">Untitled</string>
     <string name="samples">Moments</string>
     <string name="samples_list_no_samples">You will find your recorded moments here.</string>
-    <string name="save">Save</string>
     <string name="start_beeper">Start Beeper</string>
     <string name="sdcard_error">SD card not inserted or not writable.</string>
     <string name="time_beeper_active">Elapsed</string>

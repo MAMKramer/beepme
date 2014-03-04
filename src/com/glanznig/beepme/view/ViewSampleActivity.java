@@ -23,11 +23,9 @@ package com.glanznig.beepme.view;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
@@ -39,7 +37,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -49,9 +46,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ViewSampleActivity extends Activity {
 	
