@@ -27,3 +27,11 @@ This app uses a Mersenne Twister implementation by Sean Luke as
 random number generator. The implementation can be distributed and modified
 freely as long as the license information is retained. For further
 information see MersenneTwister.java
+
+The GlowPad implementation was modified by Nadav Fima from Google's AOSP
+and is available under an Apache 2.0 License.
+See http://github.com/nadavfima/GlowPadView
+
+The files drawable/ic_lockscreen_glowdot and
+drawable/ic_lockscreen_handle_pressed are from AOSP in is available under
+an Apache 2.0 License.

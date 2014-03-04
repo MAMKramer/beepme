@@ -24,6 +24,8 @@ import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.fima.glowpadview.GlowPadView;
+import com.fima.glowpadview.GlowPadView.OnTriggerListener;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
@@ -58,9 +60,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
 
-public class BeepActivity extends Activity {
+public class BeepActivity extends Activity implements OnTriggerListener {
 	
 	private static final String TAG = "BeepActivity";
+	
+	private GlowPadView acceptDeclineHandle;
 	
 	private static class TimeoutHandler extends Handler {
 		WeakReference<BeepActivity> beepActivity;
@@ -200,6 +204,10 @@ public class BeepActivity extends Activity {
         
 		setContentView(R.layout.beep);
 		
+		acceptDeclineHandle = (GlowPadView)findViewById(R.id.beep_glowpad);
+		acceptDeclineHandle.setOnTriggerListener(this);
+		//acceptDeclineHandle.setShowTargetsOnIdle(true);
+		
 		handler = new TimeoutHandler(BeepActivity.this);
 		handler.sendEmptyMessageDelayed(1, 60000); // 1 minute timeout for activity
 		
@@ -207,20 +215,6 @@ public class BeepActivity extends Activity {
 		alertManager.startAlert();
 		
 		setVolumeControlStream(AudioManager.STREAM_ALARM);
-		
-		Button accept = (Button)findViewById(R.id.beep_btn_accept);
-		Button decline = (Button)findViewById(R.id.beep_btn_decline);
-		Button decline_pause = (Button)findViewById(R.id.beep_btn_decline_pause);
-		//get display dimensions
-		Display display = getWindowManager().getDefaultDisplay();
-		int width = (display.getWidth() - 40) / 2;
-		decline.setWidth(width);
-		decline_pause.setWidth(width);
-		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(130, 217, 130), Mode.MULTIPLY); // was 96, 191, 96
-		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(217, 130, 130), Mode.MULTIPLY); // was 191, 96, 96
-		accept.getBackground().setColorFilter(green);
-		decline.getBackground().setColorFilter(red);
-		decline_pause.getBackground().setColorFilter(red);
 		
 		SampleTable st = new SampleTable(this.getApplicationContext());
 		int numAccepted = st.getNumAcceptedToday();
@@ -238,7 +232,7 @@ public class BeepActivity extends Activity {
 		beeperActive.setText(String.valueOf(timeActive));
 	}	
 	
-	public void onClickAccept(View view) {
+	public void accept() {
 		if (alertManager != null) {
 			alertManager.stopAlert();
 		}
@@ -252,11 +246,7 @@ public class BeepActivity extends Activity {
 		finish();
 	}
 	
-	public void onClickDecline(View view) {
-		decline();
-	}
-	
-	public void onClickDeclinePause(View view) {
+	public void declinePause() {
 		BeeperApp app = (BeeperApp)getApplication();
 		app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
 		decline();
@@ -276,5 +266,40 @@ public class BeepActivity extends Activity {
 		app.declineTimer();
 		app.setTimer();
 		finish();
+	}
+
+	@Override
+	public void onGrabbed(View v, int handle) {
+	}
+
+	@Override
+	public void onReleased(View v, int handle) {
+		acceptDeclineHandle.ping();
+	}
+
+	@Override
+	public void onTrigger(View v, int target) {
+		final int resId = acceptDeclineHandle.getResourceIdForTarget(target);
+		switch (resId) {
+			case R.drawable.ic_item_accept:
+				accept();
+				break;
+
+			case R.drawable.ic_item_decline:
+				decline();
+				break;
+				
+			case R.drawable.ic_item_beeper_off:
+				declinePause();
+				break;
+		}
+	}
+
+	@Override
+	public void onGrabbedStateChange(View v, int handle) {
+	}
+
+	@Override
+	public void onFinishFinalAnimation() {
 	}
 }

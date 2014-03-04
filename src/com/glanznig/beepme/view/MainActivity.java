@@ -1,5 +1,5 @@
 /*
-This file is part of BeepMe.
+	This file is part of BeepMe.
 
 BeepMe is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -193,6 +193,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	public void onResume() {
 		super.onResume();
 		
+		// make sure the current state is reflected in the options menu
+		invalidateOptionsMenu();
+		
 		//make sure that scheduled beeps do not expire due to an error
 		BeeperApp app = (BeeperApp)getApplication();
 		if (app.isBeeperActive()) {
@@ -239,12 +242,18 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-		BeeperApp app = (BeeperApp)getApplication();
         MenuInflater mi = getMenuInflater();
         mi.inflate(R.menu.main_menu, menu);
         this.actionMenu = menu;
         
-        // hide/show test beep menu entry
+        return super.onCreateOptionsMenu(menu);
+    }
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		BeeperApp app = (BeeperApp)getApplication();
+		
+		// hide/show test beep menu entry
         MenuItem testBeep = menu.findItem(R.id.action_test_beep);
         if (app.getPreferences().isTestMode() && app.isBeeperActive()) {
         	testBeep.setVisible(true);
@@ -261,9 +270,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		else {
 			item.setIcon(R.drawable.ic_menu_beeper_off);
 		}
-        
-        return super.onCreateOptionsMenu(menu);
-    }
+		
+		return true;
+	}
 	
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {

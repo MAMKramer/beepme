@@ -39,9 +39,6 @@ http://beepme.glanznig.com
     <string name="app_copyright">Copyright 2012 Michael Glanznig</string>
     <string name="app_name">BeepMe</string>
     <string name="beep">Was geht in Ihrem Geist vor?</string>
-    <string name="beep_accept">Annehmen</string>
-    <string name="beep_decline">Ablehnen</string>
-    <string name="beep_decline_pause">Ablehnen/Beeper pausieren</string>
     <string name="cancel">Verwerfen</string>
     <string name="data_delete_progress">Lösche Daten...</string>
     <string name="done">Fertig</string>

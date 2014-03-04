@@ -21,8 +21,8 @@ http://beepme.glanznig.com
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.glanznig.beepme"
-    android:versionCode="16"
-    android:versionName="1.4.1"
+    android:versionCode="17"
+    android:versionName="1.5-dev"
     android:installLocation="auto">
 
     <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
