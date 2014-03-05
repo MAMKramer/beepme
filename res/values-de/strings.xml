@@ -80,6 +80,9 @@ http://beepme.glanznig.com
     <string name="sample_description_help">z.B. Stichwörter, Satzfragmente oder Sätze</string>
     <string name="sample_keywords">Beschreiben Sie Ihr Erleben in Stichwörtern</string>
     <string name="sample_keywords_help">wählen Sie oder fügen Sie eigene hinzu, mehrere Werte möglich</string>
+    <string name="sample_swipe_newer">Neuere</string>
+    <string name="sample_swipe_pos">%1$d von %2$d</string>
+    <string name="sample_swipe_older">Ältere</string>
     <string name="sample_title">Titel des Eintrags</string>
     <string name="sample_title_help">z.B. ein Stichwort</string>
     <string name="sample_untitled">Unbenannt</string>

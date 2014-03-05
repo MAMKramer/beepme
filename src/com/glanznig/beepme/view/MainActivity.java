@@ -54,6 +54,7 @@ import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -170,6 +171,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         pager = (ViewPager)findViewById(R.id.main_tab_pager);
         pager.setAdapter(pagerAdapter);
         
+        // set gap between pages
+        pager.setPageMargin((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, this.getResources().getDisplayMetrics()));
+        pager.setPageMarginDrawable(R.drawable.swipe_filler);
+        
         // listening for page changes
         pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
@@ -271,7 +276,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 			item.setIcon(R.drawable.ic_menu_beeper_off);
 		}
 		
-		return true;
+		return super.onPrepareOptionsMenu(menu);
 	}
 	
 	@Override

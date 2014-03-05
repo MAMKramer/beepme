@@ -79,6 +79,9 @@ http://beepme.glanznig.com
     <string name="sample_description_help">e.g. keywords, fragments or full-text</string>
     <string name="sample_keywords">Describe your experience in keywords</string>
     <string name="sample_keywords_help">select or add your own, multiple values possible</string>
+    <string name="sample_swipe_newer">Newer</string>
+    <string name="sample_swipe_pos">%1$d of %2$d</string>
+    <string name="sample_swipe_older">Older</string>
     <string name="sample_title">Title of the Sample</string>
     <string name="sample_title_help">e.g. a keyword</string>
     <string name="sample_untitled">Untitled</string>

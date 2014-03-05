@@ -198,6 +198,26 @@ public class SampleTable extends StorageHandler {
 		return sampleList;
 	}
 	
+	public List<Long> getSampleIds() {
+		SQLiteDatabase db = getDb();
+		List<Long> idList = new ArrayList<Long>();
+		
+		Cursor cursor = db.query(getTableName(), new String[] {"_id"}, "accepted = 1", null, null, null, "timestamp DESC");
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			
+			do {
+				idList.add(cursor.getLong(0));
+			}
+			while (cursor.moveToNext());
+			cursor.close();
+		}
+		db.close();
+		
+		return idList;
+	}
+	
 	public Sample addSample(Sample s) {
 		Sample sCreated = null;
 		
