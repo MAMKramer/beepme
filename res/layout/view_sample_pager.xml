@@ -23,23 +23,17 @@ http://beepme.glanznig.com
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-	<android.support.v4.view.ViewPager
-    	android:id="@+id/view_sample_swipe_pager"
-    	android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-    	android:layout_alignParentTop="true" />
-
 	<LinearLayout
+	    android:id="@+id/sample_swipe_locator"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
-	    android:layout_above="@id/view_sample_swipe_pager"
 	    android:orientation="horizontal"
 	    android:background="@color/bg_darkgray"
-	    android:paddingLeft="15dp"
-	    android:paddingRight="15dp"
-	    android:paddingTop="2dp"
-	    android:paddingBottom="2dp"
+	    android:paddingLeft="16dp"
+	    android:paddingRight="16dp"
+	    android:paddingTop="4dp"
+	    android:paddingBottom="4dp"
 	    android:weightSum="10" >
 	    
 	    <TextView
@@ -49,7 +43,7 @@ http://beepme.glanznig.com
             android:textColor="@color/white"
             android:text="@string/sample_swipe_newer"
             android:gravity="left"
-            android:paddingRight="5dp"
+            android:paddingRight="8dp"
             android:layout_weight="1" />
 	    
 	    <TextView
@@ -67,9 +61,16 @@ http://beepme.glanznig.com
             android:textColor="@color/white"
             android:text="@string/sample_swipe_older"
             android:gravity="right"
-            android:paddingLeft="5dp"
+            android:paddingLeft="8dp"
             android:layout_weight="1" />
 	    
 	</LinearLayout>
+	
+	<android.support.v4.view.ViewPager
+    	android:id="@+id/view_sample_swipe_pager"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:layout_above="@id/sample_swipe_locator"
+    	android:layout_alignParentTop="true" />
 	
 </RelativeLayout>

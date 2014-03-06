@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.view.MainActivity;
 
@@ -99,7 +100,18 @@ public class DataExporter {
 					fileList.add(picFiles[i]);
 				}
 			}
-			fileList.add(ctx.getDatabasePath(StorageHandler.getDatabaseName()));
+			
+			BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+			String dbName = null;
+			
+			if (app.getPreferences().isTestMode()) {
+				dbName = StorageHandler.getTestModeDatabaseName();
+			}
+			else {
+				dbName = StorageHandler.getProductionDatabaseName();
+			}
+			
+			fileList.add(ctx.getDatabasePath(dbName));
 			
 			return zipFiles(exportFile, fileList);
 		}

@@ -38,10 +38,9 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	private final Context context;
 	private final List<SampleListItem> samples;
 	
-	private static final int MAX_TITLE_LENGTH = 60;
-	
 	static class EntryHolder {
 	    public TextView title;
+	    public TextView description;
 	    public TextView timestamp;
 	}
 	
@@ -65,7 +64,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View rowView = null;
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT); 
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
 		SampleListItem item = samples.get(position);
 		
@@ -106,6 +105,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 				EntryHolder holder = new EntryHolder();
 				holder.title = (TextView)rowView.findViewById(R.id.sample_title);
 				holder.timestamp = (TextView)rowView.findViewById(R.id.sample_timestamp);
+				holder.description = (TextView)rowView.findViewById(R.id.sample_description);
 				rowView.setTag(holder);
 			}
 			
@@ -114,16 +114,21 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 			
 			if (entry.getTitle() != null && entry.getTitle().length() > 0) {
 				String entryTitle = entry.getTitle();
-				if (entryTitle.length() > MAX_TITLE_LENGTH) {
-					entryTitle = entryTitle.substring(0, MAX_TITLE_LENGTH) + " ...";
-				}
-				
 				holder.title.setText(entryTitle);
 			}
 			else {
 				holder.title.setText(R.string.sample_untitled);
 			}
-			holder.timestamp.setText(dateTimeFormat.format(entry.getTimestamp()));
+			
+			if (entry.getDescription() != null && entry.getDescription().length() > 0) {
+				String entryDescr = entry.getDescription();
+				holder.description.setText(entryDescr);
+			}
+			else {
+				holder.description.setVisibility(View.GONE);
+			}
+			
+			holder.timestamp.setText(timeFormat.format(entry.getTimestamp()));
 		}
 		
 		return rowView;

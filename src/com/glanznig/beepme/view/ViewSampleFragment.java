@@ -34,6 +34,7 @@ import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
+import com.glanznig.beepme.helper.FlowLayout;
 
 import android.app.ActionBar;
 import android.content.Intent;
@@ -53,14 +54,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
 
 public class ViewSampleFragment extends Fragment {
 	
 	private static final String TAG = "ViewSampleFragment";
 	private long sampleId;
 	
-	private static class ImgLoadHandler extends Handler {
+	/*private static class ImgLoadHandler extends Handler {
 		WeakReference<ViewSampleFragment> viewSampleFragment;
 		
 		ImgLoadHandler(ViewSampleFragment activity) {
@@ -84,7 +88,7 @@ public class ViewSampleFragment extends Fragment {
 	    		}
 	    	}
 	    }
-	};
+	};*/
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
@@ -110,7 +114,7 @@ public class ViewSampleFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		getView().findViewById(R.id.view_sample_image).setVisibility(View.GONE);
+		//getView().findViewById(R.id.view_sample_image).setVisibility(View.GONE);
 		populateFields();
 	}
 	
@@ -126,54 +130,72 @@ public class ViewSampleFragment extends Fragment {
 			TextView title = (TextView)getView().findViewById(R.id.view_sample_title);
 			if (s.getTitle() != null && s.getTitle().length() > 0) {
 				title.setText(s.getTitle());
-				title.setVisibility(View.VISIBLE);
 			}
 			else {
-				title.setVisibility(View.GONE);
+				title.setText(getString(R.string.sample_untitled));
 			}
 			
 			TextView description = (TextView)getView().findViewById(R.id.view_sample_description);
 			if (s.getDescription() != null && s.getDescription().length() > 0) {
+				description.setTextSize(14);
 				description.setText(s.getDescription());
-				getView().findViewById(R.id.view_sample_label_description).setVisibility(View.VISIBLE);
-				description.setVisibility(View.VISIBLE);
 			}
 			else {
-				getView().findViewById(R.id.view_sample_label_description).setVisibility(View.GONE);
-				description.setVisibility(View.GONE);
+				description.setTextSize(12);
+				// not editable any more
+				if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
+					description.setText(getString(R.string.sample_no_description));
+				}
+				else {
+					description.setText(getString(R.string.sample_no_description_editable));
+				}
 			}
 			
-			List<Tag> tags = s.getTags();
 			boolean hasKeywordTags = false;
 			
-			if (tags.size() > 0) {
-				Iterator<Tag> i = tags.iterator();
-				String keywordsOutput = "";
-				while (i.hasNext()) {
-					Tag t = i.next();
-					if (t.getVocabularyId() == 1) {
-						if (keywordsOutput.length() > 0) {
-							keywordsOutput += "   ";
-						}
-						keywordsOutput += t.getName();
-						hasKeywordTags = true;
-					}
+			FlowLayout keywordHolder = (FlowLayout)getView().findViewById(R.id.view_sample_keyword_container);
+			keywordHolder.removeAllViews();
+			
+	    	Iterator<Tag> i = s.getTags().iterator();
+			Tag tag = null;
+			
+			while (i.hasNext()) {
+				tag = i.next();
+				if (tag.getVocabularyId() == 1) {
+					
+					TextView view = new TextView(getView().getContext());
+					view.setText(tag.getName());
+					
+					final float scale = getResources().getDisplayMetrics().density;
+					int textPaddingLeftRight = 6;
+					int textPaddingTopBottom = 2;
+					
+					view.setPadding((int)(textPaddingLeftRight * scale + 0.5f), (int)(textPaddingTopBottom * scale + 0.5f), (int)(textPaddingLeftRight * scale + 0.5f), (int)(textPaddingTopBottom * scale + 0.5f));
+					view.setBackgroundColor(getResources().getColor(R.color.bg_gray));
+					
+					keywordHolder.addView(view);
+					hasKeywordTags = true;
 				}
-				
-				TextView keywordsView = (TextView)getView().findViewById(R.id.view_sample_keywords);
-				keywordsView.setText(keywordsOutput);
 			}
 			
+			TextView noKeywordsView = (TextView)getView().findViewById(R.id.view_sample_no_keywords);
 			if (!hasKeywordTags) {
-				getView().findViewById(R.id.view_sample_keywords).setVisibility(View.GONE);
-				getView().findViewById(R.id.view_sample_label_keywords).setVisibility(View.GONE);
+				keywordHolder.setVisibility(View.GONE);
+				noKeywordsView.setVisibility(View.VISIBLE);
+				// not editable any more
+				if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
+					noKeywordsView.setText(getString(R.string.sample_no_keywords));
+				}
+				else {
+					noKeywordsView.setText(getString(R.string.sample_no_keywords_editable));
+				}
 			}
 			else {
-				getView().findViewById(R.id.view_sample_keywords).setVisibility(View.VISIBLE);
-				getView().findViewById(R.id.view_sample_label_keywords).setVisibility(View.VISIBLE);
+				noKeywordsView.setVisibility(View.GONE);
+				keywordHolder.setVisibility(View.VISIBLE);
 			}
 			
-			if (s.getPhotoUri() != null) {
+			/*if (s.getPhotoUri() != null) {
 				getView().findViewById(R.id.view_sample_image_load).setVisibility(View.VISIBLE);
 			    
 				//get display dimensions
@@ -181,7 +203,7 @@ public class ViewSampleFragment extends Fragment {
 				int imageWidth = display.getWidth() - 20;
 				AsyncImageScaler loader = new AsyncImageScaler(s.getPhotoUri(), imageWidth, new ImgLoadHandler(ViewSampleFragment.this));
 				loader.start();
-			}
+			}*/
 		}
 	}
 	

@@ -39,32 +39,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.PorterDuffColorFilter;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.RelativeLayout.LayoutParams;
 
-public class BeepActivity extends Activity implements OnTriggerListener {
+public class BeepActivity extends Activity {
 	
 	private static final String TAG = "BeepActivity";
 	
 	private GlowPadView acceptDeclineHandle;
+	private GlowPadController glowPadCtrl = new GlowPadController();
 	
 	private static class TimeoutHandler extends Handler {
 		WeakReference<BeepActivity> beepActivity;
@@ -98,6 +90,63 @@ public class BeepActivity extends Activity implements OnTriggerListener {
 	    }
 
 	}
+	
+	// Controller for GlowPadView (thanks to AOSP)
+    private class GlowPadController extends Handler implements OnTriggerListener {
+        private static final int PING_MESSAGE_WHAT = 101;
+        private static final long PING_AUTO_REPEAT_DELAY_MSEC = 1200;
+
+        public void startPinger() {
+            sendEmptyMessage(PING_MESSAGE_WHAT);
+        }
+
+        public void stopPinger() {
+            removeMessages(PING_MESSAGE_WHAT);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            ping();
+            sendEmptyMessageDelayed(PING_MESSAGE_WHAT, PING_AUTO_REPEAT_DELAY_MSEC);
+        }
+
+        @Override
+        public void onGrabbed(View v, int handle) {
+            stopPinger();
+        }
+
+        @Override
+        public void onReleased(View v, int handle) {
+            startPinger();
+
+        }
+
+        @Override
+    	public void onTrigger(View v, int target) {
+    		final int resId = acceptDeclineHandle.getResourceIdForTarget(target);
+    		switch (resId) {
+    			case R.drawable.ic_item_accept:
+    				accept();
+    				break;
+
+    			case R.drawable.ic_item_decline:
+    				decline();
+    				break;
+    				
+    			case R.drawable.ic_item_beeper_off:
+    				declinePause();
+    				break;
+    		}
+    	}
+
+        @Override
+        public void onGrabbedStateChange(View v, int handle) {
+        }
+
+        @Override
+        public void onFinishFinalAnimation() {
+        }
+    }
 	
 	public static final String CANCEL_INTENT = "com.glanznig.beepme.DECLINE_BEEP";
 	
@@ -155,6 +204,18 @@ public class BeepActivity extends Activity implements OnTriggerListener {
 		}
 	}
 	
+	@Override
+    protected void onResume() {
+        super.onResume();
+        glowPadCtrl.startPinger();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        glowPadCtrl.stopPinger();
+    }
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
@@ -204,17 +265,18 @@ public class BeepActivity extends Activity implements OnTriggerListener {
         
 		setContentView(R.layout.beep);
 		
-		acceptDeclineHandle = (GlowPadView)findViewById(R.id.beep_glowpad);
-		acceptDeclineHandle.setOnTriggerListener(this);
-		//acceptDeclineHandle.setShowTargetsOnIdle(true);
-		
-		handler = new TimeoutHandler(BeepActivity.this);
-		handler.sendEmptyMessageDelayed(1, 60000); // 1 minute timeout for activity
-		
 		alertManager = new BeepAlertManager(BeepActivity.this);
 		alertManager.startAlert();
 		
 		setVolumeControlStream(AudioManager.STREAM_ALARM);
+		
+		handler = new TimeoutHandler(BeepActivity.this);
+		handler.sendEmptyMessageDelayed(1, 30000); // 30 sec timeout for activity
+		
+		acceptDeclineHandle = (GlowPadView)findViewById(R.id.beep_glowpad);
+		acceptDeclineHandle.setOnTriggerListener(glowPadCtrl);
+		glowPadCtrl.startPinger();
+		//acceptDeclineHandle.setShowTargetsOnIdle(true);
 		
 		SampleTable st = new SampleTable(this.getApplicationContext());
 		int numAccepted = st.getNumAcceptedToday();
@@ -230,7 +292,11 @@ public class BeepActivity extends Activity implements OnTriggerListener {
 		acceptedToday.setText(String.valueOf(numAccepted));
 		declinedToday.setText(String.valueOf(numDeclined));
 		beeperActive.setText(String.valueOf(timeActive));
-	}	
+	}
+	
+	private void ping() {
+        acceptDeclineHandle.ping();
+    }
 	
 	public void accept() {
 		if (alertManager != null) {
@@ -266,40 +332,5 @@ public class BeepActivity extends Activity implements OnTriggerListener {
 		app.declineTimer();
 		app.setTimer();
 		finish();
-	}
-
-	@Override
-	public void onGrabbed(View v, int handle) {
-	}
-
-	@Override
-	public void onReleased(View v, int handle) {
-		acceptDeclineHandle.ping();
-	}
-
-	@Override
-	public void onTrigger(View v, int target) {
-		final int resId = acceptDeclineHandle.getResourceIdForTarget(target);
-		switch (resId) {
-			case R.drawable.ic_item_accept:
-				accept();
-				break;
-
-			case R.drawable.ic_item_decline:
-				decline();
-				break;
-				
-			case R.drawable.ic_item_beeper_off:
-				declinePause();
-				break;
-		}
-	}
-
-	@Override
-	public void onGrabbedStateChange(View v, int handle) {
-	}
-
-	@Override
-	public void onFinishFinalAnimation() {
 	}
 }

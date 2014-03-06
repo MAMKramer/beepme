@@ -36,7 +36,6 @@ public class Sample {
 	private String photoUri;
 	private ArrayList<Tag> tags;
 	private Long uptimeId;
-	private String presence;
 	
 	public Sample() {
 		id = null;
@@ -47,7 +46,6 @@ public class Sample {
 		photoUri = null;
 		tags = new ArrayList<Tag>();
 		uptimeId = null;
-		presence = null;
 	}
 	
 	public Sample(long id) {
@@ -59,7 +57,6 @@ public class Sample {
 		photoUri = null;
 		tags = new ArrayList<Tag>();
 		uptimeId = null;
-		presence = null;
 	}
 	
 	public long getId() {

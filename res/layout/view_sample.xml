@@ -20,41 +20,55 @@ http://beepme.glanznig.com
 -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:f="http://schemas.android.com/apk/res-auto"
     android:id="@+id/list_sample_content"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
        
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="5dp"
-        android:fillViewport="true"
-        android:orientation="vertical"
-        android:paddingBottom="8dp" >
-
-        <TextView
-            android:id="@+id/view_sample_timestamp"
-            android:layout_width="wrap_content"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:orientation="vertical">
+        
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginTop="5dp"
-            android:text=""
-            android:textSize="17dp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/view_sample_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textSize="17dp"
-            android:textStyle="bold" />
-
-        <ProgressBar
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+	
+	        <TextView
+	            android:id="@+id/view_sample_title"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:gravity="left"
+	            android:layout_gravity="center_vertical"
+	            android:layout_weight="7"
+	            android:textStyle="bold"
+	            android:textSize="16sp" />
+	        
+	        <TextView
+	            android:id="@+id/view_sample_timestamp"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="bottom"
+	            android:gravity="right"
+	            android:layout_weight="3"
+	            android:textSize="12sp" />
+        
+        </LinearLayout>
+        
+        <View 
+		    android:layout_width="fill_parent"
+		    android:layout_height="2dp"
+		    android:background="@color/divider_gray"
+		    android:layout_marginBottom="16dp" />
+        
+        <!-- <ProgressBar
             android:id="@+id/view_sample_image_load"
             style="?android:attr/progressBarStyleSmall"
             android:layout_width="wrap_content"
@@ -69,42 +83,84 @@ http://beepme.glanznig.com
             android:id="@+id/view_sample_image"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
             android:adjustViewBounds="true"
             android:contentDescription="image"
-            android:visibility="gone" />
+            android:visibility="gone" /> -->
+            
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp" >
+	        
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:adjustViewBounds="true"
+                android:gravity="left"
+                android:contentDescription="photo placeholder"
+                android:src="@drawable/ic_photo_placeholder"
+                android:background="@drawable/photo_border"
+                android:padding="48dp" />
+            
+            <LinearLayout
+                android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:gravity="left"
+           		android:layout_gravity="top"
+           		android:layout_weight="1"
+           		android:orientation="vertical"
+           		android:layout_marginLeft="16dp">
+           		
+                <TextView
+		            android:id="@+id/view_sample_label_keywords"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		            android:text="@string/sample_keywords"
+		            android:textStyle="bold"
+		            android:layout_marginBottom="8dp"
+		            android:textSize="16sp" />
+           		
+                <com.glanznig.beepme.helper.FlowLayout
+		            android:id="@+id/view_sample_keyword_container"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            f:horizontalSpacing="4dp"
+		            f:verticalSpacing="4dp" />
+           		
+                <TextView
+		            android:id="@+id/view_sample_no_keywords"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:textSize="12sp"
+		            android:visibility="gone" />
+                
+           	</LinearLayout>
+	        
+		</LinearLayout>
 
         <TextView
             android:id="@+id/view_sample_label_description"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             android:text="@string/sample_description"
-            android:textSize="17dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textSize="16sp" />
+        
+        <View 
+		    android:layout_width="fill_parent"
+		    android:layout_height="1dp"
+		    android:layout_marginTop="4dp"
+		    android:layout_marginBottom="8dp"
+		    android:background="@color/divider_gray" />
 
         <TextView
             android:id="@+id/view_sample_description"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="17dp" />
-        
-        <TextView
-            android:id="@+id/view_sample_label_keywords"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/sample_keywords"
-            android:textSize="17dp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/view_sample_keywords"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:lineSpacingExtra="5dp"
-            android:textSize="17dp" />
+            android:textSize="16sp" />
         
     </LinearLayout>
 

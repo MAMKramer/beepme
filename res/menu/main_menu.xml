@@ -36,9 +36,9 @@ http://beepme.glanznig.com
   <item android:id="@+id/action_settings"
       android:icon="@drawable/ic_action_settings"
       android:title="@string/action_settings"
-      android:showAsAction="ifRoom" />
+      android:showAsAction="never" />
   <item android:id="@+id/action_about"
       android:icon="@drawable/ic_action_about"
       android:title="@string/action_about"
-      android:showAsAction="ifRoom" />
+      android:showAsAction="never" />
 </menu>

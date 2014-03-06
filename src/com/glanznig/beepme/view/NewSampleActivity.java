@@ -97,7 +97,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 						}
 					}
 					else {
-						View progressBar = newSampleActivity.get().findViewById(R.id.view_sample_image_load);
+						View progressBar = newSampleActivity.get().findViewById(R.id.new_sample_image_load);
 						if (progressBar != null) {
 							progressBar.setVisibility(View.GONE);
 						}
@@ -124,10 +124,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
         // Show the custom action bar view and hide the normal Home icon and title.
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        actionBar.setCustomView(customActionBarView,
-                new ActionBar.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
+        actionBar.setCustomView(customActionBarView);
         
         setContentView(R.layout.new_sample);
         SampleTable st = new SampleTable(this.getApplicationContext());
@@ -305,7 +302,8 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	}
 	
 	public void onClickDone(View view) {
-		Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
+		//Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
+		saveSample();
 		finish();
 	}
 	
@@ -420,7 +418,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 
 	@Override
 	public void onClick(View v) {
-		if (v.getParent() instanceof TagButtonRow) {
+		if (v.getParent() instanceof TagButtonContainer) {
 			onClickRemoveTag(v);
 		}
 	}

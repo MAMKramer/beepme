@@ -262,7 +262,7 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		if (v.getParent() instanceof TagButtonRow) {
+		if (v.getParent() instanceof TagButtonContainer) {
 			onClickRemoveTag(v);
 		}
 	}

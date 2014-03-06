@@ -71,7 +71,10 @@ public class ViewSamplePagerAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
 		long sampleId = items.get(position);
 		Sample s = new SampleTable(context.getApplicationContext()).getSample(sampleId);
-		return s.getTitle();
+		if (s.getTitle() != null && s.getTitle().length() > 0) {
+			return s.getTitle();
+		}
+		return context.getString(R.string.sample_untitled);
     }
 
 }

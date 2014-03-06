@@ -20,38 +20,37 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import com.glanznig.beepme.helper.FlowLayout;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.LinearLayout;
 
-public class TagButtonContainer extends LinearLayout {
+public class TagButtonContainer extends FlowLayout {
 	
-	private static final String TAG = "TagButtonContainer";
-	private static final int MARGIN = 1;
-	private static final int BTN_HEIGHT = 40;
+	private static final String TAG = "TagViewContainer";
 	
-	private final float scale = getResources().getDisplayMetrics().density;
-	private int lastTagId = 0;
 	private long vocabularyId = 0L;
+	private ArrayList<String> tags = null;
 	
 	public TagButtonContainer(Context ctx) {
 		super(ctx);
-		this.setOrientation(LinearLayout.VERTICAL);
+		tags = new ArrayList<String>();
 	}
 
 	public TagButtonContainer(Context ctx, long vocabularyId) {
 		super(ctx);
-		this.setOrientation(LinearLayout.VERTICAL);
 		this.vocabularyId = vocabularyId;
+		tags = new ArrayList<String>();
 	}
 	
 	public TagButtonContainer(Context ctx, AttributeSet attrs) {
 		super(ctx, attrs);
-		this.setOrientation(LinearLayout.VERTICAL);
+		tags = new ArrayList<String>();
 	}
 	
 	public void setVocabularyId(long vocabulary) {
@@ -67,127 +66,35 @@ public class TagButtonContainer extends LinearLayout {
 	}
 	
 	public void addTagButton(String name, OnClickListener listener) {
-		TagButton btn = new TagButton(vocabularyId, this.getContext());
-		lastTagId += 1;
-		btn.setId(lastTagId);
-		btn.setText(name);
-		LinearLayout.LayoutParams btnLayout = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, (int)(BTN_HEIGHT * scale + 0.5f));
-		btnLayout.setMargins((int)(MARGIN * scale + 0.5f), 0, (int)(MARGIN * scale + 0.5f), 0);
-		btn.setLayoutParams(btnLayout);
-		if (listener != null) {
-			btn.setOnClickListener(listener);
-		}
 		
-		int numRows = this.getChildCount();
-		
-		if (numRows > 0) {
-			List<TagButton> removedBtns = null;
-			boolean inserted = false;
-			for (int i = 0; i < numRows; i++) {
-				TagButtonRow row = (TagButtonRow)this.getChildAt(i);
-				
-				if (removedBtns != null && removedBtns.size() > 0) {
-					removedBtns = row.addTagButtons(removedBtns);
-				}
-				
-				if (!inserted) {
-					String first = row.getFirstLabel();
-					String last = row.getLastLabel();
-					
-					// if buttons in row
-					if (first != null && last != null) {
-						// insert in between OR at beginning 
-						if ((name.compareToIgnoreCase(first) > 0 && name.compareToIgnoreCase(last) < 0)
-								|| name.compareToIgnoreCase(first) < 0) {
-							removedBtns = row.addTagButton(btn);
-							inserted = true;
-						}
-						
-						// insert at the end (if enough space), otherwise add new row
-						if ((name.compareToIgnoreCase(last) > 0 && this.getChildAt(i + 1) == null)) {
-							if (row.hasSpace(btn)) {
-								removedBtns = row.addTagButton(btn);
-								inserted = true;
-							}
-							else {
-								TagButtonRow newRow = new TagButtonRow(this.getContext());
-								this.addView(newRow);
-								newRow.addTagButton(btn);
-								inserted = true;
-							}
-						}
-					}
-					// no buttons in row
-					else {
-						removedBtns = row.addTagButton(btn);
-						inserted = true;
-					}
-				}
+		// each tag can only added once
+		if (!tags.contains(name)) {
+			TagButton button = null;
+			
+			button = new TagButton(vocabularyId, getContext());
+			button.setText(name);
+			
+			if (listener != null) {
+				button.setOnClickListener(listener);
 			}
 			
-			while (removedBtns != null && removedBtns.size() > 0) {
-				TagButtonRow row = new TagButtonRow(this.getContext());
-				this.addView(row);
-				removedBtns = row.addTagButtons(removedBtns);
-			}
-		}
-		else {
-			TagButtonRow row = new TagButtonRow(this.getContext());
-			this.addView(row);
-			row.addTagButton(btn);
+			
+			//maintain sorting
+			Comparator<String> compare = new Comparator<String>() {
+		      public int compare(String s1, String s2) {
+		        return s1.compareTo(s2);
+		      }
+		    };
+			
+			int pos = Collections.binarySearch(tags, name, compare);
+			tags.add(-pos - 1, name);
+			addView(button, -pos - 1);
 		}
 	}
 	
-	public void removeTagButton(TagButton btn) {
-		int numRows = this.getChildCount();
-		String name = btn.getText().toString();
-		boolean deleted = false;
-		
-		for (int i = 0; i < numRows; i++) {
-			TagButtonRow row = (TagButtonRow)this.getChildAt(i);
-			
-			//button is located in this row
-			if (!deleted && name.compareToIgnoreCase(row.getLastLabel()) <= 0) {
-				row.removeTagButton(btn);
-				deleted = true;
-			}
-			
-			if (deleted) {
-				if ((i - 1) >= 0) {
-					TagButtonRow prevRow = (TagButtonRow)this.getChildAt(i - 1);
-					TagButton b = (TagButton)row.getChildAt(0);
-					
-					while (b != null && prevRow.hasSpace(b)) {
-						row.removeTagButton(b);
-						prevRow.addTagButton(b);
-						b = (TagButton)row.getChildAt(0);
-					}
-				}
-				if (this.getChildAt(i + 1) != null) {
-					TagButtonRow nextRow = (TagButtonRow)this.getChildAt(i + 1);
-					TagButton b = (TagButton)nextRow.getChildAt(0);
-					
-					while (b != null && row.hasSpace(b)) {
-						nextRow.removeTagButton(b);
-						row.addTagButton(b);
-						b = (TagButton)nextRow.getChildAt(0);
-					}
-					
-					if (nextRow != null && nextRow.getChildCount() == 0) {
-						this.removeView(nextRow);
-						numRows--;
-					}
-				}
-			}
-		}
-		
-		// delete empty rows
-		for (int i = 0; i < numRows; i++) {
-			TagButtonRow row = (TagButtonRow)this.getChildAt(i);
-			
-			if (row != null && row.getChildCount() == 0) {
-				this.removeView(row);
-			}
-		}
+	public void removeTagButton(TagButton button) {
+		String name = button.getText().toString();
+		tags.remove(name);
+		removeView(button);
 	}
 }

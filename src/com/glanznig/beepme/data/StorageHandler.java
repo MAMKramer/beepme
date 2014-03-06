@@ -20,6 +20,8 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.data;
 
+import com.glanznig.beepme.BeeperApp;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,11 +34,10 @@ public class StorageHandler {
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		
-		protected static final String DB_NAME = "beepme";
 		protected static final int DB_VERSION = 19;
 		
-		public DatabaseHelper(Context ctx) {
-			super(ctx, DB_NAME, null, DB_VERSION);
+		public DatabaseHelper(Context ctx, String dbName) {
+			super(ctx, dbName, null, DB_VERSION);
 		} 
 
 		@Override
@@ -208,35 +209,65 @@ public class StorageHandler {
 			dropTables(this.getWritableDatabase());
 			onCreate(this.getWritableDatabase());
 		}
-		
-		public static String getDbName() {
-			return DB_NAME;
-		}
 	}
 	
-	private static DatabaseHelper dbHelper = null;
+	private static DatabaseHelper dbHelperProduction = null;
+	private static DatabaseHelper dbHelperTestMode = null;
 	private Context ctx = null;
+	protected static final String DB_NAME_PRODUCTION = "beepme";
+	protected static final String DB_NAME_TESTMODE = "beepme_testmode";
 	
 	public StorageHandler(Context ctx) {
 		this.ctx = ctx;
-		if (dbHelper == null) {
-			dbHelper = new DatabaseHelper(ctx.getApplicationContext());
+		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		
+		if (app.getPreferences().isTestMode()) {
+			if (dbHelperTestMode == null) {
+				dbHelperTestMode = new DatabaseHelper(ctx.getApplicationContext(), DB_NAME_TESTMODE);
+			}
+		}
+		else {
+			if (dbHelperProduction == null) {
+				dbHelperProduction = new DatabaseHelper(ctx.getApplicationContext(), DB_NAME_PRODUCTION);
+			}
 		}
 	}
 	
 	public SQLiteDatabase getDb() {
-		return dbHelper.getWritableDatabase();
+		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		if (app.getPreferences().isTestMode()) {
+			return dbHelperTestMode.getWritableDatabase();
+		}
+		return dbHelperProduction.getWritableDatabase();
 	}
 	
 	public void truncateTables() {
-		dbHelper.truncateTables();
+		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		if (app.getPreferences().isTestMode()) {
+			dbHelperTestMode.truncateTables();
+		}
+		else {
+			dbHelperProduction.truncateTables();
+		}
 	}
 	
 	public Context getContext() {
 		return ctx;
 	}
 	
-	public static String getDatabaseName() {
-		return DatabaseHelper.getDbName();
+	public String getDatabaseName() {
+		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		if (app.getPreferences().isTestMode()) {
+			return DB_NAME_TESTMODE;
+		}
+		return DB_NAME_PRODUCTION;
+	}
+	
+	public static String getProductionDatabaseName() {
+		return DB_NAME_PRODUCTION;
+	}
+	
+	public static String getTestModeDatabaseName() {
+		return DB_NAME_TESTMODE;
 	}
 }
