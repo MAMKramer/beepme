@@ -81,7 +81,7 @@ http://beepme.glanznig.com
 	    android:layout_alignParentTop="true"
 	    android:layout_above="@id/samples_list_stats_today"
 	    android:layout_marginLeft="16dp"
-	    android:layout_marginRight="16dp"
+	    android:layout_marginRight="8dp"
 	    android:orientation="vertical">
     
 	    <ListView
@@ -89,7 +89,9 @@ http://beepme.glanznig.com
 	        android:layout_width="fill_parent"
 	        android:layout_height="fill_parent"
 	        android:layout_alignParentLeft="true"
-	        android:layout_alignParentTop="true" />
+	        android:layout_alignParentTop="true"
+	        android:scrollbarStyle="outsideInset"
+	        android:fastScrollEnabled="true" />
 	
 	  	<TextView
 	  	    android:id="@+id/android:empty"

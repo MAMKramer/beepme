@@ -62,7 +62,7 @@ import android.widget.LinearLayout.LayoutParams;
 public class ViewSampleFragment extends Fragment {
 	
 	private static final String TAG = "ViewSampleFragment";
-	private long sampleId;
+	private long sampleId = 0L;
 	
 	/*private static class ImgLoadHandler extends Handler {
 		WeakReference<ViewSampleFragment> viewSampleFragment;
@@ -95,18 +95,8 @@ public class ViewSampleFragment extends Fragment {
         super.onCreate(savedState);
         
         View rootView = inflater.inflate(R.layout.view_sample, container, false);
-        
-        sampleId = 0L;
-		
-		if (savedState != null) {
-			if (savedState.getLong("sampleId") != 0L) {
-				sampleId = savedState.getLong("sampleId");
-			}
-		}
-		else {
-			Bundle args = getArguments();
-			sampleId = args.getLong("sampleId");
-		}
+        Bundle args = getArguments();
+		sampleId = args.getLong("sampleId");
         
         return rootView;
 	}
@@ -171,7 +161,7 @@ public class ViewSampleFragment extends Fragment {
 					int textPaddingTopBottom = 2;
 					
 					view.setPadding((int)(textPaddingLeftRight * scale + 0.5f), (int)(textPaddingTopBottom * scale + 0.5f), (int)(textPaddingLeftRight * scale + 0.5f), (int)(textPaddingTopBottom * scale + 0.5f));
-					view.setBackgroundColor(getResources().getColor(R.color.bg_gray));
+					view.setBackgroundColor(getResources().getColor(R.color.bg_keyword));
 					
 					keywordHolder.addView(view);
 					hasKeywordTags = true;
@@ -205,10 +195,5 @@ public class ViewSampleFragment extends Fragment {
 				loader.start();
 			}*/
 		}
-	}
-	
-	@Override
-	public void onSaveInstanceState(Bundle savedState) {
-		savedState.putLong("sampleId", sampleId);
 	}
 }

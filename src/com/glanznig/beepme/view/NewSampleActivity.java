@@ -23,7 +23,6 @@ package com.glanznig.beepme.view;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -52,7 +51,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;

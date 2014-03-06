@@ -26,6 +26,7 @@ http://beepme.glanznig.com
     <item name="list_light" type="color">#808080</item>
     <item name="divider_gray" type="color">#dddddd</item>
     <item name="bg_darkgray" type="color">#808080</item>
-    <item name="bg_gray" type="color">#fff3f3f3</item>
-    <drawable name="swipe_filler">#fff3f3f3</drawable>
+    <item name="bg_keyword" type="color">#d0d0d0</item>
+    <item name="bg_gray" type="color">#f3f3f3</item>
+    <drawable name="swipe_filler">#f3f3f3</drawable>
 </resources>

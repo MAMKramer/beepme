@@ -28,6 +28,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.glanznig.beepme.BeeperApp;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -106,9 +108,20 @@ public class ImageHelper {
 	}
 	
 	public Intent getIntent(Date timestamp) {
-		//external storage is ready and writable - can be used
+		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		
+		// external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			File picDir = ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+			
+			// add a sub directory depending on whether we are in test mode 
+			if (!app.getPreferences().isTestMode()) {
+				picDir = new File(picDir.getAbsolutePath() + File.separator + "normal");
+			}
+			else {
+				picDir = new File(picDir.getAbsolutePath() + File.separator + "testmode");
+			}
+			
 			String picFilename = PICTURE_PREFIX + new SimpleDateFormat("yyyyMMddHHmmss").format(timestamp) + ".jpg";
 			File pictureFile = new File(picDir, picFilename);
 			try {

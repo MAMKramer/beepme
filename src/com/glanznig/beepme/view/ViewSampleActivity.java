@@ -44,14 +44,12 @@ public class ViewSampleActivity extends FragmentActivity {
 	private static final String TAG = "ViewSampleActivity";
 	private ViewSamplePagerAdapter pagerAdapter = null;
 	private ViewPager pager = null;
-	private int position;
+	private long sampleId = 0L;
 	
 	@Override
 	public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         setContentView(R.layout.view_sample_pager);
-        
-        position = 0;
         
         pagerAdapter = new ViewSamplePagerAdapter(getSupportFragmentManager(), this);
         pager = (ViewPager)findViewById(R.id.view_sample_swipe_pager);
@@ -67,6 +65,7 @@ public class ViewSampleActivity extends FragmentActivity {
             public void onPageSelected(int position) {
             	invalidateOptionsMenu();
                 getActionBar().setTitle(pagerAdapter.getPageTitle(position));
+                sampleId = pagerAdapter.getSampleId(position);
                 
                 TextView pos = (TextView)findViewById(R.id.sample_swipe_pos);
                 pos.setText(String.format(getString(R.string.sample_swipe_pos), position + 1, pagerAdapter.getCount()));
@@ -76,15 +75,14 @@ public class ViewSampleActivity extends FragmentActivity {
         listener.onPageSelected(0); // due to a bug in listener implementation
         
         if (savedState != null) {
-        	if (savedState.getLong("position") != 0L) {
-        		position = savedState.getInt("position");
+        	if (savedState.getLong("sampleId") != 0) {
+        		sampleId = savedState.getLong("sampleId");
         	}
         }
         else {
         	Bundle b = getIntent().getExtras();
         	if (b != null) {
-        		long sampleId = b.getLong(getApplication().getClass().getPackage().getName() + ".SampleId");
-        		position = pagerAdapter.getPosition(sampleId);
+        		sampleId = b.getLong(getApplication().getClass().getPackage().getName() + ".SampleId");
         	}
         }
 	}
@@ -93,12 +91,12 @@ public class ViewSampleActivity extends FragmentActivity {
 	public void onResume() {
 		super.onResume();
 		
-		if (position >= 0) {
-			pager.setCurrentItem(position);
+		if (sampleId != 0L) {
+			pager.setCurrentItem(pagerAdapter.getPosition(sampleId));
 		}
 		
 		TextView pos = (TextView)findViewById(R.id.sample_swipe_pos);
-		pos.setText(String.format(getString(R.string.sample_swipe_pos), position + 1, pagerAdapter.getCount()));
+		pos.setText(String.format(getString(R.string.sample_swipe_pos), pagerAdapter.getPosition(sampleId) + 1, pagerAdapter.getCount()));
 	}
 	
 	@Override
@@ -140,6 +138,6 @@ public class ViewSampleActivity extends FragmentActivity {
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
-		savedState.putLong("position", position);
+		savedState.putLong("sampleId", sampleId);
 	}
 }

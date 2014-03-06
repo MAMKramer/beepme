@@ -255,6 +255,7 @@ public class BeepActivity extends Activity {
 		registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
 		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);

@@ -48,9 +48,16 @@ import android.widget.TextView;
 public class ListSamplesFragment extends ListFragment {
 	
 	private static final String TAG = "ListSamplesFragment";
+	private int position = 0;
 	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+		if (savedState != null) {
+        	if (savedState.getInt("position") != 0) {
+        		position = savedState.getInt("position");
+        	}
+        }
+		
         View rootView = inflater.inflate(R.layout.samples_list, container, false);
         return rootView;
     }
@@ -60,6 +67,13 @@ public class ListSamplesFragment extends ListFragment {
 		super.onResume();
 		populateList();
 		updateStats();
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		// save list position
+		position = ((ListView)getView().findViewById(android.R.id.list)).getFirstVisiblePosition();
 	}
 	
 	private void populateList() {
@@ -79,6 +93,9 @@ public class ListSamplesFragment extends ListFragment {
 		
         SampleListAdapter samples = new SampleListAdapter(getActivity(), viewList);
         setListAdapter(samples);
+        
+        ListView list = (ListView)getView().findViewById(android.R.id.list);
+        list.setSelectionFromTop(position, 0);
 	}
 	
 	private void updateStats() {
@@ -107,6 +124,11 @@ public class ListSamplesFragment extends ListFragment {
 		Intent i = new Intent(getActivity(), ViewSampleActivity.class);
 		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", s.getId());
 		startActivity(i);
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle savedState) {
+		savedState.putInt("position", position);
 	}
 
 }
