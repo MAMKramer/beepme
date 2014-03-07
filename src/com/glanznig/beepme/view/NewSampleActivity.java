@@ -78,7 +78,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			newSampleActivity = new WeakReference<NewSampleActivity>(activity);
 		}
 		
-	    @Override
+	    /*@Override
 	    public void handleMessage(Message msg) {
 	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
@@ -102,7 +102,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 					}
 	    		}
 	    	}
-	    }
+	    }*/
 	}
 	
 	@Override
@@ -127,13 +127,13 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
         setContentView(R.layout.new_sample);
         SampleTable st = new SampleTable(this.getApplicationContext());
         
-        ((ImageView)findViewById(R.id.new_sample_thumb)).setOnLongClickListener(new View.OnLongClickListener() {
+        /*((ImageView)findViewById(R.id.new_sample_thumb)).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 NewSampleActivity.this.onLongClickChangeThumb(view);
                 return true;
             }
-        });
+        });*/
 		
 		if (savedState != null) {
 			if (savedState.getLong("sampleId") != 0L) {
@@ -220,15 +220,16 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	private void populateFields() {
 		//check if device has camera feature
 		if (!img.isEnabled()) {
-			findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+			//findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+			findViewById(R.id.new_sample_photoview).setVisibility(View.GONE);
 		}
         
     	setTitle(R.string.new_sample);
     	
-    	if (img.getImageUri() != null) {
+    	/*if (img.getImageUri() != null) {
     		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
 			findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
-    	}
+    	}*/
         
         if (sample.getTimestamp() != null) {
         	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);
@@ -331,11 +332,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		app.setTimer();
 	}
 	
-	public void onClickCancel(View view) {
-		finish();
-	}
-	
-	public void onLongClickChangeThumb(View view) {
+	/*public void onLongClickChangeThumb(View view) {
 		AlertDialog.Builder replaceImgBuilder = new AlertDialog.Builder(NewSampleActivity.this);
 		//replaceImgBuilder.setIcon(icon);
         replaceImgBuilder.setTitle(R.string.new_sample_replace_img_title);
@@ -351,7 +348,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
         replaceImgBuilder.setNegativeButton(R.string.no, null);
         
         replaceImgBuilder.create().show();
-	}
+	}*/
 	
 	public void onClickTakePhoto(View view) {
 		takePhoto();
@@ -364,7 +361,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		}
 	}
 	
-	@Override
+	/*@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == ImageHelper.TAKE_PICTURE) {
 			if (resultCode == Activity.RESULT_OK) {
@@ -380,7 +377,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 				findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
 			}
 		}
-	}
+	}*/
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
@@ -459,35 +456,4 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		imgScalingRunning = false;
 		startThumbnailLoading();
 	}
-	
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater mi = getMenuInflater();
-        mi.inflate(R.menu.new_sample, menu);
-        
-        //check if device has camera feature
-        MenuItem photoItem = menu.findItem(R.id.action_take_photo);
-        if (!img.isEnabled()) {
-        	photoItem.setVisible(false);
-        }
-        else {
-        	photoItem.setVisible(true);
-        }
-        
-        return super.onCreateOptionsMenu(menu);
-    }
-	
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        	case R.id.action_take_photo:
-        		Intent imgIntent = img.getIntent(sample.getTimestamp());
-        		if (imgIntent != null) {
-        			startActivityForResult(imgIntent, ImageHelper.TAKE_PICTURE);
-        		}
-        		
-        		return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

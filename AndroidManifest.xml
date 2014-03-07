@@ -69,11 +69,17 @@ http://beepme.glanznig.com
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.MainActivity" />
 	    </activity>
 	    
-	    <activity android:name=".view.NewSampleActivity" android:label="@string/new_sample" android:windowSoftInputMode="adjustResize">
+	    <activity
+	        android:name=".view.NewSampleActivity"
+	        android:label="@string/new_sample"
+	        android:windowSoftInputMode="stateUnchanged|adjustResize">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.MainActivity" />
 	    </activity>
 	    
-	    <activity android:name=".view.EditSampleActivity" android:label="@string/edit_sample" android:windowSoftInputMode="adjustResize">
+	    <activity
+	        android:name=".view.EditSampleActivity"
+	        android:label="@string/edit_sample"
+	        android:windowSoftInputMode="stateUnchanged|adjustResize">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.ViewSampleActivity" />
 	    </activity>
 	    

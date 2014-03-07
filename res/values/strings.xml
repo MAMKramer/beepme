@@ -34,6 +34,8 @@ http://beepme.glanznig.com
     <string name="action_export">Export Data</string>
     <string name="action_settings">Settings</string>
     <string name="action_take_photo">Take Photo</string>
+    <string name="action_change_photo">Change Photo</string>
+    <string name="action_delete_photo">Delete Photo</string>
     <string name="action_test_beep">Generate Beep</string>
     <string name="add">Add</string>
     <string name="app_name">BeepMe</string>
@@ -53,8 +55,9 @@ http://beepme.glanznig.com
     <string name="main_menu_samples_list">View Samples</string>
     <string name="new_sample">New Sample</string>
     <string name="new_sample_add_tag_error">Keyword has already been added.</string>
-    <string name="new_sample_back_warning_msg">The sample is saved with the current values. Do you want to go back?</string>
-    <string name="new_sample_back_warning_title">Sample is saved</string>
+    <string name="new_sample_back_warning_msg">Please take some time to enter the details of your moment.\n\nIf you leave here your moment is saved as it is now. You can edit it later.</string>
+    <string name="new_sample_back_warning_title">Leave now?</string>
+    <string name="new_sample_moment">New moment</string>
     <string name="new_sample_replace_img_delete">Photo has been deleted.</string>
     <string name="new_sample_replace_img_msg">Do you want to replace the photo?</string>
     <string name="new_sample_replace_img_title">Replace Photo</string>
@@ -64,6 +67,8 @@ http://beepme.glanznig.com
     <string name="notify_title">BeepMe</string>
     <string name="notify_title_testmode">BeepMe (Test Mode)</string>
     <string name="pause_beeper">Pause Beeper</string>
+    <string name="photo_delete_warning_title">Delete Photo</string>
+    <string name="photo_delete_warning_msg">This cannot be undone. Really delete the photo?</string>
     <string name="pref_summary_pause_beeper_during_call">Pause beeper during phone call.</string>
     <string name="pref_title_pause_beeper_during_call">Pause during call</string>
     <string name="pref_summary_test_mode">Helps to discover BeepMe. Data entered in this mode is stored separately.</string>
@@ -74,9 +79,10 @@ http://beepme.glanznig.com
     <string name="pref_title_vibrate_beep">Vibrate at beep</string>
     <string name="refresh">Refresh</string>
     <string name="sample_description">How was your moment like?</string>
-    <string name="sample_description_help">e.g. keywords, fragments or full-text</string>
+    <string name="sample_description_help">e.g. describe in fragments or full-text</string>
+    <string name="sample_keyword">Keyword</string>
     <string name="sample_keywords">Keywords</string>
-    <string name="sample_keywords_help">select or add your own, multiple values possible</string>
+    <string name="sample_keywords_help">enter or select open keywords</string>
     <string name="sample_no_description_editable">No description for this moment yet.</string>
     <string name="sample_no_description">No description for this moment.</string>
     <string name="sample_no_keywords_editable">No keywords for this moment yet.</string>
@@ -84,8 +90,8 @@ http://beepme.glanznig.com
     <string name="sample_swipe_newer">Newer</string>
     <string name="sample_swipe_pos">%1$d of %2$d</string>
     <string name="sample_swipe_older">Older</string>
-    <string name="sample_title">Title of the Sample</string>
-    <string name="sample_title_help">e.g. a keyword</string>
+    <string name="sample_title">Title of moment</string>
+    <string name="sample_title_help">e.g. summarizing keyword</string>
     <string name="sample_untitled">Untitled</string>
     <string name="samples">Moments</string>
     <string name="samples_list_no_samples">You will find your recorded moments here.</string>

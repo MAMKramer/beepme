@@ -20,6 +20,7 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,25 +31,31 @@ import com.glanznig.beepme.TagAutocompleteAdapter;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
+import com.glanznig.beepme.helper.SamplePhotoView;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class EditSampleActivity extends Activity implements OnClickListener {
+public class EditSampleActivity extends Activity implements OnClickListener, PopupMenu.OnMenuItemClickListener {
 	
 	private static final String TAG = "EditSampleActivity";
 	
 	private Sample sample = new Sample();
+	private SamplePhotoView photoView;
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -134,7 +141,15 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 	}
 	
 	private void populateFields() {
-		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+		//findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+		photoView = (SamplePhotoView)findViewById(R.id.new_sample_photoview);
+		photoView.setRights(false, true);
+		photoView.setOnMenuItemClickListener(this);
+		photoView.setPhoto(sample.getPhotoUri());
+		
+		if (!photoView.isPhotoSet()) {
+			photoView.setVisibility(View.GONE);
+		}
         
         if (sample.getTimestamp() != null) {
         	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);
@@ -142,9 +157,15 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 			timestamp.setText(dateFormat.format(sample.getTimestamp()));
         }
 		
-        if (sample.getTitle() != null) {
+        TextView titleHead = (TextView)findViewById(R.id.new_sample_show_title);
+        if (sample.getTitle() != null && sample.getTitle().length() > 0) {
         	EditText titleWidget = (EditText)findViewById(R.id.new_sample_title);
         	titleWidget.setText(sample.getTitle());
+        	
+        	titleHead.setText(sample.getTitle());
+        }
+        else {
+        	titleHead.setText(R.string.sample_untitled);
         }
 		
         if (sample.getDescription() != null) {
@@ -152,7 +173,7 @@ public class EditSampleActivity extends Activity implements OnClickListener {
         	descriptionWidget.setText(sample.getDescription());
         }
         
-        AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_keyword);
+        final AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_keyword);
         TagAutocompleteAdapter adapterKeyword = new TagAutocompleteAdapter(EditSampleActivity.this, R.layout.tag_autocomplete_list_row, 1);
     	autocompleteTags.setAdapter(adapterKeyword);
     	//after how many chars should auto-complete list appear?
@@ -265,5 +286,38 @@ public class EditSampleActivity extends Activity implements OnClickListener {
 		if (v.getParent() instanceof TagButtonContainer) {
 			onClickRemoveTag(v);
 		}
+	}
+	
+	@Override
+	public boolean onMenuItemClick(MenuItem item) {
+		if (item.getItemId() == R.id.action_delete_photo) {
+			AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(EditSampleActivity.this);
+	        deleteBuilder.setTitle(R.string.photo_delete_warning_title);
+	        deleteBuilder.setMessage(R.string.photo_delete_warning_msg);
+	        deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	            	long sampleId = sample.getId();
+	            	File photoFile = new File(sample.getPhotoUri());
+	            	SampleTable st = new SampleTable(getApplicationContext());
+	            	
+	            	// start with fresh sample to prevent other fields from being affected
+	            	Sample s = st.getSample(sampleId);
+	            	s.setPhotoUri(null);
+	            	// save immediately to prevent orphan uris when leaving with dismiss
+	            	st.editSample(sample);
+	            	
+	            	// delete photo on storage
+	            	photoFile.delete();
+	            	
+	            	photoView.unsetPhoto();
+	            }
+	        });
+	        deleteBuilder.setNegativeButton(R.string.no, null);
+	        deleteBuilder.create().show();
+			
+			return true;
+		}
+		
+		return false;
 	}
 }

@@ -34,4 +34,10 @@ http://beepme.glanznig.com
         <attr name="layout_horizontalSpacing" format="dimension"/>
         <attr name="layout_verticalSpacing" format="dimension"/>
     </declare-styleable>
+    
+    <declare-styleable name="SamplePhotoView">
+        <attr name="placeholder" format="reference"/>
+        <attr name="imgWidth" format="dimension"/>
+        <attr name="imgHeight" format="dimension"/>
+    </declare-styleable>
 </resources>

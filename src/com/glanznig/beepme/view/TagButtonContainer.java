@@ -29,11 +29,13 @@ import com.glanznig.beepme.helper.FlowLayout;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ViewGroup;
 
 public class TagButtonContainer extends FlowLayout {
 	
 	private static final String TAG = "TagViewContainer";
 	
+	private final float scale = getResources().getDisplayMetrics().density;
 	private long vocabularyId = 0L;
 	private ArrayList<String> tags = null;
 	
@@ -73,6 +75,7 @@ public class TagButtonContainer extends FlowLayout {
 			
 			button = new TagButton(vocabularyId, getContext());
 			button.setText(name);
+			button.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(40 * scale + 0.5f)));
 			
 			if (listener != null) {
 				button.setOnClickListener(listener);

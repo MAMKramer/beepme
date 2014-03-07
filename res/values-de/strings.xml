@@ -33,7 +33,9 @@ http://beepme.glanznig.com
     <string name="action_edit_sample">Eintrag ändern</string>
     <string name="action_export">Daten exportieren</string>
     <string name="action_settings">Einstellungen</string>
-    <string name="action_take_photo">Foto machen</string>
+    <string name="action_take_photo">Foto aufnehmen</string>
+    <string name="action_change_photo">Foto ändern</string>
+    <string name="action_delete_photo">Foto löschen</string>
     <string name="action_test_beep">Alarm generieren</string>
     <string name="add">Hinzufügen</string>
     <string name="app_copyright">Copyright 2012 Michael Glanznig</string>
@@ -54,8 +56,9 @@ http://beepme.glanznig.com
     <string name="main_menu_samples_list">Einträge ansehen</string>
     <string name="new_sample">Neues Sample</string>
     <string name="new_sample_add_tag_error">Stichwort ist bereits vorhanden.</string>
-    <string name="new_sample_back_warning_msg">Der Eintrag wird mit den eingetragenen Werten gespeichert. Wollen Sie zurück gehen?</string>
-    <string name="new_sample_back_warning_title">Eintrag wird gespeichert</string>
+    <string name="new_sample_back_warning_msg">Bitte nehmen Sie sich etwas Zeit Details Ihres Moments einzutragen.\n\nIhr Moment wird gespeichert wie er gerade ist. Sie können ihn später bearbeiten.</string>
+    <string name="new_sample_back_warning_title">Jetzt verlassen?</string>
+    <string name="new_sample_moment">Neuer Moment</string>
     <string name="new_sample_replace_img_delete">Foto wurde gelöscht.</string>
     <string name="new_sample_replace_img_msg">Möchten Sie das Foto ersetzen?</string>
     <string name="new_sample_replace_img_title">Foto ersetzen</string>
@@ -65,6 +68,8 @@ http://beepme.glanznig.com
     <string name="notify_title">BeepMe</string>
     <string name="notify_title_testmode">BeepMe (Testmodus)</string>
     <string name="pause_beeper">Beeper pausieren</string>
+    <string name="photo_delete_warning_title">Foto löschen</string>
+    <string name="photo_delete_warning_msg">Das kann nicht rückgängig gemacht werden. Das Foto wirklich löschen?</string>
     <string name="pref_summary_pause_beeper_during_call">Pausiert den Beeper während eines Telefonanrufs.</string>
     <string name="pref_title_pause_beeper_during_call">Pause während Anruf</string>
     <string name="pref_summary_test_mode">Ermöglicht es BeepMe kennenzulernen. In diesem Modus eingegebene Daten werden separat gespeichert.</string>
@@ -75,9 +80,10 @@ http://beepme.glanznig.com
     <string name="pref_title_vibrate_beep">Vibrieren bei Alarm</string>
     <string name="refresh">Neu laden</string>
     <string name="sample_description">Wie war Ihr Moment beschaffen?</string>
-    <string name="sample_description_help">z.B. Stichwörter, Satzfragmente oder Sätze</string>
+    <string name="sample_description_help">z.B. beschreibende Satzfragmente oder Sätze</string>
+    <string name="sample_keyword">Stichwort</string>
     <string name="sample_keywords">Stichwörter</string>
-    <string name="sample_keywords_help">wählen Sie oder fügen Sie eigene hinzu, mehrere Werte möglich</string>
+    <string name="sample_keywords_help">freie Stichwörter eingeben oder auswählen</string>
     <string name="sample_no_description_editable">Noch keine Beschreibung für diesen Moment.</string>
     <string name="sample_no_description">Keine Beschreibung für diesen Moment.</string>
     <string name="sample_no_keywords_editable">Noch keine Stichwörter für diesen Moment.</string>
@@ -85,8 +91,8 @@ http://beepme.glanznig.com
     <string name="sample_swipe_newer">Neuere</string>
     <string name="sample_swipe_pos">%1$d von %2$d</string>
     <string name="sample_swipe_older">Ältere</string>
-    <string name="sample_title">Titel des Eintrags</string>
-    <string name="sample_title_help">z.B. ein Stichwort</string>
+    <string name="sample_title">Titel des Moments</string>
+    <string name="sample_title_help">z.B. zusammenfassendes Stichwort</string>
     <string name="sample_untitled">Unbenannt</string>
     <string name="samples">Momente</string>
     <string name="samples_list_no_samples">Ihre gesammelten Momente finden Sie hier.</string>

@@ -73,24 +73,6 @@ public class BeepActivity extends Activity {
 		}
 	}
 	
-	private static class ScreenStateReceiver extends BroadcastReceiver {
-		WeakReference<BeepActivity> beepActivity;
-		
-		ScreenStateReceiver(BeepActivity activity) {
-			beepActivity = new WeakReference<BeepActivity>(activity);
-		}
-
-	    @Override
-	    public void onReceive(final Context context, final Intent intent) {
-	        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-	            if (beepActivity.get() != null) {
-	            	beepActivity.get().finish();
-	            }
-	        }
-	    }
-
-	}
-	
 	// Controller for GlowPadView (thanks to AOSP)
     private class GlowPadController extends Handler implements OnTriggerListener {
         private static final int PING_MESSAGE_WHAT = 101;
@@ -154,32 +136,24 @@ public class BeepActivity extends Activity {
 	private BeepAlertManager alertManager = null;
 	private PowerManager.WakeLock lock = null;
 	private TimeoutHandler handler = null;
-	private ScreenStateReceiver receiver = null;
+	//private ScreenStateReceiver receiver = null;
 	private BroadcastReceiver cancelReceiver = null;
 	
+	private boolean beepAccepted = false;
+	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		
-		//on home key threat beep as declined
-		if (keyCode == KeyEvent.KEYCODE_HOME) {
-			decline();
-			return false;
-		}
-		
-		//block back key
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			return false;
-		}
-		
-		return super.onKeyDown(keyCode, event);
-	}
+    public void onBackPressed() {
+        // Don't allow back to decline.
+    }
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		
-		if (receiver != null) {
-			unregisterReceiver(receiver);
+		// do not exactly know why Activity is stopping, but if user did not
+		// explicitly accept the beep always decline it
+		if (!beepAccepted) {
+			decline();
 		}
 		
 		if (cancelReceiver != null) {
@@ -199,6 +173,7 @@ public class BeepActivity extends Activity {
 			alertManager.cleanUp();
 		}
 		
+		// do not keep Activity available in stack
 		if (!BeepActivity.this.isFinishing()) {
 			finish();
 		}
@@ -255,14 +230,14 @@ public class BeepActivity extends Activity {
 		registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
 		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        
-        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-		receiver = new ScreenStateReceiver(BeepActivity.this);
-        registerReceiver(receiver, filter);
+		
+		final Window win = getWindow();
+		win.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        win.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        win.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        win.addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         
 		setContentView(R.layout.beep);
 		
@@ -306,6 +281,8 @@ public class BeepActivity extends Activity {
 		
 		BeeperApp app = (BeeperApp)getApplication();
 		app.acceptTimer();
+		
+		beepAccepted = true;
 		
 		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
 		accept.putExtra(getApplication().getClass().getPackage().getName() + ".Timestamp", beepTime.getTime());

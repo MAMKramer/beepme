@@ -25,6 +25,8 @@ import java.util.List;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import com.glanznig.beepme.helper.SamplePhotoView;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +44,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	    public TextView title;
 	    public TextView description;
 	    public TextView timestamp;
+	    public SamplePhotoView photo;
 	}
 	
 	static class HeaderHolder {
@@ -106,6 +109,8 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 				holder.title = (TextView)rowView.findViewById(R.id.sample_title);
 				holder.timestamp = (TextView)rowView.findViewById(R.id.sample_timestamp);
 				holder.description = (TextView)rowView.findViewById(R.id.sample_description);
+				holder.photo = (SamplePhotoView)rowView.findViewById(R.id.sample_photo);
+				holder.photo.setRights(false, false); // read only
 				rowView.setTag(holder);
 			}
 			
@@ -120,6 +125,13 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 				holder.title.setText(R.string.sample_untitled);
 			}
 			
+			if (entry.getPhoto() != null && entry.getPhoto().length() > 0) {
+				holder.photo.setPhoto(entry.getPhoto());
+			}
+			else {
+				holder.photo.unsetPhoto();
+			}
+			
 			if (entry.getDescription() != null && entry.getDescription().length() > 0) {
 				String entryDescr = entry.getDescription();
 				holder.description.setText(entryDescr);
@@ -127,7 +139,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 			else {
 				holder.description.setVisibility(View.GONE);
 			}
-			
+				
 			holder.timestamp.setText(timeFormat.format(entry.getTimestamp()));
 		}
 		
