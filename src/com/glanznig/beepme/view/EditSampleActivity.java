@@ -31,13 +31,19 @@ import com.glanznig.beepme.TagAutocompleteAdapter;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
+import com.glanznig.beepme.helper.AsyncImageScaler;
+import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.helper.SamplePhotoView;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Handler.Callback;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -50,7 +56,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class EditSampleActivity extends Activity implements OnClickListener, PopupMenu.OnMenuItemClickListener {
+public class EditSampleActivity extends Activity implements OnClickListener, PopupMenu.OnMenuItemClickListener, Callback {
 	
 	private static final String TAG = "EditSampleActivity";
 	
@@ -145,7 +151,19 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 		photoView = (SamplePhotoView)findViewById(R.id.new_sample_photoview);
 		photoView.setRights(false, true);
 		photoView.setOnMenuItemClickListener(this);
-		photoView.setPhoto(sample.getPhotoUri());
+		
+		String thumbnailUri = PhotoUtils.getThumbnailUri(sample.getPhotoUri(), 48);
+		if (thumbnailUri != null) {
+			File thumb = new File(thumbnailUri);
+			if (thumb.exists()) {
+				photoView.setPhoto(thumbnailUri);
+			}
+			else {
+				Handler handler = new Handler(EditSampleActivity.this);
+				photoView.measure(0, 0);
+				PhotoUtils.generateThumbnail(sample.getPhotoUri(), 48, photoView.getMeasuredWidth(), handler);
+			}
+		}
 		
 		if (!photoView.isPhotoSet()) {
 			photoView.setVisibility(View.GONE);
@@ -296,18 +314,15 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	        deleteBuilder.setMessage(R.string.photo_delete_warning_msg);
 	        deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
-	            	long sampleId = sample.getId();
-	            	File photoFile = new File(sample.getPhotoUri());
+	            	String photoUri = sample.getPhotoUri();
 	            	SampleTable st = new SampleTable(getApplicationContext());
 	            	
-	            	// start with fresh sample to prevent other fields from being affected
-	            	Sample s = st.getSample(sampleId);
-	            	s.setPhotoUri(null);
+	            	sample.setPhotoUri(null);
 	            	// save immediately to prevent orphan uris when leaving with dismiss
 	            	st.editSample(sample);
 	            	
 	            	// delete photo on storage
-	            	photoFile.delete();
+	            	PhotoUtils.deletePhoto(photoUri);
 	            	
 	            	photoView.unsetPhoto();
 	            }
@@ -316,6 +331,30 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	        deleteBuilder.create().show();
 			
 			return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean handleMessage(Message msg) {
+		if (msg.what == AsyncImageScaler.SUCCESS) {
+			Bitmap photoBitmap = (Bitmap)msg.obj;
+			if (photoBitmap != null && msg.arg1 == 48) {
+				photoView.setPhoto(photoBitmap);
+				if (!photoView.isPhotoSet()) {
+					photoView.setVisibility(View.GONE);
+				}
+				else {
+					photoView.setVisibility(View.VISIBLE);
+				}
+				return true;
+			}
+		}
+		
+		if (msg.what == AsyncImageScaler.ERROR) {
+			// error handling
+			photoView.setVisibility(View.GONE);
 		}
 		
 		return false;

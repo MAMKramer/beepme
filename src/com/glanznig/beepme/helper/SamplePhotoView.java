@@ -157,44 +157,49 @@ public class SamplePhotoView extends LinearLayout {
 	        	if (!canChange) {
     		    	popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
 	        	}
+	        	else {
+	        		popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
+	        	}
 	        	
 	        	if (!canDelete) {
 	        		popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
 	        	}
+	        	else {
+	        		popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
+	        	}
     		}
     		else {
+    			// no photo - delete and change is senseless
+    			popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
+    			popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
+    			
     			if (canChange) {
     				frameView.setClickable(true);
     	        	frameView.setFocusable(true);
     	        	photoTriangle.setVisibility(View.VISIBLE);
+    	        	
+    	        	popup.getMenu().findItem(R.id.action_take_photo).setVisible(true);
     			}
     			else {
     				frameView.setClickable(false);
     	    		frameView.setFocusable(false);
     	    		photoTriangle.setVisibility(View.GONE);
-    	    		
-    	    		popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
-    		    	popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
     			}
     		}
     	}
     }
     
+    public void setPhoto(Bitmap photoBitmap) {
+    	if (photoBitmap != null) {
+    		photo.setImageBitmap(photoBitmap);
+    		hasPhotoSet = true;
+    		updateAppearance();
+    	}
+    }
+    
     public void setPhoto(String uri) {
     	if (uri != null) {
-    		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-		    	try {
-		    		final Bitmap photoBitmap = MediaStore.Images.Media.getBitmap(
-		    				ctx.getContentResolver(), Uri.fromFile(new File(uri)));
-		    		photo.setImageBitmap(Bitmap.createScaledBitmap(photoBitmap, width, height, false));
-		    	
-		    		hasPhotoSet = true;
-		    		updateAppearance();
-		    	}
-		    	catch(IOException ioe) {
-		    		Log.e(TAG, ioe.getMessage());
-		    	}
-    		}
+    		setPhoto(PhotoUtils.getBitmap(ctx, uri));
     	}
     }
     
@@ -222,24 +227,33 @@ public class SamplePhotoView extends LinearLayout {
 	        	if (!canChange) {
     		    	popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
 	        	}
+	        	else {
+	        		popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
+	        	}
 	        	
 	        	if (!canDelete) {
 	        		popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
 	        	}
+	        	else {
+	        		popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
+	        	}
     		}
     		else {
+    			// no photo - delete and change is senseless
+    			popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
+    			popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
+    			
     			if (canChange) {
     				frameView.setClickable(true);
     	        	frameView.setFocusable(true);
     	        	photoTriangle.setVisibility(View.VISIBLE);
+    	        	
+    	        	popup.getMenu().findItem(R.id.action_take_photo).setVisible(true);
     			}
     			else {
     				frameView.setClickable(false);
     	    		frameView.setFocusable(false);
     	    		photoTriangle.setVisibility(View.GONE);
-    	    		
-    	    		popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
-    		    	popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
     			}
     		}
     	}

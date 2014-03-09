@@ -22,12 +22,16 @@ package com.glanznig.beepme;
 
 import java.util.Date;
 import java.util.List;
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.helper.SamplePhotoView;
+import com.glanznig.beepme.view.EditSampleActivity;
 
 import android.content.Context;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -127,6 +131,17 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 			
 			if (entry.getPhoto() != null && entry.getPhoto().length() > 0) {
 				holder.photo.setPhoto(entry.getPhoto());
+				
+				String thumbnailUri = PhotoUtils.getThumbnailUri(entry.getPhoto(), 64);
+				File thumb = new File(thumbnailUri);
+				if (thumb.exists()) {
+					holder.photo.setPhoto(thumbnailUri);
+				}
+				else {
+					holder.photo.unsetPhoto();
+					holder.photo.measure(0, 0);
+					PhotoUtils.generateThumbnail(entry.getPhoto(), 64, holder.photo.getMeasuredWidth(), null);
+				}
 			}
 			else {
 				holder.photo.unsetPhoto();

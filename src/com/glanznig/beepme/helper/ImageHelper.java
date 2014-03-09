@@ -76,7 +76,7 @@ public class ImageHelper {
 		
 	    @Override
 	    public void handleMessage(Message msg) {
-	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
+	    	if (msg.what == AsyncImageScaler.SUCCESS) {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
 	    		if (imageUri != null) {
 	    			//save downscaled image to file
@@ -165,8 +165,8 @@ public class ImageHelper {
 	public void scaleImage(Activity callback) {
 		if (imageUri != null) {
 			imgScaleHandler = new ImgScaleHandler(imageUri, callback);
-			AsyncImageScaler loader = new AsyncImageScaler(imageUri, IMG_MAX_DIM, imgScaleHandler);
-			loader.start();
+			//AsyncImageScaler loader = new AsyncImageScaler(imageUri, IMG_MAX_DIM, imgScaleHandler);
+			//loader.start();
 		}
 	}
 	

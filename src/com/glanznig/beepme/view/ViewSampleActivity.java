@@ -97,6 +97,8 @@ public class ViewSampleActivity extends FragmentActivity {
 		
 		TextView pos = (TextView)findViewById(R.id.sample_swipe_pos);
 		pos.setText(String.format(getString(R.string.sample_swipe_pos), pagerAdapter.getPosition(sampleId) + 1, pagerAdapter.getCount()));
+		
+		getActionBar().setTitle(pagerAdapter.getPageTitle(pagerAdapter.getPosition(sampleId)));
 	}
 	
 	@Override
