@@ -150,6 +150,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 			if (entry.getDescription() != null && entry.getDescription().length() > 0) {
 				String entryDescr = entry.getDescription();
 				holder.description.setText(entryDescr);
+				holder.description.setVisibility(View.VISIBLE);
 			}
 			else {
 				holder.description.setVisibility(View.GONE);
