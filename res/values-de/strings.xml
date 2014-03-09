@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 -->
 
@@ -23,7 +23,7 @@ http://beepme.glanznig.com
     <string name="about_app_info">Hilft ihnen bei der Durchführung von Experience Sampling (DES/ESM) durch Generierung von Alarmen zu zufälligen Zeitpunkten.</string>
     <string name="about_title">Über BeepMe</string>
     <string name="about_email">E-Mail:</string>
-    <string name="about_license">Copyright 2012-2014 Michael Glanznig.\nLizenziert unter GNU GPL v3 und zur Verfügung gestellt WIE GESEHEN ohne Gewährleistung.</string>
+    <string name="about_license">Copyright 2012&#8211;2014 Michael Glanznig.\nLizenziert unter GNU GPL v3 und zur Verfügung gestellt WIE GESEHEN ohne Gewährleistung.</string>
     <string name="about_version">Version:</string>
     <string name="about_website">Webseite:</string>
     <string name="about_website_button">Webseite</string>
@@ -38,11 +38,9 @@ http://beepme.glanznig.com
     <string name="action_delete_photo">Foto löschen</string>
     <string name="action_test_beep">Alarm generieren</string>
     <string name="add">Hinzufügen</string>
-    <string name="app_copyright">Copyright 2012 Michael Glanznig</string>
     <string name="app_name">BeepMe</string>
     <string name="beep">Was geht in Ihrem Geist vor?</string>
     <string name="cancel">Verwerfen</string>
-    <string name="data_delete_progress">Lösche Daten...</string>
     <string name="done">Fertig</string>
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="error_no_mail_apps">Es sind keine E-Mail Apps verfügbar.</string>
@@ -59,10 +57,6 @@ http://beepme.glanznig.com
     <string name="new_sample_back_warning_msg">Bitte nehmen Sie sich etwas Zeit Details Ihres Moments einzutragen.\n\nIhr Moment wird gespeichert wie er gerade ist. Sie können ihn später bearbeiten.</string>
     <string name="new_sample_back_warning_title">Jetzt verlassen?</string>
     <string name="new_sample_moment">Neuer Moment</string>
-    <string name="new_sample_replace_img_delete">Foto wurde gelöscht.</string>
-    <string name="new_sample_replace_img_msg">Möchten Sie das Foto ersetzen?</string>
-    <string name="new_sample_replace_img_title">Foto ersetzen</string>
-    <string name="new_sample_save_success">Eintrag wurde erstellt.</string>
     <string name="no">Nein</string>
     <string name="notify_content">Beeper ist aktiv</string>
     <string name="notify_title">BeepMe</string>
@@ -101,7 +95,5 @@ http://beepme.glanznig.com
     <string name="time_beeper_active">Aktiv</string>
     <string name="today">Heute</string>
     <string name="view_sample">Moment ansehen</string>
-    <string name="warn_test_mode_msg">Alle Daten der App werden gelöscht. Wollen Sie fortfahren?</string>
-    <string name="warn_test_mode_title">Warnung</string>
     <string name="yes">Ja</string>
 </resources>

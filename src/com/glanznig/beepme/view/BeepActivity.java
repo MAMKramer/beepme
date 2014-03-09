@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
@@ -44,8 +44,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;

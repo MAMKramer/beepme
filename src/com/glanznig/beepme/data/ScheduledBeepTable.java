@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
@@ -27,7 +27,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class ScheduledBeepTable extends StorageHandler {
 	

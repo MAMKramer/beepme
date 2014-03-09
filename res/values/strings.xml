@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 -->
 
@@ -23,7 +23,7 @@ http://beepme.glanznig.com
     <string name="about_app_info">Helps you in performing experience sampling (DES/ESM) by delivering beeps at random times.</string>
     <string name="about_title">About BeepMe</string>
     <string name="about_email">E-Mail:</string>
-    <string name="about_license">Copyright 2012-2014 Michael Glanznig.\nLicensed under GNU GPL v3 and provided AS IS without any warranty.</string>
+    <string name="about_license">Copyright 2012&#8211;2014 Michael Glanznig.\nLicensed under GNU GPL v3 and provided AS IS without any warranty.</string>
     <string name="about_version">Version:</string>
     <string name="about_website">Website:</string>
     <string name="about_website_button">Website</string>
@@ -39,9 +39,7 @@ http://beepme.glanznig.com
     <string name="action_test_beep">Generate Beep</string>
     <string name="add">Add</string>
     <string name="app_name">BeepMe</string>
-    <string name="beep">What is on your mind?</string>
     <string name="cancel">Cancel</string>
-    <string name="data_delete_progress">Deleting data...</string>
     <string name="done">Done</string>
     <string name="edit_sample">Edit Sample</string>
     <string name="error_no_mail_apps">There are no mail apps available.</string>
@@ -58,10 +56,6 @@ http://beepme.glanznig.com
     <string name="new_sample_back_warning_msg">Please take some time to enter the details of your moment.\n\nIf you leave here your moment is saved as it is now. You can edit it later.</string>
     <string name="new_sample_back_warning_title">Leave now?</string>
     <string name="new_sample_moment">New moment</string>
-    <string name="new_sample_replace_img_delete">Photo has been deleted.</string>
-    <string name="new_sample_replace_img_msg">Do you want to replace the photo?</string>
-    <string name="new_sample_replace_img_title">Replace Photo</string>
-    <string name="new_sample_save_success">Sample has been recorded.</string>
     <string name="no">No</string>
     <string name="notify_content">Beeper is active</string>
     <string name="notify_title">BeepMe</string>
@@ -100,7 +94,9 @@ http://beepme.glanznig.com
     <string name="time_beeper_active">Elapsed</string>
     <string name="today">Today</string>
     <string name="view_sample">View Moment</string>
-    <string name="warn_test_mode_msg">All app data are being deleted. Do you want to proceed?</string>
-    <string name="warn_test_mode_title">Warning</string>
     <string name="yes">Yes</string>
+    
+    <!-- these elements need not to be translated -->
+    <string name="website_address">http://beepme.glanznig.com</string>
+    <string name="email_address">android@glanznig.com</string>
 </resources>

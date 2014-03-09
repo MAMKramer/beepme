@@ -1,5 +1,5 @@
 /*
-	This file is part of BeepMe.
+This file is part of BeepMe.
 
 BeepMe is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
@@ -30,21 +30,16 @@ import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.DataExporter;
-import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.ScheduledBeepTable;
-import com.glanznig.beepme.data.UptimeTable;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -53,7 +48,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;

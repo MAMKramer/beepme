@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
@@ -24,6 +24,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
@@ -191,7 +192,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		if (enteredTag.getText().length() > 0) {
 			Tag t = new Tag();
 			t.setVocabularyId(tagHolder.getVocabularyId());
-			t.setName(enteredTag.getText().toString().toLowerCase());
+			t.setName(enteredTag.getText().toString().toLowerCase(Locale.getDefault()));
 			if (sample.addTag(t)) {
 				tagHolder.addTagButton(t.getName(), this);
 				enteredTag.setText("");
@@ -242,7 +243,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		if (keyword.getText().length() > 0) {
 			Tag t = new Tag();
 			t.setVocabularyId(keywordTagHolder.getVocabularyId());
-			t.setName(keyword.getText().toString().toLowerCase());
+			t.setName(keyword.getText().toString().toLowerCase(Locale.getDefault()));
 			sample.addTag(t);
 		}
 		

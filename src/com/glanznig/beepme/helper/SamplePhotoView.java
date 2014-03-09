@@ -1,5 +1,3 @@
-package com.glanznig.beepme.helper;
-
 /*
 This file is part of BeepMe.
 
@@ -16,26 +14,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-import java.io.File;
-import java.io.IOException;
+package com.glanznig.beepme.helper;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.Xml;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -44,7 +34,6 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.view.NewSampleActivity;
 
 public class SamplePhotoView extends LinearLayout {
 	

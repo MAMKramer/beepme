@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.TagAutocompleteAdapter;
@@ -44,7 +45,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -216,7 +216,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 		if (enteredTag.getText().length() > 0) {
 			Tag t = new Tag();
 			t.setVocabularyId(tagHolder.getVocabularyId());
-			t.setName(enteredTag.getText().toString().toLowerCase());
+			t.setName(enteredTag.getText().toString().toLowerCase(Locale.getDefault()));
 			if (sample.addTag(t)) {
 				tagHolder.addTagButton(t.getName(), this);
 				enteredTag.setText("");
@@ -257,7 +257,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 		if (keyword.getText().length() > 0) {
 			Tag t = new Tag();
 			t.setVocabularyId(keywordTagHolder.getVocabularyId());
-			t.setName(keyword.getText().toString().toLowerCase());
+			t.setName(keyword.getText().toString().toLowerCase(Locale.getDefault()));
 			sample.addTag(t);
 		}
 		

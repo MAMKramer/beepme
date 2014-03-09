@@ -14,50 +14,28 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
 package com.glanznig.beepme.view;
 
-import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
-import java.util.List;
 
-import com.glanznig.beepme.BeeperApp;
-import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.ViewSamplePagerAdapter;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
-import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.FlowLayout;
 
-import android.app.ActionBar;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
 
 public class ViewSampleFragment extends Fragment {
 	

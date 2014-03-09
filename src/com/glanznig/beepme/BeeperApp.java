@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
@@ -44,7 +44,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 public class BeeperApp extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
@@ -282,10 +281,6 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	private static class CallStateListener extends PhoneStateListener {
 		
 		private WeakReference<BeeperApp> appRef;
-		
-		public CallStateListener() {
-			
-		}
 		
 		public CallStateListener(BeeperApp app) {
 			appRef = new WeakReference<BeeperApp>(app);

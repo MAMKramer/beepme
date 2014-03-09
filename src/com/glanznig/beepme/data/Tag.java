@@ -14,13 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
 package com.glanznig.beepme.data;
 
-import android.util.Log;
+import java.util.Locale;
 
 public class Tag {
 	
@@ -106,7 +106,7 @@ public class Tag {
 		boolean ret = false;
 		if (other instanceof Tag) {
 			Tag t = (Tag)other;
-			if (name != null && name.toLowerCase().equals(t.getName().toLowerCase())) {
+			if (name != null && name.toLowerCase(Locale.getDefault()).equals(t.getName().toLowerCase())) {
 				ret = true;
 				
 				if (getVocabularyId() != 0L && t.getVocabularyId() != 0L) {

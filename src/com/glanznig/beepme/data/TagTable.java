@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright since 2012 Michael Glanznig
+Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
@@ -22,6 +22,7 @@ package com.glanznig.beepme.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -66,7 +67,7 @@ public class TagTable extends StorageHandler {
 		createTable(db);
 	}
 	
-	private static void createMoodEntries(SQLiteDatabase db) {
+	/*private static void createMoodEntries(SQLiteDatabase db) {
 		ContentValues values = null;
 		
 		values = new ContentValues();
@@ -433,7 +434,7 @@ public class TagTable extends StorageHandler {
 		values.put("vocabulary_id", 3);
 		values.put("name", "vollkommen");
 		db.insert(TBL_NAME, null, values);
-	}
+	}*/
 	
 	public Tag addTag(long vocabularyId, String tagName, long sampleId) {
 		
@@ -445,12 +446,12 @@ public class TagTable extends StorageHandler {
 			db.beginTransaction();
 			
 			Cursor cursor = db.query(getTableName(), new String[] { "_id", "name", "vocabulary_id" },
-					"name=? AND vocabulary_id=?", new String[] { tagName.toLowerCase(), String.valueOf(vocabularyId) },
+					"name=? AND vocabulary_id=?", new String[] { tagName.toLowerCase(Locale.getDefault()), String.valueOf(vocabularyId) },
 					null, null, null);
 			
 			if (cursor != null && cursor.getCount() == 0) {
 			    values = new ContentValues();
-			    values.put("name", tagName.toLowerCase());
+			    values.put("name", tagName.toLowerCase(Locale.getDefault()));
 			    values.put("vocabulary_id", vocabularyId);
 			    tagId = db.insert(getTableName(), null, values);
 			}
@@ -490,7 +491,7 @@ public class TagTable extends StorageHandler {
 		    
 		    if (success) {
 		    	Tag t = new Tag(tagId);
-		    	t.setName(tagName.toLowerCase());
+		    	t.setName(tagName.toLowerCase(Locale.getDefault()));
 		    	t.setVocabularyId(vocabularyId);
 		    	
 		    	return t;
@@ -511,18 +512,18 @@ public class TagTable extends StorageHandler {
 			int rows = db.delete(SampleTagTable.getTableName(),
 					"tag_id = (SELECT t._id FROM " + getTableName() +
 					" t WHERE t.name=? AND t.vocabulary_id=?) AND sample_id=?",
-					new String[] { tagName.toLowerCase(), String.valueOf(vocabularyId), String.valueOf(sampleId) });
+					new String[] { tagName.toLowerCase(Locale.getDefault()), String.valueOf(vocabularyId), String.valueOf(sampleId) });
 			
 			if (rows > 0) {
 				Cursor cursor = db.rawQuery("SELECT sample_id FROM " + SampleTagTable.getTableName() +
 						" st INNER JOIN " + getTableName() + " t ON st.tag_id = t._id WHERE t.name=? AND t.vocabulary_id=?",
-						new String[] { tagName.toLowerCase(), String.valueOf(vocabularyId) });
+						new String[] { tagName.toLowerCase(Locale.getDefault()), String.valueOf(vocabularyId) });
 				
 				//if there are no other samples attached to this tag -> delete tag
 				if (cursor != null) {
 					if (cursor.getCount() == 0) {
 						rows = db.delete(getTableName(), "name=? AND vocabulary_id=?",
-								new String[] { tagName.toLowerCase(), String.valueOf(vocabularyId) });
+								new String[] { tagName.toLowerCase(Locale.getDefault()), String.valueOf(vocabularyId) });
 						if (rows == 0) {
 							success = false;
 						}
