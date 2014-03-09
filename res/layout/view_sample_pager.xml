@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright since 2012 Michael Glanznig
+http://beepme.glanznig.com
+-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+	<LinearLayout
+	    android:id="@+id/sample_swipe_locator"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:orientation="horizontal"
+	    android:background="@color/bg_darkgray"
+	    android:paddingLeft="16dp"
+	    android:paddingRight="16dp"
+	    android:paddingTop="4dp"
+	    android:paddingBottom="4dp"
+	    android:weightSum="10" >
+	    
+	    <TextView
+            android:id="@+id/sample_swipe_newer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="@string/sample_swipe_newer"
+            android:gravity="left"
+            android:paddingRight="8dp"
+            android:layout_weight="1" />
+	    
+	    <TextView
+            android:id="@+id/sample_swipe_pos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:layout_weight="8" />
+	    
+	    <TextView
+            android:id="@+id/sample_swipe_older"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="@string/sample_swipe_older"
+            android:gravity="right"
+            android:paddingLeft="8dp"
+            android:layout_weight="1" />
+	    
+	</LinearLayout>
+	
+	<android.support.v4.view.ViewPager
+    	android:id="@+id/view_sample_swipe_pager"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:layout_above="@id/sample_swipe_locator"
+    	android:layout_alignParentTop="true" />
+	
+</RelativeLayout>

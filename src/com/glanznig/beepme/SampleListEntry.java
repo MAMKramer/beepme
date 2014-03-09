@@ -40,6 +40,22 @@ public class SampleListEntry extends SampleListItem {
 		return null;
 	}
 	
+	public String getDescription() {
+		if (content != null) {
+			return content.getDescription();
+		}
+		
+		return null;
+	}
+	
+	public String getPhoto() {
+		if (content != null) {
+			return content.getPhotoUri();
+		}
+		
+		return null;
+	}
+	
 	public Date getTimestamp() {
 		if (content != null) {
 			return content.getTimestamp();

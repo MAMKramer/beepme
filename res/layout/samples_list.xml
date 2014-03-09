@@ -23,23 +23,84 @@ http://beepme.glanznig.com
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
+        
+    <RelativeLayout
+	    android:id="@+id/samples_list_stats_today"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:background="@color/bg_gray"
+	    android:gravity="left"
+	    android:paddingLeft="16dp"
+	    android:paddingRight="16dp"
+	    android:paddingTop="8dp"
+	    android:paddingBottom="8dp" >
     
-    <ListView
-        android:id="@+id/android:list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
-
-  	<TextView
-  	    android:id="@+id/android:empty"
-  	    android:layout_width="wrap_content"
-  	    android:layout_height="wrap_content"
-  	    android:layout_centerInParent="true"
-  	    android:layout_gravity="center_vertical|center_horizontal"
-  	    android:layout_margin="10dp"
-  	    android:text="@string/samples_list_no_samples"
-  	    android:textSize="17dp" />
+      	<TextView
+			android:id="@+id/beep_today"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginRight="8dp"
+			android:text="@string/today" />
+     
+		<TextView
+			android:id="@+id/samples_list_today_accepted"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_stat_accepted"
+			android:drawablePadding="2dp"
+			android:gravity="center"
+			android:layout_toRightOf="@id/beep_today" />
+     
+		<TextView
+			android:id="@+id/samples_list_today_declined"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="8dp"
+			android:drawableLeft="@drawable/ic_stat_declined"
+			android:drawablePadding="2dp"
+			android:gravity="center"
+			android:layout_toRightOf="@id/samples_list_today_accepted" />
+     
+     	<TextView
+			android:id="@+id/samples_list_today_elapsed"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="8dp"
+			android:drawableLeft="@drawable/ic_stat_elapsed"
+			android:drawablePadding="2dp"
+			android:gravity="center"
+			android:layout_toRightOf="@id/samples_list_today_declined" />
+    
+    </RelativeLayout>
+    
+    <RelativeLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:layout_alignParentTop="true"
+	    android:layout_above="@id/samples_list_stats_today"
+	    android:layout_marginLeft="16dp"
+	    android:layout_marginRight="8dp"
+	    android:orientation="vertical">
+    
+	    <ListView
+	        android:id="@+id/android:list"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:layout_alignParentLeft="true"
+	        android:layout_alignParentTop="true"
+	        android:scrollbarStyle="outsideInset"
+	        android:fastScrollEnabled="true" />
+	
+	  	<TextView
+	  	    android:id="@+id/android:empty"
+	  	    android:layout_width="wrap_content"
+	  	    android:layout_height="wrap_content"
+	  	    android:layout_centerInParent="true"
+	  	    android:layout_gravity="center"
+	  	    android:text="@string/samples_list_no_samples" />
+	  	
+    </RelativeLayout>
 
 </RelativeLayout>

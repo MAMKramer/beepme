@@ -35,8 +35,9 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.view.MainMenu;
+import com.glanznig.beepme.view.MainActivity;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -99,7 +100,18 @@ public class DataExporter {
 					fileList.add(picFiles[i]);
 				}
 			}
-			fileList.add(ctx.getDatabasePath(StorageHandler.getDatabaseName()));
+			
+			BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+			String dbName = null;
+			
+			if (app.getPreferences().isTestMode()) {
+				dbName = StorageHandler.getTestModeDatabaseName();
+			}
+			else {
+				dbName = StorageHandler.getProductionDatabaseName();
+			}
+			
+			fileList.add(ctx.getDatabasePath(dbName));
 			
 			return zipFiles(exportFile, fileList);
 		}
@@ -148,13 +160,7 @@ public class DataExporter {
 	
 	private void createNotification() {
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(ctx.getApplicationContext());
-		
-		if (android.os.Build.VERSION.SDK_INT >= 11) {
-			notificationBuilder.setSmallIcon(R.drawable.notification_icon);
-		}
-		else {
-			notificationBuilder.setSmallIcon(R.drawable.notification_icon_legacy);
-		}
+		notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
 		PackageManager pm = ctx.getApplicationContext().getPackageManager();
 		try {
 			notificationBuilder.setContentTitle(pm.getApplicationLabel(pm.getApplicationInfo(ctx.getApplicationContext().getPackageName(), 0)));
@@ -166,7 +172,7 @@ public class DataExporter {
 		//set as ongoing, so it cannot be cleared
 		notificationBuilder.setOngoing(true);
 		// Creates an explicit intent for an Activity in your app
-		Intent resultIntent = new Intent(ctx.getApplicationContext(), MainMenu.class);
+		Intent resultIntent = new Intent(ctx.getApplicationContext(), MainActivity.class);
 		
 		//add progress bar (indeterminate)
 		if (android.os.Build.VERSION.SDK_INT >= 14) {
@@ -179,7 +185,7 @@ public class DataExporter {
 		// your application to the Home screen.
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(ctx.getApplicationContext());
 		// Adds the back stack for the Intent (but not the Intent itself)
-		stackBuilder.addParentStack(MainMenu.class);
+		stackBuilder.addParentStack(MainActivity.class);
 		// Adds the Intent that starts the Activity to the top of the stack
 		stackBuilder.addNextIntent(resultIntent);
 		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);

@@ -21,92 +21,104 @@ http://beepme.glanznig.com
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:glowpad="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/black">
     
-    <ImageView
-        android:id="@+id/beep_icon"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/beep_app_name"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/beep_icon" />
-
-	<LinearLayout
-	    android:id="@+id/beep_buttons"
-	    android:layout_width="match_parent"
+        android:paddingTop="50dp"
+        android:paddingBottom="20dp"
+        android:text="@string/app_name"
+        android:textColor="@color/white"
+        android:textSize="30sp" />
+    
+    <LinearLayout
+	    android:id="@+id/beep_stats_today"
+	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_above="@id/beep_icon"
-	    android:layout_alignParentBottom="true"
+	    android:layout_below="@id/beep_app_name"
+	    android:gravity="center"
 	    android:orientation="vertical" >
 	    
-	    <Button
-	        android:id="@+id/beep_btn_accept"
-	        android:layout_width="match_parent"
-	        android:layout_height="60dp"
-	        android:layout_marginLeft="10dp"
-	        android:layout_marginRight="10dp"
-	        android:layout_marginTop="50dp"
-	        android:text="@string/beep_accept"
-	        android:onClick="onClickAccept" />
-	
-	    <RelativeLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="10dp"
-	        android:layout_marginRight="10dp"
-	        android:layout_marginTop="10dp" >
-	
-	        <Button
-	            android:id="@+id/beep_btn_decline"
-	            android:layout_width="wrap_content"
-	            android:layout_height="60dp"
-	            android:layout_alignParentLeft="true"
-	            android:text="@string/beep_decline"
-	            android:onClick="onClickDecline" />
-	
-	        <Button
-	            android:id="@+id/beep_btn_decline_pause"
-	            android:layout_width="wrap_content"
-	            android:layout_height="60dp"
-	            android:layout_alignParentRight="true"
-	            android:text="@string/beep_decline_pause"
-	            android:onClick="onClickDeclinePause" />
-	
-	    </RelativeLayout>
-	
-	    <TextView
-	        android:id="@+id/beep_today"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_marginBottom="5dp"
-	        android:layout_marginLeft="15dp"
-	        android:layout_marginRight="15dp"
-	        android:layout_marginTop="10dp"
-	        android:text="@string/today" />
-	
-	    <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_marginBottom="15dp"
-	        android:layout_marginLeft="15dp"
-	        android:layout_marginRight="15dp" >
-	
+        <LinearLayout
+            android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:gravity="center"
+	    	android:layout_marginBottom="5dp"
+	    	android:orientation="horizontal">
 	        <TextView
-	            android:id="@+id/beep_accepted_today"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginRight="5dp"
-	            android:layout_weight="0.5" />
+				android:id="@+id/beep_accepted_today"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_beep_stat_accepted_white"
+				android:drawablePadding="3dp"
+				android:textColor="@color/white"
+				android:textSize="18sp"
+				android:fontFamily="sans-serif-thin" />
+	     
+			<TextView
+				android:id="@+id/beep_declined_today"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8dp"
+				android:drawableLeft="@drawable/ic_beep_stat_declined_white"
+				android:drawablePadding="3dp"
+				android:textColor="@color/white"
+				android:textSize="18sp"
+				android:fontFamily="sans-serif-thin" />
+        </LinearLayout>
+     
+     	<TextView
+			android:id="@+id/beep_elapsed_today"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_beep_stat_elapsed_white"
+			android:drawablePadding="3dp"
+			android:gravity="center"
+			android:textColor="@color/white"
+			android:textSize="18sp"
+			android:fontFamily="sans-serif-thin" />
+     	
+     	<TextView
+			android:id="@+id/beep_today"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:fontFamily="sans-serif-thin"
+			android:textColor="@color/white"
+			android:paddingTop="10dp"
+			android:textSize="22sp"
+			android:text="@string/today" />
+    
+    </LinearLayout>
+    
+    <com.fima.glowpadview.GlowPadView
+        android:id="@+id/beep_glowpad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="@dimen/glowpadview_margin_bottom"
+        android:focusable="true"
+        android:gravity="center"
+        glowpad:directionDescriptions="@array/accept_decline_direction_descriptions"
+        glowpad:feedbackCount="1"
+        glowpad:glowRadius="@dimen/glowpadview_glow_radius"
+        glowpad:handleDrawable="@drawable/ic_beep_touch_handle"
+        glowpad:innerRadius="@dimen/glowpadview_inner_radius"
+        glowpad:outerRadius="@dimen/glowpadview_target_placement_radius"
+        glowpad:outerRingDrawable="@drawable/ic_beep_outer_ring"
+        glowpad:pointDrawable="@drawable/ic_lockscreen_glowdot"
+        glowpad:snapMargin="@dimen/glowpadview_snap_margin"
+        glowpad:targetDescriptions="@array/accept_decline_descriptions"
+        glowpad:targetDrawables="@array/accept_decline_drawables"
+        glowpad:vibrationDuration="0" />
 	
-	        <TextView
-	            android:id="@+id/beep_declined_today"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginLeft="5dp"
-	            android:layout_weight="0.5" />
-	
-	    </LinearLayout>
-	</LinearLayout>
 </RelativeLayout>

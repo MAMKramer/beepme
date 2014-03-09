@@ -20,214 +20,75 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.PreferenceHandler;
-import com.glanznig.beepme.data.StorageHandler;
 import com.glanznig.beepme.data.TimerProfile;
 import com.glanznig.beepme.data.TimerProfileTable;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class Preferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
-	
-	private boolean vibrateAtBeep;
-	//private boolean warnNoWifi;
-	private long timerProfileId;
-	private boolean testMode;
-	private boolean pauseDuringCall;
-	
-	private boolean deleteDataRunning;
-	
-	private ProgressDialog progress;
-	private DeleteDataHandler handler;
 	
 	private static final String TAG = "Preferences";
 	
 	@Override
 	public void onCreate(Bundle savedState) {
 		super.onCreate(savedState);
-		addPreferencesFromResource(R.xml.preferences);
-		
+        
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new BasePreferencesFragment()).commit();
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        
 		PreferenceHandler prefs = ((BeeperApp)getApplication()).getPreferences();
 		prefs.registerOnPreferenceChangeListener(Preferences.this);
-		vibrateAtBeep = prefs.isVibrateAtBeep();
-		//warnNoWifi = prefs.isWarnNoWifi();
-		timerProfileId = prefs.getTimerProfileId();
-		testMode = prefs.isTestMode();
-		pauseDuringCall = prefs.getPauseBeeperDuringCall();
-		
-		if (savedState != null) {
-			deleteDataRunning = savedState.getBoolean("deleteDataRunning");
-		}
-		else {
-			deleteDataRunning = false;
-		}
 	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		populateFields();
-		
-		handler = (DeleteDataHandler)getLastNonConfigurationInstance();
-        if (handler != null) {
-        	if (deleteDataRunning) {
-        		progress = new ProgressDialog(Preferences.this);
-                progress.setMessage(getString(R.string.data_delete_progress));
-                progress.setCancelable(false);
-                progress.show();
-        		handler.updateActivity(Preferences.this);
-        	}
-        }
-        else {
-        	deleteDataRunning = false;
-        	progress = null;
-        }
-	}
-	
-	@Override
-    protected void onPause() {
-        if (progress != null) {
-            progress.cancel();
-            progress = null;
-        }
-        super.onPause();
-    }
-	
-	public void deleteDataEnded() {
-		if (progress != null) {
-			progress.cancel();
-			progress = null;
-		}
-		deleteDataRunning = false;
-		handler = null;
-	}
-	
-	private void populateFields() {
-		CheckBoxPreference boxVibrateAtBeep = (CheckBoxPreference)findPreference(PreferenceHandler.KEY_VIBRATE_AT_BEEP);
-        boxVibrateAtBeep.setChecked(vibrateAtBeep);
-        //CheckBoxPreference boxWarnNoWifi = (CheckBoxPreference)findPreference(PreferenceHandler.KEY_WARN_NO_WIFI);
-        //boxWarnNoWifi.setChecked(warnNoWifi);
-        ConfirmCheckBoxPreference boxTestMode = (ConfirmCheckBoxPreference)findPreference(PreferenceHandler.KEY_TEST_MODE);
-        boxTestMode.setChecked(testMode);
-        CheckBoxPreference boxPauseDuringCall = (CheckBoxPreference)findPreference(PreferenceHandler.KEY_PAUSE_BEEPER_DURING_CALL);
-        boxPauseDuringCall.setChecked(pauseDuringCall);
-        
-        ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE_ID);
-        Iterator<TimerProfile> profileList = new TimerProfileTable(this.getApplicationContext()).getTimerProfiles().iterator();
-        ArrayList<String> profileValues = new ArrayList<String>();
-        ArrayList<String> profileNames = new ArrayList<String>();
-        while (profileList.hasNext()) {
-        	TimerProfile tp = profileList.next();
-        	profileNames.add(tp.getName());
-        	profileValues.add(String.valueOf(tp.getId()));
-        }
-        
-        formTimerProfile.setEntries(profileNames.toArray(new String[profileNames.size()]));
-        formTimerProfile.setEntryValues(profileValues.toArray(new String[profileValues.size()]));
-	}
-	
-	@Override
-	public void onSaveInstanceState(Bundle savedState) {
-		savedState.putBoolean("deleteDataRunning", deleteDataRunning);
-	}
-	
-	@Override
-    public Object onRetainNonConfigurationInstance() {
-        return handler;
-    }
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (!deleteDataRunning && key.equals(PreferenceHandler.KEY_TEST_MODE)) {
+		if (key.equals(PreferenceHandler.KEY_TEST_MODE)) {
 			BeeperApp app = (BeeperApp)getApplication();
 			if (app.isBeeperActive()) {
-				app.setBeeperActive(app.BEEPER_INACTIVE);
-			}
-			
-			progress = new ProgressDialog(Preferences.this);
-            progress.setMessage(getString(R.string.data_delete_progress));
-            progress.setCancelable(false);
-            
-    		handler = new DeleteDataHandler(Preferences.this);
-			if (!isFinishing()) {
-				progress.show();
-			}
-			deleteDataRunning = true;
-			new Thread(new DeleteDataRunnable(Preferences.this, handler)).start();
-		}
-	}
-	
-	private static class DeleteDataHandler extends Handler {
-		WeakReference<Preferences> activity;
-		
-		DeleteDataHandler(Preferences activity) {
-			updateActivity(activity);
-		}
-		
-		public void updateActivity(Preferences activity) {
-			this.activity = new WeakReference<Preferences>(activity);
-		}
-		
-		@Override
-		public void handleMessage(Message message) {
-			if (activity.get() != null) {
-				try {
-					activity.get().deleteDataEnded();
-				}
-				// would rather use isChangingConfigurations() or similar but not available in API Level 8
-				catch(Exception e) {}
+				app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
 			}
 		}
 	}
 	
-	private static class DeleteDataRunnable implements Runnable {
-		WeakReference<Context> ctx;
-		DeleteDataHandler handler;
-		File picDir;
+	public static class BasePreferencesFragment extends PreferenceFragment {
 		
-		DeleteDataRunnable(Preferences activity, DeleteDataHandler handler) {
-			this.ctx = new WeakReference<Context>(activity.getApplicationContext());
-			picDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-			this.handler = handler; 
-		}
 		@Override
-	    public void run() {
-			if (ctx.get() != null) {
-				//delete data in database
-				new StorageHandler(ctx.get()).truncateTables();
-			}
-				
-			if (picDir != null) {
-				//delete pictures
-				if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-					File[] allFiles = picDir.listFiles();
-					for (int i = 0; i < allFiles.length; i++) {
-						allFiles[i].delete();
-					}
-				}
-				
-				if (handler != null) {
-					Message msg = new Message();
-					handler.sendMessage(msg);
-				}
-			}
+	    public void onCreate(Bundle savedInstanceState) {
+	        super.onCreate(savedInstanceState);
+	        addPreferencesFromResource(R.xml.preferences);
 	    }
+	    
+	    @Override
+		public void onResume() {
+			super.onResume();
+			populateFields();
+		}
+		
+		private void populateFields() {
+	        ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE_ID);
+	        Iterator<TimerProfile> profileList = new TimerProfileTable(getActivity().getApplicationContext()).getTimerProfiles().iterator();
+	        ArrayList<String> profileValues = new ArrayList<String>();
+	        ArrayList<String> profileNames = new ArrayList<String>();
+	        while (profileList.hasNext()) {
+	        	TimerProfile tp = profileList.next();
+	        	profileNames.add(tp.getName());
+	        	profileValues.add(String.valueOf(tp.getId()));
+	        }
+	        
+	        formTimerProfile.setEntries(profileNames.toArray(new String[profileNames.size()]));
+	        formTimerProfile.setEntryValues(profileValues.toArray(new String[profileValues.size()]));
+		}
 	}
 }

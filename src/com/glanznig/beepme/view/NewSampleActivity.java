@@ -20,7 +20,6 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
-import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,89 +32,59 @@ import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
-import com.glanznig.beepme.helper.ImageHelper;
-import com.glanznig.beepme.helper.ImageHelperCallback;
+import com.glanznig.beepme.helper.PhotoUtils;
+import com.glanznig.beepme.helper.SamplePhotoView;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Handler.Callback;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class NewSampleActivity extends Activity implements OnClickListener, ImageHelperCallback {
+public class NewSampleActivity extends Activity implements OnClickListener, PopupMenu.OnMenuItemClickListener, Callback {
 	
-	private static final int THUMBNAIL_WIDTH = 80; //in dp
 	private static final String TAG = "NewSampleActivity";
 	
 	private Sample sample = new Sample();
-	private ImageHelper img = null;
-	private boolean imgScalingRunning = false;
-	
-	private static class ImgLoadHandler extends Handler {
-		WeakReference<NewSampleActivity> newSampleActivity;
-		
-		ImgLoadHandler(NewSampleActivity activity) {
-			updateActivity(activity);
-		}
-		
-		public void updateActivity(NewSampleActivity activity) {
-			newSampleActivity = new WeakReference<NewSampleActivity>(activity);
-		}
-		
-	    @Override
-	    public void handleMessage(Message msg) {
-	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
-	    		Bitmap imageBitmap = (Bitmap)msg.obj;
-	    		if (newSampleActivity.get() != null) {
-		    		if (imageBitmap != null) {
-						View progressBar = newSampleActivity.get().findViewById(R.id.new_sample_image_load);
-						if (progressBar != null) {
-							progressBar.setVisibility(View.GONE);
-						}
-						ImageView imageView = (ImageView)newSampleActivity.get().findViewById(R.id.new_sample_thumb);
-						if (imageView != null) {
-							imageView.setImageBitmap(imageBitmap);
-							imageView.setVisibility(View.VISIBLE);
-						}
-					}
-					else {
-						View progressBar = newSampleActivity.get().findViewById(R.id.view_sample_image_load);
-						if (progressBar != null) {
-							progressBar.setVisibility(View.GONE);
-						}
-					}
-	    		}
-	    	}
-	    }
-	}
+	private SamplePhotoView photoView = null;
 	
 	@Override
 	public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
+        
+        final LayoutInflater inflater = (LayoutInflater) getActionBar().getThemedContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        final View customActionBarView = inflater.inflate(R.layout.actionbar_custom_done, null);
+        customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClickDone(v);
+                    }
+                });
+
+        // Show the custom action bar view and hide the normal Home icon and title.
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        actionBar.setCustomView(customActionBarView);
+        
         setContentView(R.layout.new_sample);
         SampleTable st = new SampleTable(this.getApplicationContext());
-        
-        ((ImageView)findViewById(R.id.new_sample_thumb)).setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                NewSampleActivity.this.onLongClickChangeThumb(view);
-                return true;
-            }
-        });
 		
 		if (savedState != null) {
 			if (savedState.getLong("sampleId") != 0L) {
@@ -148,20 +117,8 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 					}
 				}
 			}
-			
-			img = new ImageHelper(NewSampleActivity.this);
-			if (savedState.getCharSequence("imgUri") != null) {
-				img.setImageUri(savedState.getCharSequence("imgUri").toString());
-				sample.setPhotoUri(savedState.getCharSequence("imgUri").toString());
-			}
-			
-			sample.setAccepted(savedState.getBoolean("accepted"));
-			imgScalingRunning = savedState.getBoolean("imgScalingRunning");
 		}
 		else {
-			imgScalingRunning = false;
-			img = new ImageHelper(NewSampleActivity.this);
-			
 			Bundle b = getIntent().getExtras();
 			if (b != null) {
 				if (b.containsKey(getApplication().getClass().getPackage().getName() + ".Timestamp")) {
@@ -178,42 +135,20 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	public void onResume() {
 		super.onResume();
 		populateFields();
-		
-		if (imgScalingRunning) {
-			ImageHelper.ImgScaleHandler handler = (ImageHelper.ImgScaleHandler)getLastNonConfigurationInstance();
-	        if (handler != null) {
-	        	handler.updateActivity(NewSampleActivity.this);
-	        }
-		}
-		else {
-			if (img.getImageUri() != null) {
-				startThumbnailLoading();
-			}
-		}
-	}
-	
-	private void startThumbnailLoading() {
-		final float scale = getResources().getDisplayMetrics().density;
-		int imageWidth = (int)(THUMBNAIL_WIDTH * scale + 0.5f);
-		AsyncImageScaler loader = new AsyncImageScaler(img.getImageUri(), imageWidth, new ImgLoadHandler(NewSampleActivity.this));
-		loader.start();
 	}
 	
 	private void populateFields() {
+		photoView = (SamplePhotoView)findViewById(R.id.new_sample_photoview);
 		//check if device has camera feature
-		if (!img.isEnabled()) {
-			findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+		if (!PhotoUtils.isEnabled(NewSampleActivity.this)) {
+			photoView.setVisibility(View.GONE);
+		}
+		else {
+			photoView.setVisibility(View.VISIBLE);
+			photoView.setOnMenuItemClickListener(NewSampleActivity.this);
 		}
         
     	setTitle(R.string.new_sample);
-    	
-    	if (img.getImageUri() != null) {
-    		findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-			findViewById(R.id.new_sample_image_load).setVisibility(View.VISIBLE);
-    	}
-    	
-    	Button save = (Button)findViewById(R.id.new_sample_btn_save);
-    	save.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         
         if (sample.getTimestamp() != null) {
         	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);
@@ -284,8 +219,8 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		}
 	}
 	
-	public void onClickSave(View view) {
-		Toast.makeText(getApplicationContext(), R.string.new_sample_save_success, Toast.LENGTH_SHORT).show();
+	public void onClickDone(View view) {
+		saveSample();
 		finish();
 	}
 	
@@ -297,8 +232,9 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
-		sample.setPhotoUri(img.getImageUri());
 		sample.setUptimeId(app.getPreferences().getUptimeId());
+		
+		Log.i(TAG, "saveSample: photoUri="+sample.getPhotoUri());
 		
 		// also save non-added keywords
 		TagButtonContainer keywordTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
@@ -315,54 +251,30 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		app.setTimer();
 	}
 	
-	public void onClickCancel(View view) {
-		finish();
-	}
-	
-	public void onLongClickChangeThumb(View view) {
-		AlertDialog.Builder replaceImgBuilder = new AlertDialog.Builder(NewSampleActivity.this);
-		//replaceImgBuilder.setIcon(icon);
-        replaceImgBuilder.setTitle(R.string.new_sample_replace_img_title);
-        replaceImgBuilder.setMessage(R.string.new_sample_replace_img_msg);
-        replaceImgBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            	if (img.deleteImage()) {
-            		findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
-            		takePhoto();
-            	}
-            }
-        });
-        replaceImgBuilder.setNegativeButton(R.string.no, null);
-        
-        replaceImgBuilder.create().show();
-	}
-	
-	public void onClickTakePhoto(View view) {
-		takePhoto();
-	}
-	
-	private void takePhoto() {
-		Intent imgIntent = img.getIntent(sample.getTimestamp());
-		if (imgIntent != null) {
-			startActivityForResult(imgIntent, ImageHelper.TAKE_PICTURE);
-		}
-	}
-	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == ImageHelper.TAKE_PICTURE) {
-			if (resultCode == Activity.RESULT_OK) {
-				img.captureSuccess();
-				sample.setPhotoUri(img.getImageUri());
-				imgScalingRunning = true;
-				img.scaleImage(NewSampleActivity.this);
-			}
-			else if (resultCode == Activity.RESULT_CANCELED) {
-				img.setImageUri(null);
-				findViewById(R.id.new_sample_btn_photo).setVisibility(View.VISIBLE);
-				findViewById(R.id.new_sample_image_load).setVisibility(View.GONE);
-				findViewById(R.id.new_sample_thumb).setVisibility(View.GONE);
-			}
+		switch (requestCode) {
+			case PhotoUtils.TAKE_PHOTO_INTENT:
+				if (resultCode == Activity.RESULT_OK) {
+					Handler handler = new Handler(NewSampleActivity.this);
+					PhotoUtils.generateThumbnails(NewSampleActivity.this, sample.getPhotoUri(), handler);
+				}
+				else {
+					sample.setPhotoUri(null);
+				}
+				break;
+			
+			case PhotoUtils.CHANGE_PHOTO_INTENT:
+				if (resultCode == Activity.RESULT_OK) {
+					if (PhotoUtils.swapPhoto(NewSampleActivity.this, sample.getTimestamp())) {
+						Handler handler = new Handler(NewSampleActivity.this);
+						PhotoUtils.regenerateThumbnails(NewSampleActivity.this, sample.getPhotoUri(), handler);
+					}
+				}
+				else {
+					PhotoUtils.deleteSwapPhoto(NewSampleActivity.this);
+				}
+				break;
 		}
 	}
 	
@@ -379,7 +291,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 		savedState.putCharSequence("title", title.getText());
 		savedState.putCharSequence("description", description.getText());
 		savedState.putBoolean("accepted", sample.getAccepted());
-		savedState.putCharSequence("imgUri", img.getImageUri());
+		savedState.putCharSequence("imgUri", sample.getPhotoUri());
 		
 		if (keyword.getText().length() > 0) {
 			savedState.putCharSequence("keyword", keyword.getText());
@@ -394,13 +306,11 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 			}
 			savedState.putStringArrayList("tagList", tags);
 		}
-		
-		savedState.putBoolean("imgScalingRunning", imgScalingRunning);
 	}
 
 	@Override
 	public void onClick(View v) {
-		if (v.getParent() instanceof TagButtonRow) {
+		if (v.getParent() instanceof TagButtonContainer) {
 			onClickRemoveTag(v);
 		}
 	}
@@ -430,17 +340,65 @@ public class NewSampleActivity extends Activity implements OnClickListener, Imag
 	}
 	
 	@Override
-    public Object onRetainNonConfigurationInstance() {
-		if (imgScalingRunning) {
-			return img.getImgScaleHandler();
+	public boolean onMenuItemClick(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.action_take_photo:
+				
+				Intent takePhoto = PhotoUtils.getTakePhotoIntent(NewSampleActivity.this, sample.getTimestamp());
+				
+				if (takePhoto != null) {
+					Bundle extras = takePhoto.getExtras();
+					Uri photoUri = (Uri)extras.get(PhotoUtils.EXTRA_KEY);
+					sample.setPhotoUri(photoUri.getPath());
+					
+					startActivityForResult(takePhoto, PhotoUtils.TAKE_PHOTO_INTENT);
+				}
+				break;
+				
+			case R.id.action_change_photo:
+				
+				Intent changePhoto = PhotoUtils.getChangePhotoIntent(NewSampleActivity.this);
+				
+				if (changePhoto != null) {
+					startActivityForResult(changePhoto, PhotoUtils.CHANGE_PHOTO_INTENT);
+				}
+				break;
+				
+			case R.id.action_delete_photo:
+				
+				AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(NewSampleActivity.this);
+		        deleteBuilder.setTitle(R.string.photo_delete_warning_title);
+		        deleteBuilder.setMessage(R.string.photo_delete_warning_msg);
+		        deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+		            public void onClick(DialogInterface dialog, int id) {
+		            	// delete photo on storage
+		            	PhotoUtils.deletePhoto(sample.getPhotoUri());
+		            	
+		            	sample.setPhotoUri(null);
+		            	photoView.unsetPhoto();
+		            }
+		        });
+		        deleteBuilder.setNegativeButton(R.string.no, null);
+		        deleteBuilder.create().show();
+		        break;
 		}
-		
-		return null;
-    }
+		return true;
+	}
 
 	@Override
-	public void imageScalingCompleted() {
-		imgScalingRunning = false;
-		startThumbnailLoading();
+	public boolean handleMessage(Message msg) {
+		if (msg.what == AsyncImageScaler.SUCCESS) {
+			Bitmap photoBitmap = (Bitmap)msg.obj;
+			if (photoBitmap != null && msg.arg1 == 48) {
+				photoView.setPhoto(photoBitmap);
+				return true;
+			}
+		}
+		
+		if (msg.what == AsyncImageScaler.ERROR) {
+			// error handling
+		}
+		
+		return false;
 	}
 }

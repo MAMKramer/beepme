@@ -22,10 +22,16 @@ package com.glanznig.beepme;
 
 import java.util.Date;
 import java.util.List;
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import com.glanznig.beepme.helper.PhotoUtils;
+import com.glanznig.beepme.helper.SamplePhotoView;
+import com.glanznig.beepme.view.EditSampleActivity;
+
 import android.content.Context;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,11 +44,11 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	private final Context context;
 	private final List<SampleListItem> samples;
 	
-	private static final int MAX_TITLE_LENGTH = 60;
-	
 	static class EntryHolder {
 	    public TextView title;
+	    public TextView description;
 	    public TextView timestamp;
+	    public SamplePhotoView photo;
 	}
 	
 	static class HeaderHolder {
@@ -65,7 +71,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View rowView = null;
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT); 
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
 		SampleListItem item = samples.get(position);
 		
@@ -106,6 +112,9 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 				EntryHolder holder = new EntryHolder();
 				holder.title = (TextView)rowView.findViewById(R.id.sample_title);
 				holder.timestamp = (TextView)rowView.findViewById(R.id.sample_timestamp);
+				holder.description = (TextView)rowView.findViewById(R.id.sample_description);
+				holder.photo = (SamplePhotoView)rowView.findViewById(R.id.sample_photo);
+				holder.photo.setRights(false, false); // read only
 				rowView.setTag(holder);
 			}
 			
@@ -114,16 +123,40 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 			
 			if (entry.getTitle() != null && entry.getTitle().length() > 0) {
 				String entryTitle = entry.getTitle();
-				if (entryTitle.length() > MAX_TITLE_LENGTH) {
-					entryTitle = entryTitle.substring(0, MAX_TITLE_LENGTH) + " ...";
-				}
-				
 				holder.title.setText(entryTitle);
 			}
 			else {
 				holder.title.setText(R.string.sample_untitled);
 			}
-			holder.timestamp.setText(dateTimeFormat.format(entry.getTimestamp()));
+			
+			if (entry.getPhoto() != null && entry.getPhoto().length() > 0) {
+				holder.photo.setPhoto(entry.getPhoto());
+				
+				String thumbnailUri = PhotoUtils.getThumbnailUri(entry.getPhoto(), 64);
+				File thumb = new File(thumbnailUri);
+				if (thumb.exists()) {
+					holder.photo.setPhoto(thumbnailUri);
+				}
+				else {
+					holder.photo.unsetPhoto();
+					holder.photo.measure(0, 0);
+					PhotoUtils.generateThumbnail(entry.getPhoto(), 64, holder.photo.getMeasuredWidth(), null);
+				}
+			}
+			else {
+				holder.photo.unsetPhoto();
+			}
+			
+			if (entry.getDescription() != null && entry.getDescription().length() > 0) {
+				String entryDescr = entry.getDescription();
+				holder.description.setText(entryDescr);
+				holder.description.setVisibility(View.VISIBLE);
+			}
+			else {
+				holder.description.setVisibility(View.GONE);
+			}
+				
+			holder.timestamp.setText(timeFormat.format(entry.getTimestamp()));
 		}
 		
 		return rowView;

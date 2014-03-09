@@ -19,200 +19,154 @@ Copyright since 2012 Michael Glanznig
 http://beepme.glanznig.com
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+ 	xmlns:f="http://schemas.android.com/apk/res-auto"
+ 	xmlns:p="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent" >
+       
     <LinearLayout
-        android:id="@+id/new_sample_buttons"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@android:drawable/bottom_bar"
-        android:gravity="center"
-        android:orientation="horizontal" >
-
-	    <Button
-	        android:id="@+id/new_sample_btn_save"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_margin="5dp"
-	        android:onClick="onClickSave"
-	        android:text="@string/save" />
-
-	    <Button
-	        android:id="@+id/new_sample_btn_cancel"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/cancel"
-	        android:onClick="onClickCancel"
-	        android:visibility="gone" />
-
-	</LinearLayout>
-	
-    <ScrollView
+        android:id="@+id/new_sample_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/new_sample_buttons"
-        android:layout_alignParentTop="true" >
+        android:layout_gravity="top|center_horizontal"
+        android:paddingTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:orientation="vertical" >
         
-	    <LinearLayout
-	        android:id="@+id/new_sample_layout"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="top|center_horizontal"
-	        android:layout_marginBottom="10dp"
-	        android:layout_marginLeft="10dp"
-	        android:layout_marginRight="10dp"
-	        android:layout_marginTop="5dp"
-	        android:fillViewport="true"
-	        android:orientation="vertical"
-	        android:paddingBottom="8dp" >
-
-	        <RelativeLayout
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+	
+	        <TextView
+	            android:id="@+id/new_sample_show_title"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	            android:layout_marginTop="5dp" >
-
-	            <TextView
-	                android:id="@+id/new_sample_timestamp"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentLeft="true"
-	                android:layout_gravity="left"
-	                android:textSize="17dp"
-	                android:textStyle="bold" />
-
-	            <Button
-	                android:id="@+id/new_sample_btn_photo"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentRight="true"
-	                android:layout_gravity="right"
-	                android:height="80dp"
-	                android:onClick="onClickTakePhoto"
-	                android:text="@string/new_sample_take_photo"
-	                android:width="120dp" />
-
-	            <ProgressBar
-	                android:id="@+id/new_sample_image_load"
-	                style="?android:attr/progressBarStyleSmall"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentRight="true"
-	                android:layout_marginRight="50dp"
-	                android:layout_marginTop="30dp"
-	                android:visibility="gone" />
-
-	            <ImageView
-	                android:id="@+id/new_sample_thumb"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentRight="true"
-	                android:adjustViewBounds="true"
-	                android:contentDescription="thumb"
-	                android:longClickable="true"
-	                android:visibility="gone" />
-	        </RelativeLayout>
-
+	            android:gravity="left"
+	            android:layout_gravity="center_vertical"
+	            android:layout_weight="7"
+	            android:textStyle="bold"
+	            android:textSize="16sp"
+	            android:text="@string/new_sample_moment" />
+	        
 	        <TextView
-	            android:id="@+id/new_sample_label_title"
+	            android:id="@+id/new_sample_timestamp"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:layout_marginTop="5dp"
-	            android:text="@string/sample_title"
-	            android:textSize="17dp"
-	            android:textStyle="bold" />
+	            android:layout_gravity="bottom"
+	            android:gravity="right"
+	            android:layout_weight="3"
+	            android:textSize="12sp" />
+        
+        </LinearLayout>
+        
+        <View 
+		    android:layout_width="fill_parent"
+		    android:layout_height="2dp"
+		    android:background="@color/divider_gray"
+		    android:layout_marginBottom="16dp" />
+        
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
 	        <EditText
 	            android:id="@+id/new_sample_title"
-	            android:layout_width="match_parent"
+	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:layout_marginTop="3dp"
-	            android:ems="10"
+	            android:hint="@string/sample_title"
+	            android:layout_marginRight="8dp"
+	            android:layout_weight="1"
 	            android:inputType="text" >
-
+	
 	            <requestFocus />
 	        </EditText>
 	        
-	        <TextView
-	            android:id="@+id/new_sample_help_title"
+	        <com.glanznig.beepme.helper.SamplePhotoView
+	            android:id="@+id/new_sample_photoview"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/sample_title_help" />
-
-	        <TextView
-	            android:id="@+id/new_sample_label_description"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp"
-	            android:text="@string/sample_description"
-	            android:textSize="17dp"
-	            android:textStyle="bold" />
-
-	        <EditText
-	            android:id="@+id/new_sample_description"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="3dp"
-	            android:ems="10"
-	            android:gravity="top"
-	            android:inputType="textMultiLine"
-	            android:lines="5" />
+        		android:layout_height="wrap_content"
+			    p:placeholder="@drawable/ic_photo_placeholder_light"
+			    p:imgWidth="48dp"
+	    		p:imgHeight="48dp" />
 	        
-	        <TextView
-	            android:id="@+id/new_sample_help_description"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/sample_description_help" />
-	        
-	        <TextView
-	            android:id="@+id/new_sample_label_keywords"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp"
-	            android:text="@string/sample_keywords"
-	            android:textSize="17dp"
-	            android:textStyle="bold" />
-
-	        <RelativeLayout
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="5dp" >
-
-	            <AutoCompleteTextView
-	                android:id="@+id/new_sample_add_keyword"
-	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentLeft="true"
-	                android:layout_toLeftOf="@+id/new_sample_btn_add_keyword" />
-
-	            <Button
-	                android:id="@+id/new_sample_btn_add_keyword"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_alignParentRight="true"
-	                android:onClick="onClickAddKeyword"
-	                android:text="@string/add" />
-	        </RelativeLayout>
-	        
-	        <TextView
-	            android:id="@+id/new_sample_help_keywords"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:text="@string/sample_keywords_help" />
-	        
-	        <com.glanznig.beepme.view.TagButtonContainer
-	            android:id="@+id/new_sample_keyword_container"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="10dp"
-	            android:layout_marginBottom="10dp" />
-
 	    </LinearLayout>
+        
+        <TextView
+            android:id="@+id/new_sample_help_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_title_help"
+            android:textSize="12sp"
+            android:paddingLeft="4dp" />
 
-	</ScrollView>
+        <EditText
+            android:id="@+id/new_sample_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:hint="@string/sample_description"
+            android:lines="5" />
+        
+        <TextView
+            android:id="@+id/new_sample_help_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_description_help"
+            android:textSize="12sp"
+            android:paddingLeft="4dp" />
 
-</RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" >
+
+            <AutoCompleteTextView
+                android:id="@+id/new_sample_add_keyword"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sample_keyword"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/new_sample_btn_add_keyword" />
+
+            <ImageButton
+                android:id="@+id/new_sample_btn_add_keyword"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:onClick="onClickAddKeyword"
+                android:contentDescription="@string/add"
+                android:src="@drawable/ic_action_new_label"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
+        </RelativeLayout>
+        
+        <TextView
+            android:id="@+id/new_sample_help_keywords"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_keywords_help"
+            android:textSize="12sp"
+            android:paddingLeft="4dp" />
+        
+        <com.glanznig.beepme.view.TagButtonContainer
+            android:id="@+id/new_sample_keyword_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:paddingBottom="8dp"
+            android:minHeight="48dp"
+            f:horizontalSpacing="4dp"
+            f:verticalSpacing="4dp" />
+        
+    </LinearLayout>
+
+</ScrollView>

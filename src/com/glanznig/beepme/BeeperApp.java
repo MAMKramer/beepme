@@ -22,7 +22,6 @@ package com.glanznig.beepme;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import com.glanznig.beepme.data.PreferenceHandler;
@@ -31,7 +30,7 @@ import com.glanznig.beepme.data.TimerProfile;
 import com.glanznig.beepme.data.TimerProfileTable;
 import com.glanznig.beepme.data.UptimeTable;
 import com.glanznig.beepme.view.BeepActivity;
-import com.glanznig.beepme.view.MainMenu;
+import com.glanznig.beepme.view.MainActivity;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -41,8 +40,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
@@ -104,24 +101,19 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	private void createNotification() {
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
 		
-		if (android.os.Build.VERSION.SDK_INT >= 11) {
-			notificationBuilder.setSmallIcon(R.drawable.notification_icon);
+		if (this.getPreferences().isTestMode()) {
+			notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify_testmode);
+			notificationBuilder.setContentTitle(getString(R.string.notify_title_testmode));
 		}
 		else {
-			notificationBuilder.setSmallIcon(R.drawable.notification_icon_legacy);
+			notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
+			notificationBuilder.setContentTitle(getString(R.string.notify_title));	
 		}
-		PackageManager pm = getApplicationContext().getPackageManager();
-		try {
-			notificationBuilder.setContentTitle(pm.getApplicationLabel(pm.getApplicationInfo(this.getPackageName(), 0)));
-		}
-		catch (NameNotFoundException ne) {
-			notificationBuilder.setContentTitle("Beeper");
-		}
-		notificationBuilder.setContentText(getString(R.string.beeper_active));
+		notificationBuilder.setContentText(getString(R.string.notify_content));
 		//set as ongoing, so it cannot be cleared
 		notificationBuilder.setOngoing(true);
 		// Creates an explicit intent for an Activity in your app
-		Intent resultIntent = new Intent(this, MainMenu.class);
+		Intent resultIntent = new Intent(this, MainActivity.class);
 
 		// The stack builder object will contain an artificial back stack for the
 		// started Activity.
@@ -129,7 +121,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		// your application to the Home screen.
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		// Adds the back stack for the Intent (but not the Intent itself)
-		stackBuilder.addParentStack(MainMenu.class);
+		stackBuilder.addParentStack(MainActivity.class);
 		// Adds the Intent that starts the Activity to the top of the stack
 		stackBuilder.addNextIntent(resultIntent);
 		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);

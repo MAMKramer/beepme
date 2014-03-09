@@ -24,11 +24,14 @@ import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.fima.glowpadview.GlowPadView;
+import com.fima.glowpadview.GlowPadView.OnTriggerListener;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.ScheduledBeepTable;
+import com.glanznig.beepme.data.UptimeTable;
 import com.glanznig.beepme.helper.BeepAlertManager;
 
 import android.app.Activity;
@@ -36,30 +39,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.PorterDuffColorFilter;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.RelativeLayout.LayoutParams;
 
 public class BeepActivity extends Activity {
 	
 	private static final String TAG = "BeepActivity";
+	
+	private GlowPadView acceptDeclineHandle;
+	private GlowPadController glowPadCtrl = new GlowPadController();
 	
 	private static class TimeoutHandler extends Handler {
 		WeakReference<BeepActivity> beepActivity;
@@ -76,23 +73,62 @@ public class BeepActivity extends Activity {
 		}
 	}
 	
-	private static class ScreenStateReceiver extends BroadcastReceiver {
-		WeakReference<BeepActivity> beepActivity;
-		
-		ScreenStateReceiver(BeepActivity activity) {
-			beepActivity = new WeakReference<BeepActivity>(activity);
-		}
+	// Controller for GlowPadView (thanks to AOSP)
+    private class GlowPadController extends Handler implements OnTriggerListener {
+        private static final int PING_MESSAGE_WHAT = 101;
+        private static final long PING_AUTO_REPEAT_DELAY_MSEC = 1200;
 
-	    @Override
-	    public void onReceive(final Context context, final Intent intent) {
-	        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-	            if (beepActivity.get() != null) {
-	            	beepActivity.get().finish();
-	            }
-	        }
-	    }
+        public void startPinger() {
+            sendEmptyMessage(PING_MESSAGE_WHAT);
+        }
 
-	}
+        public void stopPinger() {
+            removeMessages(PING_MESSAGE_WHAT);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            ping();
+            sendEmptyMessageDelayed(PING_MESSAGE_WHAT, PING_AUTO_REPEAT_DELAY_MSEC);
+        }
+
+        @Override
+        public void onGrabbed(View v, int handle) {
+            stopPinger();
+        }
+
+        @Override
+        public void onReleased(View v, int handle) {
+            startPinger();
+
+        }
+
+        @Override
+    	public void onTrigger(View v, int target) {
+    		final int resId = acceptDeclineHandle.getResourceIdForTarget(target);
+    		switch (resId) {
+    			case R.drawable.ic_item_accept:
+    				accept();
+    				break;
+
+    			case R.drawable.ic_item_decline:
+    				decline();
+    				break;
+    				
+    			case R.drawable.ic_item_beeper_off:
+    				declinePause();
+    				break;
+    		}
+    	}
+
+        @Override
+        public void onGrabbedStateChange(View v, int handle) {
+        }
+
+        @Override
+        public void onFinishFinalAnimation() {
+        }
+    }
 	
 	public static final String CANCEL_INTENT = "com.glanznig.beepme.DECLINE_BEEP";
 	
@@ -100,32 +136,24 @@ public class BeepActivity extends Activity {
 	private BeepAlertManager alertManager = null;
 	private PowerManager.WakeLock lock = null;
 	private TimeoutHandler handler = null;
-	private ScreenStateReceiver receiver = null;
+	//private ScreenStateReceiver receiver = null;
 	private BroadcastReceiver cancelReceiver = null;
 	
+	private boolean beepAccepted = false;
+	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		
-		//on home key threat beep as declined
-		if (keyCode == KeyEvent.KEYCODE_HOME) {
-			decline();
-			return false;
-		}
-		
-		//block back key
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			return false;
-		}
-		
-		return super.onKeyDown(keyCode, event);
-	}
+    public void onBackPressed() {
+        // Don't allow back to decline.
+    }
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		
-		if (receiver != null) {
-			unregisterReceiver(receiver);
+		// do not exactly know why Activity is stopping, but if user did not
+		// explicitly accept the beep always decline it
+		if (!beepAccepted) {
+			decline();
 		}
 		
 		if (cancelReceiver != null) {
@@ -145,10 +173,23 @@ public class BeepActivity extends Activity {
 			alertManager.cleanUp();
 		}
 		
+		// do not keep Activity available in stack
 		if (!BeepActivity.this.isFinishing()) {
 			finish();
 		}
 	}
+	
+	@Override
+    protected void onResume() {
+        super.onResume();
+        glowPadCtrl.startPinger();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        glowPadCtrl.stopPinger();
+    }
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -189,63 +230,51 @@ public class BeepActivity extends Activity {
 		registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
 		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        
-        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
-		receiver = new ScreenStateReceiver(BeepActivity.this);
-        registerReceiver(receiver, filter);
+		
+		final Window win = getWindow();
+		win.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        win.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        win.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        win.addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         
 		setContentView(R.layout.beep);
-		
-		LinearLayout buttons = (LinearLayout)findViewById(R.id.beep_buttons);
-		buttons.measure(0, 0);
-		int buttonsHeight = buttons.getMeasuredHeight();
-		int displayHeight = getWindowManager().getDefaultDisplay().getHeight();
-		ImageView beepIcon = (ImageView)findViewById(R.id.beep_icon);
-		beepIcon.measure(0, 0);
-		int iconHeight = beepIcon.getMeasuredHeight();
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		lp.setMargins(0, ((displayHeight - buttonsHeight) / 2) - (iconHeight / 2), 0, 0);
-		beepIcon.setLayoutParams(lp);
-		
-		handler = new TimeoutHandler(BeepActivity.this);
-		handler.sendEmptyMessageDelayed(1, 60000); // 1 minute timeout for activity
 		
 		alertManager = new BeepAlertManager(BeepActivity.this);
 		alertManager.startAlert();
 		
 		setVolumeControlStream(AudioManager.STREAM_ALARM);
 		
-		Button accept = (Button)findViewById(R.id.beep_btn_accept);
-		Button decline = (Button)findViewById(R.id.beep_btn_decline);
-		Button decline_pause = (Button)findViewById(R.id.beep_btn_decline_pause);
-		//get display dimensions
-		Display display = getWindowManager().getDefaultDisplay();
-		int width = (display.getWidth() - 40) / 2;
-		decline.setWidth(width);
-		decline_pause.setWidth(width);
-		PorterDuffColorFilter green = new PorterDuffColorFilter(Color.rgb(130, 217, 130), Mode.MULTIPLY); // was 96, 191, 96
-		PorterDuffColorFilter red = new PorterDuffColorFilter(Color.rgb(217, 130, 130), Mode.MULTIPLY); // was 191, 96, 96
-		accept.getBackground().setColorFilter(green);
-		decline.getBackground().setColorFilter(red);
-		decline_pause.getBackground().setColorFilter(red);
+		handler = new TimeoutHandler(BeepActivity.this);
+		handler.sendEmptyMessageDelayed(1, 30000); // 30 sec timeout for activity
+		
+		acceptDeclineHandle = (GlowPadView)findViewById(R.id.beep_glowpad);
+		acceptDeclineHandle.setOnTriggerListener(glowPadCtrl);
+		glowPadCtrl.startPinger();
+		//acceptDeclineHandle.setShowTargetsOnIdle(true);
 		
 		SampleTable st = new SampleTable(this.getApplicationContext());
 		int numAccepted = st.getNumAcceptedToday();
 		int numDeclined = st.getSampleCountToday() - numAccepted;
+		long uptimeDur = new UptimeTable(this.getApplicationContext(), app.getTimerProfile()).getUptimeDurToday();
+		
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
 		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
-		String accepted = String.format(getString(R.string.beep_accepted_today), numAccepted);
-		String declined = String.format(getString(R.string.beep_declined_today), numDeclined);
-		acceptedToday.setText(accepted);
-		acceptedToday.setTextColor(Color.rgb(130, 217, 130));
-		declinedToday.setText(declined);
-		declinedToday.setTextColor(Color.rgb(217, 130, 130));
-	}	
+		TextView beeperActive = (TextView)findViewById(R.id.beep_elapsed_today);
+		
+		String timeActive = String.format("%02d:%02d:%02d", uptimeDur/3600, (uptimeDur%3600)/60, (uptimeDur%60));
+		
+		acceptedToday.setText(String.valueOf(numAccepted));
+		declinedToday.setText(String.valueOf(numDeclined));
+		beeperActive.setText(String.valueOf(timeActive));
+	}
 	
-	public void onClickAccept(View view) {
+	private void ping() {
+        acceptDeclineHandle.ping();
+    }
+	
+	public void accept() {
 		if (alertManager != null) {
 			alertManager.stopAlert();
 		}
@@ -253,17 +282,15 @@ public class BeepActivity extends Activity {
 		BeeperApp app = (BeeperApp)getApplication();
 		app.acceptTimer();
 		
+		beepAccepted = true;
+		
 		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
 		accept.putExtra(getApplication().getClass().getPackage().getName() + ".Timestamp", beepTime.getTime());
 		startActivity(accept);
 		finish();
 	}
 	
-	public void onClickDecline(View view) {
-		decline();
-	}
-	
-	public void onClickDeclinePause(View view) {
+	public void declinePause() {
 		BeeperApp app = (BeeperApp)getApplication();
 		app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
 		decline();

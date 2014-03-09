@@ -21,13 +21,24 @@ http://beepme.glanznig.com
 
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:id="@+id/menu_settings"
-      android:icon="@android:drawable/ic_menu_preferences"
-      android:title="@string/preferences" />
-  <item android:id="@+id/menu_export"
-      android:icon="@android:drawable/ic_menu_save"
-      android:title="@string/export_data" />
-  <item android:id="@+id/menu_info"
-      android:icon="@android:drawable/ic_menu_info_details"
-      android:title="@string/about" />
+  <item android:id="@+id/action_toggle_beeper"
+      android:icon="@drawable/ic_menu_beeper_off"
+      android:title="@string/action_beeper_off"
+      android:showAsAction="always" />
+  <item android:id="@+id/action_test_beep"
+      android:icon="@drawable/ic_menu_test_beep"
+      android:title="@string/action_test_beep"
+      android:showAsAction="ifRoom" />
+  <item android:id="@+id/action_export"
+      android:icon="@drawable/ic_action_import_export"
+      android:title="@string/action_export"
+      android:showAsAction="ifRoom" />
+  <item android:id="@+id/action_settings"
+      android:icon="@drawable/ic_action_settings"
+      android:title="@string/action_settings"
+      android:showAsAction="never" />
+  <item android:id="@+id/action_about"
+      android:icon="@drawable/ic_action_about"
+      android:title="@string/action_about"
+      android:showAsAction="never" />
 </menu>
