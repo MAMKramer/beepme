@@ -21,6 +21,7 @@ http://beepme.glanznig.com
 package com.glanznig.beepme.view;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,7 +35,6 @@ import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
-import com.glanznig.beepme.helper.SamplePhotoView;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -62,6 +62,32 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	
 	private Sample sample = new Sample();
 	private SamplePhotoView photoView;
+	
+	private static class ImgLoadHandler extends Handler {
+		WeakReference<SamplePhotoView> view;
+		
+		ImgLoadHandler(SamplePhotoView view) {
+			this.view = new WeakReference<SamplePhotoView>(view);
+		}
+		
+	    @Override
+	    public void handleMessage(Message msg) {
+	    	if (msg.what == PhotoUtils.MSG_PHOTO_LOADED) {
+	    		Bitmap imageBitmap = (Bitmap)msg.obj;
+	    		
+	    		if (view.get() != null && imageBitmap != null) {
+	    			view.get().setPhoto(imageBitmap);
+	    		}
+	    		else if (view.get() != null) {
+	    			view.get().setVisibility(View.GONE);
+	    		}
+	    	}
+	    	
+	    	if (msg.what == PhotoUtils.MSG_PHOTO_LOAD_ERROR && view.get() != null) {
+	    		view.get().setVisibility(View.GONE);
+	    	}
+	    }
+	}
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -156,17 +182,15 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 		if (thumbnailUri != null) {
 			File thumb = new File(thumbnailUri);
 			if (thumb.exists()) {
-				photoView.setPhoto(thumbnailUri);
+				ImgLoadHandler handler = new ImgLoadHandler(photoView);
+				PhotoUtils.getAsyncBitmap(EditSampleActivity.this, thumbnailUri, handler);
 			}
 			else {
 				Handler handler = new Handler(EditSampleActivity.this);
 				photoView.measure(0, 0);
 				PhotoUtils.generateThumbnail(sample.getPhotoUri(), 48, photoView.getMeasuredWidth(), handler);
+				photoView.setVisibility(View.GONE);
 			}
-		}
-		
-		if (!photoView.isPhotoSet()) {
-			photoView.setVisibility(View.GONE);
 		}
         
         if (sample.getTimestamp() != null) {
@@ -338,7 +362,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		if (msg.what == AsyncImageScaler.SUCCESS) {
+		if (msg.what == AsyncImageScaler.MSG_SUCCESS) {
 			Bitmap photoBitmap = (Bitmap)msg.obj;
 			if (photoBitmap != null && msg.arg1 == 48) {
 				photoView.setPhoto(photoBitmap);
@@ -352,7 +376,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 			}
 		}
 		
-		if (msg.what == AsyncImageScaler.ERROR) {
+		if (msg.what == AsyncImageScaler.MSG_ERROR) {
 			// error handling
 			photoView.setVisibility(View.GONE);
 		}

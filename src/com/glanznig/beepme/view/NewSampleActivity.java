@@ -20,6 +20,8 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
+import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,7 +36,6 @@ import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
-import com.glanznig.beepme.helper.SamplePhotoView;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -64,6 +65,25 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 	
 	private Sample sample = new Sample();
 	private SamplePhotoView photoView = null;
+	
+	private static class ImgLoadHandler extends Handler {
+		WeakReference<SamplePhotoView> view;
+		
+		ImgLoadHandler(SamplePhotoView view) {
+			this.view = new WeakReference<SamplePhotoView>(view);
+		}
+		
+	    @Override
+	    public void handleMessage(Message msg) {
+	    	if (msg.what == PhotoUtils.MSG_PHOTO_LOADED) {
+	    		Bitmap imageBitmap = (Bitmap)msg.obj;
+	    		
+	    		if (view.get() != null && imageBitmap != null) {
+	    			view.get().setPhoto(imageBitmap);
+	    		}
+	    	}
+	    }
+	}
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -152,8 +172,13 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 			photoView.setVisibility(View.VISIBLE);
 			photoView.setOnMenuItemClickListener(NewSampleActivity.this);
 			
-			if (sample.getPhotoUri() != null) {
-				photoView.setPhoto(sample.getPhotoUri());
+			String thumbnailUri = PhotoUtils.getThumbnailUri(sample.getPhotoUri(), 48);
+			if (thumbnailUri != null) {
+				File thumb = new File(thumbnailUri);
+				if (thumb.exists()) {
+					ImgLoadHandler handler = new ImgLoadHandler(photoView);
+					PhotoUtils.getAsyncBitmap(NewSampleActivity.this, thumbnailUri, handler);
+				}
 			}
 		}
         
@@ -242,8 +267,6 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
 		sample.setUptimeId(app.getPreferences().getUptimeId());
-		
-		Log.i(TAG, "saveSample: photoUri="+sample.getPhotoUri());
 		
 		// also save non-added keywords
 		TagButtonContainer keywordTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
@@ -396,7 +419,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		if (msg.what == AsyncImageScaler.SUCCESS) {
+		if (msg.what == AsyncImageScaler.MSG_SUCCESS) {
 			Bitmap photoBitmap = (Bitmap)msg.obj;
 			if (photoBitmap != null && msg.arg1 == 48) {
 				photoView.setPhoto(photoBitmap);
@@ -404,7 +427,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 			}
 		}
 		
-		if (msg.what == AsyncImageScaler.ERROR) {
+		if (msg.what == AsyncImageScaler.MSG_ERROR) {
 			// error handling
 		}
 		

@@ -18,7 +18,7 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme.helper;
+package com.glanznig.beepme.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.helper.PhotoUtils;
 
 public class SamplePhotoView extends LinearLayout {
 	

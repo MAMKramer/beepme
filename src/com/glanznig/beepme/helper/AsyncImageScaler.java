@@ -34,8 +34,8 @@ import android.util.Log;
 
 public class AsyncImageScaler extends Thread {
 	
-	public static final int SUCCESS = 32;
-	public static final int ERROR = 33;
+	public static final int MSG_SUCCESS = 32;
+	public static final int MSG_ERROR = 33;
 	private static final int IMG_QUALITY = 75;
 	private static final String TAG = "AsyncImageScaler";
 	
@@ -100,19 +100,19 @@ public class AsyncImageScaler extends Thread {
 		        }
 				
 				if (handler != null) {
-		        	handler.obtainMessage(SUCCESS, name, 0, scaledPhoto).sendToTarget();
+		        	handler.obtainMessage(MSG_SUCCESS, name, 0, scaledPhoto).sendToTarget();
 		        }
 			}
 			catch(Exception e) {
 				if (handler != null) {
-					handler.obtainMessage(ERROR).sendToTarget();
+					handler.obtainMessage(MSG_ERROR).sendToTarget();
 				}
 				Log.e(TAG, "Failed loading image.", e);
 			}
 		}
 		else {
 			if (handler != null) {
-				handler.obtainMessage(ERROR).sendToTarget();
+				handler.obtainMessage(MSG_ERROR).sendToTarget();
 			}
 		}
 	}

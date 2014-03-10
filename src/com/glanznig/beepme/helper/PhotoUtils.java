@@ -28,14 +28,17 @@ import java.util.List;
 
 import com.glanznig.beepme.BeeperApp;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -55,6 +58,8 @@ public class PhotoUtils {
 	
 	public static final int TAKE_PHOTO_INTENT = 3648;
 	public static final int CHANGE_PHOTO_INTENT = 3638;
+	public static final int MSG_PHOTO_LOADED = 48;
+	public static final int MSG_PHOTO_LOAD_ERROR = 49;
 	public static final String EXTRA_KEY = MediaStore.EXTRA_OUTPUT;
 	
 	public static Intent getTakePhotoIntent(Context ctx, Date timestamp) {
@@ -120,6 +125,34 @@ public class PhotoUtils {
 		}
 		
 		return null;
+	}
+	
+	public static void getAsyncBitmap(Context ctx, final String uri, final Handler handler) {
+		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			final ContentResolver resolver = ctx.getContentResolver();
+			
+			Thread bitmapLoader = new Thread() {
+				public void run() {
+					try {
+			    		Bitmap photo = MediaStore.Images.Media.getBitmap(
+			    				resolver, Uri.fromFile(new File(uri)));
+			    		Bundle b = new Bundle();
+			    		b.putString("uri", uri);
+			    		Message msg = handler.obtainMessage(MSG_PHOTO_LOADED, photo);
+			    		msg.setData(b);
+			    		msg.sendToTarget();
+			    	}
+			    	catch(IOException ioe) {
+			    		Log.e(TAG, ioe.getMessage());
+			    		handler.obtainMessage(MSG_PHOTO_LOAD_ERROR).sendToTarget();
+			    	}
+				}
+			};
+			bitmapLoader.start();
+		}
+		else {
+			handler.obtainMessage(MSG_PHOTO_LOAD_ERROR).sendToTarget();
+		}
 	}
 	
 	public static boolean swapPhoto(Context ctx, Date timestamp) {

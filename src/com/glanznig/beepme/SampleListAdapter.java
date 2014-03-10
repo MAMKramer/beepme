@@ -23,13 +23,18 @@ package com.glanznig.beepme;
 import java.util.Date;
 import java.util.List;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import com.glanznig.beepme.helper.PhotoUtils;
-import com.glanznig.beepme.helper.SamplePhotoView;
+import com.glanznig.beepme.view.SamplePhotoView;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +56,34 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	
 	static class HeaderHolder {
 	    public TextView headerTitle;
+	}
+	
+	private static class ImgLoadHandler extends Handler {
+		WeakReference<SamplePhotoView> view;
+		String uri;
+		
+		ImgLoadHandler(SamplePhotoView view, String uri) {
+			this.view = new WeakReference<SamplePhotoView>(view);
+			this.uri = uri;
+		}
+		
+	    @Override
+	    public void handleMessage(Message msg) {
+	    	if (msg.what == PhotoUtils.MSG_PHOTO_LOADED) {
+	    		Bitmap imageBitmap = (Bitmap)msg.obj;
+	    		Bundle data = msg.getData();
+	    		String uri = data.getString("uri");
+	    		
+	    		if (view.get() != null && imageBitmap != null && uri != null && this.uri != null) {
+	    			if (this.uri.equals(uri)) {
+	    				view.get().setPhoto(imageBitmap);
+	    			}
+	    			else {
+	    				imageBitmap.recycle();
+	    			}
+	    		}
+	    	}
+	    }
 	}
 	
 	public SampleListAdapter(Context context, List<SampleListItem> values) {
@@ -128,12 +161,11 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 			}
 			
 			if (entry.getPhoto() != null && entry.getPhoto().length() > 0) {
-				holder.photo.setPhoto(entry.getPhoto());
-				
 				String thumbnailUri = PhotoUtils.getThumbnailUri(entry.getPhoto(), 64);
 				File thumb = new File(thumbnailUri);
 				if (thumb.exists()) {
-					holder.photo.setPhoto(thumbnailUri);
+					ImgLoadHandler handler = new ImgLoadHandler(holder.photo, thumbnailUri);
+					PhotoUtils.getAsyncBitmap(this.getContext(), thumbnailUri, handler);
 				}
 				else {
 					holder.photo.unsetPhoto();

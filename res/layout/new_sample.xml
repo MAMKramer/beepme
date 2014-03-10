@@ -87,7 +87,7 @@ http://beepme.glanznig.com
 	            <requestFocus />
 	        </EditText>
 	        
-	        <com.glanznig.beepme.helper.SamplePhotoView
+	        <com.glanznig.beepme.view.SamplePhotoView
 	            android:id="@+id/new_sample_photoview"
 	            android:layout_width="wrap_content"
         		android:layout_height="wrap_content"
