@@ -28,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.util.Log;
 
@@ -66,24 +67,13 @@ public class AsyncImageScaler extends Thread {
 		        BitmapFactory.decodeStream(fileInput, null, opts);
 		        fileInput.close();
 		        
-		        float srcRatio =  opts.outWidth / opts.outHeight;
-		        float destRatio =  destWidth / destHeight;
+		        float srcRatio =  (float)opts.outWidth / (float)opts.outHeight;
+		        float destRatio =  (float)destWidth / (float)destHeight;
 	
 		        int scale = 1;
-		        int shorterSrcSide = 0;
-		        int destSide = 0;
-		        
-		        // always scale with shorter side of source
-		        if (opts.outHeight > opts.outWidth) {
-		        	shorterSrcSide = opts.outWidth;
-		        	destSide = destWidth;
+		        while(opts.outWidth / scale / 2 > destWidth && opts.outHeight / scale / 2 > destHeight) {
+		            scale *= 2;
 		        }
-		        else {
-		        	shorterSrcSide = opts.outHeight;
-		        	destSide = destHeight;
-		        }
-		        
-		        scale = (int)Math.pow(2, (int) Math.round(Math.log(destSide / (double) shorterSrcSide) / Math.log(0.5)));
 	
 		        // now decode image with scale factor (inSampleSize)
 		        opts.inJustDecodeBounds = false;
@@ -91,22 +81,11 @@ public class AsyncImageScaler extends Thread {
 		        fileInput = new FileInputStream(srcUri);
 		        Bitmap scaledPhoto = BitmapFactory.decodeStream(fileInput, null, opts);
 		        fileInput.close();
-		        Log.i(TAG, "scaledPhoto.width="+scaledPhoto.getWidth() + " scaledPhoto.height=" + scaledPhoto.getHeight());
 		        
 		        // if different ratio needed create new bitmap with scale to fit CENTER
 		        Bitmap croppedPhoto = null;
 		        if (Math.abs(srcRatio - destRatio) > 0.001) {
-		        	Matrix matrix = new Matrix();
-		        	RectF src = new RectF(0, 0, scaledPhoto.getWidth(), scaledPhoto.getHeight());
-		        	RectF dst = new RectF(0, 0, destWidth, destHeight);
-		            if (matrix.setRectToRect(src, dst, Matrix.ScaleToFit.CENTER)) {
-		            	croppedPhoto = Bitmap.createBitmap(scaledPhoto, 0, 0,
-		            			scaledPhoto.getWidth(), scaledPhoto.getHeight(), matrix, true);
-		            	Log.i(TAG, "croppedPhoto.width="+croppedPhoto.getWidth() + " croppedPhoto.height=" + croppedPhoto.getHeight());
-		            }
-		            /*else {
-		            	Log.i(TAG, "does not fit");
-		            }*/
+		        	croppedPhoto = ThumbnailUtils.extractThumbnail(scaledPhoto, destWidth, destHeight);
 		        }
 		        
 		        if (croppedPhoto != null) {

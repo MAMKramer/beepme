@@ -104,6 +104,10 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 				sample.setDescription(savedState.getCharSequence("description").toString());
 			}
 			
+			if (savedState.getCharSequence("imgUri") != null) {
+				sample.setPhotoUri(savedState.getCharSequence("imgUri").toString());
+			}
+			
 			if (savedState.getCharSequence("keyword") != null) {
 				EditText keyword = (EditText)findViewById(R.id.new_sample_add_keyword);
 				keyword.setText(savedState.getCharSequence("keyword"));
@@ -147,6 +151,10 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		else {
 			photoView.setVisibility(View.VISIBLE);
 			photoView.setOnMenuItemClickListener(NewSampleActivity.this);
+			
+			if (sample.getPhotoUri() != null) {
+				photoView.setPhoto(sample.getPhotoUri());
+			}
 		}
         
     	setTitle(R.string.new_sample);
