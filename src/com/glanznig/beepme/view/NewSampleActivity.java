@@ -48,6 +48,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -285,11 +286,15 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+		
 		switch (requestCode) {
 			case PhotoUtils.TAKE_PHOTO_INTENT:
 				if (resultCode == Activity.RESULT_OK) {
 					Handler handler = new Handler(NewSampleActivity.this);
 					PhotoUtils.generateThumbnails(NewSampleActivity.this, sample.getPhotoUri(), handler);
+					
+					PhotoUtils.generateThumbnail(sample.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
 				}
 				else {
 					sample.setPhotoUri(null);
@@ -301,6 +306,8 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 					if (PhotoUtils.swapPhoto(NewSampleActivity.this, sample.getTimestamp())) {
 						Handler handler = new Handler(NewSampleActivity.this);
 						PhotoUtils.regenerateThumbnails(NewSampleActivity.this, sample.getPhotoUri(), handler);
+						
+						PhotoUtils.generateThumbnail(sample.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
 					}
 				}
 				else {

@@ -20,6 +20,8 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
+import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -28,45 +30,46 @@ import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
+import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.FlowLayout;
+import com.glanznig.beepme.helper.PhotoUtils;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Handler.Callback;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class ViewSampleFragment extends Fragment {
+public class ViewSampleFragment extends Fragment implements Callback {
 	
 	private static final String TAG = "ViewSampleFragment";
 	private long sampleId = 0L;
+	private SamplePhotoView photoView; 
 	
-	/*private static class ImgLoadHandler extends Handler {
-		WeakReference<ViewSampleFragment> viewSampleFragment;
+	private static class ImgLoadHandler extends Handler {
+		WeakReference<SamplePhotoView> view;
 		
-		ImgLoadHandler(ViewSampleFragment activity) {
-			viewSampleFragment = new WeakReference<ViewSampleFragment>(activity);
+		ImgLoadHandler(SamplePhotoView view) {
+			this.view = new WeakReference<SamplePhotoView>(view);
 		}
 		
 	    @Override
 	    public void handleMessage(Message msg) {
-	    	if (msg.what == AsyncImageScaler.BITMAP_MSG) {
+	    	if (msg.what == PhotoUtils.MSG_PHOTO_LOADED) {
 	    		Bitmap imageBitmap = (Bitmap)msg.obj;
-	    		if (viewSampleFragment.get() != null) {
-			    	if (imageBitmap != null) {
-						viewSampleFragment.get().getView().findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
-						ImageView image = (ImageView)viewSampleFragment.get().getView().findViewById(R.id.view_sample_image);
-						image.setImageBitmap(imageBitmap);
-						image.setVisibility(View.VISIBLE);
-					}
-					else {
-						viewSampleFragment.get().getView().findViewById(R.id.view_sample_image_load).setVisibility(View.GONE);
-					}
+	    		
+	    		if (view.get() != null && imageBitmap != null) {
+	    			view.get().setPhoto(imageBitmap);
 	    		}
 	    	}
 	    }
-	};*/
+	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
@@ -163,15 +166,44 @@ public class ViewSampleFragment extends Fragment {
 				keywordHolder.setVisibility(View.VISIBLE);
 			}
 			
-			/*if (s.getPhotoUri() != null) {
-				getView().findViewById(R.id.view_sample_image_load).setVisibility(View.VISIBLE);
-			    
-				//get display dimensions
-				Display display = getActivity().getWindowManager().getDefaultDisplay();
-				int imageWidth = display.getWidth() - 20;
-				AsyncImageScaler loader = new AsyncImageScaler(s.getPhotoUri(), imageWidth, new ImgLoadHandler(ViewSampleFragment.this));
-				loader.start();
-			}*/
+			photoView = (SamplePhotoView)getView().findViewById(R.id.view_sample_photo);
+			photoView.setRights(false, false); // read only
+			DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
+			photoView.setFrameWidth(metrics.widthPixels);
+			
+			String thumbnailUri = PhotoUtils.getThumbnailUri(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f));
+			if (thumbnailUri != null) {
+				File thumb = new File(thumbnailUri);
+				if (thumb.exists()) {
+					ImgLoadHandler handler = new ImgLoadHandler(photoView);
+					PhotoUtils.getAsyncBitmap(getView().getContext(), thumbnailUri, handler);
+				}
+				else {
+					Handler handler = new Handler(this);
+					photoView.measure(0, 0);
+					PhotoUtils.generateThumbnail(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
+				}
+			}
 		}
+	}
+	
+	@Override
+	public boolean handleMessage(Message msg) {
+		DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
+		
+		if (msg.what == AsyncImageScaler.MSG_SUCCESS) {
+			Bitmap photoBitmap = (Bitmap)msg.obj;
+			if (photoBitmap != null && msg.arg1 == (int)(metrics.widthPixels / metrics.density + 0.5f)) {
+				photoView.setPhoto(photoBitmap);
+				
+				return true;
+			}
+		}
+		
+		if (msg.what == AsyncImageScaler.MSG_ERROR) {
+			// error handling
+		}
+		
+		return false;
 	}
 }

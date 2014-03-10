@@ -32,7 +32,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -55,8 +54,8 @@ public class ViewSampleActivity extends FragmentActivity {
         pager.setAdapter(pagerAdapter);
         
         // set gap between pages
-        pager.setPageMargin((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, this.getResources().getDisplayMetrics()));
-        pager.setPageMarginDrawable(R.drawable.swipe_filler);
+        //pager.setPageMargin((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, this.getResources().getDisplayMetrics()));
+        //pager.setPageMarginDrawable(R.drawable.swipe_filler);
         
         // listening for page changes
         SimpleOnPageChangeListener listener = new ViewPager.SimpleOnPageChangeListener() {

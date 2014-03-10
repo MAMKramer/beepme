@@ -192,6 +192,9 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 				photoView.setVisibility(View.GONE);
 			}
 		}
+		else {
+			photoView.setVisibility(View.GONE);
+		}
         
         if (sample.getTimestamp() != null) {
         	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);

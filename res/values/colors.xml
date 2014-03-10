@@ -28,5 +28,6 @@ http://beepme.glanznig.com
     <item name="bg_darkgray" type="color">#808080</item>
     <item name="bg_keyword" type="color">#d0d0d0</item>
     <item name="bg_gray" type="color">#f3f3f3</item>
+    <item name="bg_photo" type="color">#e6e6e6</item>
     <drawable name="swipe_filler">#f3f3f3</drawable>
 </resources>

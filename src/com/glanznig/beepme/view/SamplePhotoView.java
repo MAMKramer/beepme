@@ -48,8 +48,8 @@ public class SamplePhotoView extends LinearLayout {
     private Context ctx;
     
     private int placeholderResId = 0;
-    private int width = 48; //dp
-    private int height = 48; //dp
+    private int width;
+    private int height;
     private boolean canDelete = true;
     private boolean canChange = true;
     private boolean hasPhotoSet = false;
@@ -198,6 +198,15 @@ public class SamplePhotoView extends LinearLayout {
     		hasPhotoSet = false;
     		photo.setImageResource(placeholderResId);
     		updateAppearance();
+    	}
+    }
+    
+    public void setFrameWidth(int width) {
+    	if (width > 0) {
+	    	this.width = width;
+	    	LayoutParams params = new LayoutParams(width, height);
+	    	frame.setLayoutParams(params);
+	    	updateAppearance();
     	}
     }
     
