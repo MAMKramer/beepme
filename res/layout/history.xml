@@ -19,10 +19,27 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_marginLeft="16dp"
+	android:layout_marginRight="8dp">
     
+    <ListView
+        android:id="@+id/android:list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:scrollbarStyle="outsideInset" />
 
-</LinearLayout>
+  	<TextView
+  	    android:id="@+id/android:empty"
+  	    android:layout_width="wrap_content"
+  	    android:layout_height="wrap_content"
+  	    android:layout_centerInParent="true"
+  	    android:layout_gravity="center"
+  	    android:text="@string/history_empty" />
+
+</RelativeLayout>

@@ -49,6 +49,7 @@ http://beepme.glanznig.com
     <string name="export_send_mail_msg">Das Archiv ist %1$s groß. Möchten Sie es per Mail versenden?</string>
     <string name="export_success_send_mail_title">Erfolgreich exportiert</string>
     <string name="history">Verlauf</string>
+    <string name="history_empty">Den Verlauf Ihres Samplings finden Sie hier.</string>
     <string name="mail_chooser_title">Wählen Sie die App zum Senden</string>
     <string name="main_menu_new_sample">Neues Sample</string>
     <string name="main_menu_samples_list">Einträge ansehen</string>

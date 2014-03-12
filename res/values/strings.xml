@@ -48,6 +48,7 @@ http://beepme.glanznig.com
     <string name="export_send_mail_msg">The archive has the size of %1$s. Do you want to send it by mail?</string>
     <string name="export_success_send_mail_title">Exported successfully</string>
     <string name="history">History</string>
+    <string name="history_empty">You will find your sampling history here.</string>
     <string name="mail_chooser_title">Choose app to send</string>
     <string name="main_menu_new_sample">New Sample</string>
     <string name="main_menu_samples_list">View Samples</string>

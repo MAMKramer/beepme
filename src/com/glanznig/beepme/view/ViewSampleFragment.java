@@ -34,6 +34,8 @@ import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.FlowLayout;
 import com.glanznig.beepme.helper.PhotoUtils;
 
+import android.app.ActionBar;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,9 +43,15 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ViewSampleFragment extends Fragment implements Callback {
@@ -169,7 +177,17 @@ public class ViewSampleFragment extends Fragment implements Callback {
 			photoView = (SamplePhotoView)getView().findViewById(R.id.view_sample_photo);
 			photoView.setRights(false, false); // read only
 			DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
-			photoView.setFrameWidth(metrics.widthPixels);
+			
+			if (isLandscape()) {
+				View parent = getView();
+				parent.measure(0, 0);
+				photoView.setFrameDimensions(parent.getMeasuredHeight(), parent.getMeasuredHeight());
+				photoView.measure(0, 0);
+				Log.i(TAG, "setSize="+parent.getMeasuredHeight()+" measuredHeight="+photoView.getMeasuredHeight()+" measuredWidth="+photoView.getMeasuredWidth());
+			}
+			else {
+				photoView.setFrameWidth(LayoutParams.MATCH_PARENT);
+			}
 			
 			String thumbnailUri = PhotoUtils.getThumbnailUri(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f));
 			if (thumbnailUri != null) {
@@ -181,7 +199,12 @@ public class ViewSampleFragment extends Fragment implements Callback {
 				else {
 					Handler handler = new Handler(this);
 					photoView.measure(0, 0);
-					PhotoUtils.generateThumbnail(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
+					if (isLandscape()) {
+						PhotoUtils.generateThumbnail(s.getPhotoUri(), (int)(metrics.heightPixels / metrics.density + 0.5f), metrics.heightPixels, handler);
+					}
+					else {
+						PhotoUtils.generateThumbnail(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
+					}
 				}
 			}
 		}
@@ -189,11 +212,9 @@ public class ViewSampleFragment extends Fragment implements Callback {
 	
 	@Override
 	public boolean handleMessage(Message msg) {
-		DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
-		
 		if (msg.what == AsyncImageScaler.MSG_SUCCESS) {
 			Bitmap photoBitmap = (Bitmap)msg.obj;
-			if (photoBitmap != null && msg.arg1 == (int)(metrics.widthPixels / metrics.density + 0.5f)) {
+			if (photoBitmap != null) {
 				photoView.setPhoto(photoBitmap);
 				
 				return true;
@@ -205,5 +226,16 @@ public class ViewSampleFragment extends Fragment implements Callback {
 		}
 		
 		return false;
+	}
+	
+	private boolean isLandscape() {
+		DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
+		
+		if (metrics.heightPixels < metrics.widthPixels) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }

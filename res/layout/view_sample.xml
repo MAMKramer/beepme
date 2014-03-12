@@ -39,9 +39,7 @@ http://beepme.glanznig.com
 		        android:id="@+id/view_sample_photo"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
-		        android:background="@color/bg_photo"
-			    p:placeholder="@drawable/ic_photo_bg"
-			    p:imgWidth="1dp"
+			    android:background="@drawable/photo_placeholder"
 			    p:imgHeight="192dp" />
 		    
 		    <View
@@ -62,13 +60,16 @@ http://beepme.glanznig.com
 		
 		        <TextView
 		            android:id="@+id/view_sample_title"
-		            android:layout_width="match_parent"
+		            android:layout_width="0dp"
 		            android:layout_height="wrap_content"
 		            android:gravity="left"
-		            android:layout_gravity="bottom"
-		            android:layout_weight="7"
+		            android:layout_weight="1"
 		            android:textStyle="bold"
 		            android:textColor="@color/white"
+		            android:shadowColor="@color/black"
+		            android:shadowDx="1"
+		            android:shadowDy="1"
+		            android:shadowRadius="2"
 		            android:textSize="16sp" />
 		        
 		        <TextView
@@ -76,8 +77,12 @@ http://beepme.glanznig.com
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
 		            android:gravity="right"
-		            android:layout_weight="3"
+		            android:layout_marginLeft="8dp"
 		            android:textColor="@color/white"
+		            android:shadowColor="@color/black"
+		            android:shadowDx="1"
+		            android:shadowDy="1"
+		            android:shadowRadius="2"
 		            android:textSize="12sp" />
 	        
 	        </LinearLayout>
@@ -87,7 +92,6 @@ http://beepme.glanznig.com
 	    <LinearLayout
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_gravity="top|center_horizontal"
 	        android:paddingBottom="16dp"
 	        android:layout_marginTop="12dp"
 	        android:layout_marginLeft="16dp"
@@ -114,43 +118,36 @@ http://beepme.glanznig.com
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content"
 	            android:textSize="16sp" />
-	        
-	        <LinearLayout
-			    android:layout_width="fill_parent"
+				
+			<TextView
+				android:id="@+id/view_sample_label_keywords"
+				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:text="@string/sample_keywords"
 				android:layout_marginTop="16dp"
-				android:orientation="vertical">
-				
-				<TextView
-					android:id="@+id/view_sample_label_keywords"
-					android:layout_width="fill_parent"
-					android:layout_height="wrap_content"
-					android:text="@string/sample_keywords"
-					android:textStyle="bold"
-					android:textSize="16sp" />
-				
-				<View 
-				    android:layout_width="fill_parent"
-				    android:layout_height="1dp"
-				    android:layout_marginTop="4dp"
-				    android:layout_marginBottom="8dp"
-				    android:background="@color/divider_gray" />
-				
-				<com.glanznig.beepme.helper.FlowLayout
-					android:id="@+id/view_sample_keyword_container"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					f:horizontalSpacing="4dp"
-					f:verticalSpacing="4dp" />
-				
-			    <TextView
-					android:id="@+id/view_sample_no_keywords"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:textSize="12sp"
-					android:visibility="gone" />
-			    
-			</LinearLayout>
+				android:textStyle="bold"
+				android:textSize="16sp" />
+			
+			<View 
+			    android:layout_width="fill_parent"
+			    android:layout_height="1dp"
+			    android:layout_marginTop="4dp"
+			    android:layout_marginBottom="8dp"
+			    android:background="@color/divider_gray" />
+			
+			<com.glanznig.beepme.helper.FlowLayout
+				android:id="@+id/view_sample_keyword_container"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				f:horizontalSpacing="4dp"
+				f:verticalSpacing="4dp" />
+			
+		    <TextView
+				android:id="@+id/view_sample_no_keywords"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textSize="12sp"
+				android:visibility="gone" />
 	        
 	    </LinearLayout>
 	    

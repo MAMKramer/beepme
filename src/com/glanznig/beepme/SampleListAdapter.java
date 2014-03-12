@@ -42,10 +42,10 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
+public class SampleListAdapter extends ArrayAdapter<ListItem> {
 	
 	private final Context context;
-	private final List<SampleListItem> samples;
+	private final List<ListItem> samples;
 	
 	static class EntryHolder {
 	    public TextView title;
@@ -86,15 +86,15 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 	    }
 	}
 	
-	public SampleListAdapter(Context context, List<SampleListItem> values) {
-	    super(context, R.layout.samples_list_row, values);
+	public SampleListAdapter(Context context, List<ListItem> values) {
+	    super(context, R.layout.list_sample_row, values);
 	    this.context = context;
 	    this.samples = values;
 	}
 	
 	@Override
 	public boolean isEnabled(int position) {
-		SampleListItem item = samples.get(position);
+		ListItem item = samples.get(position);
 		return !item.isSectionHeader();
 	}
 	
@@ -104,7 +104,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT); 
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-		SampleListItem item = samples.get(position);
+		ListItem item = samples.get(position);
 		
 		if (item.isSectionHeader()) {
 			//performance optimization: reuse already inflated views
@@ -112,7 +112,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 				rowView = convertView;
 			}
 			else {
-				rowView = inflater.inflate(R.layout.samples_list_header, parent, false);
+				rowView = inflater.inflate(R.layout.list_sample_header, parent, false);
 				
 				HeaderHolder holder = new HeaderHolder();
 				holder.headerTitle = (TextView)rowView.findViewById(R.id.sample_list_header_title);
@@ -121,8 +121,8 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 			
 			HeaderHolder holder = (HeaderHolder)rowView.getTag();
 			
-			if (((SampleListSectionHeader)samples.get(position)).getDate() != null) {
-				Date viewDate = ((SampleListSectionHeader)samples.get(position)).getDate();
+			if (((DateListSectionHeader)samples.get(position)).getDate() != null) {
+				Date viewDate = ((DateListSectionHeader)samples.get(position)).getDate();
 				String content = "";
 				SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 				if (format.format(new Date()).equals(format.format(viewDate))) {
@@ -138,7 +138,7 @@ public class SampleListAdapter extends ArrayAdapter<SampleListItem> {
 				rowView = convertView;
 			}
 			else {
-				rowView = inflater.inflate(R.layout.samples_list_row, parent, false);
+				rowView = inflater.inflate(R.layout.list_sample_row, parent, false);
 				
 				EntryHolder holder = new EntryHolder();
 				holder.title = (TextView)rowView.findViewById(R.id.sample_title);

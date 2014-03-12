@@ -20,12 +20,33 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme;
 
-public abstract class SampleListItem {
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class DateListSectionHeader extends ListItem {
 	
-	public SampleListItem() {
-		
+	Date content = null;
+	
+	public DateListSectionHeader(Date date) {
+		content = date;
 	}
 	
-	public abstract boolean isSectionHeader();
+	public Date getDate() {
+		return content;
+	}
+	
+	public boolean isSameDay(Date d) {
+		if (content != null) {
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+			return format.format(d).equals(format.format(content));
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean isSectionHeader() {
+		return true;
+	}
 
 }

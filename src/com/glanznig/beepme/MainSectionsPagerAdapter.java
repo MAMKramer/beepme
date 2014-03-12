@@ -22,7 +22,7 @@ package com.glanznig.beepme;
 
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.view.HistoryFragment;
-import com.glanznig.beepme.view.ListSamplesFragment;
+import com.glanznig.beepme.view.SampleListFragment;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -43,7 +43,7 @@ public class MainSectionsPagerAdapter extends FragmentPagerAdapter {
 	public Fragment getItem(int position) {
 		switch (position) {
 			case 0:
-				return new ListSamplesFragment();
+				return new SampleListFragment();
 			case 1:
 			default:
 				return new HistoryFragment();

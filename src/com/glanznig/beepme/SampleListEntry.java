@@ -24,7 +24,7 @@ import java.util.Date;
 
 import com.glanznig.beepme.data.Sample;
 
-public class SampleListEntry extends SampleListItem {
+public class SampleListEntry extends ListItem {
 	
 	Sample content = null;
 	

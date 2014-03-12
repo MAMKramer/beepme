@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+/*
 This file is part of BeepMe.
 
 BeepMe is free software: you can redistribute it and/or modify
@@ -17,18 +16,16 @@ along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
 Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
--->
+*/
 
-<resources>
-    <item name="white" type="color">#ffffff</item>
-    <item name="black" type="color">#000000</item>
-    <item name="emphasis" type="color">#31b6e7</item>
-    <item name="list_light" type="color">#808080</item>
-    <item name="divider_gray" type="color">#dddddd</item>
-    <item name="bg_darkgray" type="color">#808080</item>
-    <item name="bg_keyword" type="color">#d0d0d0</item>
-    <item name="bg_gray" type="color">#f3f3f3</item>
-    <item name="bg_gray_shade" type="color">#ebebeb</item>
-    <item name="bg_photo" type="color">#bbbbbb</item>
-    <drawable name="swipe_filler">#f3f3f3</drawable>
-</resources>
+package com.glanznig.beepme;
+
+public abstract class ListItem {
+	
+	public ListItem() {
+		
+	}
+	
+	public abstract boolean isSectionHeader();
+
+}

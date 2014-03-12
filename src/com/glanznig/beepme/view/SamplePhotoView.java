@@ -201,9 +201,28 @@ public class SamplePhotoView extends LinearLayout {
     	}
     }
     
+    public void setFrameDimensions(int width, int height) {
+    	if ((width > 0 || width == LayoutParams.MATCH_PARENT) && (height > 0 || height == LayoutParams.MATCH_PARENT)) {
+    		this.width = width;
+    		this.height = height;
+	    	LayoutParams params = new LayoutParams(width, height);
+	    	frame.setLayoutParams(params);
+	    	updateAppearance();
+    	}
+    }
+    
     public void setFrameWidth(int width) {
-    	if (width > 0) {
+    	if (width > 0 || width == LayoutParams.MATCH_PARENT) {
 	    	this.width = width;
+	    	LayoutParams params = new LayoutParams(width, height);
+	    	frame.setLayoutParams(params);
+	    	updateAppearance();
+    	}
+    }
+    
+    public void setFrameHeight(int height) {
+    	if (height > 0 || height == LayoutParams.MATCH_PARENT) {
+	    	this.height = height;
 	    	LayoutParams params = new LayoutParams(width, height);
 	    	frame.setLayoutParams(params);
 	    	updateAppearance();

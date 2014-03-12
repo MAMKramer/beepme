@@ -214,7 +214,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	}
 	
 	public void onClickListSamples(View view) {
-		startActivity(new Intent(MainActivity.this, ListSamplesFragment.class));
+		startActivity(new Intent(MainActivity.this, SampleListFragment.class));
 	}
 	
 	@Override

@@ -22,15 +22,14 @@ http://beepme.glanznig.com
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
         
     <RelativeLayout
 	    android:id="@+id/samples_list_stats_today"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
-	    android:background="@color/bg_gray"
+	    android:background="@drawable/stats_today_bg"
 	    android:gravity="left"
 	    android:paddingLeft="16dp"
 	    android:paddingRight="16dp"
@@ -81,8 +80,7 @@ http://beepme.glanznig.com
 	    android:layout_alignParentTop="true"
 	    android:layout_above="@id/samples_list_stats_today"
 	    android:layout_marginLeft="16dp"
-	    android:layout_marginRight="8dp"
-	    android:orientation="vertical">
+	    android:layout_marginRight="8dp">
     
 	    <ListView
 	        android:id="@+id/android:list"
@@ -90,8 +88,7 @@ http://beepme.glanznig.com
 	        android:layout_height="fill_parent"
 	        android:layout_alignParentLeft="true"
 	        android:layout_alignParentTop="true"
-	        android:scrollbarStyle="outsideInset"
-	        android:fastScrollEnabled="true" />
+	        android:scrollbarStyle="outsideInset" />
 	
 	  	<TextView
 	  	    android:id="@+id/android:empty"
@@ -102,5 +99,13 @@ http://beepme.glanznig.com
 	  	    android:text="@string/samples_list_no_samples" />
 	  	
     </RelativeLayout>
+    
+    <View
+		android:id="@+id/samples_list_shadow"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:background="@drawable/samples_list_inner_shadow"
+		android:layout_above="@id/samples_list_stats_today"
+		android:layout_alignParentTop="true" />
 
 </RelativeLayout>

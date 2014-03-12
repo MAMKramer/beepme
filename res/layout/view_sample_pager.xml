@@ -19,22 +19,27 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+	
+	<android.support.v4.view.ViewPager
+    	android:id="@+id/view_sample_swipe_pager"
+    	android:layout_width="match_parent"
+    	android:layout_height="0dp"
+    	android:layout_weight="1" />
+	
 	<LinearLayout
 	    android:id="@+id/sample_swipe_locator"
-	    android:layout_width="fill_parent"
+	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_alignParentBottom="true"
 	    android:orientation="horizontal"
 	    android:background="@color/bg_darkgray"
 	    android:paddingLeft="16dp"
 	    android:paddingRight="16dp"
 	    android:paddingTop="4dp"
-	    android:paddingBottom="4dp"
-	    android:weightSum="10" >
+	    android:paddingBottom="4dp">
 	    
 	    <TextView
             android:id="@+id/sample_swipe_newer"
@@ -43,16 +48,15 @@ http://beepme.glanznig.com
             android:textColor="@color/white"
             android:text="@string/sample_swipe_newer"
             android:gravity="left"
-            android:paddingRight="8dp"
-            android:layout_weight="1" />
+            android:paddingRight="8dp" />
 	    
 	    <TextView
             android:id="@+id/sample_swipe_pos"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/white"
-            android:layout_weight="8" />
+            android:layout_weight="1" />
 	    
 	    <TextView
             android:id="@+id/sample_swipe_older"
@@ -61,16 +65,8 @@ http://beepme.glanznig.com
             android:textColor="@color/white"
             android:text="@string/sample_swipe_older"
             android:gravity="right"
-            android:paddingLeft="8dp"
-            android:layout_weight="1" />
+            android:paddingLeft="8dp" />
 	    
 	</LinearLayout>
 	
-	<android.support.v4.view.ViewPager
-    	android:id="@+id/view_sample_swipe_pager"
-    	android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-    	android:layout_above="@id/sample_swipe_locator"
-    	android:layout_alignParentTop="true" />
-	
-</RelativeLayout>
+</LinearLayout>

@@ -28,8 +28,8 @@ import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.SampleListAdapter;
 import com.glanznig.beepme.SampleListEntry;
-import com.glanznig.beepme.SampleListItem;
-import com.glanznig.beepme.SampleListSectionHeader;
+import com.glanznig.beepme.ListItem;
+import com.glanznig.beepme.DateListSectionHeader;
 import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.UptimeTable;
@@ -44,7 +44,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class ListSamplesFragment extends ListFragment {
+public class SampleListFragment extends ListFragment {
 	
 	private static final String TAG = "ListSamplesFragment";
 	private int position = 0;
@@ -57,7 +57,7 @@ public class ListSamplesFragment extends ListFragment {
         	}
         }
 		
-        View rootView = inflater.inflate(R.layout.samples_list, container, false);
+        View rootView = inflater.inflate(R.layout.list_sample, container, false);
         return rootView;
     }
 	
@@ -77,14 +77,14 @@ public class ListSamplesFragment extends ListFragment {
 	
 	private void populateList() {
 		List<Sample> samplesList = new SampleTable(getActivity().getApplicationContext()).getSamples();
-		ArrayList<SampleListItem> viewList = new ArrayList<SampleListItem>();
+		ArrayList<ListItem> viewList = new ArrayList<ListItem>();
 		
 		Iterator<Sample> i = samplesList.iterator();
-		SampleListSectionHeader header = null;
+		DateListSectionHeader header = null;
 		while (i.hasNext()) {
 			Sample s = i.next();
 			if (header == null || !header.isSameDay(s.getTimestamp())) {
-				header = new SampleListSectionHeader(s.getTimestamp());
+				header = new DateListSectionHeader(s.getTimestamp());
 				viewList.add(header);
 			}
 			viewList.add(new SampleListEntry(s));
