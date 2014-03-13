@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2012-2014 Michael Glanznig
+http://beepme.glanznig.com
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:f="http://schemas.android.com/apk/res-auto"
+    xmlns:p="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal">
+    
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent">
+    
+	    <com.glanznig.beepme.view.SamplePhotoView
+	        android:id="@+id/view_sample_photo"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="16dp"
+	        android:layout_marginLeft="16dp"
+	        android:background="@drawable/photo_placeholder"
+	        p:imgWidth="180dp"
+	        p:imgHeight="180dp" />
+	    
+	    <!-- <View
+	       android:id="@+id/view_sample_photo_filter"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:background="@drawable/photo_inner_shadow_land"
+           android:layout_alignParentRight="true" /> -->
+	    
+	</RelativeLayout>
+
+	<ScrollView
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+	    
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="12dp"
+	        android:layout_marginLeft="16dp"
+	        android:layout_marginRight="16dp"
+	        android:paddingBottom="30dp"
+	        android:orientation="vertical">
+		        
+	        <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal"
+	            android:layout_marginBottom="8dp">
+			
+		        <TextView
+		            android:id="@+id/view_sample_title"
+		            android:layout_width="0dp"
+		            android:layout_height="wrap_content"
+		            android:gravity="left"
+		            android:layout_weight="1"
+		            android:textStyle="bold"
+		            android:textSize="16sp" />
+		        
+		        <TextView
+		            android:id="@+id/view_sample_timestamp"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_marginLeft="4dp"
+		            android:gravity="right"
+		            android:textSize="12sp" />
+		        
+	        </LinearLayout>
+		        
+	        <View 
+			    android:layout_width="fill_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/divider_gray"
+			    android:layout_marginBottom="16dp" />
+	
+	        <TextView
+	            android:id="@+id/view_sample_label_description"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:text="@string/sample_description"
+	            android:textStyle="bold"
+	            android:textSize="16sp" />
+		        
+	        <View 
+			    android:layout_width="fill_parent"
+			    android:layout_height="1dp"
+			    android:layout_marginTop="4dp"
+			    android:layout_marginBottom="8dp"
+			    android:background="@color/divider_gray" />
+	
+	        <TextView
+	            android:id="@+id/view_sample_description"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:textSize="16sp" />
+	        
+			<TextView
+				android:id="@+id/view_sample_label_keywords"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/sample_keywords"
+				android:textStyle="bold"
+				android:layout_marginTop="16dp"
+				android:textSize="16sp" />
+				
+			<View 
+			    android:layout_width="fill_parent"
+			    android:layout_height="1dp"
+			    android:layout_marginTop="4dp"
+			    android:layout_marginBottom="8dp"
+			    android:background="@color/divider_gray" />
+			
+			<com.glanznig.beepme.helper.FlowLayout
+				android:id="@+id/view_sample_keyword_container"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				f:horizontalSpacing="4dp"
+				f:verticalSpacing="4dp" />
+			
+		    <TextView
+				android:id="@+id/view_sample_no_keywords"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textSize="12sp"
+				android:visibility="gone" />
+		        
+	    </LinearLayout>
+
+	</ScrollView>
+	
+</LinearLayout>

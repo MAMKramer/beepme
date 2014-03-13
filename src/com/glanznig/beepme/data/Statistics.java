@@ -454,8 +454,6 @@ public class Statistics {
 			
 			if (times.size() > 1) {
 				Uptime last = times.get(times.size() - 1);
-				Log.i(TAG, "startOfDay="+startOfDay+" endOfDay="+endOfDay);
-				Log.i(TAG, "last.start="+last.getStart()+" last.end="+last.getEnd());
 				
 				if (last.getEnd() != null) {
 					// if uptime extends over midnight

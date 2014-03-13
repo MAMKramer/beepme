@@ -52,6 +52,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class ViewSampleFragment extends Fragment implements Callback {
@@ -178,14 +179,16 @@ public class ViewSampleFragment extends Fragment implements Callback {
 			photoView.setRights(false, false); // read only
 			DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
 			
-			if (isLandscape()) {
-				View parent = getView();
+			/*if (isLandscape()) {
+				View parent = getView().findViewById(R.id.scrolling_jui);
 				parent.measure(0, 0);
 				photoView.setFrameDimensions(parent.getMeasuredHeight(), parent.getMeasuredHeight());
+				View filter = getView().findViewById(R.id.view_sample_photo_filter);
+				filter.setLayoutParams(new RelativeLayout.LayoutParams(parent.getMeasuredHeight(), parent.getMeasuredHeight()));
 				photoView.measure(0, 0);
 				Log.i(TAG, "setSize="+parent.getMeasuredHeight()+" measuredHeight="+photoView.getMeasuredHeight()+" measuredWidth="+photoView.getMeasuredWidth());
-			}
-			else {
+			}*/
+			if(!isLandscape()) {
 				photoView.setFrameWidth(LayoutParams.MATCH_PARENT);
 			}
 			
@@ -199,12 +202,7 @@ public class ViewSampleFragment extends Fragment implements Callback {
 				else {
 					Handler handler = new Handler(this);
 					photoView.measure(0, 0);
-					if (isLandscape()) {
-						PhotoUtils.generateThumbnail(s.getPhotoUri(), (int)(metrics.heightPixels / metrics.density + 0.5f), metrics.heightPixels, handler);
-					}
-					else {
-						PhotoUtils.generateThumbnail(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
-					}
+					PhotoUtils.generateThumbnail(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
 				}
 			}
 		}

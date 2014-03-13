@@ -28,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.util.Log;
@@ -91,6 +92,33 @@ public class AsyncImageScaler extends Thread {
 		        if (croppedPhoto != null) {
 		        	scaledPhoto.recycle();
 		        	scaledPhoto = croppedPhoto;
+		        }
+		        
+		        // check if photo needs to be rotated
+		        ExifInterface exif = new ExifInterface(srcUri);
+		        int rotationTag = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+		        int rotateDeg = 0;
+		        if (rotationTag == ExifInterface.ORIENTATION_ROTATE_90) {
+		        	rotateDeg = 90;
+		        } 
+		        else if (rotationTag == ExifInterface.ORIENTATION_ROTATE_180) {
+		        	rotateDeg = 180;
+		        } 
+		        else if (rotationTag == ExifInterface.ORIENTATION_ROTATE_270) {
+		        	rotateDeg = 270;
+		        } 
+		        
+		        Matrix matrix = new Matrix();
+		        Bitmap rotatedPhoto = null;
+		        if (rotateDeg != 0) {
+		        	matrix.preRotate(rotateDeg);
+		        	rotatedPhoto = Bitmap.createBitmap(scaledPhoto, 0, 0,
+			        		scaledPhoto.getWidth(), scaledPhoto.getHeight(), matrix, true);
+		        }
+		        
+		        if (rotatedPhoto != null) {
+		        	scaledPhoto.recycle();
+		        	scaledPhoto = rotatedPhoto;
 		        }
 		        
 		        // save image to file
