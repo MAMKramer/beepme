@@ -20,19 +20,63 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
+import java.util.List;
+
+import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.HistoryListAdapter;
 import com.glanznig.beepme.R;
-import android.support.v4.app.Fragment;
+import com.glanznig.beepme.data.Statistics;
+
+import android.support.v4.app.ListFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends ListFragment {
+	
+	private int position = 0;
 	
 	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+		if (savedState != null) {
+        	if (savedState.getInt("position") != 0) {
+        		position = savedState.getInt("position");
+        	}
+        }
+		
         View rootView = inflater.inflate(R.layout.history, container, false);
         return rootView;
     }
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		populateList();
+	}
+	
+	private void populateList() {
+		BeeperApp app = (BeeperApp)getActivity().getApplication();
+		List<Bundle> statList = Statistics.getStats(getActivity(), app.getTimerProfile());
+		
+        HistoryListAdapter historyAdapter = new HistoryListAdapter(getActivity(), statList);
+        setListAdapter(historyAdapter);
+        
+        ListView list = (ListView)getView().findViewById(android.R.id.list);
+        list.setSelectionFromTop(position, 0);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		// save list position
+		position = ((ListView)getView().findViewById(android.R.id.list)).getFirstVisiblePosition();
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle savedState) {
+		savedState.putInt("position", position);
+	}
 
 }

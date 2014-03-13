@@ -18,10 +18,12 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.db;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.glanznig.beepme.data.TimerProfile;
 
 import android.content.ContentValues;
 import android.content.Context;

@@ -36,6 +36,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.db.StorageHandler;
 import com.glanznig.beepme.view.MainActivity;
 
 import android.app.NotificationManager;

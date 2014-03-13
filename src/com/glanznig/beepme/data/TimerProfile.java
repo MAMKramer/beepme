@@ -20,6 +20,8 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.data;
 
+import com.glanznig.beepme.db.ScheduledBeepTable;
+import com.glanznig.beepme.db.UptimeTable;
 import com.glanznig.beepme.helper.MersenneTwister;
 
 import android.content.Context;

@@ -28,8 +28,8 @@ import java.util.Iterator;
 
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
+import com.glanznig.beepme.db.SampleTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.FlowLayout;
 import com.glanznig.beepme.helper.PhotoUtils;

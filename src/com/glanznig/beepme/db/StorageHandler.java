@@ -18,7 +18,7 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.db;
 
 import com.glanznig.beepme.BeeperApp;
 

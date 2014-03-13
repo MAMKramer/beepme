@@ -18,17 +18,22 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.db;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
+import com.glanznig.beepme.data.TimerProfile;
+import com.glanznig.beepme.data.Uptime;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class UptimeTable extends StorageHandler {
 	
@@ -121,6 +126,97 @@ public class UptimeTable extends StorageHandler {
 		return numRows == 1 ? true : false;
 	}
 	
+	public Uptime getMostRecentUptime() {
+		SQLiteDatabase db = getDb();
+		
+		Cursor cursor = db.query(getTableName(), new String[] { "_id", "start", "end", "timerProfileId" },
+				null, null, null, null, "start DESC", null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			Uptime u = new Uptime(cursor.getLong(0));
+			u.setStart(new Date(cursor.getLong(1)));
+			if (!cursor.isNull(2)) {
+				u.setEnd(new Date(cursor.getLong(2)));
+			}
+			u.setTimerProfileId(cursor.getInt(3));
+			cursor.close();
+			db.close();
+			return u;
+		}
+		db.close();
+		
+		return null;
+	}
+	
+	public List<Uptime> getUptimes() {
+		ArrayList<Uptime> list = new ArrayList<Uptime>();
+		SQLiteDatabase db = getDb();
+		
+		Cursor cursor = db.query(getTableName(), new String[] { "_id", "start", "end", "timerProfileId" },
+				null, null, null, null, "start DESC", null);
+		
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			do {
+				Uptime u = new Uptime(cursor.getLong(0));
+				u.setStart(new Date(cursor.getLong(1)));
+				if (!cursor.isNull(2)) {
+					u.setEnd(new Date(cursor.getLong(2)));
+				}
+				u.setTimerProfileId(cursor.getInt(3));
+				
+				list.add(u);
+			}
+			while (cursor.moveToNext());
+			cursor.close();
+		}
+		db.close();
+		
+		return list;
+	}
+	
+	public List<Uptime> getUptimesOfDay(Calendar day) {
+		// all uptimes that BEGIN or END on that day
+		if (day.isSet(Calendar.YEAR) && day.isSet(Calendar.MONTH) && day.isSet(Calendar.DAY_OF_MONTH)) {
+			ArrayList<Uptime> list = new ArrayList<Uptime>();
+			
+			// get start and end timestamp of day
+			long startOfDay = day.getTimeInMillis();
+			day.roll(Calendar.DAY_OF_MONTH, true);
+			long endOfDay = day.getTimeInMillis();
+			day.roll(Calendar.DAY_OF_MONTH, false);
+			
+			SQLiteDatabase db = getDb();
+			
+			// distinct start values
+			Cursor cursor = db.query(true, getTableName(), new String[] { "_id", "start", "end", "timerProfileId" },
+					"start between ? and ? OR end between ? and ?", new String[] { String.valueOf(startOfDay),
+					String.valueOf(endOfDay), String.valueOf(startOfDay),
+					String.valueOf(endOfDay) }, "start", null, "start DESC", null);
+			
+			if (cursor != null && cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				do {
+					Uptime u = new Uptime(cursor.getLong(0));
+					u.setStart(new Date(cursor.getLong(1)));
+					if (!cursor.isNull(2)) {
+						u.setEnd(new Date(cursor.getLong(2)));
+					}
+					u.setTimerProfileId(cursor.getInt(3));
+					
+					list.add(u);
+				}
+				while (cursor.moveToNext());
+				cursor.close();
+			}
+			db.close();
+			
+			return list;
+		}
+		return null;
+	}
+	
 	public long getUptimeDurToday() {
 		return (long)getAvgUpDurToday("dur");
 	}
@@ -145,6 +241,7 @@ public class UptimeTable extends StorageHandler {
 		long startOfDay = today.getTimeInMillis();
 		today.roll(Calendar.DAY_OF_MONTH, true);
 		long endOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, false);
 		
 		Cursor cursor = db.query(getTableName(), new String[] { "start", "end" },
 				"start between ? and ?", new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);

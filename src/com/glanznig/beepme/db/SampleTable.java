@@ -18,7 +18,7 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.db;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,10 +28,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.data.Tag;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class SampleTable extends StorageHandler {
 	
@@ -157,11 +161,20 @@ public class SampleTable extends StorageHandler {
 	}
 	
 	public List<Sample> getSamples() {
+		return getSamples(false);
+	}
+	
+	public List<Sample> getSamples(boolean declined) {
 		SQLiteDatabase db = getDb();
 		List<Sample> sampleList = new ArrayList<Sample>();
 		
+		String where = null;
+		if (declined == false) {
+			where = "accepted = 1";
+		}
+		
 		Cursor cursor = db.query(getTableName(), new String[] {"_id", "timestamp", "title", "description",
-				"accepted", "photoUri", "uptimeId"}, "accepted = 1", null, null, null, "timestamp DESC");
+				"accepted", "photoUri", "uptimeId"}, where, null, null, null, "timestamp DESC");
 		
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
@@ -356,6 +369,56 @@ public class SampleTable extends StorageHandler {
 		return numRows == 1 ? true : false;
 	}
 	
+	public List<Sample> getSamplesOfDay(Calendar day) {
+		if (day.isSet(Calendar.YEAR) && day.isSet(Calendar.MONTH) && day.isSet(Calendar.DAY_OF_MONTH)) {
+			ArrayList<Sample> list = new ArrayList<Sample>();
+			SQLiteDatabase db = getDb();
+			long startOfDay = day.getTimeInMillis();
+			day.roll(Calendar.DAY_OF_MONTH, true);
+			long endOfDay = day.getTimeInMillis();
+			day.roll(Calendar.DAY_OF_MONTH, false);
+			
+			Cursor cursor = db.query(getTableName(), new String[] {"_id", "timestamp", "title", "description",
+				"accepted", "photoUri", "uptimeId"}, "timestamp between ? and ?",
+					new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, "timestamp DESC");
+			
+			if (cursor != null && cursor.getCount() > 0) {
+				cursor.moveToFirst();
+				
+				do {
+					Sample s = new Sample(cursor.getLong(0));
+					long timestamp = cursor.getLong(1);
+					s.setTimestamp(new Date(timestamp));
+					if (!cursor.isNull(2)) {
+						s.setTitle(cursor.getString(2));
+					}
+					if (!cursor.isNull(3)) {
+						s.setDescription(cursor.getString(3));
+					}
+					if (cursor.getInt(4) == 0) {
+						s.setAccepted(false);
+					}
+					else {
+						s.setAccepted(true);
+					}
+					if (!cursor.isNull(5)) {
+						s.setPhotoUri(cursor.getString(5));
+					}
+					if (!cursor.isNull(6)) {
+						s.setUptimeId(cursor.getLong(6));
+					}
+					list.add(s);
+				}
+				while (cursor.moveToNext());
+				cursor.close();
+				
+				return list;
+			}
+		}
+		
+		return null;
+	}
+	
 	public int getNumAcceptedToday() {
 		int count = 0;
 		
@@ -368,6 +431,7 @@ public class SampleTable extends StorageHandler {
 		long startOfDay = today.getTimeInMillis();
 		today.roll(Calendar.DAY_OF_MONTH, true);
 		long endOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, false);
 		
 		Cursor cursor = db.query(getTableName(), new String[] {"_id"}, "timestamp between ? and ? and accepted = 1",
 				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
@@ -393,6 +457,7 @@ public class SampleTable extends StorageHandler {
 		long startOfDay = today.getTimeInMillis();
 		today.roll(Calendar.DAY_OF_MONTH, true);
 		long endOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, false);
 		
 		Cursor cursor = db.query(getTableName(), new String[] {"accepted"}, "timestamp between ? and ?",
 				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
@@ -419,6 +484,7 @@ public class SampleTable extends StorageHandler {
 		long startOfDay = today.getTimeInMillis();
 		today.roll(Calendar.DAY_OF_MONTH, true);
 		long endOfDay = today.getTimeInMillis();
+		today.roll(Calendar.DAY_OF_MONTH, false);
 		
 		Cursor cursor = db.query(getTableName(), new String[] {"accepted"}, "timestamp between ? and ?",
 				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);

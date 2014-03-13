@@ -25,7 +25,7 @@ import java.util.Calendar;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.ViewSamplePagerAdapter;
 import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.SampleTable;
+import com.glanznig.beepme.db.SampleTable;
 
 import android.content.Intent;
 import android.os.Bundle;

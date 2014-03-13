@@ -18,24 +18,26 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.db;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-public class VocabularyTable extends StorageHandler {
+public class SampleTagTable extends StorageHandler {
 	
-private static final String TAG = "VocabularyTable";
+	private static final String TAG = "SampleTagTable";
 	
-	private static final String TBL_NAME = "vocabulary";
+	private static final String TBL_NAME = "sample_tag";
 	private static final String TBL_CREATE =
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
-			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-			"name TEXT NOT NULL UNIQUE" +
+			"sample_id INTEGER NOT NULL, " +
+			"tag_id INTEGER NOT NULL, " +
+			"PRIMARY KEY(sample_id, tag_id), " +
+			"FOREIGN KEY(sample_id) REFERENCES " + SampleTable.getTableName() + "(_id), " +
+			"FOREIGN KEY(tag_id) REFERENCES " + TagTable.getTableName() + "(_id)" +
 			")";
 	
-	public VocabularyTable(Context ctx) {
+	public SampleTagTable(Context ctx) {
 		super(ctx);
 	}
 	
@@ -45,8 +47,6 @@ private static final String TAG = "VocabularyTable";
 	
 	public static void createTable(SQLiteDatabase db) {
 		db.execSQL(TBL_CREATE);
-		
-		insertData(db);
 	}
 	
 	public static void dropTable(SQLiteDatabase db) {
@@ -57,11 +57,5 @@ private static final String TAG = "VocabularyTable";
 		dropTable(db);
 		createTable(db);
 	}
-	
-	private static void insertData(SQLiteDatabase db) {
-		ContentValues values = new ContentValues();
-		values.put("_id", 1);
-		values.put("name", "keywords");
-		db.insert(TBL_NAME, null, values);
-	}
+
 }

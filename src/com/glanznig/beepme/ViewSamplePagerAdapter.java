@@ -23,7 +23,7 @@ package com.glanznig.beepme;
 import java.util.List;
 
 import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.SampleTable;
+import com.glanznig.beepme.db.SampleTable;
 import com.glanznig.beepme.view.ViewSampleFragment;
 
 import android.content.Context;

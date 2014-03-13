@@ -27,7 +27,7 @@ import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.PreferenceHandler;
 import com.glanznig.beepme.data.TimerProfile;
-import com.glanznig.beepme.data.TimerProfileTable;
+import com.glanznig.beepme.db.TimerProfileTable;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

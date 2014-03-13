@@ -25,10 +25,10 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import com.glanznig.beepme.data.PreferenceHandler;
-import com.glanznig.beepme.data.ScheduledBeepTable;
 import com.glanznig.beepme.data.TimerProfile;
-import com.glanznig.beepme.data.TimerProfileTable;
-import com.glanznig.beepme.data.UptimeTable;
+import com.glanznig.beepme.db.ScheduledBeepTable;
+import com.glanznig.beepme.db.TimerProfileTable;
+import com.glanznig.beepme.db.UptimeTable;
 import com.glanznig.beepme.view.BeepActivity;
 import com.glanznig.beepme.view.MainActivity;
 

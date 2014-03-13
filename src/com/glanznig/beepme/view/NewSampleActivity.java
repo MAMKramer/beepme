@@ -32,8 +32,8 @@ import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.TagAutocompleteAdapter;
 import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.SampleTable;
 import com.glanznig.beepme.data.Tag;
+import com.glanznig.beepme.db.SampleTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
 

@@ -30,7 +30,7 @@ import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.DataExporter;
-import com.glanznig.beepme.data.ScheduledBeepTable;
+import com.glanznig.beepme.db.ScheduledBeepTable;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -345,11 +345,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 				AlertDialog dia = alertBuilder.create();
 				dia.setIcon(R.drawable.ic_launcher_beepme);
 				dia.setTitle(getString(R.string.about_title));
-				dia.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.about_website_button),
+				dia.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.about_donate_button),
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int whichButton) {
-								Uri uri = Uri.parse("http://beepme.glanznig.com");
+								Uri uri = Uri.parse("http://beepme.glanznig.com/support-beepme");
 								startActivity(new Intent(Intent.ACTION_VIEW, uri));
 							}
 						});

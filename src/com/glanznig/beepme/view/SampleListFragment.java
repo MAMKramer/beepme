@@ -31,12 +31,13 @@ import com.glanznig.beepme.SampleListEntry;
 import com.glanznig.beepme.ListItem;
 import com.glanznig.beepme.DateListSectionHeader;
 import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.SampleTable;
-import com.glanznig.beepme.data.UptimeTable;
+import com.glanznig.beepme.data.Statistics;
+import com.glanznig.beepme.db.SampleTable;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,12 +100,23 @@ public class SampleListFragment extends ListFragment {
 	
 	private void updateStats() {
 		BeeperApp app = (BeeperApp)getActivity().getApplication();
+		Bundle stats = Statistics.getStatsOfToday(getActivity(), app.getTimerProfile());
 		
-		SampleTable st = new SampleTable(getActivity().getApplicationContext());
+		int numAccepted = 0;
+		int numDeclined = 0;
+		long uptimeDur = 0;
 		
-		int numAccepted = st.getNumAcceptedToday();
-		int numDeclined = st.getSampleCountToday() - numAccepted;
-		long uptimeDur = new UptimeTable(getActivity().getApplicationContext(), app.getTimerProfile()).getUptimeDurToday();
+		if (stats != null) {
+			if (stats.containsKey("uptimeDuration")) {
+				uptimeDur = stats.getLong("uptimeDuration") / 1000;
+			}
+			if (stats.containsKey("acceptedSamples")) {
+				numAccepted = stats.getInt("acceptedSamples");
+			}
+			if (stats.containsKey("declinedSamples")) {
+				numDeclined = stats.getInt("declinedSamples");
+			}
+		}
 		
 		TextView acceptedToday = (TextView)getView().findViewById(R.id.samples_list_today_accepted);
 		TextView declinedToday = (TextView)getView().findViewById(R.id.samples_list_today_declined);

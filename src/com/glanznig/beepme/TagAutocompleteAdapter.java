@@ -23,7 +23,7 @@ package com.glanznig.beepme;
 import java.util.ArrayList;
 
 import com.glanznig.beepme.data.Tag;
-import com.glanznig.beepme.data.TagTable;
+import com.glanznig.beepme.db.TagTable;
 
 import android.content.Context;
 import android.view.LayoutInflater;

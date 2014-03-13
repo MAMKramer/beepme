@@ -26,7 +26,7 @@ http://beepme.glanznig.com
     <string name="about_license">Copyright 2012&#8211;2014 Michael Glanznig.\nLizenziert unter GNU GPL v3 und zur Verfügung gestellt WIE GESEHEN ohne Gewährleistung.</string>
     <string name="about_version">Version:</string>
     <string name="about_website">Webseite:</string>
-    <string name="about_website_button">Webseite</string>
+    <string name="about_donate_button">BeepMe unterstützen</string>
     <string name="action_about">Info</string>
     <string name="action_beeper_off">Beeper ausschalten</string>
     <string name="action_beeper_on">Beeper einschalten</string>

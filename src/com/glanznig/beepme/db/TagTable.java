@@ -18,11 +18,13 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.glanznig.com
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.db;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import com.glanznig.beepme.data.Tag;
 
 import android.content.ContentValues;
 import android.content.Context;
