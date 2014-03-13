@@ -76,7 +76,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 		}
 		
 		private void populateFields() {
-	        ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE_ID);
+	        /*ListPreference formTimerProfile = (ListPreference)findPreference(PreferenceHandler.KEY_TIMER_PROFILE_ID);
 	        Iterator<TimerProfile> profileList = new TimerProfileTable(getActivity().getApplicationContext()).getTimerProfiles().iterator();
 	        ArrayList<String> profileValues = new ArrayList<String>();
 	        ArrayList<String> profileNames = new ArrayList<String>();
@@ -87,7 +87,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
 	        }
 	        
 	        formTimerProfile.setEntries(profileNames.toArray(new String[profileNames.size()]));
-	        formTimerProfile.setEntryValues(profileValues.toArray(new String[profileValues.size()]));
+	        formTimerProfile.setEntryValues(profileValues.toArray(new String[profileValues.size()]));*/
 		}
 	}
 }
