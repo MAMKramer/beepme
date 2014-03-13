@@ -229,58 +229,138 @@ public class Statistics {
 				while (uptimeIterator.hasNext()) {
 					up = uptimeIterator.next();
 					
-					// uptime extends over midnight, split up times for 2 different days
-					if (!dateFormat.format(up.getStart()).equals(dateFormat.format(up.getEnd()))) {
-						// get timestamp of midnight
-						GregorianCalendar midnight = new GregorianCalendar();
-						midnight.setTime(up.getEnd());
-						midnight = new GregorianCalendar(midnight.get(Calendar.YEAR),
-								midnight.get(Calendar.MONTH), midnight.get(Calendar.DAY_OF_MONTH));
-						
-						if (map.containsKey(Long.parseLong(dateFormat.format(up.getStart())))) {
-							item = map.get(Long.parseLong(dateFormat.format(up.getStart())));
-							long newDuration = Math.abs(midnight.getTimeInMillis() - up.getStart().getTime());
-							item.putLong("uptimeDuration", item.getLong("uptimeDuration") + newDuration);
+					if (up.getEnd() != null) {
+						// uptime extends over midnight, split up times for 2 different days
+						if (!dateFormat.format(up.getStart()).equals(dateFormat.format(up.getEnd()))) {
+							// get timestamp of midnight
+							GregorianCalendar midnight = new GregorianCalendar();
+							midnight.setTime(up.getEnd());
+							midnight = new GregorianCalendar(midnight.get(Calendar.YEAR),
+									midnight.get(Calendar.MONTH), midnight.get(Calendar.DAY_OF_MONTH));
+							
+							if (map.containsKey(Long.parseLong(dateFormat.format(up.getStart())))) {
+								item = map.get(Long.parseLong(dateFormat.format(up.getStart())));
+								long newDuration = Math.abs(midnight.getTimeInMillis() - up.getStart().getTime());
+								item.putLong("uptimeDuration", item.getLong("uptimeDuration") + newDuration);
+							}
+							else {
+								item = new Bundle();
+								item.putLong("timestamp", up.getStart().getTime());
+								item.putInt("acceptedSamples", 0);
+								item.putInt("declinedSamples", 0);
+								item.putInt("countSamples", 0);
+								item.putLong("uptimeDuration", Math.abs(midnight.getTimeInMillis() - up.getStart().getTime()));
+								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
+							}
+							
+							if (map.containsKey(Long.parseLong(dateFormat.format(up.getEnd())))) {
+								item = map.get(Long.parseLong(dateFormat.format(up.getEnd())));
+								long newDuration = Math.abs(up.getEnd().getTime() - midnight.getTimeInMillis());
+								item.putLong("uptimeDuration", item.getLong("uptimeDuration") + newDuration);
+							}
+							else {
+								item = new Bundle();
+								item.putLong("timestamp", up.getEnd().getTime());
+								item.putInt("acceptedSamples", 0);
+								item.putInt("declinedSamples", 0);
+								item.putInt("countSamples", 0);
+								item.putLong("uptimeDuration", Math.abs(up.getEnd().getTime() - midnight.getTimeInMillis()));
+								map.put(Long.parseLong(dateFormat.format(up.getEnd())), item);
+							}
 						}
 						else {
-							item = new Bundle();
-							item.putLong("timestamp", up.getStart().getTime());
-							item.putInt("acceptedSamples", 0);
-							item.putInt("declinedSamples", 0);
-							item.putInt("countSamples", 0);
-							item.putLong("uptimeDuration", Math.abs(midnight.getTimeInMillis() - up.getStart().getTime()));
-							map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
-						}
-						
-						if (map.containsKey(Long.parseLong(dateFormat.format(up.getEnd())))) {
-							item = map.get(Long.parseLong(dateFormat.format(up.getEnd())));
-							long newDuration = Math.abs(up.getEnd().getTime() - midnight.getTimeInMillis());
-							item.putLong("uptimeDuration", item.getLong("uptimeDuration") + newDuration);
-						}
-						else {
-							item = new Bundle();
-							item.putLong("timestamp", up.getEnd().getTime());
-							item.putInt("acceptedSamples", 0);
-							item.putInt("declinedSamples", 0);
-							item.putInt("countSamples", 0);
-							item.putLong("uptimeDuration", Math.abs(up.getEnd().getTime() - midnight.getTimeInMillis()));
-							map.put(Long.parseLong(dateFormat.format(up.getEnd())), item);
+							if (map.containsKey(Long.parseLong(dateFormat.format(up.getStart())))) {
+								item = map.get(Long.parseLong(dateFormat.format(up.getStart())));
+								long newDuration = Math.abs(up.getEnd().getTime() - up.getStart().getTime());
+								item.putLong("uptimeDuration", item.getLong("uptimeDuration") + newDuration);
+							}
+							else {
+								item = new Bundle();
+								item.putLong("timestamp", up.getStart().getTime());
+								item.putInt("acceptedSamples", 0);
+								item.putInt("declinedSamples", 0);
+								item.putInt("countSamples", 0);
+								item.putLong("uptimeDuration", Math.abs(up.getEnd().getTime() - up.getStart().getTime()));
+								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
+							}
 						}
 					}
 					else {
-						if (map.containsKey(Long.parseLong(dateFormat.format(up.getStart())))) {
-							item = map.get(Long.parseLong(dateFormat.format(up.getStart())));
-							long newDuration = Math.abs(up.getEnd().getTime() - up.getStart().getTime());
-							item.putLong("uptimeDuration", item.getLong("uptimeDuration") + newDuration);
+						// this means that there either was an error, in this case
+						// the minimum duration should be used
+						// or if it is the most recent uptime, that the beeper is still running
+						Uptime recent = upTbl.getMostRecentUptime();
+						
+						// still running
+						if (recent.getId() == up.getId()) {
+							if (map.containsKey(Long.parseLong(dateFormat.format(up.getStart())))) {
+								item = map.get(Long.parseLong(dateFormat.format(up.getStart())));
+								
+								// current time can only be used if it lies within requested day
+								// else time until midnight of this day has to be used
+								Calendar day = Calendar.getInstance();
+								day.setTime(up.getStart());
+								day = new GregorianCalendar(day.get(Calendar.YEAR),
+										day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH));
+								day.roll(Calendar.DAY_OF_MONTH, true);
+								long endOfDay = day.getTimeInMillis();
+								day.roll(Calendar.DAY_OF_MONTH, false);
+								
+								Date now = new Date();
+								long newDuration = 0;
+								if (now.getTime() <= endOfDay) {
+									newDuration = Math.abs(now.getTime() - up.getStart().getTime());
+								}
+								else {
+									newDuration = Math.abs(endOfDay - up.getStart().getTime());
+								}
+								item.putLong("uptimeDuration", item.getLong("uptimeDuration") + newDuration);
+								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
+							}
+							else {
+								item = new Bundle();
+								item.putLong("timestamp", up.getStart().getTime());
+								item.putInt("acceptedSamples", 0);
+								item.putInt("declinedSamples", 0);
+								item.putInt("countSamples", 0);
+								
+								// current time can only be used if it lies within requested day
+								// else time until midnight of this day has to be used
+								Calendar day = Calendar.getInstance();
+								day.setTime(up.getStart());
+								day = new GregorianCalendar(day.get(Calendar.YEAR),
+										day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH));
+								day.roll(Calendar.DAY_OF_MONTH, true);
+								long endOfDay = day.getTimeInMillis();
+								day.roll(Calendar.DAY_OF_MONTH, false);
+								
+								Date now = new Date();
+								if (now.getTime() <= endOfDay) {
+									item.putLong("uptimeDuration", Math.abs(now.getTime() - up.getStart().getTime()));
+								}
+								else {
+									item.putLong("uptimeDuration", Math.abs(endOfDay - up.getStart().getTime()));
+								}
+								
+								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
+							}
 						}
+						// due to error
 						else {
-							item = new Bundle();
-							item.putLong("timestamp", up.getStart().getTime());
-							item.putInt("acceptedSamples", 0);
-							item.putInt("declinedSamples", 0);
-							item.putInt("countSamples", 0);
-							item.putLong("uptimeDuration", Math.abs(up.getEnd().getTime() - up.getStart().getTime()));
-							map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
+							if (map.containsKey(Long.parseLong(dateFormat.format(up.getStart())))) {
+								item = map.get(Long.parseLong(dateFormat.format(up.getStart())));
+								item.putLong("uptimeDuration", item.getLong("uptimeDuration") + (long)profile.getMinUptimeDuration());
+								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
+							}
+							else {
+								item = new Bundle();
+								item.putLong("timestamp", up.getStart().getTime());
+								item.putInt("acceptedSamples", 0);
+								item.putInt("declinedSamples", 0);
+								item.putInt("countSamples", 0);
+								item.putLong("uptimeDuration", (long)profile.getMinUptimeDuration());
+								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
+							}
 						}
 					}
 				}
@@ -335,6 +415,7 @@ public class Statistics {
 			long startOfDay = day.getTimeInMillis();
 			day.roll(Calendar.DAY_OF_MONTH, true);
 			long endOfDay = day.getTimeInMillis();
+			day.roll(Calendar.DAY_OF_MONTH, false);
 			
 			Uptime first = times.get(0);
 			// first uptime starts the day before
@@ -344,35 +425,48 @@ public class Statistics {
 					duration += Math.abs(first.getEnd().getTime() - startOfDay);
 				}
 				else {
-					if (first.getId() != recent.getId()) {
-						duration += profile.getMinUptimeDuration();
-					}
-					else {
+					if (first.getId() == recent.getId()) {
 						duration += Math.abs(new Date().getTime() - first.getStart().getTime());
 					}
 				}
 			}
 			else {
 				if (first.getEnd() != null) {
-					duration += Math.abs(first.getEnd().getTime() - first.getEnd().getTime());
+					duration += Math.abs(first.getEnd().getTime() - first.getStart().getTime());
 				}
 				else {
 					if (first.getId() != recent.getId()) {
 						duration += profile.getMinUptimeDuration();
 					}
 					else {
-						duration += Math.abs(new Date().getTime() - first.getStart().getTime());
+						// current time can only be used if it lies within requested day
+						// else time until midnight of this day has to be used
+						Date now = new Date();
+						if (now.getTime() <= endOfDay) {
+							duration += Math.abs(now.getTime() - first.getStart().getTime());
+						}
+						else {
+							duration += Math.abs(endOfDay - first.getStart().getTime());
+						}
 					}
 				}
 			}
 			
 			if (times.size() > 1) {
 				Uptime last = times.get(times.size() - 1);
+				Log.i(TAG, "startOfDay="+startOfDay+" endOfDay="+endOfDay);
+				Log.i(TAG, "last.start="+last.getStart()+" last.end="+last.getEnd());
 				
 				if (last.getEnd() != null) {
-					// first uptime ends the day after
-					// use only time until midnight
-					if (last.getEnd().getTime() > endOfDay) {
+					// if uptime extends over midnight
+					// use only time that lies within requested day
+					if (last.getStart().getTime() <= startOfDay && last.getEnd().getTime() >= endOfDay) {
+						duration += Math.abs(endOfDay - startOfDay);
+					}
+					else if (last.getStart().getTime() <= startOfDay) {
+						duration += Math.abs(last.getEnd().getTime() - startOfDay);
+					}
+					else if (last.getEnd().getTime() >= endOfDay) {
 						duration += Math.abs(endOfDay - last.getStart().getTime());
 					}
 					else {
@@ -384,7 +478,15 @@ public class Statistics {
 						duration += profile.getMinUptimeDuration();
 					}
 					else {
-						duration += Math.abs(new Date().getTime() - last.getStart().getTime());
+						// current time can only be used if it lies within requested day
+						// else time until midnight of this day has to be used
+						Date now = new Date();
+						if (now.getTime() <= endOfDay) {
+							duration += Math.abs(now.getTime() - first.getStart().getTime());
+						}
+						else {
+							duration += Math.abs(endOfDay - first.getStart().getTime());
+						}
 					}
 				}
 			}
