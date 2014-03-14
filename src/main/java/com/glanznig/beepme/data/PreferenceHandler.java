@@ -28,7 +28,6 @@ public class PreferenceHandler {
 	
 	public static final String KEY_BEEPER_ACTIVE = "beeperActivated";
 	public static final String KEY_VIBRATE_AT_BEEP = "vibrateAtBeep";
-	public static final String KEY_WARN_NO_WIFI = "warnNoWifi";
 	public static final String KEY_TIMER_PROFILE_ID = "timerProfileId";
 	public static final String KEY_TEST_MODE = "testMode";
 	public static final String KEY_UPTIME_ID = "uptimeId";
@@ -36,6 +35,7 @@ public class PreferenceHandler {
 	public static final String KEY_EXPORT_RUNNING_SINCE = "exportIsRunningSince";
 	public static final String KEY_IS_CALL = "isCall";
 	public static final String KEY_PAUSE_BEEPER_DURING_CALL = "pauseBeeperDuringCall";
+    public static final String KEY_APP_VERSION = "appVersion";
 	
 	private Context ctx;
 	
@@ -108,15 +108,15 @@ public class PreferenceHandler {
 		editor.commit();
 	}
 	
-	public boolean isWarnNoWifi() {
+	public int getAppVersion() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-		return prefs.getBoolean(KEY_WARN_NO_WIFI, true);
+		return prefs.getInt(KEY_APP_VERSION, 0);
 	}
-	
-	public void setWarnNoWifi(boolean warn) {
+
+	public void setAppVersion(int version) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putBoolean(KEY_WARN_NO_WIFI, warn);
+		editor.putInt(KEY_APP_VERSION, version);
 		editor.commit();
 	}
 	

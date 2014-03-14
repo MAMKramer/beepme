@@ -50,9 +50,9 @@ public class PhotoUtils {
 	private static final String PHOTO_THUMB_SUFFIX = "_thumb_";
 	private static final String CHANGE_PHOTO_NAME = "swap";
 	
-	private static final String NORMAL_MODE_DIR = "normal";
-	private static final String TEST_MODE_DIR = "testmode";
-	private static final String THUMB_DIR = "thumbs";
+	public static final String NORMAL_MODE_DIR = "normal";
+	public static final String TEST_MODE_DIR = "testmode";
+	public static final String THUMB_DIR = "thumbs";
 	
 	private static final int[] thumbSizes = {48, 64};
 	

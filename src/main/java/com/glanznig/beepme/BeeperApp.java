@@ -20,15 +20,23 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.glanznig.beepme.data.PreferenceHandler;
+import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.data.TimerProfile;
+import com.glanznig.beepme.db.SampleTable;
 import com.glanznig.beepme.db.ScheduledBeepTable;
+import com.glanznig.beepme.db.StorageHandler;
 import com.glanznig.beepme.db.TimerProfileTable;
 import com.glanznig.beepme.db.UptimeTable;
+import com.glanznig.beepme.helper.AsyncImageScaler;
+import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.BeepActivity;
 import com.glanznig.beepme.view.MainActivity;
 
@@ -40,10 +48,14 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 public class BeeperApp extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
@@ -135,6 +147,8 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		super.onCreate();
 		getPreferences();
 		setTimerProfile();
+
+        onAppUpdate(getPreferences().getAppVersion());
 		
 		// listen to call events
 		if (callStateListener == null) {
@@ -277,6 +291,78 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			}
 		}
 	}
+
+    private void onAppUpdate(int oldVersion) {
+        try {
+            PackageInfo packageInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), 0);
+            int newVersion = packageInfo.versionCode;
+
+            //if (oldVersion > 0 && oldVersion != newVersion) {
+            // if should be above line, change in future versions
+            if (oldVersion < newVersion) {
+                for (int mVers = oldVersion; mVers < newVersion; mVers++) {
+                    switch (mVers) {
+                        case 16:
+                            String dbName;
+                            String picDirName;
+                            if (getPreferences().isTestMode()) {
+                                dbName = StorageHandler.DB_NAME_TESTMODE;
+                                picDirName = PhotoUtils.TEST_MODE_DIR;
+                            }
+                            else {
+                                dbName = StorageHandler.DB_NAME_PRODUCTION;
+                                picDirName = PhotoUtils.NORMAL_MODE_DIR;
+                            }
+
+                            // rename the database
+                            if (!dbName.equals(StorageHandler.DB_OLD_NAME)) {
+                                File oldDb = getDatabasePath(StorageHandler.DB_OLD_NAME);
+                                File newDb = new File(oldDb.getParentFile(), StorageHandler.DB_NAME_TESTMODE);
+                                oldDb.renameTo(newDb);
+                            }
+
+                            // move pictures
+                            if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+                                File oldDir = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                                File newDir = new File(oldDir.getAbsolutePath(), picDirName);
+
+                                if (!newDir.exists()) {
+                                    newDir.mkdirs();
+                                }
+
+                                File[] picFiles = oldDir.listFiles(new FilenameFilter() {
+                                    public boolean accept(File dir, String name) {
+                                        return name.toLowerCase().endsWith(".jpg");
+                                    }
+                                });
+
+                                for (int i = 0; i < picFiles.length; i++) {
+                                    picFiles[i].renameTo(new File(newDir, picFiles[i].getName()));
+                                }
+
+                                SampleTable st = new SampleTable(this);
+                                List<Sample> list = st.getSamples();
+                                for (int i = 0; i < list.size(); i++) {
+                                    Sample s = list.get(i);
+                                    String uri = s.getPhotoUri();
+
+                                    if (uri != null) {
+                                        File pic = new File(uri);
+                                        s.setPhotoUri(pic.getParent() + File.separator + picDirName + File.separator + pic.getName());
+                                        st.editSample(s);
+                                    }
+                                }
+                            }
+
+                            break;
+                    }
+                }
+            } // else we would have a new install or the data had been deleted
+
+            getPreferences().setAppVersion(newVersion);
+        }
+        catch(PackageManager.NameNotFoundException nnfe) {}
+    }
 	
 	private static class CallStateListener extends PhoneStateListener {
 		

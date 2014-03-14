@@ -57,141 +57,57 @@ public class StorageHandler {
 				dropTables(db);
 				onCreate(db);
 			}
-			
-			
-			if (oldVersion == 16 && newVersion == 17) {
-				db.execSQL("ALTER TABLE " + TimerProfileTable.getTableName() +
-						" ADD COLUMN minSizeBeepInterval INTEGER NOT NULL DEFAULT 60");
-				ContentValues values = new ContentValues();
-				values.put("minSizeBeepInterval", 60);
-				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "1" });
-				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "2" });
-			}
-			
-			
-			if (oldVersion == 16 && newVersion == 18) {
-				db.execSQL("ALTER TABLE " + TimerProfileTable.getTableName() +
-						" ADD COLUMN minSizeBeepInterval INTEGER NOT NULL DEFAULT 60");
-				ContentValues values = new ContentValues();
-				values.put("minSizeBeepInterval", 60);
-				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "1" });
-				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "2" });
-				
-				db.execSQL("ALTER TABLE " + ScheduledBeepTable.getTableName() +
-						" ADD COLUMN received INTEGER");
-			}
-			
-			if (oldVersion == 17 && newVersion == 18) {
-				db.execSQL("ALTER TABLE " + ScheduledBeepTable.getTableName() +
-						" ADD COLUMN received INTEGER");
-			}
-			
-			
-			if (oldVersion == 16 && newVersion == 19) {
-				db.execSQL("ALTER TABLE " + TimerProfileTable.getTableName() +
-						" ADD COLUMN minSizeBeepInterval INTEGER NOT NULL DEFAULT 60");
-				ContentValues values = new ContentValues();
-				values.put("minSizeBeepInterval", 60);
-				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "1" });
-				db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "2" });
-				
-				db.execSQL("ALTER TABLE " + ScheduledBeepTable.getTableName() +
-						" ADD COLUMN received INTEGER");
-				
-				db.execSQL("CREATE TABLE IF NOT EXISTS sample2 (" +
-						"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-						"timestamp INTEGER NOT NULL UNIQUE, " +
-						"title TEXT, " +
-						"description TEXT, " +
-						"accepted INTEGER NOT NULL, " +
-						"photoUri TEXT, " +
-						"uptimeId INTEGER, " +
-						"FOREIGN KEY (uptimeId) REFERENCES "  + UptimeTable.getTableName() + " (_id)" +
-						")");
-				db.execSQL("INSERT INTO sample2 (_id, timestamp, title, description, accepted, photoUri)" +
-						"SELECT _id, timestamp, title, description, accepted, photoUri FROM " + SampleTable.getTableName());
-				db.execSQL("DROP TABLE " + SampleTable.getTableName());
-				db.execSQL("ALTER TABLE sample2 RENAME TO " + SampleTable.getTableName());
-				
-				db.execSQL("CREATE TABLE IF NOT EXISTS uptime2 (" +
-						"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-						"start INTEGER NOT NULL UNIQUE, " +
-						"end INTEGER UNIQUE, " +
-						"timerProfileId INTEGER, " +
-						"FOREIGN KEY (timerProfileId) REFERENCES "  + TimerProfileTable.getTableName() + " (_id)" +
-						")");
-				db.execSQL("INSERT INTO uptime2 (_id, start, end)" +
-						"SELECT _id, start, end FROM " + UptimeTable.getTableName());
-				db.execSQL("DROP TABLE " + UptimeTable.getTableName());
-				db.execSQL("ALTER TABLE uptime2 RENAME TO " + UptimeTable.getTableName());
-				
-				db.execSQL("UPDATE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
-			}
-			
-			if (oldVersion == 17 && newVersion == 19) {
-				db.execSQL("ALTER TABLE " + ScheduledBeepTable.getTableName() +
-						" ADD COLUMN received INTEGER");
-				
-				db.execSQL("CREATE TABLE IF NOT EXISTS sample2 (" +
-						"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-						"timestamp INTEGER NOT NULL UNIQUE, " +
-						"title TEXT, " +
-						"description TEXT, " +
-						"accepted INTEGER NOT NULL, " +
-						"photoUri TEXT, " +
-						"uptimeId INTEGER, " +
-						"FOREIGN KEY (uptimeId) REFERENCES "  + UptimeTable.getTableName() + " (_id)" +
-						")");
-				db.execSQL("INSERT INTO sample2 (_id, timestamp, title, description, accepted, photoUri)" +
-						"SELECT _id, timestamp, title, description, accepted, photoUri FROM " + SampleTable.getTableName());
-				db.execSQL("DROP TABLE " + SampleTable.getTableName());
-				db.execSQL("ALTER TABLE sample2 RENAME TO " + SampleTable.getTableName());
-				
-				db.execSQL("CREATE TABLE IF NOT EXISTS uptime2 (" +
-						"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-						"start INTEGER NOT NULL UNIQUE, " +
-						"end INTEGER UNIQUE, " +
-						"timerProfileId INTEGER, " +
-						"FOREIGN KEY (timerProfileId) REFERENCES "  + TimerProfileTable.getTableName() + " (_id)" +
-						")");
-				db.execSQL("INSERT INTO uptime2 (_id, start, end)" +
-						"SELECT _id, start, end FROM " + UptimeTable.getTableName());
-				db.execSQL("DROP TABLE " + UptimeTable.getTableName());
-				db.execSQL("ALTER TABLE uptime2 RENAME TO " + UptimeTable.getTableName());
-				
-				db.execSQL("UPDATE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
-			}
-			
-			if (oldVersion == 18 && newVersion == 19) {
-				db.execSQL("CREATE TABLE IF NOT EXISTS sample2 (" +
-						"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-						"timestamp INTEGER NOT NULL UNIQUE, " +
-						"title TEXT, " +
-						"description TEXT, " +
-						"accepted INTEGER NOT NULL, " +
-						"photoUri TEXT, " +
-						"uptimeId INTEGER, " +
-						"FOREIGN KEY (uptimeId) REFERENCES "  + UptimeTable.getTableName() + " (_id)" +
-						")");
-				db.execSQL("INSERT INTO sample2 (_id, timestamp, title, description, accepted, photoUri)" +
-						"SELECT _id, timestamp, title, description, accepted, photoUri FROM " + SampleTable.getTableName());
-				db.execSQL("DROP TABLE " + SampleTable.getTableName());
-				db.execSQL("ALTER TABLE sample2 RENAME TO " + SampleTable.getTableName());
-				
-				db.execSQL("CREATE TABLE IF NOT EXISTS uptime2 (" +
-						"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-						"start INTEGER NOT NULL UNIQUE, " +
-						"end INTEGER UNIQUE, " +
-						"timerProfileId INTEGER, " +
-						"FOREIGN KEY (timerProfileId) REFERENCES "  + TimerProfileTable.getTableName() + " (_id)" +
-						")");
-				db.execSQL("INSERT INTO uptime2 (_id, start, end)" +
-						"SELECT _id, start, end FROM " + UptimeTable.getTableName());
-				db.execSQL("DROP TABLE " + UptimeTable.getTableName());
-				db.execSQL("ALTER TABLE uptime2 RENAME TO " + UptimeTable.getTableName());
-				
-				db.execSQL("UPDATE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
-			}
+            else {
+                // do incremental db upgrades
+                for (int mVers = oldVersion; mVers < newVersion; mVers++) {
+                    switch (mVers) {
+                        case 16:
+                            db.execSQL("ALTER TABLE " + TimerProfileTable.getTableName() +
+                                    " ADD COLUMN minSizeBeepInterval INTEGER NOT NULL DEFAULT 60");
+                            ContentValues values = new ContentValues();
+                            values.put("minSizeBeepInterval", 60);
+                            db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "1" });
+                            db.update(TimerProfileTable.getTableName(), values, "_id=?", new String[] { "2" });
+                            break;
+
+                        case 17:
+                            db.execSQL("ALTER TABLE " + ScheduledBeepTable.getTableName() +
+                                    " ADD COLUMN received INTEGER");
+                            break;
+
+                        case 18:
+                            db.execSQL("CREATE TABLE IF NOT EXISTS sample2 (" +
+                                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                                    "timestamp INTEGER NOT NULL UNIQUE, " +
+                                    "title TEXT, " +
+                                    "description TEXT, " +
+                                    "accepted INTEGER NOT NULL, " +
+                                    "photoUri TEXT, " +
+                                    "uptimeId INTEGER, " +
+                                    "FOREIGN KEY (uptimeId) REFERENCES "  + UptimeTable.getTableName() + " (_id)" +
+                                    ")");
+                            db.execSQL("INSERT INTO sample2 (_id, timestamp, title, description, accepted, photoUri)" +
+                                    "SELECT _id, timestamp, title, description, accepted, photoUri FROM " + SampleTable.getTableName());
+                            db.execSQL("DROP TABLE " + SampleTable.getTableName());
+                            db.execSQL("ALTER TABLE sample2 RENAME TO " + SampleTable.getTableName());
+
+                            db.execSQL("CREATE TABLE IF NOT EXISTS uptime2 (" +
+                                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                                    "start INTEGER NOT NULL UNIQUE, " +
+                                    "end INTEGER UNIQUE, " +
+                                    "timerProfileId INTEGER, " +
+                                    "FOREIGN KEY (timerProfileId) REFERENCES "  + TimerProfileTable.getTableName() + " (_id)" +
+                                    ")");
+                            db.execSQL("INSERT INTO uptime2 (_id, start, end)" +
+                                    "SELECT _id, start, end FROM " + UptimeTable.getTableName());
+                            db.execSQL("DROP TABLE " + UptimeTable.getTableName());
+                            db.execSQL("ALTER TABLE uptime2 RENAME TO " + UptimeTable.getTableName());
+
+                            db.execSQL("UPDATE " + VocabularyTable.getTableName() + " SET name='keywords' WHERE _id = 1");
+                            break;
+                    }
+                }
+            }
 		}
 		
 		public void dropTables(SQLiteDatabase db) {
@@ -213,8 +129,9 @@ public class StorageHandler {
 	private static DatabaseHelper dbHelperProduction = null;
 	private static DatabaseHelper dbHelperTestMode = null;
 	private Context ctx = null;
-	protected static final String DB_NAME_PRODUCTION = "beepme";
-	protected static final String DB_NAME_TESTMODE = "beepme_testmode";
+    public static final String DB_OLD_NAME = "beepme"; // can be removed in future versions
+	public static final String DB_NAME_PRODUCTION = "beepme";
+	public static final String DB_NAME_TESTMODE = "beepme_testmode";
 	
 	public StorageHandler(Context ctx) {
 		this.ctx = ctx;
