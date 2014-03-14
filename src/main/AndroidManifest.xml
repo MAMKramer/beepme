@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2012-2014 Michael Glanznig
+http://beepme.glanznig.com
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.glanznig.beepme"
+    android:versionCode="17"
+    android:versionName="1.5-dev"
+    android:installLocation="auto">
+
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
+    
+    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    
+    <application android:icon="@drawable/ic_launcher_beepme"
+        android:label="@string/app_name"
+        android:name=".BeeperApp"
+        android:theme="@android:style/Theme.Holo.Light"
+        android:allowBackup="false">
+      
+	    <activity
+	        android:name=".view.MainActivity"
+	        android:label="@string/app_name">
+	        <intent-filter>
+	            <action android:name="android.intent.action.MAIN" />
+	            <category android:name="android.intent.category.LAUNCHER" />
+	         </intent-filter>
+	    </activity>
+	    
+	    <activity
+	        android:name=".view.Preferences"
+	        android:label="@string/action_settings"
+	        android:parentActivityName=".view.MainActivity">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.MainActivity" />
+	    </activity>
+	    
+	    <activity android:name=".view.BeepActivity"
+	        android:launchMode="singleTask"
+	        android:screenOrientation="portrait">
+	    </activity>
+	    
+	    <activity
+	        android:name=".view.NewSampleActivity"
+	        android:label="@string/new_sample"
+	        android:windowSoftInputMode="stateUnchanged|adjustResize">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.MainActivity" />
+	    </activity>
+	    
+	    <activity
+	        android:name=".view.EditSampleActivity"
+	        android:label="@string/edit_sample"
+	        android:windowSoftInputMode="stateUnchanged|adjustResize">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.ViewSampleActivity" />
+	    </activity>
+	    
+	    <activity
+	        android:name=".view.ViewSampleActivity"
+	        android:label="@string/view_sample"
+	        android:parentActivityName=".view.MainActivity">
+	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.ListSamplesActivity" />
+	    </activity>
+	    
+	    <receiver android:name=".helper.PhoneStateReceiver">
+	        <intent-filter>
+	            <action android:name="android.intent.action.PHONE_STATE">
+	            </action>
+	        </intent-filter>
+	    </receiver>
+	    
+	  </application>
+
+</manifest>

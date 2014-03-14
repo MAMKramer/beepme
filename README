@@ -27,8 +27,8 @@ random number generator. The implementation can be distributed and modified
 freely as long as the license information is retained. For further
 information see MersenneTwister.java
 
-The GlowPad implementation was modified by Nadav Fima from Google's AOSP
-and is available under an Apache 2.0 License.
+The GlowPad implementation (package com.fima.glowpadview) was modified
+by Nadav Fima from Google's AOSP and is available under an Apache 2.0 License.
 See http://github.com/nadavfima/GlowPadView
 
 The basic FlowLayout implementation is by Artem Votincev. For the license

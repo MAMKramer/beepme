@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2012-2014 Michael Glanznig
+http://beepme.glanznig.com
+-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:glowpad="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/black">
+    
+    <TextView
+        android:id="@+id/beep_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="50dp"
+        android:paddingBottom="20dp"
+        android:text="@string/app_name"
+        android:textColor="@color/white"
+        android:textSize="30sp" />
+    
+    <LinearLayout
+	    android:id="@+id/beep_stats_today"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/beep_app_name"
+	    android:gravity="center"
+	    android:orientation="vertical" >
+	    
+        <LinearLayout
+            android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:gravity="center"
+	    	android:layout_marginBottom="5dp"
+	    	android:orientation="horizontal">
+	        <TextView
+				android:id="@+id/beep_accepted_today"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:drawableLeft="@drawable/ic_beep_stat_accepted_white"
+				android:drawablePadding="3dp"
+				android:textColor="@color/white"
+				android:textSize="18sp"
+				android:fontFamily="sans-serif-thin" />
+	     
+			<TextView
+				android:id="@+id/beep_declined_today"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8dp"
+				android:drawableLeft="@drawable/ic_beep_stat_declined_white"
+				android:drawablePadding="3dp"
+				android:textColor="@color/white"
+				android:textSize="18sp"
+				android:fontFamily="sans-serif-thin" />
+        </LinearLayout>
+     
+     	<TextView
+			android:id="@+id/beep_elapsed_today"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_beep_stat_elapsed_white"
+			android:drawablePadding="3dp"
+			android:gravity="center"
+			android:textColor="@color/white"
+			android:textSize="18sp"
+			android:fontFamily="sans-serif-thin" />
+     	
+     	<TextView
+			android:id="@+id/beep_today"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:fontFamily="sans-serif-thin"
+			android:textColor="@color/white"
+			android:paddingTop="10dp"
+			android:textSize="22sp"
+			android:text="@string/today" />
+    
+    </LinearLayout>
+    
+    <com.fima.glowpadview.GlowPadView
+        android:id="@+id/beep_glowpad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="@dimen/glowpadview_margin_bottom"
+        android:focusable="true"
+        android:gravity="center"
+        glowpad:directionDescriptions="@array/accept_decline_direction_descriptions"
+        glowpad:feedbackCount="1"
+        glowpad:glowRadius="@dimen/glowpadview_glow_radius"
+        glowpad:handleDrawable="@drawable/ic_beep_touch_handle"
+        glowpad:innerRadius="@dimen/glowpadview_inner_radius"
+        glowpad:outerRadius="@dimen/glowpadview_target_placement_radius"
+        glowpad:outerRingDrawable="@drawable/ic_beep_outer_ring"
+        glowpad:pointDrawable="@drawable/ic_lockscreen_glowdot"
+        glowpad:snapMargin="@dimen/glowpadview_snap_margin"
+        glowpad:targetDescriptions="@array/accept_decline_descriptions"
+        glowpad:targetDrawables="@array/accept_decline_drawables"
+        glowpad:vibrationDuration="0" />
+	
+</RelativeLayout>

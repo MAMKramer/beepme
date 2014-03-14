@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2012-2014 Michael Glanznig
+http://beepme.glanznig.com
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal">
+    
+    	<TextView
+			android:id="@+id/list_history_day"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="40"
+			android:layout_marginLeft="8dp" />
+		
+		<RelativeLayout
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="20">
+		    
+		    <ImageView
+		        android:id="@+id/list_history_accepted_ic"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/ic_stat_accepted"
+		        android:layout_marginTop="2dp"
+		        android:layout_marginRight="2dp" />
+		    
+			<TextView
+				android:id="@+id/list_history_accepted"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@id/list_history_accepted_ic"
+				android:gravity="left" />
+		</RelativeLayout>
+		
+		<RelativeLayout
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="20">
+		    
+		    <ImageView
+		        android:id="@+id/list_history_declined_ic"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/ic_stat_declined"
+		        android:layout_marginTop="2dp"
+		        android:layout_marginRight="2dp" />
+		    
+			<TextView
+				android:id="@+id/list_history_declined"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@id/list_history_declined_ic"
+				android:gravity="left" />
+		</RelativeLayout>
+		
+		<RelativeLayout
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_marginRight="8dp"
+		    android:layout_weight="20">
+		    
+		    <ImageView
+		        android:id="@+id/list_history_elapsed_ic"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/ic_stat_elapsed"
+		        android:layout_marginTop="2dp"
+		        android:layout_marginRight="2dp" />
+		    
+			<TextView
+				android:id="@+id/list_history_elapsed"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@id/list_history_elapsed_ic"
+				android:gravity="left" />
+		</RelativeLayout>
+
+</LinearLayout>
