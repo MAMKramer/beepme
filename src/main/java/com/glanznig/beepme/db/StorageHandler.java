@@ -130,8 +130,8 @@ public class StorageHandler {
 	private static DatabaseHelper dbHelperTestMode = null;
 	private Context ctx = null;
     public static final String DB_OLD_NAME = "beepme"; // can be removed in future versions
-	public static final String DB_NAME_PRODUCTION = "beepme";
-	public static final String DB_NAME_TESTMODE = "beepme_testmode";
+	private static final String DB_NAME_PRODUCTION = "beepme";
+	private static final String DB_NAME_TESTMODE = "beepme_testmode";
 	
 	public StorageHandler(Context ctx) {
 		this.ctx = ctx;

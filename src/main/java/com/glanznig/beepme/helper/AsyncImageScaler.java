@@ -27,16 +27,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+
+import it.sephiroth.android.library.media.ExifInterfaceExtended;
 
 public class AsyncImageScaler extends Thread {
 	
 	public static final int MSG_SUCCESS = 32;
 	public static final int MSG_ERROR = 33;
-	private static final int IMG_QUALITY = 75;
+	private static final int IMG_QUALITY = 90;
 	private static final String TAG = "AsyncImageScaler";
 	
 	private String srcUri;
@@ -66,12 +68,40 @@ public class AsyncImageScaler extends Thread {
 		        opts.inJustDecodeBounds = true;
 		        BitmapFactory.decodeStream(fileInput, null, opts);
 		        fileInput.close();
-		        
-		        float srcRatio =  (float)opts.outWidth / (float)opts.outHeight;
-		        float destRatio =  (float)destWidth / (float)destHeight;
+
+                int srcWidth = opts.outWidth;
+                int srcHeight = opts.outHeight;
+
+                // check if photo needs to be rotated
+                ExifInterfaceExtended srcExif = new ExifInterfaceExtended(srcUri);
+
+                int rotationTag = srcExif.getAttributeInt(ExifInterfaceExtended.TAG_EXIF_ORIENTATION,
+                        ExifInterfaceExtended.ORIENTATION_NORMAL);
+                int rotateDeg = 0;
+
+                if (rotationTag == ExifInterfaceExtended.ORIENTATION_ROTATE_90) {
+                    rotateDeg = 90;
+                    // swap width and height for scaling
+                    int swap = srcWidth;
+                    srcWidth = srcHeight;
+                    srcHeight = swap;
+                }
+                else if (rotationTag == ExifInterfaceExtended.ORIENTATION_ROTATE_180) {
+                    rotateDeg = 180;
+                }
+                else if (rotationTag == ExifInterfaceExtended.ORIENTATION_ROTATE_270) {
+                    rotateDeg = 270;
+                    // swap width and height for scaling
+                    int swap = srcWidth;
+                    srcWidth = srcHeight;
+                    srcHeight = swap;
+                }
+
+                float srcRatio =  (float)srcWidth / (float)srcHeight;
+                float destRatio =  (float)destWidth / (float)destHeight;
 	
 		        int scale = 1;
-		        while(opts.outWidth / scale / 2 > destWidth && opts.outHeight / scale / 2 > destHeight) {
+		        while(srcWidth / scale / 2 > destWidth && srcHeight / scale / 2 > destHeight) {
 		            scale *= 2;
 		        }
 	
@@ -92,21 +122,8 @@ public class AsyncImageScaler extends Thread {
 		        	scaledPhoto.recycle();
 		        	scaledPhoto = croppedPhoto;
 		        }
-		        
-		        // check if photo needs to be rotated
-		        ExifInterface exif = new ExifInterface(srcUri);
-		        int rotationTag = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-		        int rotateDeg = 0;
-		        if (rotationTag == ExifInterface.ORIENTATION_ROTATE_90) {
-		        	rotateDeg = 90;
-		        } 
-		        else if (rotationTag == ExifInterface.ORIENTATION_ROTATE_180) {
-		        	rotateDeg = 180;
-		        } 
-		        else if (rotationTag == ExifInterface.ORIENTATION_ROTATE_270) {
-		        	rotateDeg = 270;
-		        } 
-		        
+
+                // rotate photo
 		        Matrix matrix = new Matrix();
 		        Bitmap rotatedPhoto = null;
 		        if (rotateDeg != 0) {
@@ -125,6 +142,15 @@ public class AsyncImageScaler extends Thread {
 		        	FileOutputStream outStream = new FileOutputStream(destUri);
 		        	scaledPhoto.compress(CompressFormat.JPEG, IMG_QUALITY, outStream);
 		        }
+
+                //attach exif information from src image
+                Bundle exifData = new Bundle();
+                srcExif.copyTo(exifData);
+                ExifInterfaceExtended destExif = new ExifInterfaceExtended(destUri);
+                destExif.copyFrom(exifData, true);
+                destExif.setAttribute(ExifInterfaceExtended.TAG_EXIF_ORIENTATION,
+                        String.valueOf(ExifInterfaceExtended.ORIENTATION_NORMAL));
+                destExif.saveAttributes();
 				
 				if (handler != null) {
 		        	handler.obtainMessage(MSG_SUCCESS, name, 0, scaledPhoto).sendToTarget();

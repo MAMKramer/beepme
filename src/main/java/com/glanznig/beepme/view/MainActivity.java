@@ -20,16 +20,9 @@ http://beepme.glanznig.com
 
 package com.glanznig.beepme.view;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Calendar;
-
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.data.DataExporter;
 import com.glanznig.beepme.db.ScheduledBeepTable;
 
 import android.app.ActionBar;
@@ -43,9 +36,6 @@ import android.content.pm.PackageInfo;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
@@ -55,7 +45,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity implements ActionBar.TabListener {
@@ -66,7 +55,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	private MainSectionsPagerAdapter pagerAdapter = null;
 	private ViewPager pager = null;
 	
-	private static class ExportHandler extends Handler {
+	/*private static class ExportHandler extends Handler {
 		WeakReference<MainActivity> mainMenu;
 		Bundle data;
 		
@@ -142,8 +131,9 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 				}
 			}
 	    }
-	}
+	}*/
 
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
@@ -153,7 +143,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         pagerAdapter = new MainSectionsPagerAdapter(getSupportFragmentManager(), this);
         final ActionBar actionBar = getActionBar();
         
-        BeeperApp app = (BeeperApp)getApplication();
+        final BeeperApp app = (BeeperApp)getApplication();
         
         if (app.getPreferences().isTestMode()) {
         	actionBar.setSubtitle(getString(R.string.pref_title_test_mode));
@@ -211,10 +201,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 				app.setTimer();
 			}
 		}
-	}
-	
-	public void onClickListSamples(View view) {
-		startActivity(new Intent(MainActivity.this, SampleListFragment.class));
 	}
 	
 	@Override
@@ -309,7 +295,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         		return true;
         		
             case R.id.action_export:
-            	if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            	/*if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             		if (app.getPreferences().exportRunningSince() == 0L ||
             				(Calendar.getInstance().getTimeInMillis() -
             				app.getPreferences().exportRunningSince()) >= 120000) { //2 min
@@ -319,11 +305,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
             	}
             	else {
             		Toast.makeText(MainActivity.this, R.string.sdcard_error, Toast.LENGTH_SHORT).show();
-            	}
+            	}*/
+                Intent iExport = new Intent(this, ExportActivity.class);
+                startActivity(iExport);
             	return true;
             	
             case R.id.action_settings:
-                Intent iSettings = new Intent(this, Preferences.class);
+                Intent iSettings = new Intent(this, SettingsActivity.class);
                 startActivity(iSettings);
                 return true;
                 

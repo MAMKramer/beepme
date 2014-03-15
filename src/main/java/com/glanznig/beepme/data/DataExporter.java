@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,6 +39,7 @@ import java.util.zip.ZipOutputStream;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.db.StorageHandler;
+import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.MainActivity;
 
 import android.app.NotificationManager;
@@ -168,7 +171,7 @@ public class DataExporter {
 		catch (NameNotFoundException ne) {
 			notificationBuilder.setContentTitle("Beeper");
 		}
-		notificationBuilder.setContentText(ctx.getString(R.string.export_active));
+		//notificationBuilder.setContentText(ctx.getString(R.string.export_active));
 		//set as ongoing, so it cannot be cleared
 		notificationBuilder.setOngoing(true);
 		// Creates an explicit intent for an Activity in your app
@@ -194,5 +197,48 @@ public class DataExporter {
 		// notification_id allows you to update the notification later on.
 		manager.notify(TAG, NOTIFICATION_ID, notificationBuilder.build());
 	}
+
+    public int getArchiveSize(boolean photos) {
+        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        File db;
+        int archiveSize = 0;
+
+        if (!app.getPreferences().isTestMode()) {
+            db = app.getDatabasePath(StorageHandler.getTestModeDatabaseName());
+        }
+        else {
+            db = app.getDatabasePath(StorageHandler.getProductionDatabaseName());
+        }
+
+        if (db != null) {
+            archiveSize += db.length();
+        }
+
+        if (photos) {
+            File[] photoList = PhotoUtils.getPhotos(ctx);
+            if (photoList != null) {
+                for (int i = 0; i < photoList.length; i++) {
+                    archiveSize += photoList[i].length();
+                }
+            }
+        }
+
+        return archiveSize;
+    }
+
+    public String getReadableArchiveSize(boolean photos) {
+        int size = getArchiveSize(photos);
+
+        if(size <= 0) {
+            return "0 KB";
+        }
+
+        final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
+        int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+        NumberFormat numFormat = DecimalFormat.getInstance();
+        numFormat.setMaximumFractionDigits(1);
+
+        return numFormat.format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+    }
 
 }

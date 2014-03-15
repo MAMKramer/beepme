@@ -33,7 +33,11 @@ See http://github.com/nadavfima/GlowPadView
 
 The basic FlowLayout implementation is by Artem Votincev. For the license
 see FlowLayout.java.
-See http://github.com/ApmeM/android-flowlayout.
+See http://github.com/ApmeM/android-flowlayout
+
+The ExifInterfaceExtended implementation is by Allesandro Crugnola
+and licensed as Public Domain.
+See http://github.com/sephiroth74/Android-Exif-Extended
 
 The files drawable/ic_lockscreen_glowdot and
 drawable/ic_lockscreen_handle_pressed are from AOSP and are available under

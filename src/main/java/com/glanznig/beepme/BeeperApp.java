@@ -306,18 +306,18 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
                             String dbName;
                             String picDirName;
                             if (getPreferences().isTestMode()) {
-                                dbName = StorageHandler.DB_NAME_TESTMODE;
+                                dbName = StorageHandler.getTestModeDatabaseName();
                                 picDirName = PhotoUtils.TEST_MODE_DIR;
                             }
                             else {
-                                dbName = StorageHandler.DB_NAME_PRODUCTION;
+                                dbName = StorageHandler.getProductionDatabaseName();
                                 picDirName = PhotoUtils.NORMAL_MODE_DIR;
                             }
 
                             // rename the database
                             if (!dbName.equals(StorageHandler.DB_OLD_NAME)) {
                                 File oldDb = getDatabasePath(StorageHandler.DB_OLD_NAME);
-                                File newDb = new File(oldDb.getParentFile(), StorageHandler.DB_NAME_TESTMODE);
+                                File newDb = new File(oldDb.getParentFile(), dbName);
                                 oldDb.renameTo(newDb);
                             }
 

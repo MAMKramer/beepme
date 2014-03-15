@@ -51,11 +51,18 @@ http://beepme.glanznig.com
 	    </activity>
 	    
 	    <activity
-	        android:name=".view.Preferences"
+	        android:name=".view.SettingsActivity"
 	        android:label="@string/action_settings"
 	        android:parentActivityName=".view.MainActivity">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.MainActivity" />
 	    </activity>
+
+        <activity
+            android:name=".view.ExportActivity"
+            android:label="@string/action_export"
+            android:parentActivityName=".view.MainActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.MainActivity" />
+        </activity>
 	    
 	    <activity android:name=".view.BeepActivity"
 	        android:launchMode="singleTask"

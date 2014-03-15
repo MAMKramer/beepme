@@ -21,8 +21,10 @@ http://beepme.glanznig.com
 package com.glanznig.beepme.helper;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -112,6 +114,32 @@ public class PhotoUtils {
 		
 		return null;
 	}
+
+    public static File[] getPhotos(Context ctx) {
+        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+
+        // external storage is ready and writable - can be used
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            File picDir = null;
+
+            // add a sub directory depending on whether we are in test mode
+            if (!app.getPreferences().isTestMode()) {
+                picDir = new File(ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES), NORMAL_MODE_DIR);
+            } else {
+                picDir = new File(ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES), TEST_MODE_DIR);
+            }
+
+            File[] picFiles = picDir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().endsWith(".jpg");
+                }
+            });
+
+            return picFiles;
+        }
+
+        return null;
+    }
 	
 	public static Bitmap getBitmap(Context ctx, String uri) {
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -265,7 +293,7 @@ public class PhotoUtils {
 			if (photo != null) {
 				String path = photo.getParent() + File.separator + THUMB_DIR;
 				// get name without .jpg extension
-				String name = photo.getName().substring(0, photo.getName().length() - 5);
+				String name = photo.getName().substring(0, photo.getName().length() - 4);
 				name = name + PHOTO_THUMB_SUFFIX + thumbName + ".jpg";
 				photo = new File(path, name);
 				
@@ -287,7 +315,7 @@ public class PhotoUtils {
 			File photo = new File(photoUri);
 			String path = photo.getParent() + File.separator + THUMB_DIR;
 			// get name without .jpg extension
-			String name = photo.getName().substring(0, photo.getName().length() - 5);
+			String name = photo.getName().substring(0, photo.getName().length() - 4);
 			name = name + PHOTO_THUMB_SUFFIX + size + ".jpg";
 			photo = new File(path, name);
 			

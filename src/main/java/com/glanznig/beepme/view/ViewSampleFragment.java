@@ -86,7 +86,6 @@ public class ViewSampleFragment extends Fragment implements Callback {
 	@Override
 	public void onResume() {
 		super.onResume();
-		//getView().findViewById(R.id.view_sample_image).setVisibility(View.GONE);
 		populateFields();
 	}
 	
@@ -170,16 +169,7 @@ public class ViewSampleFragment extends Fragment implements Callback {
 			photoView = (SamplePhotoView)getView().findViewById(R.id.view_sample_photo);
 			photoView.setRights(false, false); // read only
 			DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
-			
-			/*if (isLandscape()) {
-				View parent = getView().findViewById(R.id.scrolling_jui);
-				parent.measure(0, 0);
-				photoView.setFrameDimensions(parent.getMeasuredHeight(), parent.getMeasuredHeight());
-				View filter = getView().findViewById(R.id.view_sample_photo_filter);
-				filter.setLayoutParams(new RelativeLayout.LayoutParams(parent.getMeasuredHeight(), parent.getMeasuredHeight()));
-				photoView.measure(0, 0);
-				Log.i(TAG, "setSize="+parent.getMeasuredHeight()+" measuredHeight="+photoView.getMeasuredHeight()+" measuredWidth="+photoView.getMeasuredWidth());
-			}*/
+
 			if(!isLandscape()) {
 				photoView.setFrameWidth(LayoutParams.MATCH_PARENT);
 			}

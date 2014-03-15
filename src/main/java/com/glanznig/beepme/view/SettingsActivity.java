@@ -30,9 +30,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
-public class Preferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
-	private static final String TAG = "Preferences";
+	private static final String TAG = "SettingsActivity";
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -42,7 +42,7 @@ public class Preferences extends PreferenceActivity implements SharedPreferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         
 		PreferenceHandler prefs = ((BeeperApp)getApplication()).getPreferences();
-		prefs.registerOnPreferenceChangeListener(Preferences.this);
+		prefs.registerOnPreferenceChangeListener(SettingsActivity.this);
 	}
 	
 	@Override

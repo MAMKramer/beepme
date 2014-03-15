@@ -94,7 +94,7 @@ http://beepme.glanznig.com
 	  	    android:layout_width="wrap_content"
 	  	    android:layout_height="wrap_content"
 	  	    android:layout_centerInParent="true"
-	  	    android:layout_gravity="center"
+	  	    android:layout_gravity="center|center_vertical"
 	  	    android:text="@string/samples_list_no_samples" />
 	  	
     </RelativeLayout>
