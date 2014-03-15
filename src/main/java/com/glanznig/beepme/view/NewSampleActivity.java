@@ -285,15 +285,12 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		DisplayMetrics metrics = this.getResources().getDisplayMetrics();
 		
 		switch (requestCode) {
 			case PhotoUtils.TAKE_PHOTO_INTENT:
 				if (resultCode == Activity.RESULT_OK) {
 					Handler handler = new Handler(NewSampleActivity.this);
 					PhotoUtils.generateThumbnails(NewSampleActivity.this, sample.getPhotoUri(), handler);
-					
-					PhotoUtils.generateThumbnail(sample.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
 				}
 				else {
 					sample.setPhotoUri(null);
@@ -305,8 +302,6 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 					if (PhotoUtils.swapPhoto(NewSampleActivity.this, sample.getTimestamp())) {
 						Handler handler = new Handler(NewSampleActivity.this);
 						PhotoUtils.regenerateThumbnails(NewSampleActivity.this, sample.getPhotoUri(), handler);
-						
-						PhotoUtils.generateThumbnail(sample.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
 					}
 				}
 				else {
@@ -410,7 +405,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		        deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 		            public void onClick(DialogInterface dialog, int id) {
 		            	// delete photo on storage
-		            	PhotoUtils.deletePhoto(sample.getPhotoUri());
+		            	PhotoUtils.deletePhoto(NewSampleActivity.this, sample.getPhotoUri());
 		            	
 		            	sample.setPhotoUri(null);
 		            	photoView.unsetPhoto();

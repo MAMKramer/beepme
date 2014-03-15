@@ -55,6 +55,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 public class BeeperApp extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -149,6 +150,12 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		setTimerProfile();
 
         onAppUpdate(getPreferences().getAppVersion());
+
+        // save thumbnail sizes
+        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+        int screenDpWidth = (int)(metrics.widthPixels / metrics.density + 0.5f);
+        int[] sizes = {48, 64, screenDpWidth};
+        getPreferences().setThumbnailSizes(sizes);
 		
 		// listen to call events
 		if (callStateListener == null) {

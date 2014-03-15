@@ -24,6 +24,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.Collections;
+
 public class PreferenceHandler {
 	
 	public static final String KEY_BEEPER_ACTIVE = "beeperActivated";
@@ -36,6 +38,7 @@ public class PreferenceHandler {
 	public static final String KEY_IS_CALL = "isCall";
 	public static final String KEY_PAUSE_BEEPER_DURING_CALL = "pauseBeeperDuringCall";
     public static final String KEY_APP_VERSION = "appVersion";
+    public static final String KEY_THUMBNAIL_SIZES = "thumbnailSizes";
 	
 	private Context ctx;
 	
@@ -119,6 +122,37 @@ public class PreferenceHandler {
 		editor.putInt(KEY_APP_VERSION, version);
 		editor.commit();
 	}
+
+    public int[] getThumbnailSizes() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        String sizesString =  prefs.getString(KEY_THUMBNAIL_SIZES, "");
+
+        if (sizesString != null && !sizesString.isEmpty()) {
+            String[] parts = sizesString.split(",");
+            int[] sizes = new int[parts.length];
+            for (int i = 0; i < parts.length; i++) {
+                sizes[i] = Integer.valueOf(parts[i]).intValue();
+            }
+
+            return sizes;
+        }
+
+        int[] empty = {};
+        return empty;
+    }
+
+    public void setThumbnailSizes(int[] sizes) {
+        String sizesString = "";
+        for (int i = 0; i < sizes.length - 1; i++) {
+            sizesString += sizes[i] + ",";
+        }
+        sizesString += sizes[sizes.length - 1];
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(KEY_THUMBNAIL_SIZES, sizesString);
+        editor.commit();
+    }
 	
 	public boolean isTestMode() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);

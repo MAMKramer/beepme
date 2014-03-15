@@ -56,8 +56,6 @@ public class PhotoUtils {
 	public static final String TEST_MODE_DIR = "testmode";
 	public static final String THUMB_DIR = "thumbs";
 	
-	private static final int[] thumbSizes = {48, 64};
-	
 	public static final int TAKE_PHOTO_INTENT = 3648;
 	public static final int CHANGE_PHOTO_INTENT = 3638;
 	public static final int MSG_PHOTO_LOADED = 48;
@@ -212,15 +210,15 @@ public class PhotoUtils {
 		return false;
 	}
 	
-	public static boolean deletePhoto(String uri) {
-		return deletePhoto(uri, false);
+	public static boolean deletePhoto(Context ctx, String uri) {
+		return deletePhoto(ctx, uri, false);
 	}
 	
-	public static boolean deleteThumbnails(String uri) {
-		return deletePhoto(uri, true);
+	public static boolean deleteThumbnails(Context ctx, String uri) {
+		return deletePhoto(ctx, uri, true);
 	}
 	
-	private static boolean deletePhoto(String uri, boolean thumbnailsOnly) {
+	private static boolean deletePhoto(Context ctx, String uri, boolean thumbnailsOnly) {
 		if (uri != null && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			
 			File photo = new File(uri);
@@ -228,10 +226,12 @@ public class PhotoUtils {
 				String path = photo.getParent();
 				
 				// delete thumbnails
+                BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+                int[] thumbSizes = app.getPreferences().getThumbnailSizes();
 				for (int i = 0; i < thumbSizes.length; i++) {
 					// get name without .jpg extension
 					String thumbPath = path + File.separator + THUMB_DIR;
-					String name = photo.getName().substring(0, photo.getName().length() - 5);
+					String name = photo.getName().substring(0, photo.getName().length() - 4);
 					name = name + PHOTO_THUMB_SUFFIX + thumbSizes[i] + ".jpg";
 					File thumb = new File(thumbPath, name);
 					thumb.delete();
@@ -264,7 +264,7 @@ public class PhotoUtils {
 			String picFilename = PHOTO_PREFIX + CHANGE_PHOTO_NAME + ".jpg";
 			File pictureFile = new File(picDir, picFilename);
 			if (pictureFile != null) {
-				deletePhoto(pictureFile.getAbsolutePath());
+				deletePhoto(ctx, pictureFile.getAbsolutePath());
 				return true;
 			}
 		}
@@ -273,8 +273,10 @@ public class PhotoUtils {
 	}
 	
 	public static void regenerateThumbnails(Context ctx, String uri, Handler handler) {
-		deleteThumbnails(uri);		
+		deleteThumbnails(ctx, uri);
 		final float scale = ctx.getResources().getDisplayMetrics().density;
+        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        int[] thumbSizes = app.getPreferences().getThumbnailSizes();
 		for (int i = 0; i < thumbSizes.length; i++) {
 			generateThumbnail(uri, thumbSizes[i], (int)(thumbSizes[i] * scale + 0.5f), handler);
 		}
@@ -282,6 +284,8 @@ public class PhotoUtils {
 	
 	public static void generateThumbnails(Context ctx, String uri, Handler handler) {
 		final float scale = ctx.getResources().getDisplayMetrics().density;
+        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        int[] thumbSizes = app.getPreferences().getThumbnailSizes();
 		for (int i = 0; i < thumbSizes.length; i++) {
 			generateThumbnail(uri, thumbSizes[i], (int)(thumbSizes[i] * scale + 0.5f), handler);
 		}
@@ -298,11 +302,11 @@ public class PhotoUtils {
 				photo = new File(path, name);
 				
 				// create thumbs dir if it not already exists
-				if(photo.getParentFile().exists() == false) {
+				if(!photo.getParentFile().exists()) {
                     photo.getParentFile().mkdirs();
 				}
 				
-				if (photo != null) {
+				if (photo != null && !photo.exists()) {
 					AsyncImageScaler scaler = new AsyncImageScaler(uri, photo.getAbsolutePath(), thumbName, size, size, handler);
 					scaler.start();
 				}

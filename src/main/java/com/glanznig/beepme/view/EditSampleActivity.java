@@ -349,7 +349,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	            	st.editSample(sample);
 	            	
 	            	// delete photo on storage
-	            	PhotoUtils.deletePhoto(photoUri);
+	            	PhotoUtils.deletePhoto(EditSampleActivity.this, photoUri);
 	            	
 	            	photoView.unsetPhoto();
 	            }

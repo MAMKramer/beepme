@@ -41,6 +41,7 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,7 +154,7 @@ public class ViewSampleFragment extends Fragment implements Callback {
 			if (!hasKeywordTags) {
 				keywordHolder.setVisibility(View.GONE);
 				noKeywordsView.setVisibility(View.VISIBLE);
-				// not editable any more
+				// not editable any more (after 1 day)
 				if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
 					noKeywordsView.setText(getString(R.string.sample_no_keywords));
 				}
@@ -170,11 +171,16 @@ public class ViewSampleFragment extends Fragment implements Callback {
 			photoView.setRights(false, false); // read only
 			DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
 
+            int thumbnailSize;
 			if(!isLandscape()) {
 				photoView.setFrameWidth(LayoutParams.MATCH_PARENT);
+                thumbnailSize = (int)(metrics.widthPixels / metrics.density + 0.5f);
 			}
+            else {
+                thumbnailSize = (int)(metrics.heightPixels / metrics.density + 0.5f);
+            }
 			
-			String thumbnailUri = PhotoUtils.getThumbnailUri(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f));
+			String thumbnailUri = PhotoUtils.getThumbnailUri(s.getPhotoUri(), thumbnailSize);
 			if (thumbnailUri != null) {
 				File thumb = new File(thumbnailUri);
 				if (thumb.exists()) {
@@ -183,10 +189,12 @@ public class ViewSampleFragment extends Fragment implements Callback {
 				}
 				else {
 					Handler handler = new Handler(this);
-					photoView.measure(0, 0);
-					PhotoUtils.generateThumbnail(s.getPhotoUri(), (int)(metrics.widthPixels / metrics.density + 0.5f), metrics.widthPixels, handler);
+					PhotoUtils.generateThumbnails(getView().getContext(), s.getPhotoUri(), handler);
 				}
 			}
+            else {
+                photoView.unsetPhoto();
+            }
 		}
 	}
 	
