@@ -197,7 +197,12 @@ public class SamplePhotoView extends LinearLayout {
     public void unsetPhoto() {
     	if (hasPhotoSet) {
     		hasPhotoSet = false;
-    		photo.setImageResource(placeholderResId);
+            if (placeholderResId != 0) {
+                photo.setImageResource(placeholderResId);
+            }
+            else {
+                photo.setImageBitmap(null);
+            }
     		updateAppearance();
     	}
     }
