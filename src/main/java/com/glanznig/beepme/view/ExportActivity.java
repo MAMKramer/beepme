@@ -21,23 +21,138 @@ http://beepme.glanznig.com
 package com.glanznig.beepme.view;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.DataExporter;
 import com.glanznig.beepme.helper.PhotoUtils;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.Calendar;
 
 public class ExportActivity extends Activity implements View.OnClickListener {
 
+    private static class ExportHandler extends Handler {
+		WeakReference<ExportActivity> activity;
+		Bundle data;
+
+		ExportHandler(ExportActivity activity) {
+			this.activity = new WeakReference<ExportActivity>(activity);
+		}
+
+		@Override
+		public void handleMessage(Message message) {
+            if (activity.get() != null) {
+                NotificationManager manager = (NotificationManager)activity.get().getSystemService(Context.NOTIFICATION_SERVICE);
+                manager.cancel(TAG, EXPORT_RUNNING_NOTIFICATION);
+
+                BeeperApp app = (BeeperApp) activity.get().getApplication();
+                app.getPreferences().setExportRunningSince(0L);
+
+                ProgressBar progress = (ProgressBar)activity.get().findViewById(R.id.export_progress_bar);
+                progress.setVisibility(View.GONE);
+                DisplayMetrics metrics = activity.get().getResources().getDisplayMetrics();
+                TextView runningText = (TextView)activity.get().findViewById(R.id.export_running_text);
+                runningText.setTextSize(16);
+                runningText.setPadding(0, (int)(32 * metrics.density + 0.5f), 0, 0);
+
+				data = message.getData();
+				if (data.getString("fileName") != null) {
+                    // check if archive exists
+                    File archive = new File(data.getString("fileName"));
+                    if (archive != null && archive.exists()) {
+                        runningText.setText(R.string.export_successful);
+                        activity.get().createExportFinishedNotification(true);
+                    }
+                    else {
+                        runningText.setText(R.string.export_failed);
+                        activity.get().createExportFinishedNotification(false);
+                    }
+
+                    String action = data.getString("action");
+                    if (action != null) {
+                        if (action.equals("mail")) {
+                            Uri fUri = Uri.fromFile(archive);
+                            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                            sendIntent.putExtra(Intent.EXTRA_SUBJECT, activity.get().getString(R.string.export_mail_subject));
+                            sendIntent.putExtra(Intent.EXTRA_STREAM, fUri);
+                            sendIntent.setType("text/rfc822");
+                            try {
+                                activity.get().startActivity(Intent.createChooser(sendIntent, activity.get().getString((R.string.export_mail_chooser_title))));
+                            } catch (android.content.ActivityNotFoundException ex) {
+                                Toast.makeText(activity.get(), R.string.export_no_mail_apps, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+				}
+			}
+		}
+	}
+
+	private static class ExportRunnable implements Runnable {
+		WeakReference<ExportActivity> activity;
+		WeakReference<ExportHandler> handler;
+        boolean photoExport;
+        String action;
+
+		ExportRunnable(ExportActivity activity, ExportHandler handler, boolean photoExport) {
+			this.activity = new WeakReference<ExportActivity>(activity);
+			this.handler = new WeakReference<ExportHandler>(handler);
+            this.photoExport = photoExport;
+
+            Spinner actions = (Spinner)this.activity.get().findViewById(R.id.export_post_actions);
+            int pos = actions.getSelectedItemPosition();
+
+            switch (pos) {
+                case 1:
+                    action = "mail";
+                    break;
+            }
+		}
+		@Override
+	    public void run() {
+			if (activity.get() != null) {
+				DataExporter exporter = new DataExporter(activity.get().getApplicationContext());
+				String fileName = exporter.exportToZipFile(photoExport);
+				if (handler.get() != null) {
+					Message msg = new Message();
+					Bundle bundle = new Bundle();
+					bundle.putString("fileName", fileName);
+                    if (action != null) {
+                        bundle.putString("action", action);
+                    }
+					msg.setData(bundle);
+					handler.get().sendMessage(msg);
+				}
+			}
+	    }
+	}
+
 	private static final String TAG = "ExportActivity";
+    private static final int EXPORT_RUNNING_NOTIFICATION = 523;
+    private static final int EXPORT_FINISHED_NOTIFICATION = 524;
     private boolean photoExport = true;
     private int postActionItem = -1;
 
@@ -70,50 +185,64 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 	}
 
     private void populateFields() {
-        CheckBox photoExp = (CheckBox)findViewById(R.id.export_photos);
-        View photoExpGroup = findViewById(R.id.export_photos_group);
+        BeeperApp app = (BeeperApp)getApplication();
 
-        if (PhotoUtils.isEnabled(ExportActivity.this)) {
-            photoExp.setVisibility(View.VISIBLE);
-            photoExpGroup.setVisibility(View.VISIBLE);
+        if (app.getPreferences().exportRunningSince() == 0L ||
+                (Calendar.getInstance().getTimeInMillis() -
+                        app.getPreferences().exportRunningSince()) >= 120000) { //2 min
+            CheckBox photoExp = (CheckBox)findViewById(R.id.export_photos);
+            View photoExpGroup = findViewById(R.id.export_photos_group);
 
-            File[] photos = PhotoUtils.getPhotos(ExportActivity.this);
-            if (photos != null && photos.length > 0) {
-                photoExp.setEnabled(true);
-                photoExp.setChecked(photoExport);
-                photoExp.setOnClickListener(this);
+            if (PhotoUtils.isEnabled(ExportActivity.this)) {
+                photoExp.setVisibility(View.VISIBLE);
+                photoExpGroup.setVisibility(View.VISIBLE);
 
-                enableDisableView(photoExpGroup, photoExport);
+                File[] photos = PhotoUtils.getPhotos(ExportActivity.this);
+                if (photos != null && photos.length > 0) {
+                    photoExp.setEnabled(true);
+                    photoExp.setChecked(photoExport);
+                    photoExp.setOnClickListener(this);
+
+                    enableDisableView(photoExpGroup, photoExport);
+                } else {
+                    photoExp.setChecked(false);
+                    photoExp.setEnabled(false);
+                    enableDisableView(photoExpGroup, false);
+                }
+
+                downscalePhotos = (Spinner)findViewById(R.id.export_downscale_photos);
+                ArrayAdapter<CharSequence> downscaleAdapter = ArrayAdapter.createFromResource(this,
+                        R.array.export_downscale_photos, android.R.layout.simple_spinner_item);
+                downscaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                downscalePhotos.setAdapter(downscaleAdapter);
+            } else {
+                photoExp.setVisibility(View.GONE);
+                photoExpGroup.setVisibility(View.GONE);
             }
-            else {
-                photoExp.setChecked(false);
-                photoExp.setEnabled(false);
-                enableDisableView(photoExpGroup, false);
+
+            postActions = (Spinner)findViewById(R.id.export_post_actions);
+            ArrayAdapter<CharSequence> actionsAdapter = ArrayAdapter.createFromResource(this,
+                    R.array.post_export_actions, android.R.layout.simple_spinner_item);
+            actionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            postActions.setAdapter(actionsAdapter);
+
+            if (postActionItem != -1) {
+                postActions.setSelection(postActionItem);
             }
 
-            downscalePhotos = (Spinner)findViewById(R.id.export_downscale_photos);
-            ArrayAdapter<CharSequence> downscaleAdapter = ArrayAdapter.createFromResource(this,
-                    R.array.export_downscale_photos, android.R.layout.simple_spinner_item);
-            downscaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            downscalePhotos.setAdapter(downscaleAdapter);
+            estimatedSize = (TextView)findViewById(R.id.export_estimated_size);
+            estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
+                    exporter.getReadableArchiveSize(photoExport)));
         }
         else {
-            photoExp.setVisibility(View.GONE);
-            photoExpGroup.setVisibility(View.GONE);
+            Button start = (Button)findViewById(R.id.export_start_button);
+            ProgressBar progress = (ProgressBar)findViewById(R.id.export_progress_bar);
+            TextView runningText = (TextView)findViewById(R.id.export_running_text);
+
+            start.setVisibility(View.GONE);
+            progress.setVisibility(View.VISIBLE);
+            runningText.setVisibility(View.VISIBLE);
         }
-
-        postActions = (Spinner)findViewById(R.id.export_post_actions);
-        ArrayAdapter<CharSequence> actionsAdapter = ArrayAdapter.createFromResource(this,
-                R.array.post_export_actions, android.R.layout.simple_spinner_item);
-        actionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        postActions.setAdapter(actionsAdapter);
-
-        if (postActionItem != -1) {
-            postActions.setSelection(postActionItem);
-        }
-
-        estimatedSize = (TextView)findViewById(R.id.export_estimated_size);
-        estimatedSize.setText(exporter.getReadableArchiveSize(photoExport));
     }
 
     private void enableDisableView(View view, boolean enabled) {
@@ -144,5 +273,80 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 
                 break;
         }
+    }
+
+    public void startExport(View v) {
+        Button start = (Button)findViewById(R.id.export_start_button);
+        ProgressBar progress = (ProgressBar)findViewById(R.id.export_progress_bar);
+        TextView runningText = (TextView)findViewById(R.id.export_running_text);
+
+        BeeperApp app = (BeeperApp)getApplication();
+
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            enableDisableView(findViewById(R.id.export_settings), false);
+
+            start.setVisibility(View.GONE);
+            progress.setVisibility(View.VISIBLE);
+            runningText.setVisibility(View.VISIBLE);
+
+            if (app.getPreferences().exportRunningSince() == 0L ||
+                    (Calendar.getInstance().getTimeInMillis() -
+                    app.getPreferences().exportRunningSince()) >= 120000) { //2 min
+                app.getPreferences().setExportRunningSince(Calendar.getInstance().getTimeInMillis());
+                createExportRunningNotification();
+                new Thread(new ExportRunnable(ExportActivity.this, new ExportHandler(ExportActivity.this), photoExport)).start();
+            }
+        }
+        else {
+            Toast.makeText(ExportActivity.this, R.string.export_storage_error, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void createExportRunningNotification() {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.getApplicationContext());
+        notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
+        notificationBuilder.setContentTitle(getResources().getString(R.string.app_name));
+        notificationBuilder.setContentText(this.getString(R.string.export_running_text));
+        //set as ongoing, so it cannot be cleared
+        notificationBuilder.setOngoing(true);
+
+        //add progress bar (indeterminate)
+        notificationBuilder.setProgress(0, 0, true);
+
+        Intent resultIntent = new Intent(this.getApplicationContext(), ExportActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this.getApplicationContext());
+        stackBuilder.addParentStack(ExportActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(resultPendingIntent);
+
+        NotificationManager manager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(TAG, EXPORT_RUNNING_NOTIFICATION, notificationBuilder.build());
+    }
+
+    private void createExportFinishedNotification(boolean successful) {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.getApplicationContext());
+        notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
+        notificationBuilder.setContentTitle(getResources().getString(R.string.app_name));
+        String notify;
+
+        if (successful) {
+            notify = this.getString(R.string.export_successful);
+        }
+        else {
+            notify = this.getString(R.string.export_failed);
+        }
+
+        notificationBuilder.setContentText(notify);
+
+        Intent resultIntent = new Intent(this.getApplicationContext(), MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this.getApplicationContext());
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(resultPendingIntent);
+
+        NotificationManager manager = (NotificationManager)this.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.notify(TAG, EXPORT_FINISHED_NOTIFICATION, notificationBuilder.build());
     }
 }

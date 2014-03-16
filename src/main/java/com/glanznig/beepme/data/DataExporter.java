@@ -56,6 +56,7 @@ import android.util.Log;
 public class DataExporter {
 	
 	private static final String EXPORT_PREFIX = "beepme_data_";
+    private static final String EXPORT_DIR = "export";
 	private static final String TAG = "DataExporter";
 	private static final int BUFFER = 2048;
 	private static final int NOTIFICATION_ID = 1438;
@@ -65,16 +66,15 @@ public class DataExporter {
 		ctx = context;
 	}
 	
-	public String exportToZipFile() {
+	public String exportToZipFile(boolean exportPhotos) {
 		//external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			createNotification();
 			
-			File exportDir = ctx.getExternalFilesDir("export");
+			File exportDir = ctx.getExternalFilesDir(EXPORT_DIR);
 			if (!exportDir.exists()) {
 				exportDir.mkdirs();
 			}
-			else {
+			/*else {
 				//delete existing export files
 				FilenameFilter filter = new FilenameFilter() {
 					public boolean accept(File directory, String fileName) {
@@ -85,13 +85,31 @@ public class DataExporter {
 				for (int i = 0; i < exports.length; i++) {
 					exports[i].delete();
 				}
-			}
-			String exportFilename = EXPORT_PREFIX + new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime()) + ".zip";
+			}*/
+            BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+
+			String exportFilename = EXPORT_PREFIX;
+            if (app.getPreferences().isTestMode()) {
+                exportFilename += "testmode_";
+            }
+            exportFilename += new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime()) + ".zip";
 			File exportFile = new File(exportDir, exportFilename);
-			
 			ArrayList<File> fileList = new ArrayList<File>();
-			File picDir = ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-			if (picDir.exists()) {
+
+            String dbName;
+            File picDir = ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+            if (app.getPreferences().isTestMode()) {
+                dbName = StorageHandler.getTestModeDatabaseName();
+                picDir = new File(picDir, PhotoUtils.TEST_MODE_DIR);
+            }
+            else {
+                dbName = StorageHandler.getProductionDatabaseName();
+                picDir = new File(picDir, PhotoUtils.NORMAL_MODE_DIR);
+            }
+            fileList.add(ctx.getDatabasePath(dbName));
+
+			if (picDir.exists() && exportPhotos) {
 				FilenameFilter filter = new FilenameFilter() {
 					public boolean accept(File directory, String fileName) {
 					    return fileName.endsWith(".jpg");
@@ -103,18 +121,6 @@ public class DataExporter {
 					fileList.add(picFiles[i]);
 				}
 			}
-			
-			BeeperApp app = (BeeperApp)ctx.getApplicationContext();
-			String dbName = null;
-			
-			if (app.getPreferences().isTestMode()) {
-				dbName = StorageHandler.getTestModeDatabaseName();
-			}
-			else {
-				dbName = StorageHandler.getProductionDatabaseName();
-			}
-			
-			fileList.add(ctx.getDatabasePath(dbName));
 			
 			return zipFiles(exportFile, fileList);
 		}
@@ -154,51 +160,11 @@ public class DataExporter {
 				Log.e(TAG, "error while zipping.", e);
 			}
 		}
-		
-		NotificationManager manager = (NotificationManager)ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-		manager.cancel(TAG, NOTIFICATION_ID);
-		
+
 		return path;
 	}
-	
-	private void createNotification() {
-		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(ctx.getApplicationContext());
-		notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
-		PackageManager pm = ctx.getApplicationContext().getPackageManager();
-		try {
-			notificationBuilder.setContentTitle(pm.getApplicationLabel(pm.getApplicationInfo(ctx.getApplicationContext().getPackageName(), 0)));
-		}
-		catch (NameNotFoundException ne) {
-			notificationBuilder.setContentTitle("Beeper");
-		}
-		//notificationBuilder.setContentText(ctx.getString(R.string.export_active));
-		//set as ongoing, so it cannot be cleared
-		notificationBuilder.setOngoing(true);
-		// Creates an explicit intent for an Activity in your app
-		Intent resultIntent = new Intent(ctx.getApplicationContext(), MainActivity.class);
-		
-		//add progress bar (indeterminate)
-		if (android.os.Build.VERSION.SDK_INT >= 14) {
-			notificationBuilder.setProgress(0, 0, true);
-		}
 
-		// The stack builder object will contain an artificial back stack for the
-		// started Activity.
-		// This ensures that navigating backward from the Activity leads out of
-		// your application to the Home screen.
-		TaskStackBuilder stackBuilder = TaskStackBuilder.create(ctx.getApplicationContext());
-		// Adds the back stack for the Intent (but not the Intent itself)
-		stackBuilder.addParentStack(MainActivity.class);
-		// Adds the Intent that starts the Activity to the top of the stack
-		stackBuilder.addNextIntent(resultIntent);
-		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-		notificationBuilder.setContentIntent(resultPendingIntent);
-		NotificationManager manager = (NotificationManager)ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-		// notification_id allows you to update the notification later on.
-		manager.notify(TAG, NOTIFICATION_ID, notificationBuilder.build());
-	}
-
-    public int getArchiveSize(boolean photos) {
+    public int getArchiveSize(boolean exportPhotos) {
         BeeperApp app = (BeeperApp)ctx.getApplicationContext();
         File db;
         int archiveSize = 0;
@@ -214,7 +180,7 @@ public class DataExporter {
             archiveSize += db.length();
         }
 
-        if (photos) {
+        if (exportPhotos) {
             File[] photoList = PhotoUtils.getPhotos(ctx);
             if (photoList != null) {
                 for (int i = 0; i < photoList.length; i++) {

@@ -30,31 +30,8 @@ http://beepme.glanznig.com
         android:layout_marginRight="16dp"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/export_content_group_header"
-            style="?android:attr/listSeparatorTextViewStyle" />
-
-        <CheckBox
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/export_db_setting"
-            android:checked="true"
-            android:enabled="false"/>
-
-        <CheckBox
-            android:id="@+id/export_photos"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/export_photos_setting"
-            android:checked="true" />
-
         <LinearLayout
-            android:id="@+id/export_photos_group"
+            android:id="@+id/export_settings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -62,36 +39,95 @@ http://beepme.glanznig.com
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/export_content_group_header"
+                style="?android:attr/listSeparatorTextViewStyle" />
+
+            <CheckBox
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/export_db_setting"
+                android:checked="true"
+                android:enabled="false"/>
+
+            <CheckBox
+                android:id="@+id/export_photos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/export_photos_setting"
+                android:checked="true" />
+
+            <LinearLayout
+                android:id="@+id/export_photos_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/export_photos_group_header"
+                    style="?android:attr/listSeparatorTextViewStyle" />
+
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:id="@+id/export_downscale_photos" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/export_photos_group_header"
+                android:text="@string/export_post_actions_header"
                 style="?android:attr/listSeparatorTextViewStyle" />
 
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:id="@+id/export_downscale_photos" />
+                android:id="@+id/export_post_actions" />
+
+            <TextView
+                android:id="@+id/export_estimated_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/export_archive_estimated_size"/>
 
         </LinearLayout>
 
-        <TextView
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/export_post_actions_header"
-            style="?android:attr/listSeparatorTextViewStyle" />
+            android:text="@string/export_start_button"
+            android:id="@+id/export_start_button"
+            android:onClick="startExport"/>
 
-        <Spinner
+        <ProgressBar
+            android:id="@+id/export_progress_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:id="@+id/export_post_actions" />
+            android:layout_marginTop="32dp"
+            android:visibility="gone"
+            android:indeterminate="true"
+            style="?android:attr/progressBarStyleHorizontal"/>
 
         <TextView
-            android:id="@+id/export_estimated_size"
+            android:id="@+id/export_running_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:text="@string/export_running_text"/>
 
     </LinearLayout>
 

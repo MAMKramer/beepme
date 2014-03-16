@@ -54,84 +54,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	private Menu actionMenu = null;
 	private MainSectionsPagerAdapter pagerAdapter = null;
 	private ViewPager pager = null;
-	
-	/*private static class ExportHandler extends Handler {
-		WeakReference<MainActivity> mainMenu;
-		Bundle data;
-		
-		ExportHandler(MainActivity activity) {
-			mainMenu = new WeakReference<MainActivity>(activity);
-		}
-		
-		public static String readableFileSize(long size) {
-		    if(size <= 0) return "0";
-		    final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
-		    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
-		    NumberFormat numFormat = DecimalFormat.getInstance();
-		    numFormat.setMaximumFractionDigits(1);
-		    return numFormat.format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
-		}
-		
-		@Override
-		public void handleMessage(Message message) {
-			if (mainMenu.get() != null) {
-				data = message.getData();
-				if (data.getString("fileName") != null) {
-					
-					AlertDialog.Builder sendMailBuilder = new AlertDialog.Builder(mainMenu.get());
-			        sendMailBuilder.setTitle(R.string.export_success_send_mail_title);
-			        File dataFile = new File(data.getString("fileName"));
-			        String msg = String.format(mainMenu.get().getString(R.string.export_send_mail_msg),
-			        		readableFileSize(dataFile.length()));
-			        sendMailBuilder.setMessage(msg);
-			        sendMailBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-			            public void onClick(DialogInterface dialog, int id) {
-			            	
-			            	Uri fUri = Uri.fromFile(new File(data.getString("fileName")));
-							Intent sendIntent = new Intent(Intent.ACTION_SEND);
-							sendIntent.putExtra(Intent.EXTRA_SUBJECT, mainMenu.get().getString(R.string.export_mail_subject));
-							sendIntent.putExtra(Intent.EXTRA_STREAM, fUri);
-							sendIntent.setType("text/rfc822");
-							try {
-							    mainMenu.get().startActivity(Intent.createChooser(sendIntent, mainMenu.get().getString((R.string.mail_chooser_title))));
-							} catch (android.content.ActivityNotFoundException ex) {
-							    Toast.makeText(mainMenu.get(), R.string.error_no_mail_apps, Toast.LENGTH_SHORT).show();
-							}
-			            }
-			        });
-			        sendMailBuilder.setNegativeButton(R.string.no, null);
-			        sendMailBuilder.create().show();
-			        
-			        BeeperApp app = (BeeperApp)mainMenu.get().getApplication();
-			        app.getPreferences().setExportRunningSince(0L);
-				}
-			}
-		}
-	}
-	
-	private static class ExportRunnable implements Runnable {
-		WeakReference<MainActivity> mainMenu;
-		WeakReference<ExportHandler> handler;
-		
-		ExportRunnable(MainActivity activity, ExportHandler handler) {
-			mainMenu = new WeakReference<MainActivity>(activity);
-			this.handler = new WeakReference<ExportHandler>(handler); 
-		}
-		@Override
-	    public void run() {
-			if (mainMenu.get() != null) {
-				DataExporter exporter = new DataExporter(mainMenu.get().getApplicationContext());
-				String fileName = exporter.exportToZipFile();
-				if (handler.get() != null) {
-					Message msg = new Message();
-					Bundle bundle = new Bundle();
-					bundle.putString("fileName", fileName);
-					msg.setData(bundle);
-					handler.get().sendMessage(msg);
-				}
-			}
-	    }
-	}*/
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -295,17 +217,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         		return true;
         		
             case R.id.action_export:
-            	/*if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            		if (app.getPreferences().exportRunningSince() == 0L ||
-            				(Calendar.getInstance().getTimeInMillis() -
-            				app.getPreferences().exportRunningSince()) >= 120000) { //2 min
-            			app.getPreferences().setExportRunningSince(Calendar.getInstance().getTimeInMillis());
-            			new Thread(new ExportRunnable(MainActivity.this, new ExportHandler(MainActivity.this))).start();
-            		}
-            	}
-            	else {
-            		Toast.makeText(MainActivity.this, R.string.sdcard_error, Toast.LENGTH_SHORT).show();
-            	}*/
                 Intent iExport = new Intent(this, ExportActivity.class);
                 startActivity(iExport);
             	return true;
