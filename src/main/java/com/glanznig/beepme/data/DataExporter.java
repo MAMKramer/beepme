@@ -74,18 +74,6 @@ public class DataExporter {
 			if (!exportDir.exists()) {
 				exportDir.mkdirs();
 			}
-			/*else {
-				//delete existing export files
-				FilenameFilter filter = new FilenameFilter() {
-					public boolean accept(File directory, String fileName) {
-					    return fileName.endsWith(".zip");
-					}
-				};
-				File[] exports = exportDir.listFiles(filter);
-				for (int i = 0; i < exports.length; i++) {
-					exports[i].delete();
-				}
-			}*/
             BeeperApp app = (BeeperApp)ctx.getApplicationContext();
 
 			String exportFilename = EXPORT_PREFIX;
@@ -192,9 +180,12 @@ public class DataExporter {
         return archiveSize;
     }
 
-    public String getReadableArchiveSize(boolean photos) {
-        int size = getArchiveSize(photos);
+    public String getReadableArchiveSize(boolean exportPhotos) {
+        int size = getArchiveSize(exportPhotos);
+        return getReadableFileSize(size, 0);
+    }
 
+    public String getReadableFileSize(int size, int decimals) {
         if(size <= 0) {
             return "0 KB";
         }
@@ -202,7 +193,7 @@ public class DataExporter {
         final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
         int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
         NumberFormat numFormat = DecimalFormat.getInstance();
-        numFormat.setMaximumFractionDigits(1);
+        numFormat.setMaximumFractionDigits(decimals);
 
         return numFormat.format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }

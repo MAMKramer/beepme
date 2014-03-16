@@ -45,12 +45,13 @@ http://beepme.glanznig.com
     <string name="export_archive_estimated_size">Estimated archive size: %1$s</string>
     <string name="export_content_group_header">Archive Content</string>
     <string name="export_db_setting">Export database</string>
-    <string name="export_downscale_original_size">original size</string>
-    <string name="export_downscale_1m">downscale to 1 MP</string>
+    <string name="export_downscale_original_size">original size (%1$s)</string>
+    <string name="export_downscale">%1$s megapixels (%2$s)</string>
     <string name="export_failed">Export was not successful</string>
     <string name="export_mail_chooser_title">Send E-Mail with</string>
     <string name="export_mail_subject">BeepMe Data Export</string>
     <string name="export_no_mail_apps">No apps for E-Mail are available</string>
+    <string name="export_photos_avg_size">The photos have an average size of %1$s megapixels.</string>
     <string name="export_photos_downscale">Downscale photos</string>
     <string name="export_photos_setting">Export photos</string>
     <string name="export_photos_group_header">Settings for Photos</string>

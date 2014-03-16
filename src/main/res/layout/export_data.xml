@@ -68,9 +68,15 @@ http://beepme.glanznig.com
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/export_photos_group_header"
                     style="?android:attr/listSeparatorTextViewStyle" />
+
+                <TextView
+                    android:id="@+id/export_photos_avg_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" />
 
                 <Spinner
                     android:layout_width="match_parent"
@@ -83,7 +89,7 @@ http://beepme.glanznig.com
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/export_post_actions_header"
                 style="?android:attr/listSeparatorTextViewStyle" />
 

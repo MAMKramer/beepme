@@ -181,46 +181,43 @@ public class Statistics {
 		if (uptimes != null && samples != null) {
 			TreeMap<Long, Bundle> map = new TreeMap<Long, Bundle>(new NegativeComparator());
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            Bundle item = null;
 			
-			if (uptimes.size() > 0 && samples.size() > 0) {
-				
-				// handle samples (accepted, declined, count)
-				Iterator<Sample> sampleIterator = samples.iterator();
-				Bundle item = null;
-				Sample s = null;
-				
-				while (sampleIterator.hasNext()) {
-					s = sampleIterator.next();
-					
-					if (!map.containsKey(Long.parseLong(dateFormat.format(s.getTimestamp())))) {
-						item = new Bundle();
-						item.putLong("timestamp", s.getTimestamp().getTime());
-						item.putLong("uptimeDuration", 0);
-						if (s.getAccepted().equals(Boolean.TRUE)) {
-							item.putInt("acceptedSamples", 1);
-							item.putInt("declinedSamples", 0);
-						}
-						else {
-							item.putInt("acceptedSamples", 0);
-							item.putInt("declinedSamples", 1);
-						}
-						item.putInt("countSamples", 1);
-						map.put(Long.parseLong(dateFormat.format(s.getTimestamp())), item);
-					}
-					else {
-						item = map.get(Long.parseLong(dateFormat.format(s.getTimestamp())));
-						if (s.getAccepted().equals(Boolean.TRUE)) {
-							item.putInt("acceptedSamples", item.getInt("acceptedSamples") + 1);
-						}
-						else {
-							item.putInt("declinedSamples", item.getInt("declinedSamples") + 1);
-						}
-						item.putInt("countSamples", item.getInt("countSamples") + 1);
-					}
-				}
-				
-				// handle uptimes
-				
+			if (samples.size() > 0) {
+                // handle samples (accepted, declined, count)
+                Iterator<Sample> sampleIterator = samples.iterator();
+                Sample s = null;
+
+                while (sampleIterator.hasNext()) {
+                    s = sampleIterator.next();
+
+                    if (!map.containsKey(Long.parseLong(dateFormat.format(s.getTimestamp())))) {
+                        item = new Bundle();
+                        item.putLong("timestamp", s.getTimestamp().getTime());
+                        item.putLong("uptimeDuration", 0);
+                        if (s.getAccepted().equals(Boolean.TRUE)) {
+                            item.putInt("acceptedSamples", 1);
+                            item.putInt("declinedSamples", 0);
+                        } else {
+                            item.putInt("acceptedSamples", 0);
+                            item.putInt("declinedSamples", 1);
+                        }
+                        item.putInt("countSamples", 1);
+                        map.put(Long.parseLong(dateFormat.format(s.getTimestamp())), item);
+                    } else {
+                        item = map.get(Long.parseLong(dateFormat.format(s.getTimestamp())));
+                        if (s.getAccepted().equals(Boolean.TRUE)) {
+                            item.putInt("acceptedSamples", item.getInt("acceptedSamples") + 1);
+                        } else {
+                            item.putInt("declinedSamples", item.getInt("declinedSamples") + 1);
+                        }
+                        item.putInt("countSamples", item.getInt("countSamples") + 1);
+                    }
+                }
+            }
+
+            if (uptimes.size() > 0) {
+                // handle uptimes
 				Iterator<Uptime> uptimeIterator = uptimes.iterator();
 				Uptime up = null;
 				item = null;
