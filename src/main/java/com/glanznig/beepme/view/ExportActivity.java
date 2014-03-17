@@ -25,7 +25,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,6 +36,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -51,10 +51,8 @@ import com.glanznig.beepme.data.DataExporter;
 import com.glanznig.beepme.helper.PhotoUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 
 public class ExportActivity extends Activity implements View.OnClickListener {
@@ -118,13 +116,11 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 
 	private static class ExportRunnable implements Runnable {
 		WeakReference<ExportActivity> activity;
-		WeakReference<ExportHandler> handler;
         boolean photoExport;
         String action;
 
-		public ExportRunnable(ExportActivity activity, ExportHandler handler, boolean photoExport) {
+		public ExportRunnable(ExportActivity activity, boolean photoExport) {
 			this.activity = new WeakReference<ExportActivity>(activity);
-			this.handler = new WeakReference<ExportHandler>(handler);
             this.photoExport = photoExport;
 
             Spinner actions = (Spinner)this.activity.get().findViewById(R.id.export_post_actions);
@@ -140,8 +136,19 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 	    public void run() {
 			if (activity.get() != null) {
 				DataExporter exporter = new DataExporter(activity.get().getApplicationContext());
-				String fileName = exporter.exportToZipFile(photoExport);
-				if (handler.get() != null) {
+				String fileName;
+                int densityFactor = 1;
+                if (photoExport) {
+                    if (activity.get().densityItem > -1) {
+                        densityFactor = activity.get().densityFactors.get(activity.get().densityItem);
+                    }
+                    fileName = exporter.exportToZipFile(photoExport, densityFactor);
+                }
+                else {
+                    fileName = exporter.exportToZipFile(photoExport);
+                }
+
+				if (activity.get().exportHandler != null) {
 					Message msg = new Message();
 					Bundle bundle = new Bundle();
 					bundle.putString("fileName", fileName);
@@ -149,7 +156,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                         bundle.putString("action", action);
                     }
 					msg.setData(bundle);
-					handler.get().sendMessage(msg);
+					activity.get().exportHandler.sendMessage(msg);
 				}
 			}
 	    }
@@ -171,23 +178,14 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                 int count;
                 int overallDensity = 0;
                 for (count = 0; count < photos.length; count++) {
-                    try {
-                        BitmapFactory.Options opts = new BitmapFactory.Options();
-                        FileInputStream fileInput = new FileInputStream(photos[count]);
+                    Bundle dim = PhotoUtils.getPhotoDimensions(photos[count].getAbsolutePath());
+                    int width = dim.getInt("width");
+                    int height = dim.getInt("height");
 
-                        // decode only image size
-                        opts.inJustDecodeBounds = true;
-                        BitmapFactory.decodeStream(fileInput, null, opts);
-                        fileInput.close();
-
-                        overallDensity += opts.outWidth * opts.outHeight;
-                    }
-                    catch (Exception e) {}
+                    overallDensity += width * height;
                 }
 
                 float avgDensity = ((float)overallDensity / count) / 1000000; // megapixel
-
-                Log.i("PhotoDimRunnable", "avgDensity="+avgDensity);
 
                 if (handler.get() != null) {
                     Message msg = new Message();
@@ -216,20 +214,44 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                     TextView density = (TextView)activity.get().findViewById(R.id.export_photos_avg_size);
                     density.setText(activity.get().getString(R.string.export_photos_avg_size,
                             String.format("%.1f", activity.get().photoAvgDensity)));
+
+                    activity.get().downscaleAdapter.add(String.format(activity.get().getString(R.string.export_downscale_original_size),
+                            DataExporter.getReadableFileSize(activity.get().photoAvgSize, 0)));
+                    activity.get().densityFactors.add(Integer.valueOf(1));
+                    int densityFactor = 2;
+
+                    for (; (Math.round((activity.get().photoAvgDensity / densityFactor) * 2) / 2f) > 1; densityFactor *= 2) {
+                        activity.get().downscaleAdapter.add(String.format(activity.get().getString(R.string.export_downscale),
+                                String.format("%.1f", Math.round((activity.get().photoAvgDensity / densityFactor) * 2) / 2f),
+                                DataExporter.getReadableFileSize(activity.get().photoAvgSize / densityFactor, 0)));
+                        activity.get().densityFactors.add(Integer.valueOf(densityFactor));
+                    }
+
+                    activity.get().downscaleAdapter.add(String.format(activity.get().getString(R.string.export_downscale),
+                            String.valueOf(1), DataExporter.getReadableFileSize(activity.get().photoAvgSize / densityFactor, 0)));
+                    activity.get().densityFactors.add(Integer.valueOf(densityFactor));
+
+                    if (activity.get().densityItem != -1) {
+                        activity.get().downscalePhotos.setSelection(activity.get().densityItem);
+                    }
                 }
             }
         }
     }
 
 	private static final String TAG = "ExportActivity";
-    private static final int EXPORT_RUNNING_NOTIFICATION = 523;
+    public static final int EXPORT_RUNNING_NOTIFICATION = 523;
     private static final int EXPORT_FINISHED_NOTIFICATION = 524;
     private boolean photoExport = true;
     private int postActionItem = -1;
-    private int photoAvgSize = 0;
+    private int densityItem = -1;
+    private double photoAvgSize = 0;
     private float photoAvgDensity = 0;
+    private ArrayList<Integer> densityFactors;
 
     private DataExporter exporter;
+    private ArrayAdapter<CharSequence> downscaleAdapter;
+    private ExportHandler exportHandler;
 
     private Spinner postActions;
     private Spinner downscalePhotos;
@@ -241,6 +263,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.export_data);
 
         exporter = new DataExporter(ExportActivity.this);
+        densityFactors = new ArrayList<Integer>();
 
         if (savedState != null) {
             photoExport = savedState.getBoolean("photoExport");
@@ -249,7 +272,11 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                 postActionItem = savedState.getInt("postActionItem") - 1;
             }
 
-            photoAvgSize = savedState.getInt("photoAvgSize");
+            if (savedState.getInt("densityItem") != 0) {
+                densityItem = savedState.getInt("densityItem") - 1;
+            }
+
+            photoAvgSize = savedState.getDouble("photoAvgSize");
             photoAvgDensity = savedState.getFloat("photoAvgDensity");
         }
 	}
@@ -287,10 +314,24 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                 }
 
                 downscalePhotos = (Spinner)findViewById(R.id.export_downscale_photos);
-                ArrayAdapter<CharSequence> downscaleAdapter =new ArrayAdapter<CharSequence>(ExportActivity.this,
+                downscaleAdapter = new ArrayAdapter<CharSequence>(ExportActivity.this,
                         android.R.layout.simple_spinner_item, new ArrayList<CharSequence>());
                 downscaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 downscalePhotos.setAdapter(downscaleAdapter);
+                downscalePhotos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        densityItem = position;
+                        estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
+                                exporter.getReadableArchiveSize(photoExport,
+                                        densityFactors.get(downscalePhotos.getSelectedItemPosition()).intValue())));
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
 
                 if (photoAvgSize == 0) {
                     File[] photoFiles = PhotoUtils.getPhotos(ExportActivity.this);
@@ -309,10 +350,28 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                     TextView density = (TextView)findViewById(R.id.export_photos_avg_size);
                     density.setText(getString(R.string.export_photos_avg_size,
                             String.format("%.1f", photoAvgDensity)));
+
+                    downscaleAdapter.add(String.format(getString(R.string.export_downscale_original_size),
+                            DataExporter.getReadableFileSize(photoAvgSize, 0)));
+                    densityFactors.add(Integer.valueOf(1));
+                    int densityFactor = 2;
+
+                    for (; (Math.round((photoAvgDensity / densityFactor) * 2) / 2f) > 1; densityFactor *= 2) {
+                        downscaleAdapter.add(String.format(getString(R.string.export_downscale),
+                                String.format("%.1f", Math.round((photoAvgDensity / densityFactor) * 2) / 2f),
+                                DataExporter.getReadableFileSize(photoAvgSize / densityFactor, 0)));
+                        densityFactors.add(Integer.valueOf(densityFactor));
+                    }
+
+                    downscaleAdapter.add(String.format(getString(R.string.export_downscale),
+                            String.valueOf(1), DataExporter.getReadableFileSize(photoAvgSize / densityFactor, 0)));
+                    densityFactors.add(Integer.valueOf(densityFactor));
+
+                    if (densityItem != -1) {
+                        downscalePhotos.setSelection(densityItem);
+                    }
                 }
 
-                downscaleAdapter.add(String.format(getString(R.string.export_downscale_original_size),
-                        exporter.getReadableFileSize(photoAvgSize, 0)));
             } else {
                 photoExp.setVisibility(View.GONE);
                 photoExpGroup.setVisibility(View.GONE);
@@ -329,8 +388,15 @@ public class ExportActivity extends Activity implements View.OnClickListener {
             }
 
             estimatedSize = (TextView)findViewById(R.id.export_estimated_size);
+            int densityFactor = 1;
+
+            if (densityFactors.size() > 0 && downscalePhotos.getSelectedItemPosition() >= 0) {
+                densityFactor = densityFactors.get(downscalePhotos.getSelectedItemPosition()).intValue();
+            }
+
             estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
-                    exporter.getReadableArchiveSize(photoExport)));
+                    exporter.getReadableArchiveSize(photoExport,
+                            densityFactor)));
         }
         else {
             Button start = (Button)findViewById(R.id.export_start_button);
@@ -361,7 +427,8 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 	public void onSaveInstanceState(Bundle savedState) {
         savedState.putBoolean("photoExport", photoExport);
         savedState.putInt("postActionItem", postActions.getSelectedItemPosition() + 1);
-        savedState.putInt("photoAvgSize", photoAvgSize);
+        savedState.putInt("densityItem", downscalePhotos.getSelectedItemPosition() + 1);
+        savedState.putDouble("photoAvgSize", photoAvgSize);
         savedState.putFloat("photoAvgDensity", photoAvgDensity);
 	}
 
@@ -372,7 +439,9 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                 photoExport = ((CheckBox)view).isChecked();
                 enableDisableView(findViewById(R.id.export_photos_group), photoExport);
                 estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
-                        exporter.getReadableArchiveSize(photoExport)));
+                        exporter.getReadableArchiveSize(photoExport,
+                                densityFactors.get(downscalePhotos.getSelectedItemPosition()).intValue())
+                ));
 
                 break;
         }
@@ -396,8 +465,9 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                     (Calendar.getInstance().getTimeInMillis() -
                     app.getPreferences().exportRunningSince()) >= 120000) { //2 min
                 app.getPreferences().setExportRunningSince(Calendar.getInstance().getTimeInMillis());
-                createExportRunningNotification();
-                new Thread(new ExportRunnable(ExportActivity.this, new ExportHandler(ExportActivity.this), photoExport)).start();
+                createExportRunningNotification(photoExport);
+                exportHandler = new ExportHandler(ExportActivity.this);
+                new Thread(new ExportRunnable(ExportActivity.this, photoExport)).start();
             }
         }
         else {
@@ -405,11 +475,12 @@ public class ExportActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    private void createExportRunningNotification() {
+    private void createExportRunningNotification(boolean photoExport) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.getApplicationContext());
         notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
         notificationBuilder.setContentTitle(getResources().getString(R.string.app_name));
-        notificationBuilder.setContentText(this.getString(R.string.export_running_text));
+        notificationBuilder.setContentText(this.getString(R.string.export_running_data));
+
         //set as ongoing, so it cannot be cleared
         notificationBuilder.setOngoing(true);
 

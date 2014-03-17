@@ -133,7 +133,7 @@ http://beepme.glanznig.com
             android:visibility="gone"
             android:textSize="12sp"
             android:gravity="center"
-            android:text="@string/export_running_text"/>
+            android:text="@string/export_running_data"/>
 
     </LinearLayout>
 

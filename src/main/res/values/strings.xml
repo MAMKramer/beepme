@@ -58,7 +58,7 @@ http://beepme.glanznig.com
     <string name="export_post_actions_header">After Export</string>
     <string name="export_post_do_nothing">Do nothing</string>
     <string name="export_post_email">Send archive by E-Mail</string>
-    <string name="export_running_text">Exporting your data</string>
+    <string name="export_running_data">Exporting your data</string>
     <string name="export_storage_error">Storage is not accessible</string>
     <string name="export_start_button">Start Export</string>
     <string name="export_successful">Export was successful</string>

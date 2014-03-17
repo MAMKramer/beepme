@@ -39,6 +39,7 @@ import java.util.zip.ZipOutputStream;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.db.StorageHandler;
+import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.MainActivity;
 
@@ -48,6 +49,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -67,6 +70,10 @@ public class DataExporter {
 	}
 	
 	public String exportToZipFile(boolean exportPhotos) {
+        return exportToZipFile(exportPhotos, 1);
+    }
+
+    public String exportToZipFile(boolean exportPhotos, int densityFactor) {
 		//external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			
@@ -83,6 +90,7 @@ public class DataExporter {
             exportFilename += new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime()) + ".zip";
 			File exportFile = new File(exportDir, exportFilename);
 			ArrayList<File> fileList = new ArrayList<File>();
+            String archive = null;
 
             String dbName;
             File picDir = ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -97,20 +105,69 @@ public class DataExporter {
             }
             fileList.add(ctx.getDatabasePath(dbName));
 
-			if (picDir.exists() && exportPhotos) {
-				FilenameFilter filter = new FilenameFilter() {
-					public boolean accept(File directory, String fileName) {
-					    return fileName.endsWith(".jpg");
-					}
-				};
-				
-				File[] picFiles = picDir.listFiles(filter);
-				for (int i = 0; i < picFiles.length; i++) {
-					fileList.add(picFiles[i]);
-				}
+			if (exportPhotos) {
+                if (picDir.exists()) {
+                    FilenameFilter filter = new FilenameFilter() {
+                        public boolean accept(File directory, String fileName) {
+                            return fileName.endsWith(".jpg");
+                        }
+                    };
+                    File[] photos = picDir.listFiles(filter);
+
+                    if (densityFactor > 1) {
+                        // downscale photos
+                        String tempDirName = "scaled";
+                        File scaledDir = new File(picDir, tempDirName);
+                        scaledDir.mkdirs();
+
+                        for (int i = 0; i < photos.length; i++) {
+                            String srcUri = photos[i].getAbsolutePath();
+
+                            File destPhoto = new File(srcUri);
+                            String path = destPhoto.getParent() + File.separator + tempDirName;
+                            destPhoto = new File(path, destPhoto.getName());
+
+                            String destUri = destPhoto.getAbsolutePath();
+                            Bundle dim = PhotoUtils.getPhotoDimensions(srcUri);
+                            int width = dim.getInt("width");
+                            int height = dim.getInt("height");
+
+                            if (width > 0 && height > 0) {
+                                Bitmap scaledPhoto = PhotoUtils.scalePhoto(srcUri, destUri,
+                                        (int)Math.round(width / Math.sqrt((double)densityFactor)),
+                                        (int)Math.round(height / Math.sqrt((double)densityFactor)));
+
+                                if (scaledPhoto != null) {
+                                    scaledPhoto.recycle();
+                                    fileList.add(destPhoto);
+                                }
+                            }
+                        }
+
+                        archive = zipFiles(exportFile, fileList);
+
+                        // remove temp dir and contents
+                        File[] tempFiles;
+                        tempFiles = scaledDir.listFiles();
+                        for (int i=0; i < tempFiles.length; i++) {
+                            tempFiles[i].delete();
+                        }
+                        scaledDir.delete();
+
+                    } else {
+                        for (int i = 0; i < photos.length; i++) {
+                            fileList.add(photos[i]);
+                        }
+
+                        archive = zipFiles(exportFile, fileList);
+                    }
+                }
 			}
-			
-			return zipFiles(exportFile, fileList);
+            else {
+                archive = zipFiles(exportFile, fileList);
+            }
+
+			return archive;
 		}
 		
 		return null;
@@ -152,10 +209,10 @@ public class DataExporter {
 		return path;
 	}
 
-    public int getArchiveSize(boolean exportPhotos) {
+    public double getArchiveSize(boolean exportPhotos, int densityFactor) {
         BeeperApp app = (BeeperApp)ctx.getApplicationContext();
         File db;
-        int archiveSize = 0;
+        double archiveSize = 0;
 
         if (!app.getPreferences().isTestMode()) {
             db = app.getDatabasePath(StorageHandler.getTestModeDatabaseName());
@@ -171,8 +228,18 @@ public class DataExporter {
         if (exportPhotos) {
             File[] photoList = PhotoUtils.getPhotos(ctx);
             if (photoList != null) {
-                for (int i = 0; i < photoList.length; i++) {
-                    archiveSize += photoList[i].length();
+                int count;
+                double photoOverallSize = 0;
+                for (count = 0; count < photoList.length; count++) {
+                    photoOverallSize += photoList[count].length();
+                }
+                double photoAvgSize = photoOverallSize / count;
+
+                if (densityFactor == 1) {
+                    archiveSize += photoOverallSize;
+                }
+                else {
+                    archiveSize += photoAvgSize / densityFactor * count;
                 }
             }
         }
@@ -180,12 +247,12 @@ public class DataExporter {
         return archiveSize;
     }
 
-    public String getReadableArchiveSize(boolean exportPhotos) {
-        int size = getArchiveSize(exportPhotos);
+    public String getReadableArchiveSize(boolean exportPhotos, int densityFactor) {
+        double size = getArchiveSize(exportPhotos, densityFactor);
         return getReadableFileSize(size, 0);
     }
 
-    public String getReadableFileSize(int size, int decimals) {
+    public static String getReadableFileSize(double size, int decimals) {
         if(size <= 0) {
             return "0 KB";
         }

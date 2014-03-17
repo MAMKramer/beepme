@@ -38,6 +38,7 @@ import com.glanznig.beepme.db.UptimeTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.BeepActivity;
+import com.glanznig.beepme.view.ExportActivity;
 import com.glanznig.beepme.view.MainActivity;
 
 import android.app.Activity;
@@ -200,9 +201,10 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 				cancelTimer();
 			}
 			
-			//cancel notification
+			//cancel notifications
 			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 			manager.cancel(TAG, NOTIFICATION_ID);
+            manager.cancel(TAG, ExportActivity.EXPORT_RUNNING_NOTIFICATION);
 			
 			//is there a open uptime interval, if yes, end it
 			long uptimeId = getPreferences().getUptimeId();
