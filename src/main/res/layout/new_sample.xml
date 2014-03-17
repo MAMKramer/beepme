@@ -72,17 +72,32 @@ http://beepme.glanznig.com
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-	        <EditText
-	            android:id="@+id/new_sample_title"
-	            android:layout_width="0dp"
-	            android:layout_height="wrap_content"
-	            android:hint="@string/sample_title"
-	            android:layout_marginRight="8dp"
-	            android:layout_weight="1"
-	            android:inputType="text" >
-	
-	            <requestFocus />
-	        </EditText>
+	        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/new_sample_title"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/sample_title"
+                    android:layout_marginRight="8dp"
+                    android:inputType="text" >
+
+                    <requestFocus />
+                </EditText>
+
+                <TextView
+                    android:id="@+id/new_sample_help_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sample_title_help"
+                    android:textSize="12sp"
+                    android:paddingLeft="4dp" />
+
+            </LinearLayout>
 	        
 	        <com.glanznig.beepme.view.SamplePhotoView
 	            android:id="@+id/new_sample_photoview"
@@ -93,14 +108,6 @@ http://beepme.glanznig.com
 	    		p:imgHeight="48dp" />
 	        
 	    </LinearLayout>
-        
-        <TextView
-            android:id="@+id/new_sample_help_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sample_title_help"
-            android:textSize="12sp"
-            android:paddingLeft="4dp" />
 
         <EditText
             android:id="@+id/new_sample_description"
