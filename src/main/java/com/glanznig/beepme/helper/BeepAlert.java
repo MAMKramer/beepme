@@ -131,28 +131,34 @@ public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
 
 	        case AudioManager.AUDIOFOCUS_LOSS:
 	            // Lost focus for an unbounded amount of time: stop playback and release media player
-	            if (player.isPlaying()) {
-	            	player.stop();
-	            }
-	            player.release();
-	            player = null;
+	            if (player != null) {
+                    if (player.isPlaying()) {
+                        player.stop();
+                    }
+                    player.release();
+                    player = null;
+                }
 	            break;
 
 	        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
 	            // Lost focus for a short time, but we have to stop
 	            // playback. We don't release the media player because playback
 	            // is likely to resume
-	            if (player.isPlaying()) {
-	            	player.pause();
-	            }
+                if (player != null) {
+                    if (player.isPlaying()) {
+                        player.pause();
+                    }
+                }
 	            break;
 
 	        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
 	            // Lost focus for a short time, but it's ok to keep playing
 	            // at an attenuated level
-	            if (player.isPlaying()) {
-	            	player.setVolume(0.1f, 0.1f);
-	            }
+                if (player != null) {
+                    if (player.isPlaying()) {
+                        player.setVolume(0.1f, 0.1f);
+                    }
+                }
 	            break;
 	    }
 	}
