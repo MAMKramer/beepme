@@ -32,29 +32,26 @@ import com.glanznig.beepme.data.Sample;
 import com.glanznig.beepme.db.SampleTable;
 import com.glanznig.beepme.db.ScheduledBeepTable;
 import com.glanznig.beepme.db.UptimeTable;
-import com.glanznig.beepme.helper.BeepAlertManager;
+import com.glanznig.beepme.helper.BeepAlert;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
 public class BeepActivity extends Activity {
-	
-	private static final String TAG = "BeepActivity";
-	
-	private GlowPadView acceptDeclineHandle;
-	private GlowPadController glowPadCtrl = new GlowPadController();
 	
 	private static class TimeoutHandler extends Handler {
 		WeakReference<BeepActivity> beepActivity;
@@ -127,97 +124,78 @@ public class BeepActivity extends Activity {
         public void onFinishFinalAnimation() {
         }
     }
-	
-	public static final String CANCEL_INTENT = "com.glanznig.beepme.DECLINE_BEEP";
-	
-	private Date beepTime = null;
-	private BeepAlertManager alertManager = null;
-	private PowerManager.WakeLock lock = null;
-	private TimeoutHandler handler = null;
-	//private ScreenStateReceiver receiver = null;
-	private BroadcastReceiver cancelReceiver = null;
-	
-	private boolean beepAccepted = false;
-	
-	@Override
-    public void onBackPressed() {
-        // Don't allow back to decline.
-    }
-	
-	@Override
-	public void onStop() {
-		super.onStop();
-		
-		// do not exactly know why Activity is stopping, but if user did not
-		// explicitly accept the beep always decline it
-		if (!beepAccepted) {
-			decline();
-		}
-		
-		if (cancelReceiver != null) {
-			unregisterReceiver(cancelReceiver);
-		}
-		
-		if (handler != null) {
-			handler.removeMessages(1);
-		}
-		
-		//release wake lock
-		if (lock != null && lock.isHeld()) {
-			lock.release();
-		}
-		
-		if (alertManager != null) {
-			alertManager.cleanUp();
-		}
-		
-		// do not keep Activity available in stack
-		if (!BeepActivity.this.isFinishing()) {
-			finish();
-		}
-	}
-	
-	@Override
-    protected void onResume() {
-        super.onResume();
-        glowPadCtrl.startPinger();
-    }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        glowPadCtrl.stopPinger();
-    }
+    private static final String TAG = "BeepActivity";
+
+	public static final String CANCEL_INTENT = "com.glanznig.beepme.DECLINE_BEEP";
+    public static final int BEEP_TIMEOUT = 15;
+
+    private GlowPadView acceptDeclineHandle;
+    private GlowPadController glowPadCtrl = new GlowPadController();
 	
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		//acquire wake lock
-		PowerManager powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
-		lock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
-		if (lock != null && !lock.isHeld()) {
-			lock.acquire();
-		}
-		
-		//record beep time
-		beepTime = Calendar.getInstance().getTime();
-		
-		BeeperApp app = (BeeperApp)getApplication();
-		new ScheduledBeepTable(this.getApplicationContext()).receivedScheduledBeep(app.getPreferences().getScheduledBeepId(), Calendar.getInstance().getTimeInMillis());
-		
-		//decline and pause beeper if active call
-		if (app.getPreferences().getPauseBeeperDuringCall() && app.getPreferences().isCall()) {
-			app.setBeeperActive(BeeperApp.BEEPER_INACTIVE_AFTER_CALL);
-			decline();
-			return;
-		}
-		
-		//set up broadcast receiver to decline beep at incoming call
+	private long beepTimestamp;
+	private BeepAlert alert = null;
+	private TimeoutHandler handler = null;
+	private BroadcastReceiver cancelReceiver = null;
+    private BroadcastReceiver screenStateReceiver = null;
+    private boolean inDecline = false;
+    private boolean hasAccepted = false;
+	
+	public void onCreate(Bundle savedState) {
+		super.onCreate(savedState);
+
+        final Window win = getWindow();
+        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+
+        final BeeperApp app = (BeeperApp)getApplication();
+
+        if (savedState != null) {
+            if (!savedState.containsKey("beepTimestamp")) {
+                // set beep timestamp to NOW
+                beepTimestamp = Calendar.getInstance().getTimeInMillis();
+                new ScheduledBeepTable(this.getApplicationContext()).receivedScheduledBeep(
+                        app.getPreferences().getScheduledBeepId(), beepTimestamp);
+            } else {
+                beepTimestamp = savedState.getLong("beepTimestamp");
+            }
+        }
+        else {
+            // set beep timestamp to NOW
+            beepTimestamp = Calendar.getInstance().getTimeInMillis();
+            new ScheduledBeepTable(this.getApplicationContext()).receivedScheduledBeep(
+                    app.getPreferences().getScheduledBeepId(), beepTimestamp);
+        }
+        handler = new TimeoutHandler(BeepActivity.this);
+
+        // decline and pause beeper if active call
+        if (app.getPreferences().getPauseBeeperDuringCall() && app.getPreferences().isCall()) {
+            app.setBeeperActive(BeeperApp.BEEPER_INACTIVE_AFTER_CALL);
+            decline();
+            return;
+        }
+
+        updateLayout();
+
+        // set up broadcast receiver to detect screen events
+        screenStateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                    decline();
+                }
+            }
+        };
+        registerReceiver(screenStateReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+
+		// set up broadcast receiver to decline beep at incoming call
 		cancelReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				if (intent.getAction().equals(CANCEL_INTENT)) {
-					BeeperApp app = (BeeperApp)getApplication();
 					if (app.getPreferences().getPauseBeeperDuringCall()) {
 						app.setBeeperActive(BeeperApp.BEEPER_INACTIVE_AFTER_CALL);
 						decline();
@@ -225,32 +203,9 @@ public class BeepActivity extends Activity {
 				}
 			}
 		};
-		registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
+        registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
 		
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
-		final Window win = getWindow();
-		win.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-        win.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-        win.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        win.addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
-        
-		setContentView(R.layout.beep);
-		
-		alertManager = new BeepAlertManager(BeepActivity.this);
-		alertManager.startAlert();
-		
-		setVolumeControlStream(AudioManager.STREAM_ALARM);
-		
-		handler = new TimeoutHandler(BeepActivity.this);
-		handler.sendEmptyMessageDelayed(1, 30000); // 30 sec timeout for activity
-		
-		acceptDeclineHandle = (GlowPadView)findViewById(R.id.beep_glowpad);
-		acceptDeclineHandle.setOnTriggerListener(glowPadCtrl);
-		glowPadCtrl.startPinger();
-		//acceptDeclineHandle.setShowTargetsOnIdle(true);
+		alert = new BeepAlert(BeepActivity.this);
 		
 		SampleTable st = new SampleTable(this.getApplicationContext());
 		int numAccepted = st.getNumAcceptedToday();
@@ -267,25 +222,69 @@ public class BeepActivity extends Activity {
 		declinedToday.setText(String.valueOf(numDeclined));
 		beeperActive.setText(String.valueOf(timeActive));
 	}
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        glowPadCtrl.stopPinger();
+        alert.stop();
+        handler.removeMessages(BEEP_TIMEOUT);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        long timeSinceBeep = Math.abs(Calendar.getInstance().getTimeInMillis() - beepTimestamp);
+        if (timeSinceBeep < 30000) {
+            // max 30 sec timeout for beep
+            handler.sendEmptyMessageDelayed(BEEP_TIMEOUT, 30000 - timeSinceBeep);
+        }
+        else {
+            // timeout already elapsed
+            decline();
+        }
+
+        glowPadCtrl.startPinger();
+        alert.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(screenStateReceiver);
+        unregisterReceiver(cancelReceiver);
+    }
 	
 	private void ping() {
         acceptDeclineHandle.ping();
     }
+
+    private void updateLayout() {
+        final LayoutInflater inflater = LayoutInflater.from(this);
+        final View view = inflater.inflate(R.layout.beep, null);
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        setContentView(view);
+
+        acceptDeclineHandle = (GlowPadView)findViewById(R.id.beep_glowpad);
+        acceptDeclineHandle.setOnTriggerListener(glowPadCtrl);
+        glowPadCtrl.startPinger();
+        //acceptDeclineHandle.setShowTargetsOnIdle(true);
+    }
 	
 	public void accept() {
-		if (alertManager != null) {
-			alertManager.stopAlert();
+        hasAccepted = true;
+		if (alert != null) {
+			alert.stop();
 		}
 		
 		BeeperApp app = (BeeperApp)getApplication();
 		app.acceptTimer();
 		
-		beepAccepted = true;
-		
 		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
-		accept.putExtra(getApplication().getClass().getPackage().getName() + ".Timestamp", beepTime.getTime());
+		accept.putExtra(getApplication().getClass().getPackage().getName() + ".Timestamp", beepTimestamp);
 		startActivity(accept);
-		finish();
 	}
 	
 	public void declinePause() {
@@ -295,18 +294,60 @@ public class BeepActivity extends Activity {
 	}
 	
 	public void decline() {
-		if (alertManager != null) {
-			alertManager.stopAlert();
-		}
-		
-		BeeperApp app = (BeeperApp)getApplication();
-		Sample sample = new Sample();
-		sample.setTimestamp(beepTime);
-		sample.setAccepted(false);
-		sample.setUptimeId(app.getPreferences().getUptimeId());
-		new SampleTable(this.getApplicationContext()).addSample(sample);
-		app.declineTimer();
-		app.setTimer();
-		finish();
+		if (!inDecline) { // should only be called once
+            inDecline = true;
+
+            BeeperApp app = (BeeperApp) getApplication();
+            Sample sample = new Sample();
+            sample.setTimestamp(new Date(beepTimestamp));
+            sample.setAccepted(false);
+            sample.setUptimeId(app.getPreferences().getUptimeId());
+            new SampleTable(this.getApplicationContext()).addSample(sample);
+            app.declineTimer();
+            app.setTimer();
+
+            if (!BeepActivity.this.isFinishing()) {
+                finish();
+            }
+        }
 	}
+
+    @Override
+    protected void onUserLeaveHint() {
+        // user leaves the activity
+        if (!hasAccepted) {
+            decline();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Don't allow back to decline.
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        switch (event.getKeyCode()) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+            case KeyEvent.KEYCODE_VOLUME_MUTE:
+            case KeyEvent.KEYCODE_CAMERA:
+            case KeyEvent.KEYCODE_FOCUS:
+                decline();
+                return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        updateLayout();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedState) {
+        savedState.putLong("beepTimestamp", beepTimestamp);
+    }
 }

@@ -24,4 +24,8 @@ http://beepme.glanznig.com
     <style name="SamplePhotoView.Photo" parent="@android:style/Theme.Holo.Light">
         <item name="android:cropToPadding">true</item>
     </style>
+
+    <style name="BeepFullScreenTheme" parent="android:Theme.Holo.Wallpaper.NoTitleBar">
+        <item name="android:background">@color/black</item>
+    </style>
 </resources>

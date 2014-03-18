@@ -233,7 +233,13 @@ public class DataExporter {
                 for (count = 0; count < photoList.length; count++) {
                     photoOverallSize += photoList[count].length();
                 }
-                double photoAvgSize = photoOverallSize / count;
+                double photoAvgSize;
+                if (count > 0) {
+                    photoAvgSize = photoOverallSize / count;
+                }
+                else {
+                    photoAvgSize = 0;
+                }
 
                 if (densityFactor == 1) {
                     archiveSize += photoOverallSize;

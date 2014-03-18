@@ -23,8 +23,7 @@ http://beepme.glanznig.com
     xmlns:glowpad="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:background="@color/black">
+    android:orientation="vertical">
     
     <TextView
         android:id="@+id/beep_app_name"

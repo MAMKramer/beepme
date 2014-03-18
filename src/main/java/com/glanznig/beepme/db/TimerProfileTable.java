@@ -91,7 +91,7 @@ private static final String TAG = "TimerProfileTable";
 		values.put("numCancelledBeepsMoveToAverage", 2);
 		db.insert(TBL_NAME, null, values);
 		
-		values = new ContentValues();
+		/*values = new ContentValues();
 		values.put("_id", 2);
 		values.put("name", "HCI");
 		values.put("minUptimeDuration", 60); //1 min
@@ -101,7 +101,7 @@ private static final String TAG = "TimerProfileTable";
 		values.put("minSizeBeepInterval", 60); //1 min
 		values.put("uptimeCountMoveToAverage", 3);
 		values.put("numCancelledBeepsMoveToAverage", 2);
-		db.insert(TBL_NAME, null, values);
+		db.insert(TBL_NAME, null, values);*/
 	}
 	
 	public TimerProfile getTimerProfile(long id) {

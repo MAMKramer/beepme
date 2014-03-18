@@ -31,6 +31,7 @@ http://beepme.glanznig.com
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     
@@ -64,7 +65,13 @@ http://beepme.glanznig.com
         </activity>
 	    
 	    <activity android:name=".view.BeepActivity"
-	        android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:showOnLockScreen="true"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:noHistory="true"
+            android:theme="@style/BeepFullScreenTheme"
 	        android:screenOrientation="portrait">
 	    </activity>
 	    

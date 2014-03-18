@@ -185,7 +185,13 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                     overallDensity += width * height;
                 }
 
-                float avgDensity = ((float)overallDensity / count) / 1000000; // megapixel
+                float avgDensity;
+                if (count > 0 ) {
+                    avgDensity = ((float)overallDensity / count) / 1000000; // megapixel
+                }
+                else {
+                    avgDensity = 0;
+                }
 
                 if (handler.get() != null) {
                     Message msg = new Message();
@@ -340,7 +346,9 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                     for (count = 0; count < photoFiles.length; count++) {
                         overallSize += photoFiles[count].length();
                     }
-                    photoAvgSize = overallSize / count;
+                    if (count > 0) {
+                        photoAvgSize = overallSize / count;
+                    }
                 }
 
                 if (photoAvgDensity == 0) {
