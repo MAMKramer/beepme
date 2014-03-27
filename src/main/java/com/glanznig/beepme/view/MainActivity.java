@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
 Copyright 2012-2014 Michael Glanznig
-http://beepme.glanznig.com
+http://beepme.yourexp.at
 */
 
 package com.glanznig.beepme.view;
@@ -248,7 +248,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int whichButton) {
-								Uri uri = Uri.parse("http://beepme.glanznig.com/support-beepme");
+								Uri uri = Uri.parse("http://beepme.yourexp.at/support-beepme");
 								startActivity(new Intent(Intent.ACTION_VIEW, uri));
 							}
 						});
