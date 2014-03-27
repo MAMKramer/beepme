@@ -42,19 +42,21 @@ android {
         release.setRoot('build-types/release')
     }
 
-    signingConfigs {
-        release {
-            storeFile file("../../../general/play_keystore")
-            keyAlias "beepme"
-            storePassword "fakepwd"
-            keyPassword "fakepwd"
-        }
-    }
 
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
+    if (project.hasProperty('keystoreLocation')) {
+
+        signingConfigs {
+            release {
+                storeFile file(keystoreLocation)
+                keyAlias "beepme"
+                storePassword "fakepwd"
+                keyPassword "fakepwd"
+            }
         }
+        buildTypes.release.signingConfig = signingConfigs.release
+
+    } else {
+        buildTypes.release.signingConfig = null
     }
 }
 
@@ -69,7 +71,7 @@ task askForPasswords << {
 }
 
 tasks.whenTaskAdded { theTask ->
-    if (theTask.name.equals("packageRelease")) {
+    if (theTask.name.equals("packageRelease") && project.hasProperty('keystoreLocation')) {
         theTask.dependsOn "askForPasswords"
     }
 }
