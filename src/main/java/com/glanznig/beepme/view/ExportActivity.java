@@ -299,6 +299,9 @@ public class ExportActivity extends Activity implements View.OnClickListener {
         if (app.getPreferences().exportRunningSince() == 0L ||
                 (Calendar.getInstance().getTimeInMillis() -
                         app.getPreferences().exportRunningSince()) >= 120000) { //2 min
+
+            enableDisableView(findViewById(R.id.export_settings), true);
+
             CheckBox photoExp = (CheckBox)findViewById(R.id.export_photos);
             View photoExpGroup = findViewById(R.id.export_photos_group);
 
@@ -405,6 +408,14 @@ public class ExportActivity extends Activity implements View.OnClickListener {
             estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
                     exporter.getReadableArchiveSize(photoExport,
                             densityFactor)));
+
+            Button start = (Button)findViewById(R.id.export_start_button);
+            ProgressBar progress = (ProgressBar)findViewById(R.id.export_progress_bar);
+            TextView runningText = (TextView)findViewById(R.id.export_running_text);
+
+            start.setVisibility(View.VISIBLE);
+            progress.setVisibility(View.GONE);
+            runningText.setVisibility(View.GONE);
         }
         else {
             Button start = (Button)findViewById(R.id.export_start_button);

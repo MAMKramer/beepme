@@ -123,10 +123,13 @@ public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
 	            if (player == null) {
                     start();
 	            }
-	            else if (!player.isPlaying()) {
-	            	player.start();
-	            }
-	            player.setVolume(1.0f, 1.0f);
+	            else {
+                    player.setVolume(1.0f, 1.0f);
+
+                    if (!player.isPlaying()) {
+                        player.start();
+                    }
+                }
 	            break;
 
 	        case AudioManager.AUDIOFOCUS_LOSS:

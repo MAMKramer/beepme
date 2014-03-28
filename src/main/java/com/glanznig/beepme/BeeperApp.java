@@ -386,19 +386,19 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 			if (appRef != null && appRef.get() != null) {
 				BeeperApp app = appRef.get();
 				switch (state) {
-				case TelephonyManager.CALL_STATE_IDLE:
-					app.getPreferences().setCall(false);
-					// beeper was paused by call, reactivate it
-					if (app.getPreferences().getBeeperActive() == BeeperApp.BEEPER_INACTIVE_AFTER_CALL) {
-						app.setBeeperActive(BeeperApp.BEEPER_ACTIVE);
-					}
-					break;
-				case TelephonyManager.CALL_STATE_OFFHOOK:
-					app.getPreferences().setCall(true);
-					break;
-				case TelephonyManager.CALL_STATE_RINGING:
-					app.getPreferences().setCall(true);
-					break;
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        app.getPreferences().setCall(false);
+                        // beeper was paused by call, reactivate it
+                        if (app.getPreferences().getBeeperActive() == BeeperApp.BEEPER_INACTIVE_AFTER_CALL) {
+                            app.setBeeperActive(BeeperApp.BEEPER_ACTIVE);
+                        }
+                        break;
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                        app.getPreferences().setCall(true);
+                        break;
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        app.getPreferences().setCall(true);
+                        break;
 				}
 			}
 		}

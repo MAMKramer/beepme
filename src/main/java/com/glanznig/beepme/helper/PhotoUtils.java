@@ -409,6 +409,10 @@ public class PhotoUtils {
                     int swap = srcWidth;
                     srcWidth = srcHeight;
                     srcHeight = swap;
+
+                    swap = destWidth;
+                    destWidth = destHeight;
+                    destHeight = swap;
                 }
                 else if (rotationTag == ExifInterfaceExtended.ORIENTATION_ROTATE_180) {
                     rotateDeg = 180;
@@ -419,6 +423,10 @@ public class PhotoUtils {
                     int swap = srcWidth;
                     srcWidth = srcHeight;
                     srcHeight = swap;
+
+                    swap = destWidth;
+                    destWidth = destHeight;
+                    destHeight = swap;
                 }
 
                 float srcRatio =  (float)srcWidth / (float)srcHeight;
