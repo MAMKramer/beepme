@@ -44,7 +44,7 @@ http://beepme.yourexp.at
     <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="export_archive_estimated_size">Geschätzte Archivgröße: %1$s</string>
     <string name="export_content_group_header">Inhalt des Archivs</string>
-    <string name="export_db_setting">Datenbank exportieren</string>
+    <string name="export_db_setting">Rohdaten exportieren (SQLite)</string>
     <string name="export_downscale_original_size">Originalgröße (%1$s)</string>
     <string name="export_downscale">%1$s Megapixel (%2$s)</string>
     <string name="export_failed">Export war nicht erfolgreich</string>

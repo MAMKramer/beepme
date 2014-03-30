@@ -25,19 +25,25 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.db.SampleTable;
 import com.glanznig.beepme.db.StorageHandler;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
@@ -56,10 +62,13 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 public class DataExporter {
 	
 	private static final String EXPORT_PREFIX = "beepme_data_";
     private static final String EXPORT_DIR = "export";
+    private static final String TEMP_DIR_NAME = "tmp";
 	private static final String TAG = "DataExporter";
 	private static final int BUFFER = 2048;
 	private static final int NOTIFICATION_ID = 1438;
@@ -68,12 +77,131 @@ public class DataExporter {
 	public DataExporter(Context context) {
 		ctx = context;
 	}
-	
-	public String exportToZipFile(boolean exportPhotos) {
-        return exportToZipFile(exportPhotos, 1);
+
+    private File writeDataCSV(File tempDir) {
+        SampleTable st = new SampleTable(ctx.getApplicationContext());
+        List<Sample> sampleList = st.getSamples();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+
+        File csvFile = new File(tempDir, "data.csv");
+
+        try {
+            CSVWriter writer = new CSVWriter(new FileWriter(csvFile), ';');
+            writer.writeNext("Timestamp#Title#Description#Photo#Tags".split("#"));
+
+            Iterator<Sample> i = sampleList.iterator();
+            while (i.hasNext()) {
+                Sample item = i.next();
+                ArrayList<String> list = new ArrayList<String>();
+                list.add(dateFormat.format(item.getTimestamp()));
+                if (item.getTitle() != null) {
+                    list.add(item.getTitle());
+                }
+                else {
+                    list.add("");
+                }
+                if (item.getDescription() != null) {
+                    list.add(item.getDescription());
+                }
+                else {
+                    list.add("");
+                }
+                if (item.getPhotoUri() != null) {
+                    File photo = new File(item.getPhotoUri());
+                    list.add(photo.getName());
+                }
+                else {
+                    list.add("");
+                }
+
+                List<Tag> tags = st.getTagsOfSample(item.getId());
+                if (tags!= null && tags.size() > 0) {
+                    Iterator<Tag> it = tags.iterator();
+                    String tagString = it.next().getName();
+
+                    while (it.hasNext()) {
+                        tagString += ", ";
+                        tagString += it.next().getName();
+                    }
+                    list.add(tagString);
+                }
+                else {
+                    list.add("");
+                }
+
+                String[] listArray = new String[list.size()];
+                listArray = list.toArray(listArray);
+                writer.writeNext(listArray);
+            }
+
+            writer.close();
+        }
+        catch(IOException ioe) {
+            Log.e(TAG, "error writing data csv file.");
+            return null;
+        }
+
+        return csvFile;
     }
 
-    public String exportToZipFile(boolean exportPhotos, int densityFactor) {
+    private File writeHistoryCSV(File tempDir) {
+        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        List<Bundle> statList = Statistics.getStats(ctx, app.getTimerProfile());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
+        File csvFile = new File(tempDir, "history.csv");
+
+        try {
+            CSVWriter writer = new CSVWriter(new FileWriter(csvFile), ';');
+            writer.writeNext("Date#Accepted#Declined#Elapsed".split("#"));
+
+            Iterator<Bundle> i = statList.iterator();
+            while (i.hasNext()) {
+                Bundle item = i.next();
+                ArrayList<String> list = new ArrayList<String>();
+                list.add(dateFormat.format(new Date(item.getLong("timestamp"))));
+
+                if (item.containsKey("acceptedSamples")) {
+                    list.add(String.valueOf(item.getInt("acceptedSamples", 0)));
+                }
+                else {
+                    list.add("0");
+                }
+                if (item.containsKey("declinedSamples")) {
+                    list.add(String.valueOf(item.getInt("declinedSamples", 0)));
+                }
+                else {
+                    list.add("0");
+                }
+                if (item.containsKey("uptimeDuration")) {
+                    long uptimeDur = item.getLong("uptimeDuration") / 1000;
+                    String timeActive = String.format("%02d:%02d:%02d", uptimeDur/3600, (uptimeDur%3600)/60, (uptimeDur%60));
+                    list.add(timeActive);
+                }
+                else {
+                    list.add("00:00:00");
+                }
+
+                String[] listArray = new String[list.size()];
+                listArray = list.toArray(listArray);
+                writer.writeNext(listArray);
+            }
+
+            writer.close();
+        }
+        catch(IOException ioe) {
+            Log.e(TAG, "error writing history csv file.");
+            return null;
+        }
+
+        return csvFile;
+    }
+
+    public String exportToZipFile(Bundle opts) {
+        boolean exportPhotos = opts.getBoolean("photoExport", true);
+        boolean exportRaw = opts.getBoolean("rawExport", false);
+        int densityFactor = opts.getInt("densityFactor", 1);
+
 		//external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			
@@ -103,7 +231,23 @@ public class DataExporter {
                 dbName = StorageHandler.getProductionDatabaseName();
                 picDir = new File(picDir, PhotoUtils.NORMAL_MODE_DIR);
             }
-            fileList.add(ctx.getDatabasePath(dbName));
+
+            if (exportRaw) {
+                fileList.add(ctx.getDatabasePath(dbName));
+            }
+
+            // create temp dir for CSV and photos
+            File tempDir = new File(exportDir, TEMP_DIR_NAME);
+            tempDir.mkdirs();
+
+            File dataCSV = writeDataCSV(tempDir);
+            File historyCSV = writeHistoryCSV(tempDir);
+            if (dataCSV != null && dataCSV.exists()) {
+                fileList.add(dataCSV);
+            }
+            if (historyCSV != null && historyCSV.exists()) {
+                fileList.add(historyCSV);
+            }
 
 			if (exportPhotos) {
                 if (picDir.exists()) {
@@ -116,16 +260,12 @@ public class DataExporter {
 
                     if (densityFactor > 1) {
                         // downscale photos
-                        String tempDirName = "scaled";
-                        File scaledDir = new File(picDir, tempDirName);
-                        scaledDir.mkdirs();
 
                         for (int i = 0; i < photos.length; i++) {
                             String srcUri = photos[i].getAbsolutePath();
 
                             File destPhoto = new File(srcUri);
-                            String path = destPhoto.getParent() + File.separator + tempDirName;
-                            destPhoto = new File(path, destPhoto.getName());
+                            destPhoto = new File(tempDir, destPhoto.getName());
 
                             String destUri = destPhoto.getAbsolutePath();
                             Bundle dim = PhotoUtils.getPhotoDimensions(srcUri);
@@ -146,14 +286,6 @@ public class DataExporter {
 
                         archive = zipFiles(exportFile, fileList);
 
-                        // remove temp dir and contents
-                        File[] tempFiles;
-                        tempFiles = scaledDir.listFiles();
-                        for (int i=0; i < tempFiles.length; i++) {
-                            tempFiles[i].delete();
-                        }
-                        scaledDir.delete();
-
                     } else {
                         for (int i = 0; i < photos.length; i++) {
                             fileList.add(photos[i]);
@@ -166,6 +298,14 @@ public class DataExporter {
             else {
                 archive = zipFiles(exportFile, fileList);
             }
+
+            // remove temp dir and contents
+            File[] tempFiles;
+            tempFiles = tempDir.listFiles();
+            for (int i=0; i < tempFiles.length; i++) {
+                tempFiles[i].delete();
+            }
+            tempDir.delete();
 
 			return archive;
 		}
@@ -209,10 +349,13 @@ public class DataExporter {
 		return path;
 	}
 
-    public double getArchiveSize(boolean exportPhotos, int densityFactor) {
+    public double getArchiveSize(Bundle opts, int densityFactor) {
         BeeperApp app = (BeeperApp)ctx.getApplicationContext();
         File db;
         double archiveSize = 0;
+
+        boolean exportPhotos = opts.getBoolean("photoExport", true);
+        boolean exportRaw = opts.getBoolean("rawExport", false);
 
         if (!app.getPreferences().isTestMode()) {
             db = app.getDatabasePath(StorageHandler.getTestModeDatabaseName());
@@ -222,7 +365,12 @@ public class DataExporter {
         }
 
         if (db != null) {
-            archiveSize += db.length();
+            if (exportRaw) {
+                archiveSize += db.length() + db.length() / 2;
+            }
+            else {
+                archiveSize += db.length() / 2;
+            }
         }
 
         if (exportPhotos) {
@@ -253,8 +401,8 @@ public class DataExporter {
         return archiveSize;
     }
 
-    public String getReadableArchiveSize(boolean exportPhotos, int densityFactor) {
-        double size = getArchiveSize(exportPhotos, densityFactor);
+    public String getReadableArchiveSize(Bundle opts, int densityFactor) {
+        double size = getArchiveSize(opts, densityFactor);
         return getReadableFileSize(size, 0);
     }
 

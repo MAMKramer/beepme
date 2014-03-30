@@ -116,12 +116,12 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 
 	private static class ExportRunnable implements Runnable {
 		WeakReference<ExportActivity> activity;
-        boolean photoExport;
+        Bundle opts;
         String action;
 
-		public ExportRunnable(ExportActivity activity, boolean photoExport) {
+		public ExportRunnable(ExportActivity activity, Bundle opts) {
 			this.activity = new WeakReference<ExportActivity>(activity);
-            this.photoExport = photoExport;
+            this.opts = opts;
 
             Spinner actions = (Spinner)this.activity.get().findViewById(R.id.export_post_actions);
             int pos = actions.getSelectedItemPosition();
@@ -138,15 +138,13 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 				DataExporter exporter = new DataExporter(activity.get().getApplicationContext());
 				String fileName;
                 int densityFactor = 1;
-                if (photoExport) {
+                if (opts.getBoolean("photoExport", true)) {
                     if (activity.get().densityItem > -1) {
                         densityFactor = activity.get().densityFactors.get(activity.get().densityItem);
                     }
-                    fileName = exporter.exportToZipFile(photoExport, densityFactor);
                 }
-                else {
-                    fileName = exporter.exportToZipFile(photoExport);
-                }
+                opts.putInt("densityFactor", densityFactor);
+                fileName = exporter.exportToZipFile(opts);
 
 				if (activity.get().exportHandler != null) {
 					Message msg = new Message();
@@ -248,6 +246,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 	private static final String TAG = "ExportActivity";
     public static final int EXPORT_RUNNING_NOTIFICATION = 523;
     private static final int EXPORT_FINISHED_NOTIFICATION = 524;
+    private boolean rawExport = false;
     private boolean photoExport = true;
     private int postActionItem = -1;
     private int densityItem = -1;
@@ -272,6 +271,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
         densityFactors = new ArrayList<Integer>();
 
         if (savedState != null) {
+            rawExport = savedState.getBoolean("rawExport");
             photoExport = savedState.getBoolean("photoExport");
 
             if (savedState.getInt("postActionItem") != 0) {
@@ -302,6 +302,10 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 
             enableDisableView(findViewById(R.id.export_settings), true);
 
+            CheckBox rawExp = (CheckBox)findViewById(R.id.export_raw);
+            rawExp.setChecked(rawExport);
+            rawExp.setOnClickListener(this);
+
             CheckBox photoExp = (CheckBox)findViewById(R.id.export_photos);
             View photoExpGroup = findViewById(R.id.export_photos_group);
 
@@ -331,8 +335,11 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         densityItem = position;
+                        Bundle opts = new Bundle();
+                        opts.putBoolean("photoExport", photoExport);
+                        opts.putBoolean("rawExport", rawExport);
                         estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
-                                exporter.getReadableArchiveSize(photoExport,
+                                exporter.getReadableArchiveSize(opts,
                                         densityFactors.get(downscalePhotos.getSelectedItemPosition()).intValue())));
                     }
 
@@ -405,9 +412,11 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                 densityFactor = densityFactors.get(downscalePhotos.getSelectedItemPosition()).intValue();
             }
 
+            Bundle opts = new Bundle();
+            opts.putBoolean("photoExport", photoExport);
+            opts.putBoolean("rawExport", rawExport);
             estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
-                    exporter.getReadableArchiveSize(photoExport,
-                            densityFactor)));
+                    exporter.getReadableArchiveSize(opts, densityFactor)));
 
             Button start = (Button)findViewById(R.id.export_start_button);
             ProgressBar progress = (ProgressBar)findViewById(R.id.export_progress_bar);
@@ -444,6 +453,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 
     @Override
 	public void onSaveInstanceState(Bundle savedState) {
+        savedState.putBoolean("rawExport", rawExport);
         savedState.putBoolean("photoExport", photoExport);
         savedState.putInt("postActionItem", postActions.getSelectedItemPosition() + 1);
         savedState.putInt("densityItem", downscalePhotos.getSelectedItemPosition() + 1);
@@ -457,13 +467,20 @@ public class ExportActivity extends Activity implements View.OnClickListener {
             case R.id.export_photos:
                 photoExport = ((CheckBox)view).isChecked();
                 enableDisableView(findViewById(R.id.export_photos_group), photoExport);
-                estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
-                        exporter.getReadableArchiveSize(photoExport,
-                                densityFactors.get(downscalePhotos.getSelectedItemPosition()).intValue())
-                ));
+                break;
 
+            case R.id.export_raw:
+                rawExport = ((CheckBox)view).isChecked();
                 break;
         }
+
+        Bundle opts = new Bundle();
+        opts.putBoolean("photoExport", photoExport);
+        opts.putBoolean("rawExport", rawExport);
+        estimatedSize.setText(String.format(getString(R.string.export_archive_estimated_size),
+                exporter.getReadableArchiveSize(opts,
+                        densityFactors.get(downscalePhotos.getSelectedItemPosition()).intValue())
+        ));
     }
 
     public void startExport(View v) {
@@ -484,9 +501,13 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                     (Calendar.getInstance().getTimeInMillis() -
                     app.getPreferences().exportRunningSince()) >= 120000) { //2 min
                 app.getPreferences().setExportRunningSince(Calendar.getInstance().getTimeInMillis());
-                createExportRunningNotification(photoExport);
+                createExportRunningNotification();
                 exportHandler = new ExportHandler(ExportActivity.this);
-                new Thread(new ExportRunnable(ExportActivity.this, photoExport)).start();
+
+                Bundle opts = new Bundle();
+                opts.putBoolean("photoExport", photoExport);
+                opts.putBoolean("rawExport", rawExport);
+                new Thread(new ExportRunnable(ExportActivity.this, opts)).start();
             }
         }
         else {
@@ -494,7 +515,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    private void createExportRunningNotification(boolean photoExport) {
+    private void createExportRunningNotification() {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this.getApplicationContext());
         notificationBuilder.setSmallIcon(R.drawable.ic_stat_notify);
         notificationBuilder.setContentTitle(getResources().getString(R.string.app_name));

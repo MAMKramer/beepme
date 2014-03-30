@@ -44,12 +44,12 @@ http://beepme.yourexp.at
                 style="?android:attr/listSeparatorTextViewStyle" />
 
             <CheckBox
+                android:id="@+id/export_raw"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/export_db_setting"
-                android:checked="true"
-                android:enabled="false"/>
+                android:checked="false" />
 
             <CheckBox
                 android:id="@+id/export_photos"

@@ -83,4 +83,5 @@ repositories {
 dependencies {
     compile 'com.android.support:appcompat-v7:19.0.1'
     compile 'it.sephiroth.android.library.exif:library-java:+'
+    compile 'net.sf.opencsv:opencsv:2.3'
 }
