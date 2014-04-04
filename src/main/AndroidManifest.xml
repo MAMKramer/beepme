@@ -84,7 +84,7 @@ http://beepme.yourexp.at
 	    
 	    <activity
 	        android:name=".view.EditSampleActivity"
-	        android:label="@string/edit_sample"
+	        android:label="@string/action_edit_sample"
 	        android:windowSoftInputMode="stateUnchanged|adjustResize">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.glanznig.beepme.view.ViewSampleActivity" />
 	    </activity>

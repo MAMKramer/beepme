@@ -41,7 +41,6 @@ http://beepme.yourexp.at
     <string name="app_name">BeepMe</string>
     <string name="cancel">Verwerfen</string>
     <string name="done">Fertig</string>
-    <string name="edit_sample">Eintrag bearbeiten</string>
     <string name="export_archive_estimated_size">Geschätzte Archivgröße: %1$s</string>
     <string name="export_content_group_header">Inhalt des Archivs</string>
     <string name="export_db_setting">Rohdaten exportieren (SQLite)</string>
@@ -63,9 +62,7 @@ http://beepme.yourexp.at
     <string name="export_successful">Export war erfolgreich</string>
     <string name="history">Verlauf</string>
     <string name="history_empty">Den Verlauf Ihres Samplings finden Sie hier.</string>
-    <string name="main_menu_new_sample">Neues Sample</string>
-    <string name="main_menu_samples_list">Einträge ansehen</string>
-    <string name="new_sample">Neues Sample</string>
+    <string name="new_sample">Neuer Moment</string>
     <string name="new_sample_add_tag_error">Stichwort ist bereits vorhanden.</string>
     <string name="new_sample_back_warning_msg">Bitte nehmen Sie sich etwas Zeit Details Ihres Moments einzutragen.\n\nIhr Moment wird gespeichert wie er gerade ist. Sie können ihn später bearbeiten.</string>
     <string name="new_sample_back_warning_title">Jetzt verlassen?</string>
@@ -83,7 +80,6 @@ http://beepme.yourexp.at
     <string name="pref_title_test_mode">Testmodus</string>
     <string name="pref_summary_vibrate_beep">Vibriert zusätzlich zum abgespielten Ton im normalen Profil.</string>
     <string name="pref_title_vibrate_beep">Immer bei Alarm vibrieren</string>
-    <string name="refresh">Neu laden</string>
     <string name="sample_description">Wie war Ihr Moment beschaffen?</string>
     <string name="sample_description_help">z.B. beschreibende Satzfragmente oder Sätze</string>
     <string name="sample_keyword">Stichwort</string>

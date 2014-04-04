@@ -30,7 +30,7 @@ http://beepme.yourexp.at
     <string name="action_about">About</string>
     <string name="action_beeper_off">Turn Beeper Off</string>
     <string name="action_beeper_on">Turn Beeper On</string>
-    <string name="action_edit_sample">Edit Sample</string>
+    <string name="action_edit_sample">Edit Moment</string>
     <string name="action_export">Export Data</string>
     <string name="action_settings">Settings</string>
     <string name="action_take_photo">Take Photo</string>
@@ -41,7 +41,6 @@ http://beepme.yourexp.at
     <string name="app_name">BeepMe</string>
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
-    <string name="edit_sample">Edit Sample</string>
     <string name="export_archive_estimated_size">Estimated archive size: %1$s</string>
     <string name="export_content_group_header">Archive Content</string>
     <string name="export_db_setting">Export raw data (SQLite)</string>
@@ -64,9 +63,7 @@ http://beepme.yourexp.at
     <string name="export_successful">Export was successful</string>
     <string name="history">History</string>
     <string name="history_empty">You will find your sampling history here.</string>
-    <string name="main_menu_new_sample">New Sample</string>
-    <string name="main_menu_samples_list">View Samples</string>
-    <string name="new_sample">New Sample</string>
+    <string name="new_sample">New Moment</string>
     <string name="new_sample_add_tag_error">Keyword has already been added.</string>
     <string name="new_sample_back_warning_msg">Please take some time to enter the details of your moment.\n\nIf you leave here your moment is saved as it is now. You can edit it later.</string>
     <string name="new_sample_back_warning_title">Leave now?</string>
@@ -84,7 +81,6 @@ http://beepme.yourexp.at
     <string name="pref_title_test_mode">Test Mode</string>
     <string name="pref_summary_vibrate_beep">Vibrate in addition to beep sound in normal profile.</string>
     <string name="pref_title_vibrate_beep">Always vibrate at beep</string>
-    <string name="refresh">Refresh</string>
     <string name="sample_description">How was your moment like?</string>
     <string name="sample_description_help">e.g. describe in fragments or full-text</string>
     <string name="sample_keyword">Keyword</string>
