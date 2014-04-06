@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2012-2014 Michael Glanznig
+http://beepme.yourexp.at
+-->
+
+<resources>
+    <string name="about_app_info">Helpt bij het uitvoeren van experience sampling (DES/ESM) door een alarm te geven op willekeurige momenten.</string>
+    <string name="about_title">Over BeepMe</string>
+    <string name="about_email">E-Mail:</string>
+    <string name="about_license">Copyright 2012&#8211;2014 Michael Glanznig.\nGelicenseerd onder GNU GPL v3 en beschikbaar gemaak"ZOALS HET IS" zonder enige garantie.</string>
+    <string name="about_version">Versie:</string>
+    <string name="about_website">Website:</string>
+    <string name="about_donate_button">Ondersteun BeepMe</string>
+    <string name="action_about">Info</string>
+    <string name="action_beeper_off">Beeper uitschakelen</string>
+    <string name="action_beeper_on">Beeper inschakelen</string>
+    <string name="action_edit_sample">Wijzig voorbeeld</string>
+    <string name="action_export">Data exporteren</string>
+    <string name="action_settings">Instellingen</string>
+    <string name="action_take_photo">Neem foto</string>
+    <string name="action_change_photo">Wijzig foto</string>
+    <string name="action_delete_photo">Verwijder foto</string>
+    <string name="action_test_beep">Alarm genereren</string>
+    <string name="add">Toevoegen</string>
+    <string name="app_name">BeepMe</string>
+    <string name="cancel">Annuleren</string>
+    <string name="done">Klaar</string>
+    <string name="edit_sample">Wijzig voorbeeld</string>
+    <string name="export_archive_estimated_size">Geschatte archiefgrootte: %1$s</string>
+    <string name="export_content_group_header">Inhoud archief</string>
+    <string name="export_db_setting">Exporteer ruwe data (SQLite)</string>
+    <string name="export_downscale_original_size">oorspronkelijke grootte (%1$s)</string>
+    <string name="export_downscale">%1$s megapixels (%2$s)</string>
+    <string name="export_failed">Export niet geslaagd</string>
+    <string name="export_mail_chooser_title">Verzend e-mail met</string>
+    <string name="export_mail_subject">BeepMe Data Export</string>
+    <string name="export_no_mail_apps">Geen e-mail apps beschikbaar</string>
+    <string name="export_photos_avg_size">De foto's hebben een gemiddelde grootte van %1$s megapixels.</string>
+    <string name="export_photos_downscale">Foto's verkleinen</string>
+    <string name="export_photos_setting">Foto's exporteren</string>
+    <string name="export_photos_group_header">Instellingen Foto's'</string>
+    <string name="export_post_actions_header">Na het exporteren</string>
+    <string name="export_post_do_nothing">Doe niets</string>
+    <string name="export_post_email">Verzend het archief per e-mail</string>
+    <string name="export_running_data">Data wordt nu geëxporteerd</string>
+    <string name="export_storage_error">Opslag is niet toegankelijk</string>
+    <string name="export_start_button">Start met exporteren</string>
+    <string name="export_successful">Het exporteren is geslaagd</string>
+    <string name="history">Geschiedenis</string>
+    <string name="history_empty">Een overzicht van de sampling geschiedenis.</string>
+    <string name="main_menu_new_sample">Nieuwe Sample</string>
+    <string name="main_menu_samples_list">Bekijk Samples</string>
+    <string name="new_sample">Nieuwe Sample</string>
+    <string name="new_sample_add_tag_error">Trefwoord bestaat al.</string>
+    <string name="new_sample_back_warning_msg">Neem a.u.b. even de tijd om details toe te voegen over het moment.\n\nUw moment wordt opgeslagen wanneer u dit venster verlaat. U kunt het later nog wijzigen.</string>
+    <string name="new_sample_back_warning_title">Nu verlaten?</string>
+    <string name="new_sample_moment">Nieuw moment</string>
+    <string name="no">Nee</string>
+    <string name="notify_content">Beeper is actief</string>
+    <string name="notify_title">BeepMe</string>
+    <string name="notify_title_testmode">BeepMe (Test Modus)</string>
+    <string name="pause_beeper">Pauzeer Beeper</string>
+    <string name="photo_delete_warning_title">Verwijder foto</string>
+    <string name="photo_delete_warning_msg">Deze actie kan niet ongedaan gemaakt worden. De foto echt verwijderen?</string>
+    <string name="pref_summary_pause_beeper_during_call">Geen beeps tijdens een telefoongesprek.</string>
+    <string name="pref_title_pause_beeper_during_call">Niet storen tijdens een telefoongesprek</string>
+    <string name="pref_summary_test_mode">Gebruik deze modus om BeepMe te leren kennen. Data uit deze modus wordt apart opgeslagen.</string>
+    <string name="pref_title_test_mode">Test modus</string>
+    <string name="pref_summary_vibrate_beep">Vibratie samen met geluid in het normale profiel.</string>
+    <string name="pref_title_vibrate_beep">Vibratie bij elke beep</string>
+    <string name="refresh">Vernieuw</string>
+    <string name="sample_description">Hoe zou u het moment beschrijven?</string>
+    <string name="sample_description_help">b.v. beschrijf het in fragmenten of in volledige zinnen</string>
+    <string name="sample_keyword">Trefwoord</string>
+    <string name="sample_keywords">Trefwoorden</string>
+    <string name="sample_keywords_help">Selecteer trefwoorden of voeg trefwoorden toe</string>
+    <string name="sample_no_description_editable">Nog geen beschrijving voor dit moment.</string>
+    <string name="sample_no_description">Geen beschrijving voor dit moment.</string>
+    <string name="sample_no_keywords_editable">Nog geen trefwoorden opgegeven voor dit moment.</string>
+    <string name="sample_no_keywords">Geen trefwoorden voor dit moment.</string>
+    <string name="sample_swipe_newer">Nieuwer</string>
+    <string name="sample_swipe_pos">%1$d van %2$d</string>
+    <string name="sample_swipe_older">Ouder</string>
+    <string name="sample_title">Titel van het moment</string>
+    <string name="sample_title_help">b.v. een samenvattend trefwoord</string>
+    <string name="sample_untitled">Zonder titel</string>
+    <string name="samples">Momenten</string>
+    <string name="samples_list_no_samples">De geregistreerde momenten vindt u hier.</string>
+    <string name="start_beeper">Start Beeper</string>
+    <string name="time_beeper_active">Verstreken</string>
+    <string name="today">Vandaag</string>
+    <string name="view_sample">Bekijk Moment</string>
+    <string name="yes">Ja</string>
+    
+    <!-- these elements need not to be translated -->
+    <string name="website_address">http://beepme.yourexp.at</string>
+    <string name="email_address">contact@yourexp.at</string>
+</resources>
