@@ -17,13 +17,15 @@ along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 
 Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
+
+Thank you very much to the translators: bartkamphorst
 -->
 
 <resources>
     <string name="about_app_info">Helpt bij het uitvoeren van experience sampling (DES/ESM) door een alarm te geven op willekeurige momenten.</string>
     <string name="about_title">Over BeepMe</string>
     <string name="about_email">E-Mail:</string>
-    <string name="about_license">Copyright 2012&#8211;2014 Michael Glanznig.\nGelicenseerd onder GNU GPL v3 en beschikbaar gemaak"ZOALS HET IS" zonder enige garantie.</string>
+    <string name="about_license">Copyright 2012&#8211;2014 Michael Glanznig.\nGelicenseerd onder GNU GPL v3 en beschikbaar gemaak "ZOALS HET IS" zonder enige garantie.</string>
     <string name="about_version">Versie:</string>
     <string name="about_website">Website:</string>
     <string name="about_donate_button">Ondersteun BeepMe</string>
@@ -51,10 +53,10 @@ http://beepme.yourexp.at
     <string name="export_mail_chooser_title">Verzend e-mail met</string>
     <string name="export_mail_subject">BeepMe Data Export</string>
     <string name="export_no_mail_apps">Geen e-mail apps beschikbaar</string>
-    <string name="export_photos_avg_size">De foto's hebben een gemiddelde grootte van %1$s megapixels.</string>
-    <string name="export_photos_downscale">Foto's verkleinen</string>
-    <string name="export_photos_setting">Foto's exporteren</string>
-    <string name="export_photos_group_header">Instellingen Foto's'</string>
+    <string name="export_photos_avg_size">De foto\'s hebben een gemiddelde grootte van %1$s megapixels.</string>
+    <string name="export_photos_downscale">Foto\'s verkleinen</string>
+    <string name="export_photos_setting">Foto\'s exporteren</string>
+    <string name="export_photos_group_header">Instellingen Foto\'s</string>
     <string name="export_post_actions_header">Na het exporteren</string>
     <string name="export_post_do_nothing">Doe niets</string>
     <string name="export_post_email">Verzend het archief per e-mail</string>
