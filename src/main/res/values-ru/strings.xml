@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2012-2014 Michael Glanznig
+http://beepme.yourexp.at
+
+Thank you very much to the translators: styts
+-->
+
+<resources>
+  <string name="about_app_info">Помогает в проведении experience sampling (DES/ESM) при помощи звукогого сигнала через случайные интервалы.</string>
+  <string name="about_title">О BeepMe</string>
+  <string name="about_email">E-Mail:</string>
+  <string name="about_license">Copyright 2012–2014 Michael Glanznig.\nЛицензия GNU GPL v3. Предоставлено КАК ЕСТЬ и без каких-либо гарантий.</string>
+  <string name="about_version">Версия:</string>
+  <string name="about_website">Сайт:</string>
+  <string name="about_donate_button">Поддержите BeepMe</string>
+  <string name="action_about">О программе</string>
+  <string name="action_beeper_off">Отключить сигнал</string>
+  <string name="action_beeper_on">Включить сигнал</string>
+  <string name="action_edit_sample">Редактировать момент</string>
+  <string name="action_export">Экспорт данных</string>
+  <string name="action_settings">Настройки</string>
+  <string name="action_take_photo">Фото</string>
+  <string name="action_change_photo">Сменить фото</string>
+  <string name="action_delete_photo">Удалить фото</string>
+  <string name="action_test_beep">Генерировать сигнал</string>
+  <string name="add">Добавить</string>
+  <string name="app_name">BeepMe</string>
+  <string name="cancel">Отмена</string>
+  <string name="done">Готово</string>
+  <string name="export_archive_estimated_size">Приблизительный размер архива: %1$s</string>
+  <string name="export_content_group_header">Содержимое архива</string>
+  <string name="export_db_setting">Экспорт (SQLite)</string>
+  <string name="export_downscale_original_size">размер оригинала (%1$s)</string>
+  <string name="export_downscale">%1$s мегапикселей (%2$s)</string>
+  <string name="export_failed">Экспорт не удался</string>
+  <string name="export_mail_chooser_title">E-Mail программа</string>
+  <string name="export_mail_subject">BeepMe Data Export</string>
+  <string name="export_no_mail_apps">E-Mail приложения не найдены</string>
+  <string name="export_photos_avg_size">Средний размер фотографий %1$s мегапикселей.</string>
+  <string name="export_photos_downscale">Уменьшить фотографии</string>
+  <string name="export_photos_setting">Экспорт фотографий</string>
+  <string name="export_photos_group_header">Настройки фотографий</string>
+  <string name="export_post_actions_header">После Экспорта</string>
+  <string name="export_post_do_nothing">Ничего</string>
+  <string name="export_post_email">Отправить архив по E-Mail</string>
+  <string name="export_running_data">Экспорт данных</string>
+  <string name="export_storage_error">Проблема с носителем данных</string>
+  <string name="export_start_button">Начать Экспорт</string>
+  <string name="export_successful">Экспорт удался</string>
+  <string name="history">История</string>
+  <string name="history_empty">Здесь находится история ваших опытов.</string>
+  <string name="new_sample">Новый Момент</string>
+  <string name="new_sample_add_tag_error">Ключевое слово уже существует</string>
+  <string name="new_sample_back_warning_msg">Пожалуйста подробно опишите ваше текущее состояние.\n\nВаш момент будет сохранен с возможностью редактирования позже.</string>
+  <string name="new_sample_back_warning_title">Выйти?</string>
+  <string name="new_sample_moment">Новый момент</string>
+  <string name="no">Нет</string>
+  <string name="notify_content">Сигнал включен</string>
+  <string name="notify_title">BeepMe</string>
+  <string name="notify_title_testmode">BeepMe (Режим тестирования)\n</string>
+  <string name="pause_beeper">Приостановить сигнал</string>
+  <string name="photo_delete_warning_title">Удалить фото</string>
+  <string name="photo_delete_warning_msg">Вы действительно хотите удалить фотографию?</string>
+  <string name="pref_summary_pause_beeper_during_call">Отключает сигнал во время звонка.</string>
+  <string name="pref_title_pause_beeper_during_call">Не сигналить во время телефонного разговора.</string>
+  <string name="pref_summary_test_mode">Помогает ознакомиться с BeepMe. Данные собранные в этом режиме сохраняются отдельно.</string>
+  <string name="pref_title_test_mode">Тестовый режим</string>
+  <string name="pref_summary_vibrate_beep">Вибрировать в дополнение к звуковому сигналу в нормальном профиле.</string>
+  <string name="pref_title_vibrate_beep">Всегда вибрировать при сигнале</string>
+  <string name="sample_description">Опишите ваше текущее состояние</string>
+  <string name="sample_description_help">ключевыми словами или предложениями</string>
+  <string name="sample_keyword">Ключевое слово</string>
+  <string name="sample_keywords">Ключевые слова</string>
+  <string name="sample_keywords_help">Введите или выберите ключевые слова</string>
+  <string name="sample_no_description_editable">Данный момент пока не содержит описания.</string>
+  <string name="sample_no_description">Данный момент не содержит описания.</string>
+  <string name="sample_no_keywords_editable">Данный момент пока не содержит ключевых слов.</string>
+  <string name="sample_no_keywords">Данный момент не содержит ключевых слов.</string>
+  <string name="sample_swipe_newer">Никогда</string>
+  <string name="sample_swipe_pos">%1$d из %2$d</string>
+  <string name="sample_swipe_older">Еще</string>
+  <string name="sample_title">Заголовок момента</string>
+  <string name="sample_title_help">например ключевое слово</string>
+  <string name="sample_untitled">Без названия</string>
+  <string name="samples">Моменты</string>
+  <string name="samples_list_no_samples">Здесь находятся ваши сохраненные моменты</string>
+  <string name="start_beeper">Включить сигнал</string>
+  <string name="time_beeper_active">Осталось</string>
+  <string name="today">Сегодня</string>
+  <string name="view_sample">Просмотр момента</string>
+  <string name="yes">Да</string>
+  <!--these elements need not to be translated-->
+  <string name="website_address">http://beepme.yourexp.at</string>
+  <string name="email_address">contact@yourexp.at</string>
+</resources>
