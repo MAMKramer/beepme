@@ -21,7 +21,6 @@ http://beepme.yourexp.at
 package com.glanznig.beepme.helper;
 
 import com.glanznig.beepme.BeeperApp;
-import com.glanznig.beepme.R;
 import com.glanznig.beepme.view.BeepActivity;
 
 import android.content.Context;
@@ -30,12 +29,14 @@ import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.media.SoundPool;
 import android.os.Vibrator;
 import android.util.Log;
 
 public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
-	
-	private MediaPlayer player = null;
+
+    private SoundPool soundPool = null;
+    private int soundID;
 	private Context ctx = null;
 	AudioManager audioManager = null;
 	private Vibrator vibrator = null;
@@ -58,29 +59,24 @@ public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
         switch (audioManager.getRingerMode()) {
             case AudioManager.RINGER_MODE_NORMAL:
 
-                player = new MediaPlayer();
                 Resources res = ctx.getResources();
-                //beep sound is CC-BY JustinBW
-                AssetFileDescriptor alarmSound = res.openRawResourceFd(R.raw.beep);
-                player.setAudioStreamType(AudioManager.STREAM_ALARM);
-                player.setLooping(true);
-                player.setOnPreparedListener(new OnPreparedListener() {
-                    public void onPrepared(MediaPlayer mplayer) {
+                final AssetFileDescriptor alarmSound = res.openRawResourceFd(
+                        Integer.valueOf(app.getPreferences().getBeepSoundId()));
+
+                soundPool = new SoundPool(1, AudioManager.STREAM_ALARM, 0);
+                soundID = soundPool.load(alarmSound, 1);
+                soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+                    @Override
+                    public void onLoadComplete(SoundPool soundPool, int i, int i2) {
                         //request audio focus
-                        int result = audioManager.requestAudioFocus(BeepAlert.this, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN);
+                        int result = audioManager.requestAudioFocus(BeepAlert.this,
+                                AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN);
 
                         if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                            mplayer.start();
+                            soundPool.play(soundID, 1.0f, 1.0f, 1, -1, 1f);
                         }
                     }
                 });
-
-                try {
-                    player.setDataSource(alarmSound.getFileDescriptor(), alarmSound.getStartOffset(), alarmSound.getLength());
-                    player.prepareAsync();
-                } catch (Exception e) {
-                    Log.e(TAG, "error while playing beep sound", e);
-                }
 
                 if (app.getPreferences().isVibrateAtBeep()) {
                     vibrator.vibrate(pattern, 0);
@@ -99,19 +95,13 @@ public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
     }
 
     public void stop() {
-        if (player != null) {
-            try {
-                if (player.isPlaying()) {
-                    player.stop();
-                }
-                player.release();
-                player = null;
-
-                //abandon audio focus
-                audioManager.abandonAudioFocus(BeepAlert.this);
-            } catch (IllegalStateException ise) {
-            }
+        if (soundPool != null) {
+            soundPool.stop(soundID);
+            soundPool.release();
         }
+
+        //abandon audio focus
+        audioManager.abandonAudioFocus(BeepAlert.this);
 
         vibrator.cancel();
     }
@@ -120,26 +110,20 @@ public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
 	    switch (focusChange) {
 	        case AudioManager.AUDIOFOCUS_GAIN:
 	            // resume playback
-	            if (player == null) {
+                if (soundPool == null) {
                     start();
-	            }
-	            else {
-                    player.setVolume(1.0f, 1.0f);
-
-                    if (!player.isPlaying()) {
-                        player.start();
-                    }
+                }
+                else {
+                    soundPool.setVolume(soundID, 1.0f, 1.0f);
+                    soundPool.resume(soundID);
                 }
 	            break;
 
 	        case AudioManager.AUDIOFOCUS_LOSS:
 	            // Lost focus for an unbounded amount of time: stop playback and release media player
-	            if (player != null) {
-                    if (player.isPlaying()) {
-                        player.stop();
-                    }
-                    player.release();
-                    player = null;
+                if (soundPool != null) {
+                    soundPool.stop(soundID);
+                    soundPool.release();
                 }
 	            break;
 
@@ -147,20 +131,16 @@ public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
 	            // Lost focus for a short time, but we have to stop
 	            // playback. We don't release the media player because playback
 	            // is likely to resume
-                if (player != null) {
-                    if (player.isPlaying()) {
-                        player.pause();
-                    }
+                if (soundPool != null) {
+                    soundPool.pause(soundID);
                 }
 	            break;
 
 	        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
 	            // Lost focus for a short time, but it's ok to keep playing
 	            // at an attenuated level
-                if (player != null) {
-                    if (player.isPlaying()) {
-                        player.setVolume(0.1f, 0.1f);
-                    }
+                if (soundPool != null) {
+                    soundPool.setVolume(soundID, 0.1f, 0.1f);
                 }
 	            break;
 	    }

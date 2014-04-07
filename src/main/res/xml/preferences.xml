@@ -32,6 +32,9 @@ http://beepme.yourexp.at
         android:title="@string/pref_title_timer_profile"
         android:summary="@string/pref_summary_timer_profile"
         android:defaultValue="1" />-->
+    <com.glanznig.beepme.view.SoundListPreference android:key="beepSoundId"
+        android:title="@string/pref_title_beep_sound"
+        android:summary="@string/pref_summary_beep_sound" />
     <CheckBoxPreference android:key="testMode"
         android:title="@string/pref_title_test_mode"
         android:summary="@string/pref_summary_test_mode"

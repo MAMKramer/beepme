@@ -18,9 +18,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 OTHER WORK INCLUDED IN THIS SOFTWARE
-The beep sound is a modified version of JustinBW's buttonchime02up.wav
+The beep sound (pling) is a modified version of JustinBW's buttonchime02up.wav
 and is originally available under the Creative Commons Attribution
 license (CC-BY) at http://www.freesound.org/people/JustinBW/sounds/80921/
+The 700Hz sine wave sound is by hughesj333 and is available under a Creative Commmons
+Zero (CC0) license at http://freesound.org/people/hughesj333/sounds/99209/
 
 This app uses a Mersenne Twister implementation by Sean Luke as
 random number generator. The implementation can be distributed and modified

@@ -26,9 +26,15 @@ import com.glanznig.beepme.data.PreferenceHandler;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
@@ -82,6 +88,18 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 	        
 	        formTimerProfile.setEntries(profileNames.toArray(new String[profileNames.size()]));
 	        formTimerProfile.setEntryValues(profileValues.toArray(new String[profileValues.size()]));*/
+
+            SoundListPreference formBeepSound = (SoundListPreference)findPreference(PreferenceHandler.KEY_BEEP_SOUND_ID);
+            HashMap<Integer, String> sounds = new HashMap<Integer, String>();
+            sounds.put(Integer.valueOf(R.raw.pling), "Pling");
+            sounds.put(Integer.valueOf(R.raw.sine700hz), "700 Hz");
+
+	        formBeepSound.setEntries(sounds.values().toArray(new String[sounds.size()]));
+	        formBeepSound.setEntryValues(sounds.keySet().toArray(new Integer[sounds.size()]));
+
+            PreferenceHandler prefs = ((BeeperApp)getActivity().getApplication()).getPreferences();
+            Log.i(TAG, "beep="+prefs.getBeepSoundId());
+            formBeepSound.setDefaultValue(prefs.getBeepSoundId());
 		}
 	}
 }

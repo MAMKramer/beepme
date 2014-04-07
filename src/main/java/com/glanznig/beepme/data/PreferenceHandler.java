@@ -24,13 +24,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.glanznig.beepme.R;
+
 import java.util.Collections;
 
 public class PreferenceHandler {
 	
 	public static final String KEY_BEEPER_ACTIVE = "beeperActivated";
 	public static final String KEY_VIBRATE_AT_BEEP = "vibrateAtBeep";
-	public static final String KEY_TIMER_PROFILE_ID = "timerProfileId";
+	//public static final String KEY_TIMER_PROFILE_ID = "timerProfileId";
 	public static final String KEY_TEST_MODE = "testMode";
 	public static final String KEY_UPTIME_ID = "uptimeId";
 	public static final String KEY_SCHEDULED_BEEP_ID = "scheduledBeepId";
@@ -39,6 +41,7 @@ public class PreferenceHandler {
 	public static final String KEY_PAUSE_BEEPER_DURING_CALL = "pauseBeeperDuringCall";
     public static final String KEY_APP_VERSION = "appVersion";
     public static final String KEY_THUMBNAIL_SIZES = "thumbnailSizes";
+    public static final String KEY_BEEP_SOUND_ID = "beepSoundId";
 	
 	private Context ctx;
 	
@@ -166,7 +169,7 @@ public class PreferenceHandler {
 		editor.commit();
 	}
 	
-	public long getTimerProfileId() {
+	/*public long getTimerProfileId() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		return Long.valueOf(prefs.getString(KEY_TIMER_PROFILE_ID, "1"));
 	}
@@ -176,7 +179,19 @@ public class PreferenceHandler {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString(KEY_TIMER_PROFILE_ID, String.valueOf(profileId));
 		editor.commit();
-	}
+	}*/
+
+    public String getBeepSoundId() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        return prefs.getString(KEY_BEEP_SOUND_ID, Integer.valueOf(R.raw.pling).toString());
+    }
+
+    public void setBeepSoundId(String beepId) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(KEY_BEEP_SOUND_ID, beepId);
+        editor.commit();
+    }
 	
 	public boolean isCall() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);

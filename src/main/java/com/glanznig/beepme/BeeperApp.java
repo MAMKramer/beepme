@@ -59,7 +59,7 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-public class BeeperApp extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class BeeperApp extends Application { //implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
 	private PreferenceHandler preferences = null;
 	private TimerProfile timerProfile;
@@ -76,7 +76,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	public PreferenceHandler getPreferences() {
 		if (preferences == null) {
 			preferences = new PreferenceHandler(this.getApplicationContext());
-			preferences.registerOnPreferenceChangeListener(BeeperApp.this);
+			//preferences.registerOnPreferenceChangeListener(BeeperApp.this);
 		}
 		
 		return preferences;
@@ -217,7 +217,8 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 	}
 	
 	public void setTimerProfile() {
-		long profileId = preferences.getTimerProfileId();
+		//long profileId = preferences.getTimerProfileId();
+        long profileId = 1;
 		timerProfile = new TimerProfileTable(this.getApplicationContext()).getTimerProfile(profileId);
 	}
 	
@@ -287,7 +288,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 		}
 	}
 
-	@Override
+	/*@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(PreferenceHandler.KEY_TIMER_PROFILE_ID)) {
 			if (isBeeperActive()) {
@@ -299,7 +300,7 @@ public class BeeperApp extends Application implements SharedPreferences.OnShared
 				setTimerProfile();
 			}
 		}
-	}
+	}*/
 
     private void onAppUpdate(int oldVersion) {
         try {
