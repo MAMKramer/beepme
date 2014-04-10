@@ -173,14 +173,17 @@ public class ExportActivity extends Activity implements View.OnClickListener {
             if (activity.get() != null) {
 
                 File[] photos = PhotoUtils.getPhotos(activity.get());
-                int count;
+                int count = 0;
                 int overallDensity = 0;
-                for (count = 0; count < photos.length; count++) {
-                    Bundle dim = PhotoUtils.getPhotoDimensions(photos[count].getAbsolutePath());
-                    int width = dim.getInt("width");
-                    int height = dim.getInt("height");
 
-                    overallDensity += width * height;
+                if (photos != null) {
+                    for (count = 0; count < photos.length; count++) {
+                        Bundle dim = PhotoUtils.getPhotoDimensions(photos[count].getAbsolutePath());
+                        int width = dim.getInt("width");
+                        int height = dim.getInt("height");
+
+                        overallDensity += width * height;
+                    }
                 }
 
                 float avgDensity;
@@ -351,13 +354,16 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 
                 if (photoAvgSize == 0) {
                     File[] photoFiles = PhotoUtils.getPhotos(ExportActivity.this);
-                    int count;
+                    int count = 0;
                     int overallSize = 0;
-                    for (count = 0; count < photoFiles.length; count++) {
-                        overallSize += photoFiles[count].length();
-                    }
-                    if (count > 0) {
-                        photoAvgSize = overallSize / count;
+
+                    if (photoFiles != null) {
+                        for (count = 0; count < photoFiles.length; count++) {
+                            overallSize += photoFiles[count].length();
+                        }
+                        if (count > 0) {
+                            photoAvgSize = overallSize / count;
+                        }
                     }
                 }
 
