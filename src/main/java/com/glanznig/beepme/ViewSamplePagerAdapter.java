@@ -22,8 +22,8 @@ package com.glanznig.beepme;
 
 import java.util.List;
 
-import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.db.SampleTable;
+import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.db.MomentTable;
 import com.glanznig.beepme.view.ViewSampleFragment;
 
 import android.content.Context;
@@ -40,7 +40,7 @@ public class ViewSamplePagerAdapter extends FragmentStatePagerAdapter {
 	public ViewSamplePagerAdapter(FragmentManager fm, Context ctx) {
         super(fm);
         context = ctx;
-        items = new SampleTable(ctx.getApplicationContext()).getSampleIds();
+        items = new MomentTable(ctx.getApplicationContext()).getSampleIds();
     }
 
 	@Override
@@ -70,7 +70,7 @@ public class ViewSamplePagerAdapter extends FragmentStatePagerAdapter {
 	@Override
     public CharSequence getPageTitle(int position) {
 		long sampleId = items.get(position);
-		Sample s = new SampleTable(context.getApplicationContext()).getSample(sampleId);
+		Moment s = new MomentTable(context.getApplicationContext()).getSample(sampleId);
 		if (s.getTitle() != null && s.getTitle().length() > 0) {
 			return s.getTitle();
 		}

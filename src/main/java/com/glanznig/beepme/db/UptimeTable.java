@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.glanznig.beepme.data.TimerProfile;
 import com.glanznig.beepme.data.Uptime;
 
 import android.content.ContentValues;
@@ -44,34 +43,45 @@ public class UptimeTable extends StorageHandler {
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"start INTEGER NOT NULL UNIQUE, " +
 			"end INTEGER UNIQUE, " +
-			"timerProfileId INTEGER, " + //add NOT NULL
-			"FOREIGN KEY (timerProfileId) REFERENCES "  + TimerProfileTable.getTableName() + " (_id)" +
+			"project_id INTEGER NOT NULL, " +
+			"FOREIGN KEY (project_id) REFERENCES "  + ProjectTable.getTableName() + " (_id)" +
 			")";
+
+	private Timer timerProfile;
+
+    public UptimeTable(Context ctx) {
+        super(ctx);
+    }
 	
-	private TimerProfile timerProfile;
-	
-	public UptimeTable(Context ctx, TimerProfile timerProfile) {
+	public UptimeTable(Context ctx, Timer timerProfile) {
 		super(ctx);
 		this.timerProfile = timerProfile;
 	}
-	
+
+    /**
+     * Returns the table name.
+     * @return table name
+     */
 	public static String getTableName() {
 		return TBL_NAME;
 	}
-	
+
+    /**
+     * Creates the table.
+     * @param db database object.
+     */
 	public static void createTable(SQLiteDatabase db) {
 		db.execSQL(TBL_CREATE);
 	}
-	
+
+    /**
+     * Drops the table.
+     * @param db database object.
+     */
 	public static void dropTable(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
 	}
-	
-	public static void truncateTable(SQLiteDatabase db) {
-		dropTable(db);
-		createTable(db);
-	}
-	
+
 	public long startUptime(Date start) {
 		if (start != null) {
 			SQLiteDatabase db = getDb();
@@ -116,7 +126,7 @@ public class UptimeTable extends StorageHandler {
 			else if (startTime != 0L) {
 				numRows = db.delete(getTableName(), "_id = ?", new String[] { String.valueOf(uptimeId) });
 				if (numRows == 1) {
-					db.delete(ScheduledBeepTable.getTableName(), "uptime_id = ?", new String[] { String.valueOf(uptimeId) });
+					db.delete(BeepTable.getTableName(), "uptime_id = ?", new String[] { String.valueOf(uptimeId) });
 				}
 			}
 		    db.close();
@@ -138,7 +148,7 @@ public class UptimeTable extends StorageHandler {
 			if (!cursor.isNull(2)) {
 				u.setEnd(new Date(cursor.getLong(2)));
 			}
-			u.setTimerProfileId(cursor.getInt(3));
+			u.setProjectUid(cursor.getInt(3));
 			cursor.close();
 			db.close();
 			return u;
@@ -163,7 +173,7 @@ public class UptimeTable extends StorageHandler {
 				if (!cursor.isNull(2)) {
 					u.setEnd(new Date(cursor.getLong(2)));
 				}
-				u.setTimerProfileId(cursor.getInt(3));
+				u.setProjectUid(cursor.getInt(3));
 				
 				list.add(u);
 			}
@@ -202,7 +212,7 @@ public class UptimeTable extends StorageHandler {
 					if (!cursor.isNull(2)) {
 						u.setEnd(new Date(cursor.getLong(2)));
 					}
-					u.setTimerProfileId(cursor.getInt(3));
+					u.setProjectUid(cursor.getInt(3));
 					
 					list.add(u);
 				}

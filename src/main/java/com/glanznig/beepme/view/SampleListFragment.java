@@ -30,9 +30,9 @@ import com.glanznig.beepme.SampleListAdapter;
 import com.glanznig.beepme.SampleListEntry;
 import com.glanznig.beepme.ListItem;
 import com.glanznig.beepme.DateListSectionHeader;
-import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.Statistics;
-import com.glanznig.beepme.db.SampleTable;
+import com.glanznig.beepme.db.MomentTable;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -75,13 +75,13 @@ public class SampleListFragment extends ListFragment {
 	}
 	
 	private void populateList() {
-		List<Sample> samplesList = new SampleTable(getActivity().getApplicationContext()).getSamples();
+		List<Moment> samplesList = new MomentTable(getActivity().getApplicationContext()).getSamples();
 		ArrayList<ListItem> viewList = new ArrayList<ListItem>();
 		
-		Iterator<Sample> i = samplesList.iterator();
+		Iterator<Moment> i = samplesList.iterator();
 		DateListSectionHeader header = null;
 		while (i.hasNext()) {
-			Sample s = i.next();
+			Moment s = i.next();
 			if (header == null || !header.isSameDay(s.getTimestamp())) {
 				header = new DateListSectionHeader(s.getTimestamp());
 				viewList.add(header);
@@ -129,7 +129,7 @@ public class SampleListFragment extends ListFragment {
 	
 	@Override
 	public void onListItemClick(ListView listView, View view, int position, long id) {
-		Sample s = ((SampleListEntry)listView.getItemAtPosition(position)).getSample();
+		Moment s = ((SampleListEntry)listView.getItemAtPosition(position)).getSample();
 		Intent i = new Intent(getActivity(), ViewSampleActivity.class);
 		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", s.getId());
 		startActivity(i);

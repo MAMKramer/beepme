@@ -28,7 +28,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -42,24 +41,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.glanznig.beepme.BeeperApp;
-import com.glanznig.beepme.R;
-import com.glanznig.beepme.db.SampleTable;
+import com.glanznig.beepme.db.MomentTable;
 import com.glanznig.beepme.db.StorageHandler;
-import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
-import com.glanznig.beepme.view.MainActivity;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import au.com.bytecode.opencsv.CSVWriter;
@@ -79,8 +68,8 @@ public class DataExporter {
 	}
 
     private File writeDataCSV(File tempDir) {
-        SampleTable st = new SampleTable(ctx.getApplicationContext());
-        List<Sample> sampleList = st.getSamples();
+        MomentTable st = new MomentTable(ctx.getApplicationContext());
+        List<Moment> sampleList = st.getSamples();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
         File csvFile = new File(tempDir, "data.csv");
@@ -89,9 +78,9 @@ public class DataExporter {
             CSVWriter writer = new CSVWriter(new FileWriter(csvFile), ';');
             writer.writeNext("Timestamp#Title#Description#Photo#Tags".split("#"));
 
-            Iterator<Sample> i = sampleList.iterator();
+            Iterator<Moment> i = sampleList.iterator();
             while (i.hasNext()) {
-                Sample item = i.next();
+                Moment item = i.next();
                 ArrayList<String> list = new ArrayList<String>();
                 list.add(dateFormat.format(item.getTimestamp()));
                 if (item.getTitle() != null) {
@@ -114,9 +103,9 @@ public class DataExporter {
                     list.add("");
                 }
 
-                List<Tag> tags = st.getTagsOfSample(item.getId());
+                List<VocabularyItem> tags = st.getTagsOfSample(item.getId());
                 if (tags!= null && tags.size() > 0) {
-                    Iterator<Tag> it = tags.iterator();
+                    Iterator<VocabularyItem> it = tags.iterator();
                     String tagString = it.next().getName();
 
                     while (it.hasNext()) {

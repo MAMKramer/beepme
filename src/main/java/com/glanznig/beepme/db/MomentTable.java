@@ -28,55 +28,64 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.Tag;
+import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.VocabularyItem;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class SampleTable extends StorageHandler {
+/**
+ * Represents the table MOMENT (basic information about moment with/out values).
+ */
+public class MomentTable extends StorageHandler {
 	
-	private static final String TAG = "SampleTable";
+	private static final String TAG = "MomentTable";
 	
-	private static final String TBL_NAME = "sample";
+	private static final String TBL_NAME = "moment";
 	private static final String TBL_CREATE =
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"timestamp INTEGER NOT NULL UNIQUE, " +
-			"title TEXT, " +
-			"description TEXT, " +
 			"accepted INTEGER NOT NULL, " +
-			"photoUri TEXT, " +
-			"uptimeId INTEGER, " + //add NOT NULL
-			"FOREIGN KEY (uptimeId) REFERENCES "  + UptimeTable.getTableName() + " (_id)" +
+			"uptime_id INTEGER, " +
+            "project_id INTEGER NOT NULL, " +
+			"FOREIGN KEY (uptime_id) REFERENCES "  + UptimeTable.getTableName() + " (_id), " +
+            "FOREIGN KEY (project_id) REFERENCES "  + ProjectTable.getTableName() + " (_id)" +
 			")";
 	
-	public SampleTable(Context ctx) {
+	public MomentTable(Context ctx) {
 		super(ctx);
 	}
-	
+
+    /**
+     * Returns the table name.
+     * @return table name
+     */
 	public static String getTableName() {
 		return TBL_NAME;
 	}
-	
+
+    /**
+     * Creates the table.
+     * @param db database object.
+     */
 	public static void createTable(SQLiteDatabase db) {
 		db.execSQL(TBL_CREATE);
 	}
-	
+
+    /**
+     * Drops the table.
+     * @param db database object.
+     */
 	public static void dropTable(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
 	}
 	
-	public static void truncateTable(SQLiteDatabase db) {
-		dropTable(db);
-		createTable(db);
-	}
-	
-	public Sample getSample(long id) {
+	public Moment getSample(long id) {
 		SQLiteDatabase db = getDb();
-		Sample s = null;
+		Moment s = null;
 		
 		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "timestamp", "title", "description", "accepted",
 				"photoUri", "uptimeId"},
@@ -85,7 +94,7 @@ public class SampleTable extends StorageHandler {
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
 			
-			s = new Sample(cursor.getLong(0));
+			s = new Moment(cursor.getLong(0));
 			long timestamp = cursor.getLong(1);
 			s.setTimestamp(new Date(timestamp));
 			if (!cursor.isNull(2)) {
@@ -113,12 +122,12 @@ public class SampleTable extends StorageHandler {
 		return s;
 	}
 	
-	public Sample getSampleWithTags(long id) {
-		Sample s = getSample(id);
+	public Moment getSampleWithTags(long id) {
+		Moment s = getSample(id);
 		if (s != null) {
-			List<Tag> tagList = getTagsOfSample(s.getId());
+			List<VocabularyItem> tagList = getTagsOfSample(s.getId());
 			if (tagList != null) {
-				Iterator<Tag> i = tagList.iterator();
+				Iterator<VocabularyItem> i = tagList.iterator();
 				while (i.hasNext()) {
 					s.addTag(i.next());
 				}
@@ -127,21 +136,21 @@ public class SampleTable extends StorageHandler {
 		return s;
 	}
 	
-	public List<Tag> getTagsOfSample(long id) {
+	public List<VocabularyItem> getTagsOfSample(long id) {
 		if (id != 0L) {
-			ArrayList<Tag> tagList = new ArrayList<Tag>();
+			ArrayList<VocabularyItem> tagList = new ArrayList<VocabularyItem>();
 			SQLiteDatabase db = getDb();
-			Cursor cursor = db.rawQuery("SELECT t._id, t.name, t.vocabulary_id FROM " + TagTable.getTableName() + " t " +
-					"INNER JOIN " + SampleTagTable.getTableName() + " st ON st.tag_id = t._id WHERE st.sample_id = ?",
+			Cursor cursor = db.rawQuery("SELECT t._id, t.name, t.vocabulary_id FROM " + ValueVocabularyItemTable.getTableName() + " t " +
+					"INNER JOIN " + VocabularyItemTable.getTableName() + " st ON st.tag_id = t._id WHERE st.sample_id = ?",
 					new String[] { String.valueOf(id) });
 			
 			if (cursor != null && cursor.getCount() > 0) {
 				cursor.moveToFirst();
-				Tag t = null;
+				VocabularyItem t = null;
 				do {
-					t = new Tag(cursor.getLong(0));
+					t = new VocabularyItem(cursor.getLong(0));
 					t.setName(cursor.getString(1));
-					t.setVocabularyId(cursor.getLong(2));
+					t.setVocabularyUid(cursor.getLong(2));
 					tagList.add(t);
 				}
 				while (cursor.moveToNext());
@@ -159,13 +168,13 @@ public class SampleTable extends StorageHandler {
 		return null;
 	}
 	
-	public List<Sample> getSamples() {
+	public List<Moment> getSamples() {
 		return getSamples(false);
 	}
 	
-	public List<Sample> getSamples(boolean declined) {
+	public List<Moment> getSamples(boolean declined) {
 		SQLiteDatabase db = getDb();
-		List<Sample> sampleList = new ArrayList<Sample>();
+		List<Moment> sampleList = new ArrayList<Moment>();
 		
 		String where = null;
 		if (declined == false) {
@@ -179,7 +188,7 @@ public class SampleTable extends StorageHandler {
 			cursor.moveToFirst();
 			
 			do {
-				Sample s = new Sample(cursor.getLong(0));
+				Moment s = new Moment(cursor.getLong(0));
 				long timestamp = cursor.getLong(1);
 				s.setTimestamp(new Date(timestamp));
 				if (!cursor.isNull(2)) {
@@ -230,8 +239,8 @@ public class SampleTable extends StorageHandler {
 		return idList;
 	}
 	
-	public Sample addSample(Sample s) {
-		Sample sCreated = null;
+	public Moment addSample(Moment s) {
+		Moment sCreated = null;
 		
 		if (s != null) {
 			boolean success = true;
@@ -257,7 +266,7 @@ public class SampleTable extends StorageHandler {
 		 
 		    if (success) {
 		    	long sampleId = db.insert(getTableName(), null, values);
-		    	sCreated = new Sample(sampleId);
+		    	sCreated = new Moment(sampleId);
 		    	sCreated.setAccepted(s.getAccepted());
 		    	if (s.getDescription() != null) {
 		    		sCreated.setDescription(s.getDescription());
@@ -278,11 +287,11 @@ public class SampleTable extends StorageHandler {
 		    db.close();
 		    
 		    if (s.getTags().size() > 0) {
-		    	Iterator<Tag> i = s.getTags().iterator();
-		    	TagTable tt = new TagTable(this.getContext());
+		    	Iterator<VocabularyItem> i = s.getTags().iterator();
+		    	ValueVocabularyItemTable tt = new ValueVocabularyItemTable(this.getContext());
 		    	while (i.hasNext()) {
-		    		Tag t = i.next();
-		    		sCreated.addTag(tt.addTag(t.getVocabularyId(), t.getName(), s.getId()));
+		    		VocabularyItem t = i.next();
+		    		sCreated.addTag(tt.addTag(t.getVocabularyUid(), t.getName(), s.getId()));
 		    	}
 		    }
 		}
@@ -290,9 +299,9 @@ public class SampleTable extends StorageHandler {
 		return sCreated;
 	}
 	
-	public boolean editSample(Sample s) {
+	public boolean editSample(Moment s) {
 		SQLiteDatabase db = getDb();
-		TagTable tt = new TagTable(this.getContext());
+		ValueVocabularyItemTable tt = new ValueVocabularyItemTable(this.getContext());
 		 
 	    ContentValues values = new ContentValues();
 	    values.put("title", s.getTitle());
@@ -309,57 +318,57 @@ public class SampleTable extends StorageHandler {
 	    int numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(s.getId()) });
 	    db.close();
 	    
-	    List<Tag> dbTagList = getTagsOfSample(s.getId());
-	    List<Tag> sTagList = s.getTags();
+	    List<VocabularyItem> dbTagList = getTagsOfSample(s.getId());
+	    List<VocabularyItem> sTagList = s.getTags();
 	    
 	    if (sTagList.size() == 0 && dbTagList != null) {
 	    	//delete all
-	    	Iterator<Tag> i = dbTagList.iterator();
+	    	Iterator<VocabularyItem> i = dbTagList.iterator();
 	    	while (i.hasNext()) {
-	    		Tag t = i.next();
-	    		tt.removeTag(t.getVocabularyId(), t.getName(), s.getId());
+	    		VocabularyItem t = i.next();
+	    		tt.removeTag(t.getVocabularyUid(), t.getName(), s.getId());
 	    	}
 	    }
 	    else if (sTagList.size() > 0 && dbTagList == null) {
 	    	//add all
-	    	Iterator<Tag> i = sTagList.iterator();
+	    	Iterator<VocabularyItem> i = sTagList.iterator();
 	    	while (i.hasNext()) {
-	    		Tag t = i.next();
-	    		tt.addTag(t.getVocabularyId(), t.getName(), s.getId());
+	    		VocabularyItem t = i.next();
+	    		tt.addTag(t.getVocabularyUid(), t.getName(), s.getId());
 	    	}
 	    }
 	    else if (sTagList.size() > 0 && dbTagList != null) {
 	    	//sync, if changes
 	    	if (!sTagList.equals(dbTagList)) {
 	    		HashSet<String> sTagSet = new HashSet<String>();
-	    		Iterator<Tag> i = sTagList.iterator();
+	    		Iterator<VocabularyItem> i = sTagList.iterator();
 	    		while (i.hasNext()) {
-	    			Tag t = i.next();
+	    			VocabularyItem t = i.next();
 	    			sTagSet.add(t.getName());
 	    		}
 	    		
 	    		HashSet<String> dbTagSet = new HashSet<String>();
 	    		i = dbTagList.iterator();
 	    		while (i.hasNext()) {
-	    			Tag t = i.next();
+	    			VocabularyItem t = i.next();
 	    			dbTagSet.add(t.getName());
 	    		}
 	    		
 	    		//sample side
 	    		i = sTagList.iterator();
 	    		while (i.hasNext()) {
-	    			Tag t = i.next();
+	    			VocabularyItem t = i.next();
 	    			if (!dbTagSet.contains(t.getName())) {
-	    				tt.addTag(t.getVocabularyId(), t.getName(), s.getId());
+	    				tt.addTag(t.getVocabularyUid(), t.getName(), s.getId());
 	    			}
 	    		}
 	    		
 	    		//db side
 	    		i = dbTagList.iterator();
 	    		while (i.hasNext()) {
-	    			Tag t = i.next();
+	    			VocabularyItem t = i.next();
 	    			if (!sTagSet.contains(t.getName())) {
-	    				tt.removeTag(t.getVocabularyId(), t.getName(), s.getId());
+	    				tt.removeTag(t.getVocabularyUid(), t.getName(), s.getId());
 	    			}
 	    		}
 	    	}
@@ -368,9 +377,9 @@ public class SampleTable extends StorageHandler {
 		return numRows == 1;
 	}
 	
-	public List<Sample> getSamplesOfDay(Calendar day) {
+	public List<Moment> getSamplesOfDay(Calendar day) {
 		if (day.isSet(Calendar.YEAR) && day.isSet(Calendar.MONTH) && day.isSet(Calendar.DAY_OF_MONTH)) {
-			ArrayList<Sample> list = new ArrayList<Sample>();
+			ArrayList<Moment> list = new ArrayList<Moment>();
 			SQLiteDatabase db = getDb();
 			long startOfDay = day.getTimeInMillis();
 			day.roll(Calendar.DAY_OF_MONTH, true);
@@ -385,7 +394,7 @@ public class SampleTable extends StorageHandler {
 				cursor.moveToFirst();
 				
 				do {
-					Sample s = new Sample(cursor.getLong(0));
+					Moment s = new Moment(cursor.getLong(0));
 					long timestamp = cursor.getLong(1);
 					s.setTimestamp(new Date(timestamp));
 					if (!cursor.isNull(2)) {

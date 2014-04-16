@@ -22,65 +22,103 @@ package com.glanznig.beepme.data;
 
 import java.util.Date;
 
+/**
+ * An uptime is a period of time when the timer is active (exists for sampling and life logging
+ * projects only). It has an start and end timestamp and a reference to a project. The most recent
+ * uptime does not have the end timestamp set.
+ */
 public class Uptime {
 	
-	private Long id;
+	private Long uid;
 	private Date start;
 	private Date end;
-	private Long timerProfileId;
+	private Long projectUid;
 	
 	public Uptime() {
-		id = null;
+		uid = null;
 		start = null;
 		end = null;
-		timerProfileId = null;
+		projectUid = null;
 	}
 	
-	public Uptime(long id) {
-		setId(id);
+	public Uptime(long uid) {
+		setUid(uid);
 		start = null;
 		end = null;
-		timerProfileId = null;
+		projectUid = null;
 	}
-	
-	public long getId() {
-		if (id != null) {
-			return id.longValue();
+
+    /**
+     * get unique identifier
+     * @return uid (primary key)
+     */
+	public long getUid() {
+		if (uid != null) {
+			return uid.longValue();
 		}
 		else {
 			return 0L;
 		}
 	}
-	
-	private void setId(long id) {
-		this.id = Long.valueOf(id);
+
+    /**
+     * set unique identifier
+     * @param uid uid (primary key)
+     */
+	private void setUid(long uid) {
+		this.uid = Long.valueOf(uid);
 	}
-	
+
+    /**
+     * Get start time
+     * @return start time object
+     */
 	public Date getStart() {
 		return start;
 	}
-	
+
+    /**
+     * Set start time
+     * @param start start time object
+     */
 	public void setStart(Date start) {
 		this.start = start;
 	}
-	
+
+    /**
+     * Set end time
+     * @param end end time object
+     */
 	public void setEnd(Date end) {
 		this.end = end;
 	}
-	
+
+    /**
+     * Get end time (is null with most recent uptime)
+     * @return end time object
+     */
 	public Date getEnd() {
 		return end;
 	}
-	
-	public long getTimerProfileId() {
-		return timerProfileId.longValue();
+
+    /**
+     * get project uid of project where moment belongs to
+     * @return project uid or 0L if not set
+     */
+	public long getProjectUid() {
+		return projectUid.longValue();
 	}
-	
-	public void setTimerProfileId(long id) {
-		this.timerProfileId = Long.valueOf(id);
+
+    /**
+     * set project uid of project where uptime belongs to
+     * @param projectUid project uid
+     */
+	public void setProjectUid(long projectUid) {
+		this.projectUid = Long.valueOf(projectUid);
 	}
-	
+
+    @Override
 	public int hashCode() {
-        return id != null ? this.getClass().hashCode() + id.hashCode() : super.hashCode();
+        return uid != null ? this.getClass().hashCode() + uid.hashCode() : super.hashCode();
     }
 }

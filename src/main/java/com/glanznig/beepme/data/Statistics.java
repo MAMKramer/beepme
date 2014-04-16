@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
-import com.glanznig.beepme.db.SampleTable;
+import com.glanznig.beepme.db.MomentTable;
 import com.glanznig.beepme.db.UptimeTable;
 
 import android.content.Context;
@@ -68,8 +68,8 @@ public class Statistics {
 	}
 	
 	public static int getSampleCount(Context ctx, Calendar day) {
-		SampleTable sTbl = new SampleTable(ctx.getApplicationContext());
-		List<Sample> samples = sTbl.getSamplesOfDay(day);
+		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
+		List<Moment> samples = sTbl.getSamplesOfDay(day);
 		
 		if (samples != null && samples.size() > 0) {
 			return samples.size();
@@ -88,13 +88,13 @@ public class Statistics {
 	}
 	
 	public static int getNumSamplesDeclined(Context ctx, Calendar day) {
-		SampleTable sTbl = new SampleTable(ctx.getApplicationContext());
-		List<Sample> samples = sTbl.getSamplesOfDay(day);
+		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
+		List<Moment> samples = sTbl.getSamplesOfDay(day);
 		
 		if (samples != null && samples.size() > 0) {
 			int declined = 0;
 			for (int i = 0; i < samples.size(); i++) {
-				Sample s = samples.get(i);
+				Moment s = samples.get(i);
 				if (s.getAccepted().equals(Boolean.FALSE)) {
 					declined += 1;
 				}
@@ -116,13 +116,13 @@ public class Statistics {
 	}
 	
 	public static int getNumSamplesAccepted(Context ctx, Calendar day) {
-		SampleTable sTbl = new SampleTable(ctx.getApplicationContext());
-		List<Sample> samples = sTbl.getSamplesOfDay(day);
+		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
+		List<Moment> samples = sTbl.getSamplesOfDay(day);
 		
 		if (samples != null && samples.size() > 0) {
 			int accepted = 0;
 			for (int i = 0; i < samples.size(); i++) {
-				Sample s = samples.get(i);
+				Moment s = samples.get(i);
 				if (s.getAccepted().equals(Boolean.TRUE)) {
 					accepted += 1;
 				}
@@ -133,7 +133,7 @@ public class Statistics {
 		return 0;
 	}
 	
-	public static Bundle getStatsOfToday(Context ctx, TimerProfile profile) {
+	public static Bundle getStatsOfToday(Context ctx, Timer profile) {
 		Calendar now = Calendar.getInstance();
 		int year = now.get(Calendar.YEAR);
 		int month = now.get(Calendar.MONTH);
@@ -143,17 +143,17 @@ public class Statistics {
 		return getStatsOfDay(ctx, profile, today);
 	}
 	
-	public static Bundle getStatsOfDay(Context ctx, TimerProfile profile, Calendar day) {
+	public static Bundle getStatsOfDay(Context ctx, Timer profile, Calendar day) {
 		long uptimeDur = getUptimeDuration(ctx, profile, day);
 		int accepted = 0;
 		int declined = 0;
 		
-		SampleTable sTbl = new SampleTable(ctx.getApplicationContext());
-		List<Sample> samples = sTbl.getSamplesOfDay(day);
+		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
+		List<Moment> samples = sTbl.getSamplesOfDay(day);
 		
 		if (samples != null && samples.size() > 0) {
 			for (int i = 0; i < samples.size(); i++) {
-				Sample s = samples.get(i);
+				Moment s = samples.get(i);
 				if (s.getAccepted().equals(Boolean.TRUE)) {
 					accepted += 1;
 				}
@@ -172,11 +172,11 @@ public class Statistics {
 		return b;
 	}
 	
-	public static List<Bundle> getStats(Context ctx, TimerProfile profile) {
+	public static List<Bundle> getStats(Context ctx, Timer profile) {
 		UptimeTable upTbl = new UptimeTable(ctx.getApplicationContext(), profile);
 		List<Uptime> uptimes = upTbl.getUptimes();
-		SampleTable sTbl = new SampleTable(ctx.getApplicationContext());
-		List<Sample> samples = sTbl.getSamples(true);
+		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
+		List<Moment> samples = sTbl.getSamples(true);
 		
 		if (uptimes != null && samples != null) {
 			TreeMap<Long, Bundle> map = new TreeMap<Long, Bundle>(new NegativeComparator());
@@ -185,8 +185,8 @@ public class Statistics {
 			
 			if (samples.size() > 0) {
                 // handle samples (accepted, declined, count)
-                Iterator<Sample> sampleIterator = samples.iterator();
-                Sample s = null;
+                Iterator<Moment> sampleIterator = samples.iterator();
+                Moment s = null;
 
                 while (sampleIterator.hasNext()) {
                     s = sampleIterator.next();
@@ -288,7 +288,7 @@ public class Statistics {
 						Uptime recent = upTbl.getMostRecentUptime();
 						
 						// still running
-						if (recent.getId() == up.getId()) {
+						if (recent.getUid() == up.getUid()) {
 							if (map.containsKey(Long.parseLong(dateFormat.format(up.getStart())))) {
 								item = map.get(Long.parseLong(dateFormat.format(up.getStart())));
 								
@@ -368,7 +368,7 @@ public class Statistics {
 		return null;
 	}
 	
-	public static long getUptimeDurationToday(Context ctx, TimerProfile profile) {
+	public static long getUptimeDurationToday(Context ctx, Timer profile) {
 		Calendar now = Calendar.getInstance();
 		int year = now.get(Calendar.YEAR);
 		int month = now.get(Calendar.MONTH);
@@ -378,7 +378,7 @@ public class Statistics {
 		return getUptimeDuration(ctx, profile, today);
 	}
 	
-	public static long getUptimeDuration(Context ctx, TimerProfile profile, Calendar day) {
+	public static long getUptimeDuration(Context ctx, Timer profile, Calendar day) {
 		UptimeTable upTbl = new UptimeTable(ctx.getApplicationContext(), profile);
 		List<Uptime> times = upTbl.getUptimesOfDay(day);
 		Uptime recent = upTbl.getMostRecentUptime();
@@ -397,7 +397,7 @@ public class Statistics {
 					else {
 						// uptimes with missing end value are counted as minimum uptime duration
 						// unless current running uptime, then the current time is used as end time
-						if (u.getId() != recent.getId()) {
+						if (u.getUid() != recent.getUid()) {
 							duration += profile.getMinUptimeDuration();
 						}
 						else {
@@ -421,7 +421,7 @@ public class Statistics {
 					duration += Math.abs(first.getEnd().getTime() - startOfDay);
 				}
 				else {
-					if (first.getId() == recent.getId()) {
+					if (first.getUid() == recent.getUid()) {
 						duration += Math.abs(new Date().getTime() - first.getStart().getTime());
 					}
 				}
@@ -431,7 +431,7 @@ public class Statistics {
 					duration += Math.abs(first.getEnd().getTime() - first.getStart().getTime());
 				}
 				else {
-					if (first.getId() != recent.getId()) {
+					if (first.getUid() != recent.getUid()) {
 						duration += profile.getMinUptimeDuration();
 					}
 					else {
@@ -468,7 +468,7 @@ public class Statistics {
 					}
 				}
 				else {
-					if (last.getId() != recent.getId()) {
+					if (last.getUid() != recent.getUid()) {
 						duration += profile.getMinUptimeDuration();
 					}
 					else {

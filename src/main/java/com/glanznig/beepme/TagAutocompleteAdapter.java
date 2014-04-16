@@ -22,8 +22,8 @@ package com.glanznig.beepme;
 
 import java.util.ArrayList;
 
-import com.glanznig.beepme.data.Tag;
-import com.glanznig.beepme.db.TagTable;
+import com.glanznig.beepme.data.VocabularyItem;
+import com.glanznig.beepme.db.ValueVocabularyItemTable;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -38,7 +38,7 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
 	
 	private static final String TAG = "TagAutocompleteAdapter";
 	
-	private ArrayList<Tag> resultList;
+	private ArrayList<VocabularyItem> resultList;
 	private Context ctx;
 	private int resourceId;
 	private long vocabularyId;
@@ -95,7 +95,7 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
                     // Retrieve the auto-complete results.
-            		ArrayList<Tag> results = (ArrayList<Tag>)new TagTable(ctx.getApplicationContext())
+            		ArrayList<VocabularyItem> results = (ArrayList<VocabularyItem>)new ValueVocabularyItemTable(ctx.getApplicationContext())
             						.getTags(vocabularyId, constraint.toString());
                     
                     // Assign the data to the FilterResults
@@ -109,7 +109,7 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.count > 0) {
                 	if (results.values instanceof ArrayList) {
-                		resultList = (ArrayList<Tag>)results.values;
+                		resultList = (ArrayList<VocabularyItem>)results.values;
                 		notifyDataSetChanged();
                 	}
                 }

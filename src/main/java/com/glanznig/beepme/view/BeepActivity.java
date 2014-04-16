@@ -28,9 +28,9 @@ import com.fima.glowpadview.GlowPadView;
 import com.fima.glowpadview.GlowPadView.OnTriggerListener;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.db.SampleTable;
-import com.glanznig.beepme.db.ScheduledBeepTable;
+import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.db.BeepTable;
+import com.glanznig.beepme.db.MomentTable;
 import com.glanznig.beepme.db.UptimeTable;
 import com.glanznig.beepme.helper.BeepAlert;
 
@@ -43,7 +43,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -157,7 +156,7 @@ public class BeepActivity extends Activity {
             if (!savedState.containsKey("beepTimestamp")) {
                 // set beep timestamp to NOW
                 beepTimestamp = Calendar.getInstance().getTimeInMillis();
-                new ScheduledBeepTable(this.getApplicationContext()).receivedScheduledBeep(
+                new BeepTable(this.getApplicationContext()).receivedScheduledBeep(
                         app.getPreferences().getScheduledBeepId(), beepTimestamp);
             } else {
                 beepTimestamp = savedState.getLong("beepTimestamp");
@@ -166,7 +165,7 @@ public class BeepActivity extends Activity {
         else {
             // set beep timestamp to NOW
             beepTimestamp = Calendar.getInstance().getTimeInMillis();
-            new ScheduledBeepTable(this.getApplicationContext()).receivedScheduledBeep(
+            new BeepTable(this.getApplicationContext()).receivedScheduledBeep(
                     app.getPreferences().getScheduledBeepId(), beepTimestamp);
         }
         handler = new TimeoutHandler(BeepActivity.this);
@@ -207,7 +206,7 @@ public class BeepActivity extends Activity {
 		
 		alert = new BeepAlert(BeepActivity.this);
 		
-		SampleTable st = new SampleTable(this.getApplicationContext());
+		MomentTable st = new MomentTable(this.getApplicationContext());
 		int numAccepted = st.getNumAcceptedToday();
 		int numDeclined = st.getSampleCountToday() - numAccepted;
 		long uptimeDur = new UptimeTable(this.getApplicationContext(), app.getTimerProfile()).getUptimeDurToday();
@@ -298,11 +297,11 @@ public class BeepActivity extends Activity {
             inDecline = true;
 
             BeeperApp app = (BeeperApp) getApplication();
-            Sample sample = new Sample();
+            Moment sample = new Moment();
             sample.setTimestamp(new Date(beepTimestamp));
             sample.setAccepted(false);
             sample.setUptimeId(app.getPreferences().getUptimeId());
-            new SampleTable(this.getApplicationContext()).addSample(sample);
+            new MomentTable(this.getApplicationContext()).addSample(sample);
             app.declineTimer();
             app.setTimer();
 

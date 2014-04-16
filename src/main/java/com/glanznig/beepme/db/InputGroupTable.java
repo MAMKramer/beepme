@@ -20,50 +20,51 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.db;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
- * Represents the table VOCABULARY (collections of predefined selection strings or tags that are
- * translatable).
+ * Represents the table INPUT_GROUP (grouping of input elements)
  */
-public class VocabularyTable extends StorageHandler {
-	
-private static final String TAG = "VocabularyTable";
-	
-	private static final String TBL_NAME = "vocabulary";
-	private static final String TBL_CREATE =
-			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
-			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-			"name TEXT NOT NULL" +
-			")";
-	
-	public VocabularyTable(Context ctx) {
-		super(ctx);
-	}
+public class InputGroupTable extends StorageHandler {
+
+    private static final String TAG = "InputGroupTable";
+
+    private static final String TBL_NAME = "input_group";
+    private static final String TBL_CREATE =
+            "CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
+                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "name TEXT NOT NULL, " +
+                    "title TEXT NOT NULL, " +
+                    "project_id INTEGER NOT NULL, " +
+                    "FOREIGN KEY(project_id) REFERENCES "+ ProjectTable.getTableName() +"(_id)" +
+                    ")";
+
+    public InputGroupTable(Context ctx) {
+        super(ctx);
+    }
 
     /**
      * Returns the table name.
      * @return table name
      */
-	public static String getTableName() {
-		return TBL_NAME;
-	}
+    public static String getTableName() {
+        return TBL_NAME;
+    }
 
     /**
      * Creates the table.
      * @param db database object.
      */
-	public static void createTable(SQLiteDatabase db) {
-		db.execSQL(TBL_CREATE);
-	}
+    public static void createTable(SQLiteDatabase db) {
+        db.execSQL(TBL_CREATE);
+    }
 
     /**
      * Drops the table.
      * @param db database object.
      */
-	public static void dropTable(SQLiteDatabase db) {
-		db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
-	}
+    public static void dropTable(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
+    }
 }

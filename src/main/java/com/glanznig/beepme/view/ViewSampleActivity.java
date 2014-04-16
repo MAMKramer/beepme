@@ -24,8 +24,8 @@ import java.util.Calendar;
 
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.ViewSamplePagerAdapter;
-import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.db.SampleTable;
+import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.db.MomentTable;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -110,7 +110,7 @@ public class ViewSampleActivity extends FragmentActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem edit = menu.findItem(R.id.action_edit_sample);
-		Sample s = new SampleTable(this.getApplicationContext()).getSampleWithTags(pagerAdapter.getSampleId(pager.getCurrentItem()));
+		Moment s = new MomentTable(this.getApplicationContext()).getSampleWithTags(pagerAdapter.getSampleId(pager.getCurrentItem()));
 		
 		//not editable if more than a day old
 		if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {

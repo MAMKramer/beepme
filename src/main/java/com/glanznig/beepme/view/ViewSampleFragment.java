@@ -27,9 +27,9 @@ import java.util.Calendar;
 import java.util.Iterator;
 
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.Tag;
-import com.glanznig.beepme.db.SampleTable;
+import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.VocabularyItem;
+import com.glanznig.beepme.db.MomentTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.FlowLayout;
 import com.glanznig.beepme.helper.PhotoUtils;
@@ -41,7 +41,6 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,7 +92,7 @@ public class ViewSampleFragment extends Fragment implements Callback {
 	private void populateFields() {
 		
 		if (sampleId != 0L) {
-			Sample s = new SampleTable(getActivity().getApplicationContext()).getSampleWithTags(sampleId);
+			Moment s = new MomentTable(getActivity().getApplicationContext()).getSampleWithTags(sampleId);
 			
 			TextView timestamp = (TextView)getView().findViewById(R.id.view_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -128,12 +127,12 @@ public class ViewSampleFragment extends Fragment implements Callback {
 			FlowLayout keywordHolder = (FlowLayout)getView().findViewById(R.id.view_sample_keyword_container);
 			keywordHolder.removeAllViews();
 			
-	    	Iterator<Tag> i = s.getTags().iterator();
-			Tag tag = null;
+	    	Iterator<VocabularyItem> i = s.getTags().iterator();
+			VocabularyItem tag = null;
 			
 			while (i.hasNext()) {
 				tag = i.next();
-				if (tag.getVocabularyId() == 1) {
+				if (tag.getVocabularyUid() == 1) {
 					
 					TextView view = new TextView(getView().getContext());
 					view.setText(tag.getName());

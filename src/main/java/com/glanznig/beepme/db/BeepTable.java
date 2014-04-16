@@ -28,11 +28,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class ScheduledBeepTable extends StorageHandler {
+/**
+ * Represents the table BEEP (internal data and statistics about beeps and their status).
+ */
+public class BeepTable extends StorageHandler {
 	
-	private static final String TAG = "ScheduledBeepTable";
+	private static final String TAG = "BeepTable";
 	
-	private static final String TBL_NAME = "scheduled_beep";
+	private static final String TBL_NAME = "beep";
 	private static final String TBL_CREATE =
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -45,25 +48,32 @@ public class ScheduledBeepTable extends StorageHandler {
 			"FOREIGN KEY(uptime_id) REFERENCES "+ UptimeTable.getTableName() +"(_id)" +
 			")";
 	
-	public ScheduledBeepTable(Context ctx) {
+	public BeepTable(Context ctx) {
 		super(ctx);
 	}
-	
+
+    /**
+     * Returns the table name.
+     * @return table name
+     */
 	public static String getTableName() {
 		return TBL_NAME;
 	}
-	
+
+    /**
+     * Creates the table.
+     * @param db database object.
+     */
 	public static void createTable(SQLiteDatabase db) {
 		db.execSQL(TBL_CREATE);
 	}
-	
+
+    /**
+     * Drops the table.
+     * @param db database object.
+     */
 	public static void dropTable(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
-	}
-	
-	public static void truncateTable(SQLiteDatabase db) {
-		dropTable(db);
-		createTable(db);
 	}
 	
 	public long addScheduledBeep(long time, long uptimeId) {

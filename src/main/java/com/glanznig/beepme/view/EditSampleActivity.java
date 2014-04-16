@@ -30,9 +30,9 @@ import java.util.Locale;
 
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.TagAutocompleteAdapter;
-import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.Tag;
-import com.glanznig.beepme.db.SampleTable;
+import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.VocabularyItem;
+import com.glanznig.beepme.db.MomentTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
 
@@ -60,7 +60,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	
 	private static final String TAG = "EditSampleActivity";
 	
-	private Sample sample = new Sample();
+	private Moment sample = new Moment();
 	private SamplePhotoView photoView;
 	
 	private static class ImgLoadHandler extends Handler {
@@ -119,7 +119,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
                         ViewGroup.LayoutParams.MATCH_PARENT));
      
         setContentView(R.layout.new_sample);
-        SampleTable st = new SampleTable(this.getApplicationContext());
+        MomentTable st = new MomentTable(this.getApplicationContext());
 		
 		if (savedState != null) {
 			if (savedState.getLong("sampleId") != 0L) {
@@ -146,7 +146,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 			if (savedState.getStringArrayList("tagList") != null) {
 				Iterator<String> i = savedState.getStringArrayList("tagList").iterator();
 				while (i.hasNext()) {
-					Tag t = Tag.valueOf(i.next());
+					VocabularyItem t = VocabularyItem.valueOf(i.next());
 					if (t != null) {
 						sample.addTag(t);
 					}
@@ -226,12 +226,12 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
     	
     	TagButtonContainer keywordHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
     	keywordHolder.setVocabularyId(1);
-    	Iterator<Tag> i = sample.getTags().iterator();
-		Tag tag = null;
+    	Iterator<VocabularyItem> i = sample.getTags().iterator();
+		VocabularyItem tag = null;
 		
 		while (i.hasNext()) {
 			tag = i.next();
-			if (tag.getVocabularyId() == 1) {
+			if (tag.getVocabularyUid() == 1) {
 				keywordHolder.addTagButton(tag.getName(), this);
 			}
 		}
@@ -241,8 +241,8 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
 		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_keyword);
 		if (enteredTag.getText().length() > 0) {
-			Tag t = new Tag();
-			t.setVocabularyId(tagHolder.getVocabularyId());
+			VocabularyItem t = new VocabularyItem();
+			t.setVocabularyUid(tagHolder.getVocabularyId());
 			t.setName(enteredTag.getText().toString().toLowerCase(Locale.getDefault()));
 			if (sample.addTag(t)) {
 				tagHolder.addTagButton(t.getName(), this);
@@ -263,9 +263,9 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 				tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
 			}
 			
-			Tag t = new Tag();
+			VocabularyItem t = new VocabularyItem();
 			t.setName((btn.getText()).toString());
-			t.setVocabularyId(btn.getVocabularyId());
+			t.setVocabularyUid(btn.getVocabularyId());
 			tagHolder.removeTagButton(btn);
 			sample.removeTag(t);
 		}
@@ -282,13 +282,13 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 		TagButtonContainer keywordTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
 		EditText keyword = (EditText)findViewById(R.id.new_sample_add_keyword);
 		if (keyword.getText().length() > 0) {
-			Tag t = new Tag();
-			t.setVocabularyId(keywordTagHolder.getVocabularyId());
+			VocabularyItem t = new VocabularyItem();
+			t.setVocabularyUid(keywordTagHolder.getVocabularyId());
 			t.setName(keyword.getText().toString().toLowerCase(Locale.getDefault()));
 			sample.addTag(t);
 		}
 		
-		new SampleTable(this.getApplicationContext()).editSample(sample);
+		new MomentTable(this.getApplicationContext()).editSample(sample);
 		
 		finish();
 	}
@@ -316,7 +316,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 		}
 		
 		if (sample.getTags().size() > 0) {
-			Iterator<Tag> i = sample.getTags().iterator(); 
+			Iterator<VocabularyItem> i = sample.getTags().iterator();
 			ArrayList<String> tags = new ArrayList<String>();
 			
 			while (i.hasNext()) {
@@ -342,7 +342,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	        deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
 	            	String photoUri = sample.getPhotoUri();
-	            	SampleTable st = new SampleTable(getApplicationContext());
+	            	MomentTable st = new MomentTable(getApplicationContext());
 	            	
 	            	sample.setPhotoUri(null);
 	            	// save immediately to prevent orphan uris when leaving with dismiss

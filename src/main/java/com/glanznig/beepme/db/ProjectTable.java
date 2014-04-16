@@ -23,90 +23,63 @@ package com.glanznig.beepme.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.glanznig.beepme.data.TimerProfile;
-
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class TimerProfileTable extends StorageHandler {
+/**
+ * Represents the table PROJECT (logical units related to research projects)
+ */
+public class ProjectTable extends StorageHandler {
 	
-private static final String TAG = "TimerProfileTable";
+private static final String TAG = "ProjectTable";
 	
-	private static final String TBL_NAME = "timer_profile";
+	private static final String TBL_NAME = "project";
 	private static final String TBL_CREATE = 
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
 			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 			"name TEXT NOT NULL UNIQUE, " +
-			"minUptimeDuration INTEGER NOT NULL, " +
-			"avgBeepInterval INTEGER NOT NULL, " +
-			"maxBeepInterval INTEGER NOT NULL, " +
-			"minBeepInterval INTEGER NOT NULL, " +
-			"minSizeBeepInterval INTEGER NOT NULL, " +
-			"uptimeCountMoveToAverage INTEGER NOT NULL, " +
-			"numCancelledBeepsMoveToAverage INTEGER NOT NULL" +
+			"type INTEGER NOT NULL, " +
+			"status INTEGER NOT NULL, " +
+			"start INTEGER, " +
+			"expire INTEGER, " +
+			"lang TEXT NOT NULL, " +
+			"restrictions TEXT, " +
+			"timer TEXT NOT NULL, " +
+            "options TEXT NOT NULL" +
 			")";
 
-	public TimerProfileTable(Context ctx) {
+	public ProjectTable(Context ctx) {
 		super(ctx);
 	}
-	
+
+    /**
+     * Returns the table name.
+     * @return table name
+     */
 	public static String getTableName() {
 		return TBL_NAME;
 	}
-	
+
+    /**
+     * Creates the table.
+     * @param db database object.
+     */
 	public static void createTable(SQLiteDatabase db) {
 		db.execSQL(TBL_CREATE);
-		
-		insertData(db);
 	}
-	
+
+    /**
+     * Drops the table.
+     * @param db database object.
+     */
 	public static void dropTable(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
 	}
 	
-	public static void truncateTable(SQLiteDatabase db) {
-		dropTable(db);
-		createTable(db);
-	}
-	
-	public static void insertData(SQLiteDatabase db) {
-		ContentValues values = null;
-		
-		// base unit is seconds
-		// minBeepInterval < avgBeepInterval < maxBeepInterval
-		// minSizeBeepInterval > 0
-		// minUptimeDuration should be < minBeepInterval
-		
-		values = new ContentValues();
-		values.put("_id", 1);
-		values.put("name", "General");
-		values.put("minUptimeDuration", 60); //1 min
-		values.put("minBeepInterval", 600); //10 min
-		values.put("avgBeepInterval", 1800); //30 min
-		values.put("maxBeepInterval", 3600); //60 min
-		values.put("minSizeBeepInterval", 60); //1 min
-		values.put("uptimeCountMoveToAverage", 3);
-		values.put("numCancelledBeepsMoveToAverage", 2);
-		db.insert(TBL_NAME, null, values);
-		
-		/*values = new ContentValues();
-		values.put("_id", 2);
-		values.put("name", "HCI");
-		values.put("minUptimeDuration", 60); //1 min
-		values.put("minBeepInterval", 120); //2 min
-		values.put("avgBeepInterval", 300); //5 min
-		values.put("maxBeepInterval", 600); //10 min
-		values.put("minSizeBeepInterval", 60); //1 min
-		values.put("uptimeCountMoveToAverage", 3);
-		values.put("numCancelledBeepsMoveToAverage", 2);
-		db.insert(TBL_NAME, null, values);*/
-	}
-	
-	public TimerProfile getTimerProfile(long id) {
+	public Timer getTimerProfile(long id) {
 		SQLiteDatabase db = getDb();
-		TimerProfile tp = null;
+		Timer tp = null;
 		
 		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "name", "minUptimeDuration", "avgBeepInterval",
 				"maxBeepInterval", "minBeepInterval", "uptimeCountMoveToAverage",
@@ -116,7 +89,7 @@ private static final String TAG = "TimerProfileTable";
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
 			
-			tp = new TimerProfile(cursor.getLong(0));
+			tp = new Timer(cursor.getLong(0));
 			tp.setName(cursor.getString(1));
 			tp.setMinUptimeDuration(cursor.getInt(2));
 			tp.setAvgBeepInterval(cursor.getInt(3));
@@ -132,9 +105,9 @@ private static final String TAG = "TimerProfileTable";
 		return tp;
 	}
 	
-	public List<TimerProfile> getTimerProfiles() {
+	public List<Timer> getTimerProfiles() {
 		SQLiteDatabase db = getDb();
-		List<TimerProfile> profileList = new ArrayList<TimerProfile>();
+		List<Timer> profileList = new ArrayList<Timer>();
 		
 		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "name", "minUptimeDuration", "avgBeepInterval",
 				"maxBeepInterval", "minBeepInterval", "uptimeCountMoveToAverage",
@@ -145,7 +118,7 @@ private static final String TAG = "TimerProfileTable";
 			cursor.moveToFirst();
 			
 			do {
-				TimerProfile tp = new TimerProfile(cursor.getLong(0));
+				Timer tp = new Timer(cursor.getLong(0));
 				tp.setName(cursor.getString(1));
 				tp.setMinUptimeDuration(cursor.getInt(2));
 				tp.setAvgBeepInterval(cursor.getInt(3));

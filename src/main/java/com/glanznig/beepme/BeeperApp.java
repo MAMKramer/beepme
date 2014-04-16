@@ -27,15 +27,13 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.PreferenceHandler;
-import com.glanznig.beepme.data.Sample;
-import com.glanznig.beepme.data.TimerProfile;
-import com.glanznig.beepme.db.SampleTable;
-import com.glanznig.beepme.db.ScheduledBeepTable;
+import com.glanznig.beepme.db.BeepTable;
+import com.glanznig.beepme.db.MomentTable;
 import com.glanznig.beepme.db.StorageHandler;
 import com.glanznig.beepme.db.TimerProfileTable;
 import com.glanznig.beepme.db.UptimeTable;
-import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.BeepActivity;
 import com.glanznig.beepme.view.ExportActivity;
@@ -48,7 +46,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
@@ -57,12 +54,11 @@ import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
 public class BeeperApp extends Application { //implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
 	private PreferenceHandler preferences = null;
-	private TimerProfile timerProfile;
+	private Timer timerProfile;
 	private BeeperApp.CallStateListener callStateListener;
 	
 	private static final int ALARM_INTENT_ID = 5332;
@@ -174,7 +170,7 @@ public class BeeperApp extends Application { //implements SharedPreferences.OnSh
 			long scheduledBeepId = getPreferences().getScheduledBeepId();
 			//is there a scheduled beep, if no, create one, if yes and it is expired, create a new one
 			if (scheduledBeepId != 0L) {
-				ScheduledBeepTable sbt = new ScheduledBeepTable(this.getApplicationContext());
+				BeepTable sbt = new BeepTable(this.getApplicationContext());
 				if (sbt.getStatus(scheduledBeepId) != 3 && sbt.isExpired(scheduledBeepId)) {
 					expireTimer();
 					setTimer();
@@ -222,7 +218,7 @@ public class BeeperApp extends Application { //implements SharedPreferences.OnSh
 		timerProfile = new TimerProfileTable(this.getApplicationContext()).getTimerProfile(profileId);
 	}
 	
-	public TimerProfile getTimerProfile() {
+	public Timer getTimerProfile() {
 		return timerProfile;
 	}
 	
@@ -239,7 +235,7 @@ public class BeeperApp extends Application { //implements SharedPreferences.OnSh
 	        alarmTime.add(Calendar.SECOND, (int)timer);
 	        //Log.i(TAG, "alarm in " + timer + " seconds.");
 	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
-	        getPreferences().setScheduledBeepId(new ScheduledBeepTable(
+	        getPreferences().setScheduledBeepId(new BeepTable(
 	        		this.getApplicationContext()).addScheduledBeep(alarmTime.getTimeInMillis(),
 	        		getPreferences().getUptimeId()));
 	        
@@ -274,7 +270,7 @@ public class BeeperApp extends Application { //implements SharedPreferences.OnSh
 	        		PendingIntent.FLAG_CANCEL_CURRENT);
 			alarmIntent.cancel();
 		}
-		new ScheduledBeepTable(this.getApplicationContext()).updateStatus(getPreferences().getScheduledBeepId(), status);
+		new BeepTable(this.getApplicationContext()).updateStatus(getPreferences().getScheduledBeepId(), status);
 		if (status != 3) {
 			getPreferences().setScheduledBeepId(0L);
 		}
@@ -350,10 +346,10 @@ public class BeeperApp extends Application { //implements SharedPreferences.OnSh
                                     picFiles[i].renameTo(new File(newDir, picFiles[i].getName()));
                                 }
 
-                                SampleTable st = new SampleTable(this);
-                                List<Sample> list = st.getSamples();
+                                MomentTable st = new MomentTable(this);
+                                List<Moment> list = st.getSamples();
                                 for (int i = 0; i < list.size(); i++) {
-                                    Sample s = list.get(i);
+                                    Moment s = list.get(i);
                                     String uri = s.getPhotoUri();
 
                                     if (uri != null) {

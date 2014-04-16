@@ -23,7 +23,7 @@ package com.glanznig.beepme.view;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.db.ScheduledBeepTable;
+import com.glanznig.beepme.db.BeepTable;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -113,7 +113,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 			long scheduledBeepId = app.getPreferences().getScheduledBeepId();
 			
 			if (scheduledBeepId != 0L) {
-				ScheduledBeepTable sbt = new ScheduledBeepTable(this.getApplicationContext());
+				BeepTable sbt = new BeepTable(this.getApplicationContext());
 				if (sbt.getStatus(scheduledBeepId) != 3 && sbt.isExpired(scheduledBeepId)) {
 					app.expireTimer();
 					app.setTimer();

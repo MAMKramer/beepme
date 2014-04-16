@@ -22,13 +22,13 @@ package com.glanznig.beepme;
 
 import java.util.Date;
 
-import com.glanznig.beepme.data.Sample;
+import com.glanznig.beepme.data.Moment;
 
 public class SampleListEntry extends ListItem {
 	
-	Sample content = null;
+	Moment content = null;
 	
-	public SampleListEntry(Sample s) {
+	public SampleListEntry(Moment s) {
 		content = s;
 	}
 	
@@ -64,7 +64,7 @@ public class SampleListEntry extends ListItem {
 		return null;
 	}
 	
-	public Sample getSample() {
+	public Moment getSample() {
 		return content;
 	}
 

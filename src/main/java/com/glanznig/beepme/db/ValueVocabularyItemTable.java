@@ -20,26 +20,25 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.db;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
- * Represents the table VOCABULARY (collections of predefined selection strings or tags that are
- * translatable).
+ * Represents the table VALUE_VOCABULARY_ITEM (vocabulary items as values of input elements)
  */
-public class VocabularyTable extends StorageHandler {
+public class ValueVocabularyItemTable extends StorageHandler {
 	
-private static final String TAG = "VocabularyTable";
+	private static final String TAG = "ValueVocabularyItem";
 	
-	private static final String TBL_NAME = "vocabulary";
+	private static final String TBL_NAME = "value_vocabulary_item";
 	private static final String TBL_CREATE =
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
-			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-			"name TEXT NOT NULL" +
+			"value_id INTEGER NOT NULL, " +
+			"vocabulary_item_id INTEGER NOT NULL, " +
+			"PRIMARY KEY(value_id, vocabulary_item_id) " +
 			")";
 	
-	public VocabularyTable(Context ctx) {
+	public ValueVocabularyItemTable(Context ctx) {
 		super(ctx);
 	}
 
