@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2012-2014 Michael Glanznig
+http://beepme.yourexp.at
+
+Thank you very much to the translators: ArianServ
+-->
+
+<resources>
+  <string name="about_app_info">Vă ajută să colectaţi momentele de experienţă (DES/ESM), prin emiterea de beep-uri la intervale aleatorii.</string>
+  <string name="about_title">Despre BeepMe</string>
+  <string name="about_email">E-Mail:</string>
+  <string name="about_license">Copyright 2012–2014 Michael Glanznig.\nLicenţiere sub GNU GPL v3 şi oferit AŞA CUM ESTE fără nici-o garanţie.</string>
+  <string name="about_version">Versiune:</string>
+  <string name="about_website">Site Web:</string>
+  <string name="about_donate_button">Sprijiniţi BeepMe</string>
+  <string name="action_about">Despre</string>
+  <string name="action_beeper_off">Dezactivare Beeper</string>
+  <string name="action_beeper_on">Activare Beeper</string>
+  <string name="action_edit_sample">Editare Moment</string>
+  <string name="action_export">Exportare Date</string>
+  <string name="action_settings">Configurări</string>
+  <string name="action_take_photo">Creare Foto</string>
+  <string name="action_change_photo">Schimbare Foto</string>
+  <string name="action_delete_photo">Ştergere Foto</string>
+  <string name="action_test_beep">Generare Beep</string>
+  <string name="add">Adăugare</string>
+  <string name="app_name">BeepMe</string>
+  <string name="cancel">Anulare</string>
+  <string name="done">Realizat</string>
+  <string name="export_archive_estimated_size">Dimensiunea estimată a arhivei: %1$s</string>
+  <string name="export_content_group_header">Conţinut Arhivă</string>
+  <string name="export_db_setting">Export date brute (SQLite)</string>
+  <string name="export_downscale_original_size">dimensiunea originală (%1$s)</string>
+  <string name="export_downscale">%1$s megapixeli (%2$s)</string>
+  <string name="export_failed">Exportare eşuată</string>
+  <string name="export_mail_chooser_title">Trimiteţi E-mail cu</string>
+  <string name="export_mail_subject">BeepMe Data Export</string>
+  <string name="export_no_mail_apps">Nici-o aplicaţie de Email disponibilă</string>
+  <string name="export_photos_avg_size">Fotografiile au dimensiunea medie de %1$s megapixeli.</string>
+  <string name="export_photos_downscale">Reducere dimensiuni foto</string>
+  <string name="export_photos_setting">Exportare fotografii</string>
+  <string name="export_photos_group_header">Configurări pentru Fotografii</string>
+  <string name="export_post_actions_header">După Exportare</string>
+  <string name="export_post_do_nothing">Nu se execută nimic</string>
+  <string name="export_post_email">Trimitere arhivă prin Email</string>
+  <string name="export_running_data">Se exportă datele</string>
+  <string name="export_storage_error">Stocarea nu este disponibilă</string>
+  <string name="export_start_button">Start Exportare</string>
+  <string name="export_successful">Exportare realizată cu succes</string>
+  <string name="history">Istoric</string>
+  <string name="history_empty">Veţi găsi aici istoricul momentelor dvs.</string>
+  <string name="new_sample">Moment Nou</string>
+  <string name="new_sample_add_tag_error">Cheia de căutare a fost deja adăgată.</string>
+  <string name="new_sample_back_warning_msg">Vă rugăm să acordaţi câteva clipe pentru a vă detalia momentul.\n\nDacă omiteţi, momentul dvs. va fi salvat aşa cum este acum. Îl puteţi edita mai târziu.</string>
+  <string name="new_sample_back_warning_title">Renunţaţi?</string>
+  <string name="new_sample_moment">Moment nou</string>
+  <string name="no">Nu</string>
+  <string name="notify_content">Beeper-ul este activ</string>
+  <string name="notify_title">BeepMe</string>
+  <string name="notify_title_testmode">BeepMe (Mod Testare)</string>
+  <string name="pause_beeper">Pauză Beeper</string>
+  <string name="photo_delete_warning_title">Ştergere Foto</string>
+  <string name="photo_delete_warning_msg">Aceasta nu se poate anula. Sigur ştergeţi fotografia?</string>
+  <string name="pref_summary_pause_beeper_during_call">Previne beep-urile în timpul apelurilor telefonice.</string>
+  <string name="pref_title_pause_beeper_during_call">Pauză în timpul apelurilor</string>
+  <string name="pref_summary_test_mode">Ajută la descoperirea BeepMe. Datele introduse în acest mod, sunt stocate separat.</string>
+  <string name="pref_title_test_mode">Mod Testare</string>
+  <string name="pref_summary_vibrate_beep">Vibrare alături de sunetul beep, în profilul normal.</string>
+  <string name="pref_title_vibrate_beep">Vibrează mereu la beep</string>
+  <string name="pref_summary_beep_sound">Alegeţi dintre diferitele sunete de beep.</string>
+  <string name="pref_title_beep_sound">Sunet beep</string>
+  <string name="sample_description">Cum a fost momentul dvs.?</string>
+  <string name="sample_description_help">ex. descrieţi în fragmente sau prin text complet</string>
+  <string name="sample_keyword">Cuvânt-cheie</string>
+  <string name="sample_keywords">Cuvinte-cheie</string>
+  <string name="sample_keywords_help">introduceţi sau selectaţi un cuvânt-cheie</string>
+  <string name="sample_no_description_editable">Încă nici-o descriere pentru acest moment.</string>
+  <string name="sample_no_description">Nici-o descriere pentru acest moment.</string>
+  <string name="sample_no_keywords_editable">Încă nu există cuvinte-cheie pentru acest moment.</string>
+  <string name="sample_no_keywords">Nu există cuvinte-cheie pentru acest moment.</string>
+  <string name="sample_swipe_newer">Niciodată</string>
+  <string name="sample_swipe_pos">%1$d din %2$d</string>
+  <string name="sample_swipe_older">Mai vechi</string>
+  <string name="sample_title">Titlul momentului</string>
+  <string name="sample_title_help">ex. sumar cuvânt-cheie</string>
+  <string name="sample_untitled">Neintitulat</string>
+  <string name="samples">Momente</string>
+  <string name="samples_list_no_samples">Veţi găsi aici momentele dvs.</string>
+  <string name="start_beeper">Start Beeper</string>
+  <string name="time_beeper_active">Trecut</string>
+  <string name="today">Azi</string>
+  <string name="view_sample">Vizualizaţi Momentul</string>
+  <string name="yes">Da</string>
+  <!--these elements need not to be translated-->
+  <string name="website_address">http://beepme.yourexp.at</string>
+  <string name="email_address">contact@yourexp.at</string>
+</resources>
