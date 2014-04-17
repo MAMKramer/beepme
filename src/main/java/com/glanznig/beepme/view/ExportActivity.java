@@ -33,7 +33,6 @@ import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -47,7 +46,7 @@ import android.widget.Toast;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.data.DataExporter;
+import com.glanznig.beepme.data.util.DataExporter;
 import com.glanznig.beepme.helper.PhotoUtils;
 
 import java.io.File;

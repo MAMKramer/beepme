@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.glanznig.beepme.data.Moment;
-import com.glanznig.beepme.data.PreferenceHandler;
-import com.glanznig.beepme.db.BeepTable;
-import com.glanznig.beepme.db.MomentTable;
-import com.glanznig.beepme.db.StorageHandler;
-import com.glanznig.beepme.db.TimerProfileTable;
-import com.glanznig.beepme.db.UptimeTable;
+import com.glanznig.beepme.data.util.PreferenceHandler;
+import com.glanznig.beepme.data.db.BeepTable;
+import com.glanznig.beepme.data.db.MomentTable;
+import com.glanznig.beepme.data.db.StorageHandler;
+import com.glanznig.beepme.data.db.TimerProfileTable;
+import com.glanznig.beepme.data.db.UptimeTable;
 import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.BeepActivity;
 import com.glanznig.beepme.view.ExportActivity;

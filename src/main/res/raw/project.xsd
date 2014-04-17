@@ -1,0 +1,283 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://beepme.yourexp.at/schema/project"
+	targetNamespace="http://beepme.yourexp.at/schema/project"
+	elementFormDefault="qualified">
+	
+	<!-- type of projects -->
+	<xs:simpleType name="projectType">
+		<xs:restriction base="xs:string">
+			<!-- beeps are delivered according to timer settings
+				user cannot control this -->
+			<xs:enumeration value="sampling" />
+			<!-- user creates moments, no automatic beeps -->
+			<xs:enumeration value="probes" />
+			<!-- user creates moments, but can also be beeped
+				according to timer settings -->
+			<xs:enumeration value="lifelog" />
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- base type for input stuff -->
+	<xs:complexType name="inputType">
+		<!-- id for database (required) -->
+		<xs:attribute name="id" type="xs:string" use="required" />
+		
+		<!-- fill in: mandatory or optional -->
+		<xs:attribute name="fillIn" default="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="mandatory" />
+					<xs:enumeration value="optional" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		
+		<!-- restriction for edits and deletions -->
+		<xs:attribute name="restrict" default="none">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="none" />
+					<xs:enumeration value="edit" />
+					<xs:enumeration value="edit-delete" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		
+		<!-- display purpose of input (short) -->
+		<xs:attribute name="title" type="xs:string" />
+		
+		<!-- display slightly longer help text of what to enter -->
+		<xs:attribute name="help" type="xs:string" />
+	</xs:complexType>
+	
+	<!-- type for input groups and kinds of input possibilities -->
+	<xs:complexType name="inputChoicesType">
+		<xs:sequence>
+		
+			<!-- element for input groups -->
+			<xs:element name="group" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<!-- elements text, tags, photo -->
+						<!-- elements may occur in any order 0-n times -->
+						<!-- photo may occur 0-1 times -->
+						<xs:element name="text" type="textInputType" minOccurs="0" maxOccurs="unbounded" />
+						<xs:element name="tags" type="tagsInputType" minOccurs="0" maxOccurs="unbounded" />
+						<xs:sequence minOccurs="0">
+							<xs:element name="photo" type="photoInputType" />
+							<xs:element name="text" type="textInputType" minOccurs="0" maxOccurs="unbounded" />
+							<xs:element name="tags" type="tagsInputType" minOccurs="0" maxOccurs="unbounded" />
+						</xs:sequence>
+					</xs:sequence>
+					
+					<!-- group id for translation and internal representation (required) -->
+					<xs:attribute name="id" type="xs:string" use="required" />
+					<!-- group name for UI grouping (required) -->
+					<xs:attribute name="title" type="xs:string" use="required" />
+				</xs:complexType>
+			</xs:element>
+			
+			<!-- element for input translations -->
+			<xs:element name="translations" type="translationsType" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+		
+		<!-- specify what content is displayed as moment title in the list -->
+		<xs:attribute name="listTitle" type="xs:string" use="required" />
+		<!-- specify what content is displayed as moment summary in the list -->
+		<xs:attribute name="listSummary" type="xs:string" />
+	</xs:complexType>
+	
+	<!-- input type TEXT -->
+	<xs:complexType name="textInputType">
+		<xs:complexContent>
+			<xs:extension base="inputType">
+				<!-- single or multiline text input (text field or text area) -->
+				<xs:attribute name="lines" type="xs:integer" default="1" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- input type TAGS -->
+	<xs:complexType name="tagsInputType">
+		<xs:complexContent>
+			<xs:extension base="inputType">
+				<!-- specify pool for tags (required) -->
+				<xs:attribute name="vocabulary" type="xs:string" use="required" />
+				<!-- specify if user can add own tags -->
+				<xs:attribute name="predefinedOnly" type="xs:boolean" default="false" />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- input type PHOTO -->
+	<xs:complexType name="photoInputType">
+		<xs:complexContent>
+			<xs:extension base="inputType" />
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- type for translations -->
+	<xs:complexType name="translationsType">
+		<xs:sequence>
+			<xs:element name="translation" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="t" minOccurs="1" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<!-- id of target element for translation -->
+										<xs:attribute name="id" type="xs:string" use="required" />
+										<!-- if specified name of target attribute, else targeting element content -->
+										<xs:attribute name="target" type="xs:string" />
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					
+					<!-- language specifier of translation -->
+					<xs:attribute name="lang" type="xs:language" use="required" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- type for vocabularies -->
+	<xs:complexType name="vocabulariesType">
+		<xs:sequence>
+			<xs:element name="vocabulary" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="item" minOccurs="1" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="id" type="xs:integer" use="required" />
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						
+						<!-- translations for vocabulary items -->
+						<xs:element name="translations" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="translation" minOccurs="1" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="t" minOccurs="1" maxOccurs="unbounded">
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<!-- id of target element for translation -->
+																<xs:attribute name="id" type="xs:integer" use="required" />
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+											
+											<!-- language specifier of translation -->
+											<xs:attribute name="lang" type="xs:language" use="required" />
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					
+					<!-- id of vocabulary -->
+					<xs:attribute name="id" type="xs:string" use="required" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- type for restrictions -->
+	<xs:complexType name="restrictionsType">
+		<xs:all>
+			<xs:element name="edit" type="restrictionElementType" />
+			<xs:element name="delete" type="restrictionElementType" />
+		</xs:all>
+	</xs:complexType>
+	
+	<!-- type for restriction element -->
+	<xs:complexType name="restrictionElementType">
+		<!-- attribute for allowed or forbidden (required) -->
+		<xs:attribute name="allowed" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="yes" />
+					<xs:enumeration value="no" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		
+		<!-- attribute for allowed or forbidden until (duration) -->
+		<xs:attribute name="until" type="xs:duration" />
+	</xs:complexType>
+	
+	<!-- type for timer -->
+	<xs:complexType name="timerType">
+		<xs:choice>
+			<!-- timer occurs randomly -->
+			<xs:element name="random">
+				<xs:complexType>
+					<!-- strategy for randomness -->
+					<xs:attribute name="strategy" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="interval" />
+								<xs:enumeration value="average" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					
+					<!-- timer interval [min;max] -->
+					<xs:attribute name="min" type="xs:duration" use="required" />
+					<xs:attribute name="max" type="xs:duration" use="required" />
+					
+					<!-- only needed for strategy average -->
+					<xs:attribute name="avg" type="xs:duration" />
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+		
+		<!-- for selecting the beep sound -->
+		<xs:attribute name="sound" default="pling">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="pling" />
+					<xs:enumeration value="700hz" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<!-- project definition -->
+	<xs:element name="project">
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="restrictions" type="restrictionsType" minOccurs="0" maxOccurs="1" />
+				<xs:element name="timer" type="timerType" minOccurs="0" maxOccurs="1" />
+				<xs:element name="input" type="inputChoicesType" minOccurs="1" maxOccurs="1" />
+				<xs:element name="vocabularies" type="vocabulariesType" minOccurs="0" maxOccurs="1" />
+			</xs:all>
+			
+			<!-- name of the project (required, internal only) -->
+			<xs:attribute name="name" type="xs:string" use="required" />
+			
+			<!-- project type: self triggered or time triggered -->
+			<xs:attribute name="type" type="projectType" use="required" />
+			
+			<!-- timestamps from and until data can be added -->
+			<xs:attribute name="starts" type="xs:dateTime" />
+			<xs:attribute name="expires" type="xs:dateTime" />
+			
+			<!-- language of titles and help texts -->
+			<xs:attribute name="lang" type="xs:language" use="required" />
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

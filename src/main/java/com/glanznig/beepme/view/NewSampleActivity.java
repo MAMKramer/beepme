@@ -33,7 +33,7 @@ import com.glanznig.beepme.R;
 import com.glanznig.beepme.TagAutocompleteAdapter;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.VocabularyItem;
-import com.glanznig.beepme.db.MomentTable;
+import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
 

@@ -18,7 +18,7 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 */
 
-package com.glanznig.beepme.db;
+package com.glanznig.beepme.data.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

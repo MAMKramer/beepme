@@ -18,7 +18,7 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.data.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -41,8 +41,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.glanznig.beepme.BeeperApp;
-import com.glanznig.beepme.db.MomentTable;
-import com.glanznig.beepme.db.StorageHandler;
+import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.VocabularyItem;
+import com.glanznig.beepme.data.db.MomentTable;
+import com.glanznig.beepme.data.db.StorageHandler;
 import com.glanznig.beepme.helper.PhotoUtils;
 
 import android.content.Context;

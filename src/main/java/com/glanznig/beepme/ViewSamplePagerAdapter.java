@@ -23,7 +23,7 @@ package com.glanznig.beepme;
 import java.util.List;
 
 import com.glanznig.beepme.data.Moment;
-import com.glanznig.beepme.db.MomentTable;
+import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.view.ViewSampleFragment;
 
 import android.content.Context;

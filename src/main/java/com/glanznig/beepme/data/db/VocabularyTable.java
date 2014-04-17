@@ -18,27 +18,27 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 */
 
-package com.glanznig.beepme.db;
+package com.glanznig.beepme.data.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
- * Represents the table VALUE_VOCABULARY_ITEM (vocabulary items as values of input elements)
+ * Represents the table VOCABULARY (collections of predefined selection strings or tags that are
+ * translatable).
  */
-public class ValueVocabularyItemTable extends StorageHandler {
+public class VocabularyTable extends StorageHandler {
 	
-	private static final String TAG = "ValueVocabularyItem";
+private static final String TAG = "VocabularyTable";
 	
-	private static final String TBL_NAME = "value_vocabulary_item";
+	private static final String TBL_NAME = "vocabulary";
 	private static final String TBL_CREATE =
 			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
-			"value_id INTEGER NOT NULL, " +
-			"vocabulary_item_id INTEGER NOT NULL, " +
-			"PRIMARY KEY(value_id, vocabulary_item_id) " +
+			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			"name TEXT NOT NULL" +
 			")";
 	
-	public ValueVocabularyItemTable(Context ctx) {
+	public VocabularyTable(Context ctx) {
 		super(ctx);
 	}
 

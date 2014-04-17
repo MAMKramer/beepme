@@ -29,9 +29,9 @@ import com.fima.glowpadview.GlowPadView.OnTriggerListener;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Moment;
-import com.glanznig.beepme.db.BeepTable;
-import com.glanznig.beepme.db.MomentTable;
-import com.glanznig.beepme.db.UptimeTable;
+import com.glanznig.beepme.data.db.BeepTable;
+import com.glanznig.beepme.data.db.MomentTable;
+import com.glanznig.beepme.data.db.UptimeTable;
 import com.glanznig.beepme.helper.BeepAlert;
 
 import android.app.Activity;

@@ -18,7 +18,7 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.data.util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,8 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
-import com.glanznig.beepme.db.MomentTable;
-import com.glanznig.beepme.db.UptimeTable;
+import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.Uptime;
+import com.glanznig.beepme.data.db.MomentTable;
+import com.glanznig.beepme.data.db.UptimeTable;
 
 import android.content.Context;
 import android.os.Bundle;

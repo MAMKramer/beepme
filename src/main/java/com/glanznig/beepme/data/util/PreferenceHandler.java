@@ -18,7 +18,7 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 */
 
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.data.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;

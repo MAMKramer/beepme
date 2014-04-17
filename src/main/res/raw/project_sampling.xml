@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://beepme.yourexp.at/schema/project"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://beepme.yourexp.at/schema/project
+						http://beepme.yourexp.at/schema/project.xsd"
+	name="Default"
+	type="sampling"
+	lang="en">
+	
+	<restrictions>
+		<edit allowed="yes" until="PT24H" />
+		<delete allowed="no" />
+	</restrictions>
+	
+	<timer sound="pling">
+		<random strategy="interval" min="PT10M" max="PT60M" />
+		<!--<random strategy="average" min="PT10M" avg="PT30M" max="PT60M" />-->
+	</timer>
+	
+	<input listTitle="title" listSummary="description">
+		<group id="start" title="Start">
+			<text id="title"
+				title="Title of moment"
+				help="e.g. summarizing keyword" />
+			<photo id="photo"
+				restrict="edit" />
+			<text id="description"
+				lines="4"
+				title="How was your moment like?"
+				help="e.g. describe in fragments or full-text" />
+			<tags id="keywords"
+				vocabulary="default"
+				predefinedOnly="false"
+				title="Keywords"
+				help="enter or select open keywords" />
+		</group>
+		
+		<translations>
+			<translation lang="de">
+				<t id="description" target="title">Wie war Ihr Moment beschaffen?</t>
+				<t id="description" target="help">z.B. beschreibende Satzfragmente oder Sätze</t>
+				<t id="keywords" target="title">Stichwörter</t>
+				<t id="keywords" target="help">freie Stichwörter eingeben oder auswählen</t>
+			</translation>
+		</translations>
+	</input>
+	
+	<!--<vocabularies>
+		<vocabulary id="default">
+			<item id="1">hoo</item>
+			<item id="2">haw</item>
+			
+			<translations>
+				<translation lang="de">
+					<t id="1">hui</t>
+				</translation>
+			</translations>
+		</vocabulary>
+	</vocabularies>-->
+</project>

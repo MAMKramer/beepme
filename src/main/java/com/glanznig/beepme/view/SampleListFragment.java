@@ -31,8 +31,8 @@ import com.glanznig.beepme.SampleListEntry;
 import com.glanznig.beepme.ListItem;
 import com.glanznig.beepme.DateListSectionHeader;
 import com.glanznig.beepme.data.Moment;
-import com.glanznig.beepme.data.Statistics;
-import com.glanznig.beepme.db.MomentTable;
+import com.glanznig.beepme.data.util.Statistics;
+import com.glanznig.beepme.data.db.MomentTable;
 
 import android.content.Intent;
 import android.os.Bundle;

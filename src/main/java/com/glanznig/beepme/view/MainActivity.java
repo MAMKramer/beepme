@@ -23,7 +23,7 @@ package com.glanznig.beepme.view;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.db.BeepTable;
+import com.glanznig.beepme.data.db.BeepTable;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;

@@ -25,11 +25,10 @@ import java.util.List;
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.HistoryListAdapter;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.data.Statistics;
+import com.glanznig.beepme.data.util.Statistics;
 
 import android.support.v4.app.ListFragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

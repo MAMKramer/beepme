@@ -22,19 +22,16 @@ package com.glanznig.beepme.view;
 
 import com.glanznig.beepme.BeeperApp;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.data.PreferenceHandler;
+import com.glanznig.beepme.data.util.PreferenceHandler;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 	

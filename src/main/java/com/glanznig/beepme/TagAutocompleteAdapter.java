@@ -23,7 +23,7 @@ package com.glanznig.beepme;
 import java.util.ArrayList;
 
 import com.glanznig.beepme.data.VocabularyItem;
-import com.glanznig.beepme.db.ValueVocabularyItemTable;
+import com.glanznig.beepme.data.db.ValueVocabularyItemTable;
 
 import android.content.Context;
 import android.view.LayoutInflater;
