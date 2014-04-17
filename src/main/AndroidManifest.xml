@@ -21,8 +21,8 @@ http://beepme.yourexp.at
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.glanznig.beepme"
-    android:versionCode="21"
-    android:versionName="1.5.4"
+    android:versionCode="22"
+    android:versionName="1.5.5"
     android:installLocation="auto">
 
     <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
