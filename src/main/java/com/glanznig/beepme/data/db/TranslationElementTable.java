@@ -24,33 +24,25 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
- * Represents the table INPUT_ELEMENT (input element belonging to a input group of a project)
+ * Represents the table TRANSLATION_ELEMENT, which is used to translate UI components in
+ * different languages and thus enable multi-language projects.
  */
-public class InputElementTable extends StorageHandler {
+public class TranslationElementTable extends StorageHandler {
+    private static final String TAG = "TranslationElementTable";
 
-    private static final String TAG = "InputElementTable";
-
-    private static final String TBL_NAME = "input_element";
+    private static final String TBL_NAME = "translation_element";
     private static final String TBL_CREATE =
             "CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "type INTEGER NOT NULL, " +
-                    "name TEXT NOT NULL, " +
-                    "mandatory INTEGER NOT NULL, " +
-                    "restrict INTEGER NOT NULL, " +
-                    "status INTEGER NOT NULL, " +
-                    "title_te_id INTEGER, " +
-                    "help_te_id INTEGER, " +
-                    "options TEXT, " +
-                    "vocabulary_id INTEGER, " +
-                    "input_group_id INTEGER NOT NULL, " +
-                    "FOREIGN KEY(vocabulary_id) REFERENCES "+ VocabularyTable.getTableName() +"(_id), " +
-                    "FOREIGN KEY(input_group_id) REFERENCES "+ InputGroupTable.getTableName() +"(_id), " +
-                    "FOREIGN KEY(title_te_id) REFERENCES "+ TranslationElementTable.getTableName() +"(_id), " +
-                    "FOREIGN KEY(help_te_id) REFERENCES "+ TranslationElementTable.getTableName() +"(_id)" +
+                    "lang TEXT NOT NULL, " +
+                    "content TEXT NOT NULL, " +
+                    "input_element_id INTEGER NOT NULL, " +
+                    "translation_of INTEGER, " +
+                    "FOREIGN KEY(input_element_id) REFERENCES "+ InputElementTable.getTableName() +"(_id), " +
+                    "FOREIGN KEY(translation_of) REFERENCES "+ TranslationElementTable.getTableName() +"(_id)" +
                     ")";
 
-    public InputElementTable(Context ctx) {
+    public TranslationElementTable(Context ctx) {
         super(ctx);
     }
 
