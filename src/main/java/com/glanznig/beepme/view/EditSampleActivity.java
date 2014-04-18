@@ -188,7 +188,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 			else {
 				Handler handler = new Handler(EditSampleActivity.this);
 				photoView.measure(0, 0);
-				PhotoUtils.generateThumbnail(sample.getPhotoUri(), 48, photoView.getMeasuredWidth(), handler);
+				PhotoUtils.generateThumbnail(EditSampleActivity.this, sample.getPhotoUri(), 48, photoView.getMeasuredWidth(), handler);
 				photoView.setVisibility(View.GONE);
 			}
 		}

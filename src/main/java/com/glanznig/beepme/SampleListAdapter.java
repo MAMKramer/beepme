@@ -170,7 +170,7 @@ public class SampleListAdapter extends ArrayAdapter<ListItem> {
 				else {
 					holder.photo.unsetPhoto();
 					holder.photo.measure(0, 0);
-					PhotoUtils.generateThumbnail(entry.getPhoto(), 64, holder.photo.getMeasuredWidth(), null);
+					PhotoUtils.generateThumbnail(context, entry.getPhoto(), 64, holder.photo.getMeasuredWidth(), null);
 				}
 			}
 			else {

@@ -273,7 +273,7 @@ public class DataExporter {
                             int height = dim.getInt("height");
 
                             if (width > 0 && height > 0) {
-                                Bitmap scaledPhoto = PhotoUtils.scalePhoto(srcUri, destUri,
+                                Bitmap scaledPhoto = PhotoUtils.scalePhoto(ctx, srcUri, destUri,
                                         (int)Math.round(width / Math.sqrt((double)densityFactor)),
                                         (int)Math.round(height / Math.sqrt((double)densityFactor)));
 
