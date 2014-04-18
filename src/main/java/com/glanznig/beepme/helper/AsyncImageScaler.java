@@ -20,8 +20,11 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.helper;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
+
+import java.lang.ref.WeakReference;
 
 public class AsyncImageScaler extends Thread {
 	
@@ -35,8 +38,10 @@ public class AsyncImageScaler extends Thread {
 	private int destHeight;
 	private int name;
 	private Handler handler;
+    private WeakReference<Context> ctx;
 	
-	public AsyncImageScaler(String srcUri, String destUri, int name, int destWidth, int destHeight, Handler handler) {
+	public AsyncImageScaler(Context ctx, String srcUri, String destUri, int name, int destWidth, int destHeight, Handler handler) {
+        this.ctx = new WeakReference<Context>(ctx);
 		this.srcUri = srcUri;
 		this.destUri = destUri;
 		this.destWidth = destWidth;
@@ -47,7 +52,10 @@ public class AsyncImageScaler extends Thread {
 
 	@Override
 	public void run() {
-        Bitmap photo = PhotoUtils.scalePhoto(srcUri, destUri, destWidth, destHeight);
+        Bitmap photo = null;
+        if (ctx.get() != null) {
+            photo = PhotoUtils.scalePhoto(ctx.get(), srcUri, destUri, destWidth, destHeight);
+        }
 
         if (handler != null) {
             if (photo != null) {

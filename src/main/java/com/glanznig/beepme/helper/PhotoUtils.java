@@ -287,7 +287,7 @@ public class PhotoUtils {
         BeeperApp app = (BeeperApp)ctx.getApplicationContext();
         int[] thumbSizes = app.getPreferences().getThumbnailSizes();
 		for (int i = 0; i < thumbSizes.length; i++) {
-			generateThumbnail(uri, thumbSizes[i], (int)(thumbSizes[i] * scale + 0.5f), handler);
+			generateThumbnail(ctx, uri, thumbSizes[i], (int)(thumbSizes[i] * scale + 0.5f), handler);
 		}
 	}
 	
@@ -296,11 +296,11 @@ public class PhotoUtils {
         BeeperApp app = (BeeperApp)ctx.getApplicationContext();
         int[] thumbSizes = app.getPreferences().getThumbnailSizes();
 		for (int i = 0; i < thumbSizes.length; i++) {
-			generateThumbnail(uri, thumbSizes[i], (int)(thumbSizes[i] * scale + 0.5f), handler);
+			generateThumbnail(ctx, uri, thumbSizes[i], (int)(thumbSizes[i] * scale + 0.5f), handler);
 		}
 	}
 	
-	public static void generateThumbnail(String uri, int thumbName, int size, Handler handler) {
+	public static void generateThumbnail(Context ctx, String uri, int thumbName, int size, Handler handler) {
 		if (uri != null && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			File photo = new File(uri);
 			if (photo != null) {
@@ -316,7 +316,7 @@ public class PhotoUtils {
 				}
 				
 				if (photo != null && !photo.exists()) {
-					AsyncImageScaler scaler = new AsyncImageScaler(uri, photo.getAbsolutePath(), thumbName, size, size, handler);
+					AsyncImageScaler scaler = new AsyncImageScaler(ctx, uri, photo.getAbsolutePath(), thumbName, size, size, handler);
 					scaler.start();
 				}
 			}
@@ -382,7 +382,7 @@ public class PhotoUtils {
         return dim;
     }
 
-    public static Bitmap scalePhoto(String srcUri, String destUri, int destWidth, int destHeight) {
+    public static Bitmap scalePhoto(Context ctx, String srcUri, String destUri, int destWidth, int destHeight) {
         if (srcUri != null && destWidth > 0 && destHeight > 0) {
             try {
                 BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -397,6 +397,7 @@ public class PhotoUtils {
                 int srcHeight = opts.outHeight;
 
                 // check if photo needs to be rotated
+                ExifInterfaceExtended.initialize(ctx);
                 ExifInterfaceExtended srcExif = new ExifInterfaceExtended(srcUri);
 
                 int rotationTag = srcExif.getAttributeInt(ExifInterfaceExtended.TAG_EXIF_ORIENTATION,
@@ -477,6 +478,7 @@ public class PhotoUtils {
                 if (destUri != null) {
                     FileOutputStream outStream = new FileOutputStream(destUri);
                     photo.compress(Bitmap.CompressFormat.JPEG, PHOTO_QUALITY, outStream);
+                    outStream.close();
                 }
 
                 // attach exif information from src photo
