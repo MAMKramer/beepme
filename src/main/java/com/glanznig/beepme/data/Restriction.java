@@ -38,7 +38,7 @@ public class Restriction {
     public Restriction(RestrictionType type, boolean allowed) {
         this.type = type;
         this.allowed = new Boolean(allowed);
-        until = 0L;
+        until = null;
     }
 
     /**
@@ -89,5 +89,88 @@ public class Restriction {
      */
     public long getUntil() {
         return until;
+    }
+
+    /**
+     * Transforms the Restriction object into a string representation (for serialization, persistance).
+     * The string has the form 'type={edit|delete},allowed={yes|no}[,until=SEC]'.
+     * @return string representation of Restriction object
+     */
+    @Override
+    public String toString() {
+        String strRep = "type=";
+
+        switch (type) {
+            case EDIT:
+                strRep += "edit";
+                break;
+            case DELETE:
+                strRep += "delete";
+                break;
+        }
+
+        strRep += ",allowed=";
+        if (allowed) {
+            strRep += "yes";
+        }
+        else {
+            strRep += "no";
+        }
+        if (until != null) {
+            strRep += ",until="+until;
+        }
+        return strRep;
+    }
+
+    /**
+     * Transforms a string representation of a Restriction object (e.g. from storage) into
+     * an object. The string has to have the form 'type={edit|delete},allowed={yes|no}[,until=SEC]'.
+     * @param objRepresentation string representation of Restriction object
+     * @return Restriction object, or null if string representation was not valid
+     */
+    public static Restriction fromString(String objRepresentation) {
+        if (objRepresentation.toLowerCase().matches("^type=(edit|delete),allowed=(yes|no)(,until=\\d+)?$")) {
+            String type = "";
+            String allowed = "";
+            String until = "";
+
+            String[] splitRep = objRepresentation.split(",");
+            for (int i=0; i < splitRep.length; i++) {
+                if (splitRep[i].startsWith("type")) {
+                    type = splitRep[i].substring(5);
+                }
+                else if (splitRep[i].startsWith("allowed")) {
+                    allowed = splitRep[i].substring(8);
+                }
+                else if (splitRep[i].startsWith("until")) {
+                    until = splitRep[i].substring(6);
+                }
+            }
+
+            RestrictionType resType = RestrictionType.EDIT;
+            boolean allow = true;
+
+            if (type.equals("edit")) {
+                resType = RestrictionType.EDIT;
+            }
+            else if (type.equals("delete")) {
+                resType = RestrictionType.DELETE;
+            }
+
+            if (allowed.equals("yes")) {
+                allow = true;
+            }
+            else if (allowed.equals("no")) {
+                allow = false;
+            }
+
+            Restriction restriction = new Restriction(resType, allow);
+            if (until != null) {
+                restriction.setUntil(Long.valueOf(until));
+            }
+
+            return restriction;
+        }
+        return null;
     }
 }

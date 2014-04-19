@@ -44,3 +44,7 @@ See http://github.com/sephiroth74/Android-Exif-Extended
 The files drawable/ic_lockscreen_glowdot and
 drawable/ic_lockscreen_handle_pressed are from AOSP and are available under
 an Apache 2.0 License.
+
+The contents of com.glanznig.beepme.data.xml.datatype is repackaged from the Apache
+Xerces project 2.11.0 and is available under a Apache 2.0 License.
+See http://xerces.apache.org/mirrors.cgi#source for details.

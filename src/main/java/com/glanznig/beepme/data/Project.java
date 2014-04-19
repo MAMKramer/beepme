@@ -25,6 +25,7 @@ import android.os.Bundle;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -299,6 +300,37 @@ public class Project {
             return timer.getString(key);
         }
         return null;
+    }
+
+    /**
+     * Copies all member variables (except uid) to a new object
+     * @param copy copy object
+     */
+    public void copyTo(Project copy) {
+        copy.setName(name);
+        copy.setType(type);
+        copy.setStatus(status);
+        copy.setStart(start);
+        copy.setExpire(expire);
+        copy.setLanguage(lang);
+
+        Iterator<String> opts = options.keySet().iterator();
+        while (opts.hasNext()) {
+            String key = opts.next();
+            copy.setOption(key, options.getString(key));
+        }
+
+        Iterator<Restriction.RestrictionType> restr = restrictions.keySet().iterator();
+        while (restr.hasNext()) {
+            Restriction.RestrictionType key = restr.next();
+            copy.setRestriction(restrictions.get(key));
+        }
+
+        opts = timer.keySet().iterator();
+        while (opts.hasNext()) {
+            String key = opts.next();
+            copy.setTimerOption(key, timer.getString(key));
+        }
     }
 
     @Override
