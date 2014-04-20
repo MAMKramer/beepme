@@ -120,7 +120,7 @@ public class StorageHandler {
      * @param ctx context of the calling activity
      */
 	public StorageHandler(Context ctx) {
-		mCtx = ctx;
+		mCtx = ctx.getApplicationContext();
 		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
 		
 		if (app.getPreferences().isTestMode()) {

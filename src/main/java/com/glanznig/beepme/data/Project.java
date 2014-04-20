@@ -70,7 +70,7 @@ public class Project {
     private Locale lang;
     private Bundle options;
     private HashMap<Restriction.RestrictionType, Restriction> restrictions;
-    private Bundle timer;
+    private Timer timer;
 
     public Project() {
         uid = null;
@@ -82,7 +82,7 @@ public class Project {
         lang = null;
         options = new Bundle();
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
-        timer = new Bundle();
+        timer = null;
     }
 
     public Project(long uid) {
@@ -95,7 +95,7 @@ public class Project {
         lang = null;
         options = new Bundle();
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
-        timer = new Bundle();
+        timer = null;
     }
 
     /**
@@ -272,34 +272,19 @@ public class Project {
     }
 
     /**
-     * Sets a new timer option or replaces an existing timer option
-     * @param key key identifier of option
-     * @param value value of option
+     * Sets a new timer strategy (way of generating new beeps) for this project
+     * @param timer timer
      */
-    public void setTimerOption(String key, String value) {
-        if (key != null && value != null) {
-            timer.putString(key, value);
-        }
+    public void setTimer(Timer timer) {
+        this.timer = timer;
     }
 
     /**
-     * Gets timer options for this project (string value bundle)
-     * @return bundle containing string values, or null if not set
+     * Gets the timer strategy (way of generating new beeps) for this project
+     * @return timer, or null if not set
      */
-    public Bundle getTimerOptions() {
+    public Timer getTimer() {
         return timer;
-    }
-
-    /**
-     * Gets a timer option for this project
-     * @param key key identifier of option
-     * @return option value, or null if key does not exist or is null
-     */
-    public String getTimerOption(String key) {
-        if (key != null) {
-            return timer.getString(key);
-        }
-        return null;
     }
 
     /**
@@ -326,11 +311,7 @@ public class Project {
             copy.setRestriction(restrictions.get(key));
         }
 
-        opts = timer.keySet().iterator();
-        while (opts.hasNext()) {
-            String key = opts.next();
-            copy.setTimerOption(key, timer.getString(key));
-        }
+        copy.setTimer(timer);
     }
 
     @Override

@@ -26,6 +26,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.glanznig.beepme.data.Project;
+import com.glanznig.beepme.data.RandomTimer;
 import com.glanznig.beepme.data.Restriction;
 
 import java.util.Collection;
@@ -155,7 +156,13 @@ public class ProjectTable extends StorageHandler {
                 values.put("restrictions", restrictionsStr);
             }
 
-            Log.i(TAG, "inserted values=" + values);
+            if (project.getTimer() != null) {
+                if (project.getTimer() instanceof RandomTimer) {
+                    values.put("timer", "type=random,"+project.getTimer().toString());
+                }
+            }
+
+            Log.i(TAG, "inserted values="+values);
             long projectId = db.insert(getTableName(), null, values);
             newProject = new Project(projectId);
             project.copyTo(newProject);

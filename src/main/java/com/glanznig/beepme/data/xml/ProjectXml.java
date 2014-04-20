@@ -25,7 +25,9 @@ import android.util.Log;
 
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Project;
+import com.glanznig.beepme.data.RandomTimer;
 import com.glanznig.beepme.data.Restriction;
+import com.glanznig.beepme.data.Timer;
 import com.glanznig.beepme.data.db.ProjectTable;
 import com.glanznig.beepme.data.xml.datatype.DatatypeFactoryImpl;
 import com.sun.msv.verifier.jarv.TheFactoryImpl;
@@ -170,6 +172,13 @@ public class ProjectXml {
                                 }
 
                             }
+                            else if (tagName.equals("timer")) {
+                                Log.i(TAG, "tag timer");
+                                Project project = (Project)data.get("project");
+                                if (project != null) {
+                                    project.setTimer(parseTimer(parser));
+                                }
+                            }
                         }
                         if (eventType == XmlPullParser.END_TAG) {
 
@@ -246,14 +255,14 @@ public class ProjectXml {
                     edit = new Restriction(Restriction.RestrictionType.EDIT, allow);
                     if (until != null) {
                         Date now = new Date();
-                        edit.setUntil((long)typeFactory.newDuration(until).getTimeInMillis(now) / 1000);
+                        edit.setUntil(typeFactory.newDuration(until).getTimeInMillis(now) / 1000);
                     }
                 }
                 else if (parser.getName().equals("delete")) {
                     delete = new Restriction(Restriction.RestrictionType.DELETE, allow);
                     if (until != null) {
                         Date now = new Date();
-                        delete.setUntil((long)typeFactory.newDuration(until).getTimeInMillis(now) / 1000);
+                        delete.setUntil(typeFactory.newDuration(until).getTimeInMillis(now) / 1000);
                     }
                 }
             }
@@ -268,6 +277,59 @@ public class ProjectXml {
         restrictions.add(delete);
 
         return restrictions;
+    }
+
+    private Timer parseTimer(XmlPullParser parser) throws Exception {
+        //attr sound (default=pling)
+        String sound = parser.getAttributeValue(null, "sound");
+
+        int eventType;
+        boolean inTimer = true;
+        DatatypeFactory typeFactory = new DatatypeFactoryImpl();
+        Timer timer = null;
+        do {
+            eventType = parser.next();
+            if (eventType == XmlPullParser.START_TAG) {
+                String name = parser.getName();
+
+                if (name.equals("random")) {
+                    String strategy = parser.getAttributeValue(null, "strategy");
+                    String min = parser.getAttributeValue(null, "min");
+                    String max = parser.getAttributeValue(null, "max");
+                    String avg = parser.getAttributeValue(null, "avg");
+
+                    Date now = new Date();
+                    long minVal = typeFactory.newDuration(min).getTimeInMillis(now) / 1000;
+                    long maxVal = typeFactory.newDuration(max).getTimeInMillis(now) / 1000;
+
+                    RandomTimer random = null;
+                    if (strategy.equals("interval")) {
+                        random = new RandomTimer(ctx, RandomTimer.TimerStrategy.INTERVAL, minVal, maxVal);
+                    }
+                    else if (strategy.equals("average")) {
+                        random = new RandomTimer(ctx, RandomTimer.TimerStrategy.AVERAGE, minVal, maxVal);
+                    }
+
+                    if (random != null && avg != null) {
+                        random.setAvg(typeFactory.newDuration(avg).getTimeInMillis(now) / 1000);
+                    }
+
+                    timer = random;
+                }
+            }
+            if (eventType == XmlPullParser.END_TAG) {
+                if (parser.getName().equals("timer")) {
+                    inTimer = false;
+                }
+            }
+        }
+        while(inTimer);
+
+        if (timer != null) {
+            timer.setSound(sound);
+        }
+
+        return timer;
     }
 
     public void persist() {
