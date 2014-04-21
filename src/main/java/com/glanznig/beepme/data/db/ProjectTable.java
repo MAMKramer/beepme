@@ -162,6 +162,8 @@ public class ProjectTable extends StorageHandler {
                 }
             }
 
+            values.put("options", project.getOptions());
+
             Log.i(TAG, "inserted values="+values);
             long projectId = db.insert(getTableName(), null, values);
             newProject = new Project(projectId);

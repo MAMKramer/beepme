@@ -179,6 +179,15 @@ public class ProjectXml {
                                     project.setTimer(parseTimer(parser));
                                 }
                             }
+                            else if (tagName.equals("input")) {
+                                Project project = (Project)data.get("project");
+                                if (project != null) {
+                                    project.setOption("listTitle", parser.getAttributeValue(null, "listTitle"));
+                                    if (parser.getAttributeValue(null, "listSummary") != null) {
+                                        project.setOption("listSummary", parser.getAttributeValue(null, "listSummary"));
+                                    }
+                                }
+                            }
                         }
                         if (eventType == XmlPullParser.END_TAG) {
 
@@ -282,6 +291,9 @@ public class ProjectXml {
     private Timer parseTimer(XmlPullParser parser) throws Exception {
         //attr sound (default=pling)
         String sound = parser.getAttributeValue(null, "sound");
+        if (sound == null) {
+            sound = "pling";
+        }
 
         int eventType;
         boolean inTimer = true;

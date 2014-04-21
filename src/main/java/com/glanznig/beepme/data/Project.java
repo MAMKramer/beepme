@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * A project is an organizational unit for data collection. It defines start, end, input
@@ -68,7 +69,7 @@ public class Project {
     private Date start;
     private Date expire;
     private Locale lang;
-    private Bundle options;
+    private HashMap<String, String> options;
     private HashMap<Restriction.RestrictionType, Restriction> restrictions;
     private Timer timer;
 
@@ -80,7 +81,7 @@ public class Project {
         start = null;
         expire = null;
         lang = null;
-        options = new Bundle();
+        options = new HashMap<String, String>();
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
         timer = null;
     }
@@ -93,7 +94,7 @@ public class Project {
         start = null;
         expire = null;
         lang = null;
-        options = new Bundle();
+        options = new HashMap<String, String>();
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
         timer = null;
     }
@@ -219,8 +220,17 @@ public class Project {
      * Gets options for this project (string value bundle)
      * @return bundle containing string values, or null if not set
      */
-    public Bundle getOptions() {
-        return options;
+    public String getOptions() {
+        String optStr = "";
+        Iterator<Map.Entry<String, String>> i = options.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, String> entry = i.next();
+            optStr += entry.getKey()+"="+entry.getValue();
+            if (i.hasNext()) {
+                optStr += ",";
+            }
+        }
+        return optStr;
     }
 
     /**
@@ -230,7 +240,7 @@ public class Project {
      */
     public void setOption(String key, String value) {
         if (key != null && value != null) {
-            options.putString(key, value);
+            options.put(key, value);
         }
     }
 
@@ -241,7 +251,7 @@ public class Project {
      */
     public String getOption(String key) {
         if (key != null) {
-            return options.getString(key);
+            return options.get(key);
         }
         return null;
     }
@@ -302,7 +312,7 @@ public class Project {
         Iterator<String> opts = options.keySet().iterator();
         while (opts.hasNext()) {
             String key = opts.next();
-            copy.setOption(key, options.getString(key));
+            copy.setOption(key, options.get(key));
         }
 
         Iterator<Restriction.RestrictionType> restr = restrictions.keySet().iterator();
