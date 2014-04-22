@@ -18,7 +18,7 @@ along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
 Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 
-Thank you very much to the translators: styts
+Thank you very much to the translators: styts, mkw
 -->
 
 <resources>
@@ -83,6 +83,8 @@ Thank you very much to the translators: styts
   <string name="pref_title_test_mode">Тестовый режим</string>
   <string name="pref_summary_vibrate_beep">Вибрировать в дополнение к звуковому сигналу в нормальном профиле.</string>
   <string name="pref_title_vibrate_beep">Всегда вибрировать при сигнале</string>
+  <string name="pref_summary_beep_sound">Выберите между различными звуковыми сигналами.</string>
+  <string name="pref_title_beep_sound">Звуковой сигнал</string>
   <string name="sample_description">Опишите ваше текущее состояние</string>
   <string name="sample_description_help">ключевыми словами или предложениями</string>
   <string name="sample_keyword">Ключевое слово</string>
