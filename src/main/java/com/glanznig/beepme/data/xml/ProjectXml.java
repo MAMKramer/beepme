@@ -24,11 +24,17 @@ import android.content.Context;
 import android.util.Log;
 
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.data.InputElement;
+import com.glanznig.beepme.data.InputGroup;
 import com.glanznig.beepme.data.Project;
 import com.glanznig.beepme.data.RandomTimer;
 import com.glanznig.beepme.data.Restriction;
 import com.glanznig.beepme.data.Timer;
+import com.glanznig.beepme.data.TranslationElement;
+import com.glanznig.beepme.data.db.InputElementTable;
+import com.glanznig.beepme.data.db.InputGroupTable;
 import com.glanznig.beepme.data.db.ProjectTable;
+import com.glanznig.beepme.data.db.TranslationElementTable;
 import com.glanznig.beepme.data.xml.datatype.DatatypeFactoryImpl;
 import com.sun.msv.verifier.jarv.TheFactoryImpl;
 
@@ -70,14 +76,18 @@ public class ProjectXml {
     private static Schema schema;
     private static XmlPullParserFactory pullParserFactory;
 
-    private HashMap<String, Object> data;
+    private Project mProject;
+    private ArrayList<String> mRefs;
+    private HashMap<String, Integer> mIds;
     private Context ctx;
     private Boolean valid;
 
     public ProjectXml(Context ctx) {
 
-        this.ctx = ctx;
-        data = new HashMap<String, Object>();
+        this.ctx = ctx.getApplicationContext();
+        mProject = new Project();
+        mRefs = new ArrayList<String>();
+        mIds = new HashMap<String, Integer>();
         valid = null;
 
         if (verifierFactory == null) {
@@ -153,20 +163,16 @@ public class ProjectXml {
 
                             if (tagName.equals("project")) {
                                 Log.i(TAG, "tag project");
-                                Project project = parseProject(parser);
-                                if (project != null) {
-                                    data.put("project", project);
-                                }
+                                mProject = parseProject(parser);
                             }
                             else if (tagName.equals("restrictions")) {
                                 Log.i(TAG, "tag restrictions");
-                                Project project = (Project)data.get("project");
-                                if (project != null) {
+                                if (mProject != null) {
                                     List<Restriction> restrictions = parseRestrictions(parser);
                                     if (!restrictions.isEmpty()) {
                                         Iterator<Restriction> restr = restrictions.iterator();
                                         while (restr.hasNext()) {
-                                            project.setRestriction(restr.next());
+                                            mProject.setRestriction(restr.next());
                                         }
                                     }
                                 }
@@ -174,18 +180,19 @@ public class ProjectXml {
                             }
                             else if (tagName.equals("timer")) {
                                 Log.i(TAG, "tag timer");
-                                Project project = (Project)data.get("project");
-                                if (project != null) {
-                                    project.setTimer(parseTimer(parser));
+                                if (mProject != null) {
+                                    mProject.setTimer(parseTimer(parser));
                                 }
                             }
                             else if (tagName.equals("input")) {
-                                Project project = (Project)data.get("project");
-                                if (project != null) {
-                                    project.setOption("listTitle", parser.getAttributeValue(null, "listTitle"));
+                                if (mProject != null) {
+                                    mProject.setOption("listTitle", parser.getAttributeValue(null, "listTitle"));
+                                    mRefs.add(parser.getAttributeValue(null, "listTitle"));
                                     if (parser.getAttributeValue(null, "listSummary") != null) {
-                                        project.setOption("listSummary", parser.getAttributeValue(null, "listSummary"));
+                                        mProject.setOption("listSummary", parser.getAttributeValue(null, "listSummary"));
+                                        mRefs.add(parser.getAttributeValue(null, "listSummary"));
                                     }
+                                    parseInput(parser);
                                 }
                             }
                         }
@@ -206,6 +213,7 @@ public class ProjectXml {
 
         // attr name (required)
         project.setName(parser.getAttributeValue(null, "name"));
+        addId(parser.getAttributeValue(null, "name"));
         // attr lang (required)
         project.setLanguage(new Locale(parser.getAttributeValue(null, "lang")));
         // attr type (required)
@@ -344,12 +352,184 @@ public class ProjectXml {
         return timer;
     }
 
+    private void parseInput(XmlPullParser parser) throws Exception {
+        int eventType = 0;
+        boolean inInput = true;
+        InputGroup currentGroup = null;
+        int groupPos = 0;
+
+        do {
+            eventType = parser.next();
+            if (eventType == XmlPullParser.START_TAG) {
+                // input group
+                if (parser.getName().equals("group")) {
+                    String id = parser.getAttributeValue(null, "id");
+                    Log.i(TAG, "input group="+id);
+                    addId(id);
+                    String title = parser.getAttributeValue(null, "title");
+                    currentGroup = new InputGroup();
+                    currentGroup.setName(id);
+                    currentGroup.setTitle(title);
+                }
+                // input elements
+                // such as photo, tags, text
+                else if (parser.getName().equals("text") ||
+                        parser.getName().equals("photo") ||
+                        parser.getName().equals("tags")) {
+                    // attributes that are similar for all input elements
+                    String id = parser.getAttributeValue(null, "id");
+                    Log.i(TAG, "input element="+id);
+                    addId(id);
+                    String title = parser.getAttributeValue(null, "title");
+                    String help = parser.getAttributeValue(null, "help");
+                    String fillIn = parser.getAttributeValue(null, "fillIn");
+                    if (fillIn == null) {
+                        fillIn = "optional";
+                    }
+                    String restriction = parser.getAttributeValue(null, "restrict");
+                    if (restriction == null) {
+                        restriction = "none";
+                    }
+
+                    InputElement element = new InputElement();
+                    element.setName(id);
+
+                    if (title != null) {
+                        TranslationElement titleElement = new TranslationElement();
+                        titleElement.setLang(mProject.getLanguage());
+                        titleElement.setContent(title);
+                        element.setTitle(titleElement);
+                    }
+                    if (help != null) {
+                        TranslationElement helpElement = new TranslationElement();
+                        helpElement.setLang(mProject.getLanguage());
+                        helpElement.setContent(help);
+                        element.setHelp(helpElement);
+                    }
+
+                    if (fillIn.equals("mandatory")) {
+                        element.setMandatory(true);
+                    }
+                    if (restriction.equals("edit")) {
+                        element.setRestriction(new Restriction(Restriction.RestrictionType.EDIT, false));
+                    }
+                    else if (restriction.equals("edit-delete")) {
+                        element.setRestriction(new Restriction(Restriction.RestrictionType.EDIT, false));
+                        element.setRestriction(new Restriction(Restriction.RestrictionType.DELETE, false));
+                    }
+
+                    // specific attributes of different input elements
+                    // for photo element
+                    if (parser.getName().equals("photo")) {
+                        element.setType(InputElement.InputElementType.PHOTO);
+                        // no options so far
+                    }
+                    // for text element
+                    if (parser.getName().equals("text")) {
+                        element.setType(InputElement.InputElementType.TEXT);
+                        String lines = parser.getAttributeValue(null, "lines");
+                        if (lines == null) {
+                            lines = "1";
+                        }
+                        element.setOption("lines", lines);
+                    }
+                    // for tags element
+                    if (parser.getName().equals("tags")) {
+                        element.setType(InputElement.InputElementType.TAGS);
+                        String vocabulary = parser.getAttributeValue(null, "vocabulary");
+                        mRefs.add(vocabulary);
+                        String predefined = parser.getAttributeValue(null, "predefinedOnly");
+                        if (predefined == null) {
+                            predefined = "false";
+                        }
+                        element.setOption("vocabulary", vocabulary);
+                        element.setOption("predefinedOnly", predefined);
+                    }
+
+                    // add input element to group
+                    currentGroup.addInputElement(element, groupPos);
+                    groupPos++;
+                }
+            }
+            if (eventType == XmlPullParser.END_TAG) {
+                if (parser.getName().equals("group")) {
+                    if (mProject != null) {
+                        mProject.addInputGroup(currentGroup);
+                    }
+                    currentGroup = null;
+                    groupPos = 0;
+                }
+                if (parser.getName().equals("input")) {
+                    inInput = false;
+                }
+            }
+        }
+        while(inInput);
+    }
+
+    private void addId(String id) {
+        Integer count = mIds.get(id);
+        if (count != null) {
+            count += 1;
+        }
+        else {
+            count = 0;
+        }
+        mIds.put(id, count);
+    }
+
     public void persist() {
-        Project project = (Project)data.get("project");
-        if (project != null) {
+        if (mProject != null) {
             Log.i(TAG, "persisting project");
+            // persisting project
             ProjectTable projectTable = new ProjectTable(ctx);
-            projectTable.addProject(project);
+            mProject = projectTable.addProject(mProject);
+
+            List<InputGroup> groups = mProject.getInputGroups();
+            Iterator<InputGroup> groupIterator = groups.iterator();
+
+            // persisting input groups
+            while (groupIterator.hasNext()) {
+                InputGroup group = groupIterator.next();
+                group.setProjectUid(mProject.getUid());
+                Log.i(TAG, "persisting input group");
+                InputGroupTable groupTable = new InputGroupTable(ctx);
+                group = groupTable.addInputGroup(group);
+
+                List<InputElement> elements = group.getInputElements();
+                Iterator<InputElement> elementIterator = elements.iterator();
+
+                // persisting input elements
+                while (elementIterator.hasNext()) {
+                    InputElement element = elementIterator.next();
+                    element.setInputGroupUid(group.getUid());
+                    Log.i(TAG, "persisting input element");
+                    InputElementTable elementTable = new InputElementTable(ctx);
+                    element = elementTable.addInputElement(element);
+
+                    TranslationElementTable translationElementTable = new TranslationElementTable(ctx);
+                    TranslationElement title = element.getTitle();
+                    if (title != null) {
+                        title.setInputElementUid(element.getUid());
+                        title = translationElementTable.addTranslationElement(title);
+                        if (title.getUid() != 0L) {
+                            element.setTitleElementUid(title.getUid());
+                        }
+                    }
+                    TranslationElement help = element.getHelp();
+                    if (help != null) {
+                        help.setInputElementUid(element.getUid());
+                        help = translationElementTable.addTranslationElement(help);
+                        if (help.getUid() != 0L) {
+                            element.setHelpElementUid(help.getUid());
+                        }
+                    }
+
+                    if (title != null && help != null && (title.getUid() != 0L || help.getUid() != 0L)) {
+                        elementTable.updateInputElement(element);
+                    }
+                }
+            }
         }
     }
 }

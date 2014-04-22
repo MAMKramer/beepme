@@ -22,10 +22,12 @@ package com.glanznig.beepme.data;
 
 import android.os.Bundle;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -73,6 +75,8 @@ public class Project {
     private HashMap<Restriction.RestrictionType, Restriction> restrictions;
     private Timer timer;
 
+    private ArrayList<InputGroup> inputGroups;
+
     public Project() {
         uid = null;
         name = null;
@@ -84,6 +88,8 @@ public class Project {
         options = new HashMap<String, String>();
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
         timer = null;
+
+        inputGroups = null;
     }
 
     public Project(long uid) {
@@ -97,6 +103,8 @@ public class Project {
         options = new HashMap<String, String>();
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
         timer = null;
+
+        inputGroups = null;
     }
 
     /**
@@ -218,7 +226,7 @@ public class Project {
 
     /**
      * Gets options for this project (string value bundle)
-     * @return bundle containing string values, or null if not set
+     * @return string in the form "key=value,key=value", or empty string if no options set
      */
     public String getOptions() {
         String optStr = "";
@@ -322,6 +330,35 @@ public class Project {
         }
 
         copy.setTimer(timer);
+
+        if (inputGroups != null) {
+            Iterator<InputGroup> inputGroupIterator = inputGroups.iterator();
+            while (inputGroupIterator.hasNext()) {
+                copy.addInputGroup(inputGroupIterator.next());
+            }
+        }
+    }
+
+    /**
+     * Associates an input group with this project
+     * @param group the input group
+     */
+    public void addInputGroup(InputGroup group) {
+        if (inputGroups == null) {
+            inputGroups = new ArrayList<InputGroup>();
+        }
+        inputGroups.add(group);
+    }
+
+    /**
+     * Gets the associated input groups for this project.
+     * @return associated input groups, or empty list if none
+     */
+    public List<InputGroup> getInputGroups() {
+        if (inputGroups != null) {
+            return inputGroups;
+        }
+        return new ArrayList<InputGroup>();
     }
 
     @Override

@@ -20,6 +20,10 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * A input group is a collection of input elements that (logically, naturally) belong together.
  * Such a input group is normally displayed on a screen together, navigating (swiping) between
@@ -33,11 +37,15 @@ public class InputGroup {
     private String title;
     private Long projectUid;
 
+    private ArrayList<InputElement> inputElements;
+
     public InputGroup() {
         uid = null;
         name = null;
         title = null;
         projectUid = null;
+
+        inputElements = null;
     }
 
     public InputGroup(long uid) {
@@ -45,6 +53,8 @@ public class InputGroup {
         name = null;
         title = null;
         projectUid = null;
+
+        inputElements = null;
     }
 
     /**
@@ -117,6 +127,49 @@ public class InputGroup {
             return projectUid.longValue();
         }
         return 0L;
+    }
+
+    /**
+     * Associates an input element with this input group
+     * @param element the input element
+     */
+    public void addInputElement(InputElement element, int pos) {
+        if (inputElements == null) {
+            inputElements = new ArrayList<InputElement>();
+        }
+        inputElements.add(pos, element);
+    }
+
+    /**
+     * Gets the associated input elements for this input group.
+     * @return associated input elements, or empty list if none
+     */
+    public List<InputElement> getInputElements() {
+        if (inputElements != null) {
+            return inputElements;
+        }
+        return new ArrayList<InputElement>();
+    }
+
+    /**
+     * Copies all member variables (except uid) to a new object
+     * @param copy copy object
+     */
+    public void copyTo(InputGroup copy) {
+        copy.setName(name);
+        copy.setTitle(title);
+        if (projectUid != null) {
+            copy.setProjectUid(projectUid);
+        }
+
+        if (inputElements != null) {
+            Iterator<InputElement> inputElementIterator = inputElements.iterator();
+            int pos = 0;
+            while (inputElementIterator.hasNext()) {
+                copy.addInputElement(inputElementIterator.next(), pos);
+                pos++;
+            }
+        }
     }
 
     @Override

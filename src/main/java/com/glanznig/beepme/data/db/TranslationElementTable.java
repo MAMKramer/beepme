@@ -20,8 +20,12 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import com.glanznig.beepme.data.TranslationElement;
 
 /**
  * Represents the table TRANSLATION_ELEMENT, which is used to translate UI components in
@@ -68,5 +72,53 @@ public class TranslationElementTable extends StorageHandler {
      */
     public static void dropTable(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
+    }
+
+    /**
+     * Truncates (deletes the content of) the table.
+     */
+    public void truncate() {
+        SQLiteDatabase db = getDb();
+        dropTable(db);
+        createTable(db);
+    }
+
+    /**
+     * Adds a new input group to the database
+     * @param element values to add to the input group table
+     * @return new input group object with set values and uid, or null if an error occurred
+     */
+    public TranslationElement addTranslationElement(TranslationElement element) {
+        TranslationElement newElement = null;
+
+        if (element != null) {
+            SQLiteDatabase db = getDb();
+
+            ContentValues values = new ContentValues();
+            if (element.getLang() != null) {
+                values.put("lang", element.getLang().getLanguage());
+            }
+            if (element.getContent() != null) {
+                values.put("content", element.getContent());
+            }
+            if (element.getInputElementUid() != 0L) {
+                values.put("input_element_id", element.getInputElementUid());
+            }
+            if (element.getTranslationOfUid() != 0L) {
+                values.put("translation_of", element.getTranslationOfUid());
+            }
+
+            Log.i(TAG, "inserted values=" + values);
+            long elementId = db.insert(getTableName(), null, values);
+            db.close();
+
+            // if no error occurred
+            if (elementId != -1) {
+                newElement = new TranslationElement(elementId);
+                element.copyTo(newElement);
+            }
+        }
+
+        return newElement;
     }
 }

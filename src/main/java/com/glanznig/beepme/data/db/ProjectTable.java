@@ -118,6 +118,20 @@ public class ProjectTable extends StorageHandler {
         db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
     }
 
+    /**
+     * Truncates (deletes the content of) the table.
+     */
+    public void truncate() {
+        SQLiteDatabase db = getDb();
+        dropTable(db);
+        createTable(db);
+    }
+
+    /**
+     * Adds a new project to the database
+     * @param project values to add to the project table
+     * @return new project object with set values and uid, or null if an error occurred
+     */
     public Project addProject(Project project) {
         Project newProject = null;
 
@@ -125,7 +139,9 @@ public class ProjectTable extends StorageHandler {
             SQLiteDatabase db = getDb();
 
             ContentValues values = new ContentValues();
-            values.put("name", project.getName());
+            if (project.getName() != null) {
+                values.put("name", project.getName());
+            }
             if (project.getType() != null) {
                 values.put("type", typeMap.get(project.getType()));
             }
@@ -166,9 +182,12 @@ public class ProjectTable extends StorageHandler {
 
             Log.i(TAG, "inserted values="+values);
             long projectId = db.insert(getTableName(), null, values);
-            newProject = new Project(projectId);
-            project.copyTo(newProject);
             db.close();
+            // only if no error occured
+            if (projectId != -1) {
+                newProject = new Project(projectId);
+                project.copyTo(newProject);
+            }
         }
 
         return newProject;

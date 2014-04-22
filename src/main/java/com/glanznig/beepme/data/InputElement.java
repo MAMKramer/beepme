@@ -24,6 +24,8 @@ import android.os.Bundle;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * An input element represents a method of data entry on a more abstract level and a specific UI
@@ -49,11 +51,14 @@ public class InputElement {
     private String name;
     private Boolean mandatory;
     private HashMap<Restriction.RestrictionType, Restriction> restrictions;
-    private String title;
-    private String help;
-    private Bundle options;
+    private Long titleElementUid;
+    private Long helpElementUid;
+    private HashMap<String, String> options;
     private Long vocabularyUid;
     private Long inputGroupUid;
+
+    private TranslationElement titleElement;
+    private TranslationElement helpElement;
 
     public InputElement() {
         uid = null;
@@ -61,11 +66,14 @@ public class InputElement {
         name = null;
         mandatory = Boolean.FALSE;
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
-        title = null;
-        help = null;
-        options = new Bundle();
+        titleElementUid = null;
+        helpElementUid = null;
+        options = new HashMap<String, String>();
         vocabularyUid = null;
         inputGroupUid = null;
+
+        titleElement = null;
+        helpElement = null;
     }
 
     public InputElement(long uid) {
@@ -74,24 +82,14 @@ public class InputElement {
         name = null;
         mandatory = Boolean.FALSE;
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
-        title = null;
-        help = null;
-        options = new Bundle();
+        titleElementUid = null;
+        helpElementUid = null;
+        options = new HashMap<String, String>();
         vocabularyUid = null;
         inputGroupUid = null;
-    }
 
-    public InputElement(long uid, boolean mandatory) {
-        setUid(uid);
-        type = null;
-        name = null;
-        this.mandatory = new Boolean(mandatory);
-        restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
-        title = null;
-        help = null;
-        options = new Bundle();
-        vocabularyUid = null;
-        inputGroupUid = null;
+        titleElement = null;
+        helpElement = null;
     }
 
     /**
@@ -148,6 +146,14 @@ public class InputElement {
     }
 
     /**
+     * Sets whether it is mandatory to fill in this input item.
+     * @param mandatory mandatory or not
+     */
+    public void setMandatory(boolean mandatory) {
+        this.mandatory = new Boolean(mandatory);
+    }
+
+    /**
      * Gets whether it is mandatory to fill in this input item.
      * @return true if mandatory, false otherwise
      */
@@ -157,10 +163,19 @@ public class InputElement {
 
     /**
      * Gets options for this input element (string value bundle)
-     * @return bundle containing string values, or null if not set
+     * @return string in the form "key=value,key=value", or empty string if no options set
      */
-    public Bundle getOptions() {
-        return options;
+    public String getOptions() {
+        String optStr = "";
+        Iterator<Map.Entry<String, String>> i = options.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry<String, String> entry = i.next();
+            optStr += entry.getKey()+"="+entry.getValue();
+            if (i.hasNext()) {
+                optStr += ",";
+            }
+        }
+        return optStr;
     }
 
     /**
@@ -170,7 +185,7 @@ public class InputElement {
      */
     public void setOption(String key, String value) {
         if (key != null && value != null) {
-            options.putString(key, value);
+            options.put(key, value);
         }
     }
 
@@ -181,7 +196,7 @@ public class InputElement {
      */
     public String getOption(String key) {
         if (key != null) {
-            return options.getString(key);
+            return options.get(key);
         }
         return null;
     }
@@ -212,35 +227,73 @@ public class InputElement {
     }
 
     /**
+     * Sets uid of input hint
+     * @param titleElementUid uid of input hint
+     */
+    public void setTitleElementUid(long titleElementUid) {
+        this.titleElementUid = titleElementUid;
+    }
+
+    /**
+     * Gets uid of input hint
+     * @return uid of input hint, or 0L if not set
+     */
+    public long getTitleElementUid() {
+        if (titleElementUid != null) {
+            return titleElementUid;
+        }
+        return 0L;
+    }
+
+    /**
      * Sets a title that provides a hint what is to be entered in this input element
      * @param title input hint
      */
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitle(TranslationElement title) {
+        this.titleElement = title;
     }
 
     /**
      * Gets the title (input hint)
      * @return title, or null if not set
      */
-    public String getTitle() {
-        return title;
+    public TranslationElement getTitle() {
+        return titleElement;
+    }
+
+    /**
+     * Sets uid of input hint
+     * @param helpElementUid uid of input hint
+     */
+    public void setHelpElementUid(long helpElementUid) {
+        this.helpElementUid = helpElementUid;
+    }
+
+    /**
+     * Gets uid of input hint
+     * @return uid of input hint, or 0L if not set
+     */
+    public long getHelpElementUid() {
+        if (helpElementUid != null) {
+            return helpElementUid;
+        }
+        return 0L;
     }
 
     /**
      * Sets a (short) help text that describes what the user has to do
      * @param help input help
      */
-    public void setHelp(String help) {
-        this.help = help;
+    public void setHelp(TranslationElement help) {
+        this.helpElement = help;
     }
 
     /**
      * Gets a (short) help text that describes what the user has to do
      * @return help text, or null if not set
      */
-    public String getHelp() {
-        return help;
+    public TranslationElement getHelp() {
+        return helpElement;
     }
 
     /**
@@ -281,6 +334,42 @@ public class InputElement {
         }
 
         return 0L;
+    }
+
+    /**
+     * Copies all member variables (except uid) to a new object
+     * @param copy copy object
+     */
+    public void copyTo(InputElement copy) {
+        copy.setType(type);
+        copy.setName(name);
+        copy.setMandatory(mandatory.booleanValue());
+        copy.setTitle(titleElement);
+        if (titleElementUid != null) {
+            copy.setTitleElementUid(titleElementUid);
+        }
+        copy.setHelp(helpElement);
+        if (helpElementUid != null) {
+            copy.setHelpElementUid(helpElementUid);
+        }
+        if (vocabularyUid != null) {
+            copy.setVocabularyUid(vocabularyUid);
+        }
+        if (inputGroupUid != null) {
+            copy.setInputGroupUid(inputGroupUid);
+        }
+
+        Iterator<String> opts = options.keySet().iterator();
+        while (opts.hasNext()) {
+            String key = opts.next();
+            copy.setOption(key, options.get(key));
+        }
+
+        Iterator<Restriction.RestrictionType> restr = restrictions.keySet().iterator();
+        while (restr.hasNext()) {
+            Restriction.RestrictionType key = restr.next();
+            copy.setRestriction(restrictions.get(key));
+        }
     }
 
     @Override

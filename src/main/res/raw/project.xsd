@@ -259,12 +259,12 @@
 	<!-- project definition -->
 	<xs:element name="project">
 		<xs:complexType>
-			<xs:all>
+			<xs:sequence>
 				<xs:element name="restrictions" type="restrictionsType" minOccurs="0" maxOccurs="1" />
 				<xs:element name="timer" type="timerType" minOccurs="0" maxOccurs="1" />
-				<xs:element name="input" type="inputChoicesType" minOccurs="1" maxOccurs="1" />
 				<xs:element name="vocabularies" type="vocabulariesType" minOccurs="0" maxOccurs="1" />
-			</xs:all>
+				<xs:element name="input" type="inputChoicesType" minOccurs="1" maxOccurs="1" />
+			</xs:sequence>
 			
 			<!-- name of the project (required, internal only) -->
 			<xs:attribute name="name" type="xs:string" use="required" />

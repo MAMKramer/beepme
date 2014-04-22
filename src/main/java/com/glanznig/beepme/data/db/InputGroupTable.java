@@ -20,8 +20,12 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import com.glanznig.beepme.data.InputGroup;
 
 /**
  * Represents the table INPUT_GROUP (grouping of input elements)
@@ -66,5 +70,50 @@ public class InputGroupTable extends StorageHandler {
      */
     public static void dropTable(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
+    }
+
+    /**
+     * Truncates (deletes the content of) the table.
+     */
+    public void truncate() {
+        SQLiteDatabase db = getDb();
+        dropTable(db);
+        createTable(db);
+    }
+
+    /**
+     * Adds a new input group to the database
+     * @param group values to add to the input group table
+     * @return new input group object with set values and uid, or null if an error occurred
+     */
+    public InputGroup addInputGroup(InputGroup group) {
+        InputGroup newGroup = null;
+
+        if (group != null) {
+            SQLiteDatabase db = getDb();
+
+            ContentValues values = new ContentValues();
+            if (group.getName() != null) {
+                values.put("name", group.getName());
+            }
+            if (group.getTitle() != null) {
+                values.put("title", group.getTitle());
+            }
+            if (group.getProjectUid() != 0L) {
+                values.put("project_id", group.getProjectUid());
+            }
+
+            Log.i(TAG, "inserted values=" + values);
+            long groupId = db.insert(getTableName(), null, values);
+            db.close();
+
+            // if no error occurred
+            if (groupId != -1) {
+                newGroup = new InputGroup(groupId);
+                group.copyTo(newGroup);
+            }
+        }
+
+        return newGroup;
     }
 }

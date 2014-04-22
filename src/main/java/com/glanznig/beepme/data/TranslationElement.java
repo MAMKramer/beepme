@@ -125,6 +125,21 @@ public class TranslationElement {
         return 0L;
     }
 
+    /**
+     * Copies all member variables (except uid) to a new object
+     * @param copy copy object
+     */
+    public void copyTo(TranslationElement copy) {
+        copy.setLang(lang);
+        copy.setContent(content);
+        if (inputElementUid != null) {
+            copy.setInputElementUid(inputElementUid);
+        }
+        if (translationOfUId != null) {
+            copy.setTranslationOfUId(translationOfUId);
+        }
+    }
+
     @Override
     public int hashCode() {
         return uid != null ? this.getClass().hashCode() + uid.hashCode() : super.hashCode();
