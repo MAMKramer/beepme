@@ -29,101 +29,101 @@ import java.util.Date;
  * A moment has several values of different form, where the user added some data.
  */
 public class Moment {
-	
-	private Long uid;
-	private Date timestamp;
-	private Boolean accepted;
-	private Long uptimeUid;
+
+    private Long uid;
+    private Date timestamp;
+    private Boolean accepted;
+    private Long uptimeUid;
     private Long projectUid;
-	
-	public Moment() {
-		uid = null;
-		timestamp = null;
-		accepted = Boolean.FALSE;
-		uptimeUid = null;
+
+    public Moment() {
+        uid = null;
+        timestamp = null;
+        accepted = Boolean.FALSE;
+        uptimeUid = null;
         projectUid = null;
-	}
-	
-	public Moment(long uid) {
-		setUid(uid);
-		timestamp = null;
-		accepted = Boolean.FALSE;
-		uptimeUid = null;
+    }
+
+    public Moment(long uid) {
+        setUid(uid);
+        timestamp = null;
+        accepted = Boolean.FALSE;
+        uptimeUid = null;
         projectUid = null;
-	}
+    }
 
     /**
      * get unique identifier
      * @return uid (primary key)
      */
-	public long getUid() {
-		if (uid != null) {
-			return uid.longValue();
-		}
-		else {
-			return 0L;
-		}
-	}
+    public long getUid() {
+        if (uid != null) {
+            return uid.longValue();
+        }
+        else {
+            return 0L;
+        }
+    }
 
     /**
      * set unique identifier
      * @param uid uid (primary key)
      */
-	private void setUid(long uid) {
-		this.uid = Long.valueOf(uid);
-	}
+    private void setUid(long uid) {
+        this.uid = Long.valueOf(uid);
+    }
 
     /**
      * get when moment occurred
      * @return timestamp (unix time in milliseconds), or null if not set
      */
-	public Date getTimestamp() {
-		return timestamp;
-	}
+    public Date getTimestamp() {
+        return timestamp;
+    }
 
     /**
      * set when moment occurred
      * @param timestamp
      */
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
 
     /**
      * get if moment was accepted (makes sense only in sampling and life logging projects)
      * @return true when moment was accepted, false otherwise
      */
-	public boolean getAccepted() {
-		return accepted.booleanValue();
-	}
+    public boolean getAccepted() {
+        return accepted.booleanValue();
+    }
 
     /**
      * set if moment was accepted (makes sense only in sampling and life logging projects)
      * @param accepted true if accepted, false otherwise
      */
-	public void setAccepted(boolean accepted) {
-		this.accepted = new Boolean(accepted);
-	}
+    public void setAccepted(boolean accepted) {
+        this.accepted = new Boolean(accepted);
+    }
 
     /**
      * set timer uptime uid (chunk of time where timer is active and beeps are possible)
      * @param uptimeUid uptime uid
      */
-	public void setUptimeUid(long uptimeUid) {
-		this.uptimeUid = Long.valueOf(uptimeUid);
-	}
+    public void setUptimeUid(long uptimeUid) {
+        this.uptimeUid = Long.valueOf(uptimeUid);
+    }
 
     /**
      * get timer uptime uid (chunk of time where timer is active and beeps are possible)
      * @return uptime uid or 0L if not set
      */
-	public long getUptimeUid() {
-		if (uptimeUid != null) {
-			return uptimeUid.longValue();
-		}
-		
-		return 0L;
-	}
+    public long getUptimeUid() {
+        if (uptimeUid != null) {
+            return uptimeUid.longValue();
+        }
+
+        return 0L;
+    }
 
     /**
      * set project uid of project where moment belongs to
@@ -146,7 +146,7 @@ public class Moment {
     }
 
     @Override
-	public int hashCode() {
+    public int hashCode() {
         return uid != null ? this.getClass().hashCode() + uid.hashCode() : super.hashCode();
     }
 

@@ -31,10 +31,14 @@ import com.glanznig.beepme.data.RandomTimer;
 import com.glanznig.beepme.data.Restriction;
 import com.glanznig.beepme.data.Timer;
 import com.glanznig.beepme.data.TranslationElement;
+import com.glanznig.beepme.data.Vocabulary;
+import com.glanznig.beepme.data.VocabularyItem;
 import com.glanznig.beepme.data.db.InputElementTable;
 import com.glanznig.beepme.data.db.InputGroupTable;
 import com.glanznig.beepme.data.db.ProjectTable;
 import com.glanznig.beepme.data.db.TranslationElementTable;
+import com.glanznig.beepme.data.db.VocabularyItemTable;
+import com.glanznig.beepme.data.db.VocabularyTable;
 import com.glanznig.beepme.data.xml.datatype.DatatypeFactoryImpl;
 import com.sun.msv.verifier.jarv.TheFactoryImpl;
 
@@ -184,6 +188,10 @@ public class ProjectXml {
                                     mProject.setTimer(parseTimer(parser));
                                 }
                             }
+                            else if (tagName.equals("vocabularies")) {
+                                Log.i(TAG, "tag vocabularies");
+                                parseVocabularies(parser);
+                            }
                             else if (tagName.equals("input")) {
                                 if (mProject != null) {
                                     mProject.setOption("listTitle", parser.getAttributeValue(null, "listTitle"));
@@ -203,6 +211,23 @@ public class ProjectXml {
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "error parsing: " + e.getMessage());
+                }
+            }
+
+            // check if ids are unique and if references have matching ids
+            Iterator<Integer> idCountIterator = mIds.values().iterator();
+            while (idCountIterator.hasNext()) {
+                Integer idCount = idCountIterator.next();
+                if (idCount > 1) {
+                    valid = false;
+                }
+            }
+
+            Iterator<String> refIterator = mRefs.iterator();
+            while (refIterator.hasNext()) {
+                String ref = refIterator.next();
+                if (!mIds.containsKey(ref)) {
+                    valid = false;
                 }
             }
         }
@@ -352,11 +377,86 @@ public class ProjectXml {
         return timer;
     }
 
+    private void parseVocabularies(XmlPullParser parser) throws Exception {
+        int eventType = 0;
+        boolean inVocabularies = true;
+        HashMap<String, VocabularyItem> items = new HashMap<String, VocabularyItem>();
+
+        Vocabulary currentVocabulary = null;
+        VocabularyItem currentVocabularyItem = null;
+        String currentLanguage = null;
+
+        do {
+            eventType = parser.next();
+            if (eventType == XmlPullParser.START_TAG) {
+                if (parser.getName().equals("vocabulary")) {
+                    String id = parser.getAttributeValue(null, "id");
+                    addId(id);
+                    currentVocabulary = new Vocabulary();
+                    currentVocabulary.setName(id);
+                }
+                else if (parser.getName().equals("item")) {
+                    String id = parser.getAttributeValue(null, "id");
+                    addId(currentVocabulary.getName()+"_"+id);
+                    currentVocabularyItem = new VocabularyItem(true);
+                    currentVocabularyItem.setName(id);
+                    currentVocabularyItem.setLanguage(mProject.getLanguage());
+                }
+                else if (parser.getName().equals("translation")) {
+                    currentLanguage = parser.getAttributeValue(null, "lang");
+                }
+                else if (parser.getName().equals("t")) {
+                    String id = parser.getAttributeValue(null, "id");
+                    mRefs.add(currentVocabulary.getName()+"_"+id);
+                    currentVocabularyItem = new VocabularyItem(true);
+                    currentVocabularyItem.setName(id);
+                    currentVocabularyItem.setLanguage(new Locale(currentLanguage));
+                }
+            }
+            if (eventType == XmlPullParser.TEXT) {
+                if (currentVocabularyItem != null) {
+                    currentVocabularyItem.setValue(parser.getText());
+                }
+            }
+            if (eventType == XmlPullParser.END_TAG) {
+                if (parser.getName().equals("vocabularies")) {
+                    inVocabularies = false;
+                }
+                else if (parser.getName().equals("vocabulary")) {
+                    mProject.addVocabulary(currentVocabulary);
+                    currentVocabulary = null;
+                }
+                else if (parser.getName().equals("item")) {
+                    currentVocabulary.addItem(currentVocabularyItem);
+                    items.put(currentVocabulary.getName()+"_"+currentVocabularyItem.getName(), currentVocabularyItem);
+                    currentVocabularyItem = null;
+                }
+                else if (parser.getName().equals("translation")) {
+                    currentLanguage = null;
+                }
+                else if (parser.getName().equals("t")) {
+                    if (items.containsKey(currentVocabulary.getName()+"_"+currentVocabularyItem.getName())) {
+                        items.get(currentVocabulary.getName()+"_"+currentVocabularyItem.getName()).setTranslation(currentVocabularyItem);
+                    }
+                    // referencing an element that does not exist
+                    else {
+                        valid = false;
+                    }
+                    currentVocabularyItem = null;
+                }
+            }
+        }
+        while(inVocabularies);
+    }
+
     private void parseInput(XmlPullParser parser) throws Exception {
         int eventType = 0;
         boolean inInput = true;
         InputGroup currentGroup = null;
         int groupPos = 0;
+        HashMap<String, InputElement> inputElements = new HashMap<String, InputElement>();
+        String currentLang = null;
+        TranslationElement currentTElement = null;
 
         do {
             eventType = parser.next();
@@ -398,13 +498,15 @@ public class ProjectXml {
                         TranslationElement titleElement = new TranslationElement();
                         titleElement.setLang(mProject.getLanguage());
                         titleElement.setContent(title);
-                        element.setTitle(titleElement);
+                        titleElement.setTarget(TranslationElement.Target.TITLE);
+                        element.setTranslation(titleElement);
                     }
                     if (help != null) {
                         TranslationElement helpElement = new TranslationElement();
                         helpElement.setLang(mProject.getLanguage());
                         helpElement.setContent(help);
-                        element.setHelp(helpElement);
+                        helpElement.setTarget(TranslationElement.Target.HELP);
+                        element.setTranslation(helpElement);
                     }
 
                     if (fillIn.equals("mandatory")) {
@@ -442,13 +544,73 @@ public class ProjectXml {
                         if (predefined == null) {
                             predefined = "false";
                         }
-                        element.setOption("vocabulary", vocabulary);
+                        Iterator<Vocabulary> vocsIterator = mProject.getVocabularies().iterator();
+                        boolean vocExists = false;
+                        while (vocsIterator.hasNext()) {
+                            Vocabulary v = vocsIterator.next();
+                            if (v.getName().equals(vocabulary)) {
+                                element.setVocabulary(v);
+                                vocExists = true;
+                            }
+                        }
                         element.setOption("predefinedOnly", predefined);
+
+                        if (!vocExists) {
+                            if (predefined.equals("false")) {
+                                Vocabulary v = new Vocabulary();
+                                v.setName(vocabulary);
+                                addId(vocabulary);
+                                mProject.addVocabulary(v);
+                            }
+                            // vocabulary has not been defined, but only predefined items are allowed
+                            // this is not valid
+                            else if (predefined.equals("true")) {
+                                valid = false;
+                            }
+                        }
                     }
 
                     // add input element to group
                     currentGroup.addInputElement(element, groupPos);
+                    inputElements.put(element.getName(), element);
                     groupPos++;
+                }
+                // translation
+                else if (parser.getName().equals("translation")) {
+                    currentLang = parser.getAttributeValue(null, "lang");
+                }
+                // translation element
+                else if (parser.getName().equals("t")) {
+                    String id = parser.getAttributeValue(null, "id");
+                    mRefs.add(id);
+                    String target = parser.getAttributeValue(null, "target");
+                    if (target == null) {
+                        target = "content";
+                    }
+                    currentTElement = new TranslationElement();
+                    currentTElement.setLang(new Locale(currentLang));
+                    if (target.equals("content")) {
+                        currentTElement.setTarget(TranslationElement.Target.CONTENT);
+                    }
+                    else if (target.equals("title")) {
+                        currentTElement.setTarget(TranslationElement.Target.TITLE);
+                    }
+                    else if (target.equals("help")) {
+                        currentTElement.setTarget(TranslationElement.Target.HELP);
+                    }
+
+                    if (inputElements.containsKey(id)) {
+                        inputElements.get(id).setTranslation(currentTElement);
+                    }
+                    // referenced input element does not exist
+                    else {
+                        valid = false;
+                    }
+                }
+            }
+            if (eventType == XmlPullParser.TEXT) {
+                if (currentTElement != null) {
+                    currentTElement.setContent(parser.getText());
                 }
             }
             if (eventType == XmlPullParser.END_TAG) {
@@ -459,8 +621,14 @@ public class ProjectXml {
                     currentGroup = null;
                     groupPos = 0;
                 }
-                if (parser.getName().equals("input")) {
+                else if (parser.getName().equals("input")) {
                     inInput = false;
+                }
+                else if (parser.getName().equals("translation")) {
+                    currentLang = null;
+                }
+                else if (parser.getName().equals("t")) {
+                    currentTElement = null;
                 }
             }
         }
@@ -473,22 +641,48 @@ public class ProjectXml {
             count += 1;
         }
         else {
-            count = 0;
+            count = 1;
         }
         mIds.put(id, count);
     }
 
     public void persist() {
-        if (mProject != null) {
+        Log.i(TAG, "valid="+valid);
+        if (mProject != null && valid != null && valid) {
             Log.i(TAG, "persisting project");
             // persisting project
             ProjectTable projectTable = new ProjectTable(ctx);
             mProject = projectTable.addProject(mProject);
 
-            List<InputGroup> groups = mProject.getInputGroups();
-            Iterator<InputGroup> groupIterator = groups.iterator();
+            // persisting vocabularies
+            VocabularyTable vocabularyTable = new VocabularyTable(ctx);
+            VocabularyItemTable vocabularyItemTable = new VocabularyItemTable(ctx);
+            Iterator<Vocabulary> vocabularyIterator = mProject.getVocabularies().iterator();
+            while (vocabularyIterator.hasNext()) {
+                Vocabulary voc = vocabularyIterator.next();
+                voc.setProjectUid(mProject.getUid());
+                voc = vocabularyTable.addVocabulary(voc);
+
+                // persisting vocabulary items
+                Iterator<VocabularyItem> vocItemIterator = voc.getItems().iterator();
+                while (vocItemIterator.hasNext()) {
+                    VocabularyItem vocItem = vocItemIterator.next();
+                    vocItem.setVocabularyUid(voc.getUid());
+                    vocItem = vocabularyItemTable.addVocabularyItem(vocItem);
+
+                    // persisting vocabulary item translations
+                    Iterator<VocabularyItem> vocItemTranslIterator = vocItem.getTranslations().iterator();
+                    while (vocItemTranslIterator.hasNext()) {
+                        VocabularyItem vocItemTransl = vocItemTranslIterator.next();
+                        vocItemTransl.setVocabularyUid(voc.getUid());
+                        vocItemTransl.setTranslationOfUid(vocItem.getUid());
+                        vocabularyItemTable.addVocabularyItem(vocItemTransl);
+                    }
+                }
+            }
 
             // persisting input groups
+            Iterator<InputGroup> groupIterator = mProject.getInputGroups().iterator();
             while (groupIterator.hasNext()) {
                 InputGroup group = groupIterator.next();
                 group.setProjectUid(mProject.getUid());
@@ -508,25 +702,17 @@ public class ProjectXml {
                     element = elementTable.addInputElement(element);
 
                     TranslationElementTable translationElementTable = new TranslationElementTable(ctx);
-                    TranslationElement title = element.getTitle();
-                    if (title != null) {
-                        title.setInputElementUid(element.getUid());
-                        title = translationElementTable.addTranslationElement(title);
-                        if (title.getUid() != 0L) {
-                            element.setTitleElementUid(title.getUid());
-                        }
-                    }
-                    TranslationElement help = element.getHelp();
-                    if (help != null) {
-                        help.setInputElementUid(element.getUid());
-                        help = translationElementTable.addTranslationElement(help);
-                        if (help.getUid() != 0L) {
-                            element.setHelpElementUid(help.getUid());
-                        }
-                    }
+                    Iterator<HashMap<TranslationElement.Target, TranslationElement>> translationsIterator = element.getTranslations().iterator();
 
-                    if (title != null && help != null && (title.getUid() != 0L || help.getUid() != 0L)) {
-                        elementTable.updateInputElement(element);
+                    Log.i(TAG, "persisting translation elements");
+                    while (translationsIterator.hasNext()) {
+                        HashMap<TranslationElement.Target, TranslationElement> translations = translationsIterator.next();
+                        Iterator<TranslationElement> transIt = translations.values().iterator();
+                        while (transIt.hasNext()) {
+                            TranslationElement tElement = transIt.next();
+                            tElement.setInputElementUid(element.getUid());
+                            translationElementTable.addTranslationElement(tElement);
+                        }
                     }
                 }
             }

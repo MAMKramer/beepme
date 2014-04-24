@@ -27,6 +27,8 @@ import android.util.Log;
 
 import com.glanznig.beepme.data.TranslationElement;
 
+import java.util.HashMap;
+
 /**
  * Represents the table TRANSLATION_ELEMENT, which is used to translate UI components in
  * different languages and thus enable multi-language projects.
@@ -40,11 +42,34 @@ public class TranslationElementTable extends StorageHandler {
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "lang TEXT NOT NULL, " +
                     "content TEXT NOT NULL, " +
+                    "target INTEGER NOT NULL, " +
                     "input_element_id INTEGER NOT NULL, " +
                     "translation_of INTEGER, " +
                     "FOREIGN KEY(input_element_id) REFERENCES "+ InputElementTable.getTableName() +"(_id), " +
                     "FOREIGN KEY(translation_of) REFERENCES "+ TranslationElementTable.getTableName() +"(_id)" +
                     ")";
+
+    private static HashMap<TranslationElement.Target, Integer> targetMap;
+    private static HashMap<Integer, TranslationElement.Target> invTargetMap;
+
+    static {
+        Integer zero = new Integer(0);
+        Integer one = new Integer(1);
+        Integer two = new Integer(2);
+
+        TranslationElement.Target content = TranslationElement.Target.CONTENT;
+        TranslationElement.Target title = TranslationElement.Target.TITLE;
+        TranslationElement.Target help = TranslationElement.Target.HELP;
+
+        targetMap = new HashMap<TranslationElement.Target, Integer>();
+        invTargetMap = new HashMap<Integer, TranslationElement.Target>();
+        targetMap.put(content, zero);
+        targetMap.put(title, one);
+        targetMap.put(help, two);
+        invTargetMap.put(zero, content);
+        invTargetMap.put(one, title);
+        invTargetMap.put(two, help);
+    }
 
     public TranslationElementTable(Context ctx) {
         super(ctx);
@@ -84,9 +109,36 @@ public class TranslationElementTable extends StorageHandler {
     }
 
     /**
-     * Adds a new input group to the database
-     * @param element values to add to the input group table
-     * @return new input group object with set values and uid, or null if an error occurred
+     * Populates content values for the set variables of the translation element.
+     * @param element the translation element
+     * @return populated content values
+     */
+    private ContentValues getContentValues(TranslationElement element) {
+        ContentValues values = new ContentValues();
+
+        if (element.getLang() != null) {
+            values.put("lang", element.getLang().getLanguage());
+        }
+        if (element.getContent() != null) {
+            values.put("content", element.getContent());
+        }
+        if (element.getTarget() != null) {
+            values.put("target", targetMap.get(element.getTarget()));
+        }
+        if (element.getInputElementUid() != 0L) {
+            values.put("input_element_id", element.getInputElementUid());
+        }
+        if (element.getTranslationOfUid() != 0L) {
+            values.put("translation_of", element.getTranslationOfUid());
+        }
+
+        return values;
+    }
+
+    /**
+     * Adds a new translation element to the database
+     * @param element values to add to the translation element table
+     * @return new translation element object with set values and uid, or null if an error occurred
      */
     public TranslationElement addTranslationElement(TranslationElement element) {
         TranslationElement newElement = null;
@@ -94,19 +146,7 @@ public class TranslationElementTable extends StorageHandler {
         if (element != null) {
             SQLiteDatabase db = getDb();
 
-            ContentValues values = new ContentValues();
-            if (element.getLang() != null) {
-                values.put("lang", element.getLang().getLanguage());
-            }
-            if (element.getContent() != null) {
-                values.put("content", element.getContent());
-            }
-            if (element.getInputElementUid() != 0L) {
-                values.put("input_element_id", element.getInputElementUid());
-            }
-            if (element.getTranslationOfUid() != 0L) {
-                values.put("translation_of", element.getTranslationOfUid());
-            }
+            ContentValues values = getContentValues(element);
 
             Log.i(TAG, "inserted values=" + values);
             long elementId = db.insert(getTableName(), null, values);
@@ -120,5 +160,23 @@ public class TranslationElementTable extends StorageHandler {
         }
 
         return newElement;
+    }
+
+    /**
+     * Updates a translation element in the database
+     * @param element values to update for this translation element
+     * @return true on success or false if an error occurred
+     */
+    public boolean updateTranslationElement(TranslationElement element) {
+        int numRows = 0;
+        if (element.getUid() != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = getContentValues(element);
+
+            numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(element.getUid()) });
+            db.close();
+        }
+
+        return numRows == 1;
     }
 }

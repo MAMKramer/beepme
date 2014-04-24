@@ -128,6 +128,58 @@ public class ProjectTable extends StorageHandler {
     }
 
     /**
+     * Populates content values for the set variables of the project.
+     * @param project the project
+     * @return populated content values
+     */
+    private ContentValues getContentValues(Project project) {
+        ContentValues values = new ContentValues();
+
+        if (project.getName() != null) {
+            values.put("name", project.getName());
+        }
+        if (project.getType() != null) {
+            values.put("type", typeMap.get(project.getType()));
+        }
+        if (project.getStatus() != null) {
+            values.put("status", statusMap.get(project.getStatus()));
+        }
+        if (project.getStart() != null) {
+            values.put("start", String.valueOf(project.getStart().getTime()));
+        }
+        if (project.getExpire() != null) {
+            values.put("expire", String.valueOf(project.getExpire().getTime()));
+        }
+        if (project.getLanguage() != null) {
+            values.put("lang", project.getLanguage().getLanguage());
+        }
+
+        Collection<Restriction> restrictions = project.getRestrictions();
+        if (!restrictions.isEmpty()) {
+            String restrictionsStr = "";
+            Iterator<Restriction> restr = restrictions.iterator();
+            while (restr.hasNext()) {
+                Restriction r = restr.next();
+                restrictionsStr += r.toString();
+                if (restr.hasNext()) {
+                    restrictionsStr += ";";
+                }
+            }
+            values.put("restrictions", restrictionsStr);
+        }
+
+        if (project.getTimer() != null) {
+            if (project.getTimer() instanceof RandomTimer) {
+                values.put("timer", "type=random,"+project.getTimer().toString());
+            }
+        }
+
+        values.put("options", project.getOptions());
+
+        return values;
+    }
+
+    /**
      * Adds a new project to the database
      * @param project values to add to the project table
      * @return new project object with set values and uid, or null if an error occurred
@@ -137,53 +189,12 @@ public class ProjectTable extends StorageHandler {
 
         if (project != null) {
             SQLiteDatabase db = getDb();
-
-            ContentValues values = new ContentValues();
-            if (project.getName() != null) {
-                values.put("name", project.getName());
-            }
-            if (project.getType() != null) {
-                values.put("type", typeMap.get(project.getType()));
-            }
-            if (project.getStatus() != null) {
-                values.put("status", statusMap.get(project.getStatus()));
-            }
-            if (project.getStart() != null) {
-                values.put("start", String.valueOf(project.getStart().getTime()));
-            }
-            if (project.getExpire() != null) {
-                values.put("expire", String.valueOf(project.getExpire().getTime()));
-            }
-            if (project.getLanguage() != null) {
-                values.put("lang", project.getLanguage().getLanguage());
-            }
-
-            Collection<Restriction> restrictions = project.getRestrictions();
-            if (!restrictions.isEmpty()) {
-                String restrictionsStr = "";
-                Iterator<Restriction> restr = restrictions.iterator();
-                while (restr.hasNext()) {
-                    Restriction r = restr.next();
-                    restrictionsStr += r.toString();
-                    if (restr.hasNext()) {
-                        restrictionsStr += ";";
-                    }
-                }
-                values.put("restrictions", restrictionsStr);
-            }
-
-            if (project.getTimer() != null) {
-                if (project.getTimer() instanceof RandomTimer) {
-                    values.put("timer", "type=random,"+project.getTimer().toString());
-                }
-            }
-
-            values.put("options", project.getOptions());
+            ContentValues values = getContentValues(project);
 
             Log.i(TAG, "inserted values="+values);
             long projectId = db.insert(getTableName(), null, values);
             db.close();
-            // only if no error occured
+            // only if no error occurred
             if (projectId != -1) {
                 newProject = new Project(projectId);
                 project.copyTo(newProject);
@@ -191,6 +202,24 @@ public class ProjectTable extends StorageHandler {
         }
 
         return newProject;
+    }
+
+    /**
+     * Updates a project in the database
+     * @param project values to update for this project
+     * @return true on success or false if an error occurred
+     */
+    public boolean updateProject(Project project) {
+        int numRows = 0;
+        if (project.getUid() != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = getContentValues(project);
+
+            numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(project.getUid()) });
+            db.close();
+        }
+
+        return numRows == 1;
     }
 
 }

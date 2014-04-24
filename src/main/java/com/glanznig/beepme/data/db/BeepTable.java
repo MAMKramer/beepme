@@ -20,183 +20,183 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data.db;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 /**
  * Represents the table BEEP (internal data and statistics about beeps and their status).
  */
 public class BeepTable extends StorageHandler {
-	
-	private static final String TAG = "BeepTable";
-	
-	private static final String TBL_NAME = "beep";
-	private static final String TBL_CREATE =
-			"CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
-			"_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-			"timestamp INTEGER NOT NULL, " +
-			"created INTEGER NOT NULL, " +
-			"received INTEGER, " +
-			"updated INTEGER, " +
-			"status INTEGER NOT NULL, " +
-			"uptime_id INTEGER NOT NULL, " +
-			"FOREIGN KEY(uptime_id) REFERENCES "+ UptimeTable.getTableName() +"(_id)" +
-			")";
-	
-	public BeepTable(Context ctx) {
-		super(ctx);
-	}
+
+    private static final String TAG = "BeepTable";
+
+    private static final String TBL_NAME = "beep";
+    private static final String TBL_CREATE =
+            "CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
+                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "timestamp INTEGER NOT NULL, " +
+                    "created INTEGER NOT NULL, " +
+                    "received INTEGER, " +
+                    "updated INTEGER, " +
+                    "status INTEGER NOT NULL, " +
+                    "uptime_id INTEGER NOT NULL, " +
+                    "FOREIGN KEY(uptime_id) REFERENCES "+ UptimeTable.getTableName() +"(_id)" +
+                    ")";
+
+    public BeepTable(Context ctx) {
+        super(ctx);
+    }
 
     /**
      * Returns the table name.
      * @return table name
      */
-	public static String getTableName() {
-		return TBL_NAME;
-	}
+    public static String getTableName() {
+        return TBL_NAME;
+    }
 
     /**
      * Creates the table.
      * @param db database object.
      */
-	public static void createTable(SQLiteDatabase db) {
-		db.execSQL(TBL_CREATE);
-	}
+    public static void createTable(SQLiteDatabase db) {
+        db.execSQL(TBL_CREATE);
+    }
 
     /**
      * Drops the table.
      * @param db database object.
      */
-	public static void dropTable(SQLiteDatabase db) {
-		db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
-	}
-	
-	public long addScheduledBeep(long time, long uptimeId) {
-		long beepId = 0L;
-		
-		if (time != 0L && uptimeId != 0L) {
-			SQLiteDatabase db = getDb();
-			 
-		    ContentValues values = new ContentValues();
-		    values.put("timestamp", time);
-		    values.put("created", Calendar.getInstance().getTimeInMillis());
-		    values.put("status", 0);
-		    values.put("uptime_id", uptimeId);
-		    beepId = db.insert(getTableName(), null, values);
-		    db.close();
-		}
-		
-		return beepId;
-	}
-	
-	public boolean updateStatus(long beepId, int status) {
-		int numRows = 0;
-		
-		if (beepId != 0L) {
-			SQLiteDatabase db = getDb();
-			ContentValues values = new ContentValues();
-			values.put("status", status);
-			values.put("updated", Calendar.getInstance().getTimeInMillis());
-			numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beepId) });
-			db.close();
-		}
-	
-		return numRows == 1;
-	}
-	
-	public boolean receivedScheduledBeep(long beepId, long timestamp) {
-		int numRows = 0;
-		
-		if (beepId != 0L) {
-			SQLiteDatabase db = getDb();
-			ContentValues values = new ContentValues();
-			values.put("received", timestamp);
-			numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beepId) });
-			db.close();
-		}
-	
-		return numRows == 1;
-	}
-	
-	public int getStatus(long beepId) {
-		int status = 0;
-		
-		if (beepId != 0L) {
-			SQLiteDatabase db = getDb();
-			Cursor cursor = db.query(getTableName(), new String[] {"status"},
-					"_id=?", new String[] { String.valueOf(beepId) }, null, null, null);
-			
-			if (cursor != null && cursor.getCount() > 0) {
-				cursor.moveToFirst();
-				status = cursor.getInt(0);
-				cursor.close();
-			}
-			db.close();
-		}
-	
-		return status;
-	}
-	
-	public boolean isExpired(long beepId) {
-		boolean expired = false;
-		
-		if (beepId != 0L) {
-			SQLiteDatabase db = getDb();
-			Cursor cursor = db.query(getTableName(), new String[] {"timestamp"},
-					"_id=?", new String[] { String.valueOf(beepId) }, null, null, null);
-			
-			if (cursor != null && cursor.getCount() > 0) {
-				cursor.moveToFirst();
-				long timestamp = cursor.getLong(0);
-				
-				if ((Calendar.getInstance().getTimeInMillis() - timestamp) >= 60000) { //difference 1 min
-					expired = true;
-				}
-				cursor.close();
-			}
-			db.close();
-		}
-	
-		return expired;
-	}
-	
-	public int getNumLastSubsequentCancelledBeeps() {
-		int count = 0;
-		
-		SQLiteDatabase db = getDb();
-		Calendar now = Calendar.getInstance();
-		int year = now.get(Calendar.YEAR);
-		int month = now.get(Calendar.MONTH);
-		int day = now.get(Calendar.DAY_OF_MONTH);
-		GregorianCalendar today = new GregorianCalendar(year, month, day);
-		long startOfDay = today.getTimeInMillis();
-		today.roll(Calendar.DAY_OF_MONTH, true);
-		long endOfDay = today.getTimeInMillis();
-		
-		Cursor cursor = db.query(getTableName(), new String[] {"status"}, "timestamp between ? and ?",
-				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
-		
-		if (cursor != null && cursor.getCount() > 0) {
-			cursor.moveToLast();
-			do {
-				if (cursor.getInt(0) != 0) {
-					count += 1;
-				}
-				else {
-					break;
-				}
-			} while (cursor.moveToPrevious());
-			
-			cursor.close();
-		}
-		db.close();
-		
-		return count;
-	}
+    public static void dropTable(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
+    }
+
+    public long addScheduledBeep(long time, long uptimeId) {
+        long beepId = 0L;
+
+        if (time != 0L && uptimeId != 0L) {
+            SQLiteDatabase db = getDb();
+
+            ContentValues values = new ContentValues();
+            values.put("timestamp", time);
+            values.put("created", Calendar.getInstance().getTimeInMillis());
+            values.put("status", 0);
+            values.put("uptime_id", uptimeId);
+            beepId = db.insert(getTableName(), null, values);
+            db.close();
+        }
+
+        return beepId;
+    }
+
+    public boolean updateStatus(long beepId, int status) {
+        int numRows = 0;
+
+        if (beepId != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = new ContentValues();
+            values.put("status", status);
+            values.put("updated", Calendar.getInstance().getTimeInMillis());
+            numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beepId) });
+            db.close();
+        }
+
+        return numRows == 1;
+    }
+
+    public boolean receivedScheduledBeep(long beepId, long timestamp) {
+        int numRows = 0;
+
+        if (beepId != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = new ContentValues();
+            values.put("received", timestamp);
+            numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beepId) });
+            db.close();
+        }
+
+        return numRows == 1;
+    }
+
+    public int getStatus(long beepId) {
+        int status = 0;
+
+        if (beepId != 0L) {
+            SQLiteDatabase db = getDb();
+            Cursor cursor = db.query(getTableName(), new String[] {"status"},
+                    "_id=?", new String[] { String.valueOf(beepId) }, null, null, null);
+
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                status = cursor.getInt(0);
+                cursor.close();
+            }
+            db.close();
+        }
+
+        return status;
+    }
+
+    public boolean isExpired(long beepId) {
+        boolean expired = false;
+
+        if (beepId != 0L) {
+            SQLiteDatabase db = getDb();
+            Cursor cursor = db.query(getTableName(), new String[] {"timestamp"},
+                    "_id=?", new String[] { String.valueOf(beepId) }, null, null, null);
+
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                long timestamp = cursor.getLong(0);
+
+                if ((Calendar.getInstance().getTimeInMillis() - timestamp) >= 60000) { //difference 1 min
+                    expired = true;
+                }
+                cursor.close();
+            }
+            db.close();
+        }
+
+        return expired;
+    }
+
+    public int getNumLastSubsequentCancelledBeeps() {
+        int count = 0;
+
+        SQLiteDatabase db = getDb();
+        Calendar now = Calendar.getInstance();
+        int year = now.get(Calendar.YEAR);
+        int month = now.get(Calendar.MONTH);
+        int day = now.get(Calendar.DAY_OF_MONTH);
+        GregorianCalendar today = new GregorianCalendar(year, month, day);
+        long startOfDay = today.getTimeInMillis();
+        today.roll(Calendar.DAY_OF_MONTH, true);
+        long endOfDay = today.getTimeInMillis();
+
+        Cursor cursor = db.query(getTableName(), new String[] {"status"}, "timestamp between ? and ?",
+                new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToLast();
+            do {
+                if (cursor.getInt(0) != 0) {
+                    count += 1;
+                }
+                else {
+                    break;
+                }
+            } while (cursor.moveToPrevious());
+
+            cursor.close();
+        }
+        db.close();
+
+        return count;
+    }
 
 }

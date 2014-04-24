@@ -45,15 +45,11 @@ public class InputElementTable extends StorageHandler {
                     "name TEXT NOT NULL, " +
                     "mandatory INTEGER NOT NULL, " +
                     "restrict INTEGER NOT NULL, " +
-                    "title_te_id INTEGER, " +
-                    "help_te_id INTEGER, " +
                     "options TEXT, " +
                     "vocabulary_id INTEGER, " +
                     "input_group_id INTEGER NOT NULL, " +
                     "FOREIGN KEY(vocabulary_id) REFERENCES "+ VocabularyTable.getTableName() +"(_id), " +
-                    "FOREIGN KEY(input_group_id) REFERENCES "+ InputGroupTable.getTableName() +"(_id), " +
-                    "FOREIGN KEY(title_te_id) REFERENCES "+ TranslationElementTable.getTableName() +"(_id), " +
-                    "FOREIGN KEY(help_te_id) REFERENCES "+ TranslationElementTable.getTableName() +"(_id)" +
+                    "FOREIGN KEY(input_group_id) REFERENCES "+ InputGroupTable.getTableName() +"(_id)" +
                     ")";
 
     private static HashMap<InputElement.InputElementType, Integer> typeMap;
@@ -131,6 +127,11 @@ public class InputElementTable extends StorageHandler {
         createTable(db);
     }
 
+    /**
+     * Populates content values for the set variables of the input element.
+     * @param element input element
+     * @return populated content values
+     */
     private ContentValues getContentValues(InputElement element) {
         ContentValues values = new ContentValues();
         if (element.getType() != null) {
@@ -138,12 +139,6 @@ public class InputElementTable extends StorageHandler {
         }
         if (element.getName() != null) {
             values.put("name", element.getName());
-        }
-        if (element.getTitleElementUid() != 0L) {
-            values.put("title_te_id", element.getTitleElementUid());
-        }
-        if (element.getHelpElementUid() != 0L) {
-            values.put("help_te_id", element.getHelpElementUid());
         }
         if (element.getVocabularyUid() != 0L) {
             values.put("vocabulary_id", element.getVocabularyUid());
@@ -179,9 +174,9 @@ public class InputElementTable extends StorageHandler {
     }
 
     /**
-     * Adds a new input group to the database
-     * @param element values to add to the input group table
-     * @return new input group object with set values and uid, or null if an error occurred
+     * Adds a new input element to the database
+     * @param element values to add to the input element table
+     * @return new input element object with set values and uid, or null if an error occurred
      */
     public InputElement addInputElement(InputElement element) {
         InputElement newElement = null;
@@ -204,6 +199,11 @@ public class InputElementTable extends StorageHandler {
         return newElement;
     }
 
+    /**
+     * Updates a input element in the database
+     * @param element values to update for this input element
+     * @return true on success or false if an error occurred
+     */
     public boolean updateInputElement(InputElement element) {
         int numRows = 0;
         if (element.getUid() != 0L) {

@@ -20,8 +20,6 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data;
 
-import android.os.Bundle;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -76,6 +74,7 @@ public class Project {
     private Timer timer;
 
     private ArrayList<InputGroup> inputGroups;
+    private ArrayList<Vocabulary> vocabularies;
 
     public Project() {
         uid = null;
@@ -90,6 +89,7 @@ public class Project {
         timer = null;
 
         inputGroups = null;
+        vocabularies = null;
     }
 
     public Project(long uid) {
@@ -105,6 +105,7 @@ public class Project {
         timer = null;
 
         inputGroups = null;
+        vocabularies = null;
     }
 
     /**
@@ -337,6 +338,13 @@ public class Project {
                 copy.addInputGroup(inputGroupIterator.next());
             }
         }
+
+        if (vocabularies != null) {
+            Iterator<Vocabulary> vocabularyIterator = vocabularies.iterator();
+            while (vocabularyIterator.hasNext()) {
+                copy.addVocabulary(vocabularyIterator.next());
+            }
+        }
     }
 
     /**
@@ -359,6 +367,28 @@ public class Project {
             return inputGroups;
         }
         return new ArrayList<InputGroup>();
+    }
+
+    /**
+     * Associates a vocabulary with this project
+     * @param vocabulary the vocabulary
+     */
+    public void addVocabulary(Vocabulary vocabulary) {
+        if (vocabularies == null) {
+            vocabularies = new ArrayList<Vocabulary>();
+        }
+        vocabularies.add(vocabulary);
+    }
+
+    /**
+     * Gets the associated vocabularies for this project.
+     * @return associated vocabularies, or empty list if none
+     */
+    public List<Vocabulary> getVocabularies() {
+        if (vocabularies != null) {
+            return vocabularies;
+        }
+        return new ArrayList<Vocabulary>();
     }
 
     @Override

@@ -10,9 +10,20 @@ import java.util.Locale;
  */
 public class TranslationElement {
 
+    /**
+     * specifies which part of an input element is targeted
+     * CONTENT - content of the input element (e.g. text field)
+     * TITLE - short hint of the input element
+     * HELP -  longer hint (help text) of the input element
+     */
+    public enum Target {
+        CONTENT, TITLE, HELP;
+    }
+
     Long uid;
     Locale lang;
     String content;
+    Target target;
     Long inputElementUid;
     Long translationOfUId;
 
@@ -20,6 +31,7 @@ public class TranslationElement {
         uid = null;
         lang = null;
         content = null;
+        target = null;
         inputElementUid = null;
         translationOfUId = null;
     }
@@ -28,6 +40,7 @@ public class TranslationElement {
         setUid(uid);
         lang = null;
         content = null;
+        target = null;
         inputElementUid = null;
         translationOfUId = null;
     }
@@ -86,6 +99,22 @@ public class TranslationElement {
     }
 
     /**
+     * Sets the targeted part of the associated input element
+     * @param target targeted part
+     */
+    public void setTarget(Target target) {
+        this.target = target;
+    }
+
+    /**
+     * Gets the targeted part of the associated input element
+     * @return targeted part, or null if not set
+     */
+    public Target getTarget() {
+        return target;
+    }
+
+    /**
      * Sets the input element uid where this translation element is associated to
      * @param inputElementUid input element uid
      */
@@ -132,6 +161,7 @@ public class TranslationElement {
     public void copyTo(TranslationElement copy) {
         copy.setLang(lang);
         copy.setContent(content);
+        copy.setTarget(target);
         if (inputElementUid != null) {
             copy.setInputElementUid(inputElementUid);
         }

@@ -17,6 +17,19 @@
 		<!--<random strategy="average" min="PT10M" avg="PT30M" max="PT60M" />-->
 	</timer>
 	
+	<vocabularies>
+		<vocabulary id="default">
+			<item id="1">hoo</item>
+			<item id="2">haw</item>
+			
+			<translations>
+				<translation lang="de">
+					<t id="1">hui</t>
+				</translation>
+			</translations>
+		</vocabulary>
+	</vocabularies>
+	
 	<input listTitle="title" listSummary="description">
 		<group id="start" title="Start">
 			<text id="title"
@@ -44,17 +57,4 @@
 			</translation>
 		</translations>
 	</input>
-	
-	<!--<vocabularies>
-		<vocabulary id="default">
-			<item id="1">hoo</item>
-			<item id="2">haw</item>
-			
-			<translations>
-				<translation lang="de">
-					<t id="1">hui</t>
-				</translation>
-			</translations>
-		</vocabulary>
-	</vocabularies>-->
 </project>

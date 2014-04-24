@@ -117,6 +117,18 @@
 		</xs:complexContent>
 	</xs:complexType>
 	
+	<!-- type of translation target -->
+	<xs:simpleType name="targetType">
+		<xs:restriction base="xs:string">
+			<!-- targeting element content -->
+			<xs:enumeration value="content" />
+			<!-- targeting element title (input hint) -->
+			<xs:enumeration value="title" />
+			<!-- target element help text -->
+			<xs:enumeration value="help" />
+		</xs:restriction>
+	</xs:simpleType>
+	
 	<!-- type for translations -->
 	<xs:complexType name="translationsType">
 		<xs:sequence>
@@ -130,7 +142,7 @@
 										<!-- id of target element for translation -->
 										<xs:attribute name="id" type="xs:string" use="required" />
 										<!-- if specified name of target attribute, else targeting element content -->
-										<xs:attribute name="target" type="xs:string" />
+										<xs:attribute name="target" type="targetType" default="content" />
 									</xs:extension>
 								</xs:simpleContent>
 							</xs:complexType>

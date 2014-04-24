@@ -20,6 +20,10 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * A vocabulary represents a group of choice items. The user can use predefined ones for data
  * entry and he can also add own items (if allowed). Use cases for vocabularies and their items are
@@ -27,17 +31,26 @@ package com.glanznig.beepme.data;
  */
 public class Vocabulary {
 
-    Long uid;
-    String name;
+    private Long uid;
+    private String name;
+    private Long projectUid;
+
+    private ArrayList<VocabularyItem> items;
 
     public Vocabulary() {
         uid = null;
         name = null;
+        projectUid = null;
+
+        items = new ArrayList<VocabularyItem>();
     }
 
     public Vocabulary(long uid) {
         setUid(uid);
         name = null;
+        projectUid = null;
+
+        items = new ArrayList<VocabularyItem>();
     }
 
     /**
@@ -75,6 +88,59 @@ public class Vocabulary {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Sets the project uid where this vocabulary belongs to
+     * @param projectUid project uid
+     */
+    public void setProjectUid(long projectUid) {
+        this.projectUid = new Long(projectUid);
+    }
+
+    /**
+     * Gets the project uid where this vocabulary belongs to
+     * @return project uid, or 0L if not set
+     */
+    public long getProjectUid() {
+        if (projectUid != null) {
+            return projectUid.longValue();
+        }
+        return 0L;
+    }
+
+    /**
+     * Assoicates a vocabulary item to this vocabulary.
+     * @param item the item
+     */
+    public void addItem(VocabularyItem item) {
+        items.add(item);
+    }
+
+    /**
+     * Gets all vocabulary items that are associated to this vocabulary.
+     * @return list of vocabulary items, or empty list if no items
+     */
+    public List<VocabularyItem> getItems() {
+        return items;
+    }
+
+    /**
+     * Copies all member variables (except uid) to a new object
+     * @param copy copy object
+     */
+    public void copyTo(Vocabulary copy) {
+        copy.setName(name);
+        if (projectUid != null) {
+            copy.setProjectUid(projectUid);
+        }
+
+        if (items != null) {
+            Iterator<VocabularyItem> itemIterator = items.iterator();
+            while (itemIterator.hasNext()) {
+                copy.addItem(itemIterator.next());
+            }
+        }
     }
 
     @Override

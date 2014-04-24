@@ -82,6 +82,27 @@ public class InputGroupTable extends StorageHandler {
     }
 
     /**
+     * Populates content values for the set variables of the input group.
+     * @param group the input group
+     * @return populated content values
+     */
+    private ContentValues getContentValues(InputGroup group) {
+        ContentValues values = new ContentValues();
+
+        if (group.getName() != null) {
+            values.put("name", group.getName());
+        }
+        if (group.getTitle() != null) {
+            values.put("title", group.getTitle());
+        }
+        if (group.getProjectUid() != 0L) {
+            values.put("project_id", group.getProjectUid());
+        }
+
+        return values;
+    }
+
+    /**
      * Adds a new input group to the database
      * @param group values to add to the input group table
      * @return new input group object with set values and uid, or null if an error occurred
@@ -92,16 +113,7 @@ public class InputGroupTable extends StorageHandler {
         if (group != null) {
             SQLiteDatabase db = getDb();
 
-            ContentValues values = new ContentValues();
-            if (group.getName() != null) {
-                values.put("name", group.getName());
-            }
-            if (group.getTitle() != null) {
-                values.put("title", group.getTitle());
-            }
-            if (group.getProjectUid() != 0L) {
-                values.put("project_id", group.getProjectUid());
-            }
+            ContentValues values = getContentValues(group);
 
             Log.i(TAG, "inserted values=" + values);
             long groupId = db.insert(getTableName(), null, values);
@@ -115,5 +127,23 @@ public class InputGroupTable extends StorageHandler {
         }
 
         return newGroup;
+    }
+
+    /**
+     * Updates a input group in the database
+     * @param group values to update for this input group
+     * @return true on success or false if an error occurred
+     */
+    public boolean updateProject(InputGroup group) {
+        int numRows = 0;
+        if (group.getUid() != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = getContentValues(group);
+
+            numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(group.getUid()) });
+            db.close();
+        }
+
+        return numRows == 1;
     }
 }

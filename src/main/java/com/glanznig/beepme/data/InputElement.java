@@ -20,8 +20,6 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data;
 
-import android.os.Bundle;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,14 +49,12 @@ public class InputElement {
     private String name;
     private Boolean mandatory;
     private HashMap<Restriction.RestrictionType, Restriction> restrictions;
-    private Long titleElementUid;
-    private Long helpElementUid;
     private HashMap<String, String> options;
     private Long vocabularyUid;
     private Long inputGroupUid;
 
-    private TranslationElement titleElement;
-    private TranslationElement helpElement;
+    private HashMap<String, HashMap<TranslationElement.Target, TranslationElement>> translations;
+    private Vocabulary vocabulary;
 
     public InputElement() {
         uid = null;
@@ -66,14 +62,12 @@ public class InputElement {
         name = null;
         mandatory = Boolean.FALSE;
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
-        titleElementUid = null;
-        helpElementUid = null;
         options = new HashMap<String, String>();
         vocabularyUid = null;
         inputGroupUid = null;
 
-        titleElement = null;
-        helpElement = null;
+        translations = new HashMap<String, HashMap<TranslationElement.Target, TranslationElement>>();
+        vocabulary = null;
     }
 
     public InputElement(long uid) {
@@ -82,14 +76,12 @@ public class InputElement {
         name = null;
         mandatory = Boolean.FALSE;
         restrictions = new HashMap<Restriction.RestrictionType, Restriction>();
-        titleElementUid = null;
-        helpElementUid = null;
         options = new HashMap<String, String>();
         vocabularyUid = null;
         inputGroupUid = null;
 
-        titleElement = null;
-        helpElement = null;
+        translations = new HashMap<String, HashMap<TranslationElement.Target, TranslationElement>>();
+        vocabulary = null;
     }
 
     /**
@@ -227,73 +219,82 @@ public class InputElement {
     }
 
     /**
-     * Sets uid of input hint
-     * @param titleElementUid uid of input hint
+     * Sets (or updates) a translation element for this input element
+     * @param element translation element
      */
-    public void setTitleElementUid(long titleElementUid) {
-        this.titleElementUid = titleElementUid;
-    }
-
-    /**
-     * Gets uid of input hint
-     * @return uid of input hint, or 0L if not set
-     */
-    public long getTitleElementUid() {
-        if (titleElementUid != null) {
-            return titleElementUid;
+    public void setTranslation(TranslationElement element) {
+        if (element.getLang() != null && element.getTarget() != null) {
+            if (!translations.containsKey(element.getLang().getLanguage())) {
+                translations.put(element.getLang().getLanguage(), new HashMap<TranslationElement.Target, TranslationElement>());
+            }
+            HashMap<TranslationElement.Target, TranslationElement> trans = translations.get(element.getLang().getLanguage());
+            trans.put(element.getTarget(), element);
         }
-        return 0L;
     }
 
     /**
-     * Sets a title that provides a hint what is to be entered in this input element
-     * @param title input hint
+     * Gets a translation element associated to this input element according to the supplied
+     * parameters of language and target.
+     * @param language language code of the translation
+     * @param target target of the translation
+     * @return translation element, or null if not set
      */
-    public void setTitle(TranslationElement title) {
-        this.titleElement = title;
+    public TranslationElement getTranslation(String language, TranslationElement.Target target) {
+        if (language != null && target != null) {
+            if (translations.containsKey(language)) {
+                HashMap<TranslationElement.Target, TranslationElement> trans = translations.get(language);
+                if (trans.containsKey(target)) {
+                    return trans.get(target);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets all translation targets for this input element of the specified language
+     * @param language language code of the translation
+     * @return collection of translation elements, or null if no translations for the specified language
+     */
+    public Collection<TranslationElement> getTranslations(String language) {
+        if (translations.containsKey(language)) {
+            return translations.get(language).values();
+        }
+        return null;
+    }
+
+    /**
+     * Gets all translations for this input element
+     * @return collection of maps mapping targets to translations
+     */
+    public Collection<HashMap<TranslationElement.Target, TranslationElement>> getTranslations() {
+        return translations.values();
     }
 
     /**
      * Gets the title (input hint)
+     * @param language language language code of the translation
      * @return title, or null if not set
      */
-    public TranslationElement getTitle() {
-        return titleElement;
-    }
-
-    /**
-     * Sets uid of input hint
-     * @param helpElementUid uid of input hint
-     */
-    public void setHelpElementUid(long helpElementUid) {
-        this.helpElementUid = helpElementUid;
-    }
-
-    /**
-     * Gets uid of input hint
-     * @return uid of input hint, or 0L if not set
-     */
-    public long getHelpElementUid() {
-        if (helpElementUid != null) {
-            return helpElementUid;
+    public String getTitle(String language) {
+        TranslationElement title = getTranslation(language, TranslationElement.Target.TITLE);
+        if (title != null) {
+            return title.getContent();
         }
-        return 0L;
-    }
-
-    /**
-     * Sets a (short) help text that describes what the user has to do
-     * @param help input help
-     */
-    public void setHelp(TranslationElement help) {
-        this.helpElement = help;
+        return null;
     }
 
     /**
      * Gets a (short) help text that describes what the user has to do
+     * @param language language code of the translation
      * @return help text, or null if not set
      */
-    public TranslationElement getHelp() {
-        return helpElement;
+    public String getHelp(String language) {
+        TranslationElement help = getTranslation(language, TranslationElement.Target.HELP);
+        if (help != null) {
+            return help.getContent();
+        }
+        return null;
     }
 
     /**
@@ -314,6 +315,22 @@ public class InputElement {
         }
 
         return 0L;
+    }
+
+    /**
+     * Sets the vocabulary which this input item uses for available choices
+     * @param vocabulary the vocabulary
+     */
+    public void setVocabulary(Vocabulary vocabulary) {
+        this.vocabulary = vocabulary;
+    }
+
+    /**
+     * Gets the vocabulary which this input item uses for available choices
+     * @return the vocabulary, or null if not set
+     */
+    public Vocabulary getVocabulary() {
+        return vocabulary;
     }
 
     /**
@@ -344,14 +361,6 @@ public class InputElement {
         copy.setType(type);
         copy.setName(name);
         copy.setMandatory(mandatory.booleanValue());
-        copy.setTitle(titleElement);
-        if (titleElementUid != null) {
-            copy.setTitleElementUid(titleElementUid);
-        }
-        copy.setHelp(helpElement);
-        if (helpElementUid != null) {
-            copy.setHelpElementUid(helpElementUid);
-        }
         if (vocabularyUid != null) {
             copy.setVocabularyUid(vocabularyUid);
         }
@@ -369,6 +378,15 @@ public class InputElement {
         while (restr.hasNext()) {
             Restriction.RestrictionType key = restr.next();
             copy.setRestriction(restrictions.get(key));
+        }
+
+        Iterator<HashMap<TranslationElement.Target, TranslationElement>> transl = translations.values().iterator();
+        while (transl.hasNext()) {
+            HashMap<TranslationElement.Target, TranslationElement> translMap = transl.next();
+            Iterator<TranslationElement> transElemIterator = translMap.values().iterator();
+            while (transElemIterator.hasNext()) {
+                copy.setTranslation(transElemIterator.next());
+            }
         }
     }
 
