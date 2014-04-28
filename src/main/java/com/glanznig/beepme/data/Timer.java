@@ -2,7 +2,7 @@ package com.glanznig.beepme.data;
 
 import android.content.Context;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 
 /**
  * A timer represents a form of automatically generating alarms. This can take several forms e.g.
@@ -32,7 +32,7 @@ public abstract class Timer {
      * @param resource resource name
      */
     public void setSound(String resource) {
-        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
         soundResId = ctx.getResources().getIdentifier(resource, "raw", app.getPackageName());
     }
 

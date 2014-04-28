@@ -44,7 +44,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.util.DataExporter;
 import com.glanznig.beepme.helper.PhotoUtils;
@@ -70,7 +70,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
                 NotificationManager manager = (NotificationManager)activity.get().getSystemService(Context.NOTIFICATION_SERVICE);
                 manager.cancel(TAG, EXPORT_RUNNING_NOTIFICATION);
 
-                BeeperApp app = (BeeperApp) activity.get().getApplication();
+                BeepMeApp app = (BeepMeApp) activity.get().getApplication();
                 app.getPreferences().setExportRunningSince(0L);
 
                 ProgressBar progress = (ProgressBar)activity.get().findViewById(R.id.export_progress_bar);
@@ -296,7 +296,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
 	}
 
     private void populateFields() {
-        BeeperApp app = (BeeperApp)getApplication();
+        BeepMeApp app = (BeepMeApp)getApplication();
 
         if (app.getPreferences().exportRunningSince() == 0L ||
                 (Calendar.getInstance().getTimeInMillis() -
@@ -493,7 +493,7 @@ public class ExportActivity extends Activity implements View.OnClickListener {
         ProgressBar progress = (ProgressBar)findViewById(R.id.export_progress_bar);
         TextView runningText = (TextView)findViewById(R.id.export_running_text);
 
-        BeeperApp app = (BeeperApp)getApplication();
+        BeepMeApp app = (BeepMeApp)getApplication();
 
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             enableDisableView(findViewById(R.id.export_settings), false);

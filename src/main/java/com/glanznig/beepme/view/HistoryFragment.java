@@ -22,7 +22,7 @@ package com.glanznig.beepme.view;
 
 import java.util.List;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.HistoryListAdapter;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.util.Statistics;
@@ -59,7 +59,7 @@ public class HistoryFragment extends ListFragment {
 	}
 	
 	private void populateList() {
-		BeeperApp app = (BeeperApp)getActivity().getApplication();
+		BeepMeApp app = (BeepMeApp)getActivity().getApplication();
 		List<Bundle> statList = Statistics.getStats(getActivity(), app.getTimerProfile());
 		
         HistoryListAdapter historyAdapter = new HistoryListAdapter(getActivity(), statList);

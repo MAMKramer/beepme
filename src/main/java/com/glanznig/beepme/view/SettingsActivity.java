@@ -20,7 +20,7 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.view;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.util.PreferenceHandler;
 
@@ -44,16 +44,16 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         getFragmentManager().beginTransaction().replace(android.R.id.content, new BasePreferencesFragment()).commit();
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         
-		PreferenceHandler prefs = ((BeeperApp)getApplication()).getPreferences();
+		PreferenceHandler prefs = ((BeepMeApp)getApplication()).getPreferences();
 		prefs.registerOnPreferenceChangeListener(SettingsActivity.this);
 	}
 	
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(PreferenceHandler.KEY_TEST_MODE)) {
-			BeeperApp app = (BeeperApp)getApplication();
+			BeepMeApp app = (BeepMeApp)getApplication();
 			if (app.isBeeperActive()) {
-				app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
+				app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE);
 			}
 		}
 	}
@@ -94,7 +94,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 	        formBeepSound.setEntries(sounds.values().toArray(new String[sounds.size()]));
 	        formBeepSound.setEntryValues(sounds.keySet().toArray(new Integer[sounds.size()]));
 
-            PreferenceHandler prefs = ((BeeperApp)getActivity().getApplication()).getPreferences();
+            PreferenceHandler prefs = ((BeepMeApp)getActivity().getApplication()).getPreferences();
             Log.i(TAG, "beep="+prefs.getBeepSoundId());
             formBeepSound.setDefaultValue(prefs.getBeepSoundId());
 		}

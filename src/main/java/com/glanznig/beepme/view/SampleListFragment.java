@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.SampleListAdapter;
 import com.glanznig.beepme.SampleListEntry;
@@ -97,7 +97,7 @@ public class SampleListFragment extends ListFragment {
 	}
 	
 	private void updateStats() {
-		BeeperApp app = (BeeperApp)getActivity().getApplication();
+		BeepMeApp app = (BeepMeApp)getActivity().getApplication();
 		Bundle stats = Statistics.getStatsOfToday(getActivity(), app.getTimerProfile());
 		
 		int numAccepted = 0;

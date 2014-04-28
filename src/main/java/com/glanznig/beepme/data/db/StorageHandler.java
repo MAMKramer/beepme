@@ -20,7 +20,7 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data.db;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -121,7 +121,7 @@ public class StorageHandler {
      */
 	public StorageHandler(Context ctx) {
 		mCtx = ctx.getApplicationContext();
-		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
 		
 		if (app.getPreferences().isTestMode()) {
 			if (mDbHelperTestMode == null) {
@@ -140,7 +140,7 @@ public class StorageHandler {
      * @return database object associated to this mode
      */
 	public SQLiteDatabase getDb() {
-		BeeperApp app = (BeeperApp) mCtx.getApplicationContext();
+		BeepMeApp app = (BeepMeApp) mCtx.getApplicationContext();
 		if (app.getPreferences().isTestMode()) {
 			return mDbHelperTestMode.getWritableDatabase();
 		}
@@ -151,7 +151,7 @@ public class StorageHandler {
      * Truncates all tables of the database of the current app mode.
      */
 	public void truncateTables() {
-		BeeperApp app = (BeeperApp) mCtx.getApplicationContext();
+		BeepMeApp app = (BeepMeApp) mCtx.getApplicationContext();
 		if (app.getPreferences().isTestMode()) {
 			mDbHelperTestMode.truncateTables();
 		}
@@ -169,7 +169,7 @@ public class StorageHandler {
      * @return the database name
      */
 	public String getDatabaseName() {
-		BeeperApp app = (BeeperApp) mCtx.getApplicationContext();
+		BeepMeApp app = (BeepMeApp) mCtx.getApplicationContext();
 		if (app.getPreferences().isTestMode()) {
 			return DB_NAME_TESTMODE;
 		}

@@ -20,18 +20,15 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.helper;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.view.BeepActivity;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.media.SoundPool;
 import android.os.Vibrator;
-import android.util.Log;
 
 public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
 
@@ -54,7 +51,7 @@ public class BeepAlert implements AudioManager.OnAudioFocusChangeListener {
 	}
 
     public void start() {
-        BeeperApp app = (BeeperApp)((BeepActivity)ctx).getApplication();
+        BeepMeApp app = (BeepMeApp)((BeepActivity)ctx).getApplication();
 
         switch (audioManager.getRingerMode()) {
             case AudioManager.RINGER_MODE_NORMAL:

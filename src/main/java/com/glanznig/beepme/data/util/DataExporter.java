@@ -40,7 +40,7 @@ import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.VocabularyItem;
 import com.glanznig.beepme.data.db.MomentTable;
@@ -136,7 +136,7 @@ public class DataExporter {
     }
 
     private File writeHistoryCSV(File tempDir) {
-        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
         List<Bundle> statList = Statistics.getStats(ctx, app.getTimerProfile());
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
@@ -200,7 +200,7 @@ public class DataExporter {
 			if (!exportDir.exists()) {
 				exportDir.mkdirs();
 			}
-            BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+            BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
 
 			String exportFilename = EXPORT_PREFIX;
             if (app.getPreferences().isTestMode()) {
@@ -341,7 +341,7 @@ public class DataExporter {
 	}
 
     public double getArchiveSize(Bundle opts, int densityFactor) {
-        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
         File db;
         double archiveSize = 0;
 

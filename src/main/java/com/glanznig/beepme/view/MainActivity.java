@@ -20,7 +20,7 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.view;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.db.BeepTable;
@@ -65,7 +65,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         pagerAdapter = new MainSectionsPagerAdapter(getSupportFragmentManager(), this);
         final ActionBar actionBar = getActionBar();
         
-        final BeeperApp app = (BeeperApp)getApplication();
+        final BeepMeApp app = (BeepMeApp)getApplication();
         
         if (app.getPreferences().isTestMode()) {
         	actionBar.setSubtitle(getString(R.string.pref_title_test_mode));
@@ -108,7 +108,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		invalidateOptionsMenu();
 		
 		//make sure that scheduled beeps do not expire due to an error
-		BeeperApp app = (BeeperApp)getApplication();
+		BeepMeApp app = (BeepMeApp)getApplication();
 		if (app.isBeeperActive()) {
 			long scheduledBeepId = app.getPreferences().getScheduledBeepId();
 			
@@ -158,7 +158,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		BeeperApp app = (BeeperApp)getApplication();
+		BeepMeApp app = (BeepMeApp)getApplication();
 		
 		// hide/show test beep menu entry
         MenuItem testBeep = menu.findItem(R.id.action_test_beep);
@@ -183,13 +183,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	
 	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
-		BeeperApp app = (BeeperApp)getApplication();
+		BeepMeApp app = (BeepMeApp)getApplication();
 		
         switch (item.getItemId()) {
         	case R.id.action_toggle_beeper:
         		if (app.isBeeperActive()) {
         			app.cancelTimer(); //call before setBeeperActive
-        			app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
+        			app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE);
         			item.setIcon(R.drawable.ic_menu_beeper_off);
         			
         			// hide generate beep menu entry
@@ -199,7 +199,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         			}
         		}
         		else {
-        			app.setBeeperActive(BeeperApp.BEEPER_ACTIVE);
+        			app.setBeeperActive(BeepMeApp.BEEPER_ACTIVE);
         			app.setTimer();
         			item.setIcon(R.drawable.ic_menu_beeper_on);
         			

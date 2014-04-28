@@ -26,7 +26,7 @@ import java.util.Date;
 
 import com.fima.glowpadview.GlowPadView;
 import com.fima.glowpadview.GlowPadView.OnTriggerListener;
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.db.BeepTable;
@@ -150,7 +150,7 @@ public class BeepActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
 
-        final BeeperApp app = (BeeperApp)getApplication();
+        final BeepMeApp app = (BeepMeApp)getApplication();
 
         if (savedState != null) {
             if (!savedState.containsKey("beepTimestamp")) {
@@ -172,7 +172,7 @@ public class BeepActivity extends Activity {
 
         // decline and pause beeper if active call
         if (app.getPreferences().getPauseBeeperDuringCall() && app.getPreferences().isCall()) {
-            app.setBeeperActive(BeeperApp.BEEPER_INACTIVE_AFTER_CALL);
+            app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE_AFTER_CALL);
             decline();
             return;
         }
@@ -196,7 +196,7 @@ public class BeepActivity extends Activity {
 			public void onReceive(Context context, Intent intent) {
 				if (intent.getAction().equals(CANCEL_INTENT)) {
 					if (app.getPreferences().getPauseBeeperDuringCall()) {
-						app.setBeeperActive(BeeperApp.BEEPER_INACTIVE_AFTER_CALL);
+						app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE_AFTER_CALL);
 						decline();
 					}
 				}
@@ -278,7 +278,7 @@ public class BeepActivity extends Activity {
 			alert.stop();
 		}
 		
-		BeeperApp app = (BeeperApp)getApplication();
+		BeepMeApp app = (BeepMeApp)getApplication();
 		app.acceptTimer();
 		
 		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
@@ -287,8 +287,8 @@ public class BeepActivity extends Activity {
 	}
 	
 	public void declinePause() {
-		BeeperApp app = (BeeperApp)getApplication();
-		app.setBeeperActive(BeeperApp.BEEPER_INACTIVE);
+		BeepMeApp app = (BeepMeApp)getApplication();
+		app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE);
 		decline();
 	}
 	
@@ -296,7 +296,7 @@ public class BeepActivity extends Activity {
 		if (!inDecline) { // should only be called once
             inDecline = true;
 
-            BeeperApp app = (BeeperApp) getApplication();
+            BeepMeApp app = (BeepMeApp) getApplication();
             Moment sample = new Moment();
             sample.setTimestamp(new Date(beepTimestamp));
             sample.setAccepted(false);

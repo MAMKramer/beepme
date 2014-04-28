@@ -55,11 +55,11 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 
-public class BeeperApp extends Application { //implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class BeepMeApp extends Application { //implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
 	private PreferenceHandler preferences = null;
 	private Timer timerProfile;
-	private BeeperApp.CallStateListener callStateListener;
+	private BeepMeApp.CallStateListener callStateListener;
 	
 	private static final int ALARM_INTENT_ID = 5332;
 	private static final int NOTIFICATION_ID = 1283;
@@ -156,7 +156,7 @@ public class BeeperApp extends Application { //implements SharedPreferences.OnSh
 		
 		// listen to call events
 		if (callStateListener == null) {
-			callStateListener = new CallStateListener(BeeperApp.this);
+			callStateListener = new CallStateListener(BeepMeApp.this);
 		}
 		TelephonyManager telManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
 		telManager.listen(callStateListener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -278,7 +278,7 @@ public class BeeperApp extends Application { //implements SharedPreferences.OnSh
 	
 	public void beep() {
 		if (isBeeperActive()) {
-			Intent beep = new Intent(BeeperApp.this, BeepActivity.class);
+			Intent beep = new Intent(BeepMeApp.this, BeepActivity.class);
 			beep.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(beep);
 		}
@@ -372,22 +372,22 @@ public class BeeperApp extends Application { //implements SharedPreferences.OnSh
 	
 	private static class CallStateListener extends PhoneStateListener {
 		
-		private WeakReference<BeeperApp> appRef;
+		private WeakReference<BeepMeApp> appRef;
 		
-		public CallStateListener(BeeperApp app) {
-			appRef = new WeakReference<BeeperApp>(app);
+		public CallStateListener(BeepMeApp app) {
+			appRef = new WeakReference<BeepMeApp>(app);
 		}
 		
 		@Override
 		public void onCallStateChanged(int state, String incomingNumber) {
 			if (appRef != null && appRef.get() != null) {
-				BeeperApp app = appRef.get();
+				BeepMeApp app = appRef.get();
 				switch (state) {
                     case TelephonyManager.CALL_STATE_IDLE:
                         app.getPreferences().setCall(false);
                         // beeper was paused by call, reactivate it
-                        if (app.getPreferences().getBeeperActive() == BeeperApp.BEEPER_INACTIVE_AFTER_CALL) {
-                            app.setBeeperActive(BeeperApp.BEEPER_ACTIVE);
+                        if (app.getPreferences().getBeeperActive() == BeepMeApp.BEEPER_INACTIVE_AFTER_CALL) {
+                            app.setBeeperActive(BeepMeApp.BEEPER_ACTIVE);
                         }
                         break;
                     case TelephonyManager.CALL_STATE_OFFHOOK:

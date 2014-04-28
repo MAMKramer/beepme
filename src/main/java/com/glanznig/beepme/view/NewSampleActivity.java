@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.TagAutocompleteAdapter;
 import com.glanznig.beepme.data.Moment;
@@ -258,7 +258,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 	}
 	
 	public void saveSample() {
-		BeeperApp app = (BeeperApp)getApplication();
+		BeepMeApp app = (BeepMeApp)getApplication();
 		
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);

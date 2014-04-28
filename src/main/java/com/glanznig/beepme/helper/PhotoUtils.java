@@ -26,11 +26,10 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.glanznig.beepme.BeeperApp;
+import com.glanznig.beepme.BeepMeApp;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -80,7 +79,7 @@ public class PhotoUtils {
 	}
 	
 	private static Intent getPhotoIntent(Context ctx, Date timestamp) {
-		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
 		
 		// external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -123,7 +122,7 @@ public class PhotoUtils {
 	}
 
     public static File[] getPhotos(Context ctx) {
-        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
 
         // external storage is ready and writable - can be used
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -191,7 +190,7 @@ public class PhotoUtils {
 	}
 	
 	public static boolean swapPhoto(Context ctx, Date timestamp) {
-		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
 		
 		// external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -235,7 +234,7 @@ public class PhotoUtils {
 				String path = photo.getParent();
 				
 				// delete thumbnails
-                BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+                BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
                 int[] thumbSizes = app.getPreferences().getThumbnailSizes();
 				for (int i = 0; i < thumbSizes.length; i++) {
 					// get name without .jpg extension
@@ -256,7 +255,7 @@ public class PhotoUtils {
 	}
 	
 	public static boolean deleteSwapPhoto(Context ctx) {
-		BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+		BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
 		
 		// external storage is ready and writable - can be used
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -284,7 +283,7 @@ public class PhotoUtils {
 	public static void regenerateThumbnails(Context ctx, String uri, Handler handler) {
 		deleteThumbnails(ctx, uri);
 		final float scale = ctx.getResources().getDisplayMetrics().density;
-        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
         int[] thumbSizes = app.getPreferences().getThumbnailSizes();
 		for (int i = 0; i < thumbSizes.length; i++) {
 			generateThumbnail(ctx, uri, thumbSizes[i], (int)(thumbSizes[i] * scale + 0.5f), handler);
@@ -293,7 +292,7 @@ public class PhotoUtils {
 	
 	public static void generateThumbnails(Context ctx, String uri, Handler handler) {
 		final float scale = ctx.getResources().getDisplayMetrics().density;
-        BeeperApp app = (BeeperApp)ctx.getApplicationContext();
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
         int[] thumbSizes = app.getPreferences().getThumbnailSizes();
 		for (int i = 0; i < thumbSizes.length; i++) {
 			generateThumbnail(ctx, uri, thumbSizes[i], (int)(thumbSizes[i] * scale + 0.5f), handler);
