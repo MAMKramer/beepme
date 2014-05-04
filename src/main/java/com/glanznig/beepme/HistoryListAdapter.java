@@ -86,9 +86,9 @@ public class HistoryListAdapter extends ArrayAdapter<Bundle> {
 			holder.day.setText(dateFormat.format(new Date(item.getLong("timestamp"))));
 		}
 		
-		if (item.containsKey("acceptedSamples")) {
+		if (item.containsKey("acceptedMoments")) {
 			String acceptedText = "";
-			int accepted = item.getInt("acceptedSamples");
+			int accepted = item.getInt("acceptedMoments");
 			if (accepted < 10) {
 				acceptedText += " ";
 			}
@@ -96,9 +96,9 @@ public class HistoryListAdapter extends ArrayAdapter<Bundle> {
 			holder.accepted.setText(acceptedText);
 		}
 		
-		if (item.containsKey("declinedSamples")) {
+		if (item.containsKey("declinedMoments")) {
 			String declinedText = "";
-			int declined = item.getInt("declinedSamples");
+			int declined = item.getInt("declinedMoments");
 			if (declined < 10) {
 				declinedText += " ";
 			}

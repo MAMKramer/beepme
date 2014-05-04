@@ -117,6 +117,18 @@ public class Uptime {
 		this.projectUid = Long.valueOf(projectUid);
 	}
 
+    /**
+     * Copies all member variables (except uid) to a new object
+     * @param copy copy object
+     */
+    public void copyTo(Uptime copy) {
+        copy.setStart(start);
+        copy.setEnd(end);
+        if (projectUid != null) {
+            copy.setProjectUid(projectUid);
+        }
+    }
+
     @Override
 	public int hashCode() {
         return uid != null ? this.getClass().hashCode() + uid.hashCode() : super.hashCode();

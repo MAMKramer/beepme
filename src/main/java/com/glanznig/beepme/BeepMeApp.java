@@ -27,12 +27,14 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.glanznig.beepme.data.Beep;
 import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.Timer;
+import com.glanznig.beepme.data.Uptime;
 import com.glanznig.beepme.data.util.PreferenceHandler;
 import com.glanznig.beepme.data.db.BeepTable;
 import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.data.db.StorageHandler;
-import com.glanznig.beepme.data.db.TimerProfileTable;
 import com.glanznig.beepme.data.db.UptimeTable;
 import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.BeepActivity;
@@ -88,21 +90,28 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 	}
 	
 	public void setBeeperActive(int active) {
-		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext(), timerProfile);
 		getPreferences().setBeeperActive(active);
 		
 		if (active == BEEPER_ACTIVE) {
-			getPreferences().setUptimeId(uptimeTbl.startUptime(Calendar.getInstance().getTime()));
+            Uptime uptime = new Uptime();
+            uptime.setStart(Calendar.getInstance().getTime());
+            uptime = new UptimeTable(this.getApplicationContext()).addUptime(uptime);
+			getPreferences().setUptimeId(uptime.getUid());
 			createNotification();
 		}
 		else {
 			long uptimeId = getPreferences().getUptimeId();
 			
 			if (uptimeId != 0L) {
-				uptimeTbl.endUptime(uptimeId, Calendar.getInstance().getTime());
-				getPreferences().setUptimeId(0L);
-				NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-				manager.cancel(TAG, NOTIFICATION_ID);
+                UptimeTable uptimeTable = new UptimeTable(this.getApplicationContext());
+                Uptime uptime = uptimeTable.getUptime(uptimeId);
+                if (uptime != null) {
+                    uptime.setEnd(Calendar.getInstance().getTime());
+                    uptimeTable.updateUptime(uptime);
+                    getPreferences().setUptimeId(0L);
+                    NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    manager.cancel(TAG, NOTIFICATION_ID);
+                }
 			}
 		}
 	}
@@ -144,7 +153,6 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 	public void onCreate() {
 		super.onCreate();
 		getPreferences();
-		setTimerProfile();
 
         onAppUpdate(getPreferences().getAppVersion());
 
@@ -164,15 +172,16 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 		//set export running to false
 		getPreferences().setExportRunningSince(0L);
 		
-		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext(), timerProfile);
+		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext());
 		
 		if (isBeeperActive()) {
 			long scheduledBeepId = getPreferences().getScheduledBeepId();
 			//is there a scheduled beep, if no, create one, if yes and it is expired, create a new one
 			if (scheduledBeepId != 0L) {
-				BeepTable sbt = new BeepTable(this.getApplicationContext());
-				if (sbt.getStatus(scheduledBeepId) != 3 && sbt.isExpired(scheduledBeepId)) {
-					expireTimer();
+				BeepTable beepTable = new BeepTable(this.getApplicationContext());
+                Beep beep = beepTable.getBeep(scheduledBeepId);
+				if (beep.getStatus() != Beep.BeepStatus.RECEIVED && beep.isOverdue()) {
+					updateBeep(Beep.BeepStatus.EXPIRED);
 					setTimer();
 				}
 			}
@@ -187,14 +196,17 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 			//is there a open uptime interval, if no, create one
 			long uptimeId = getPreferences().getUptimeId();
 			if (uptimeId == 0L) {
-				getPreferences().setUptimeId(uptimeTbl.startUptime(Calendar.getInstance().getTime()));
+                Uptime uptime = new Uptime();
+                uptime.setStart(Calendar.getInstance().getTime());
+                uptime = new UptimeTable(this.getApplicationContext()).addUptime(uptime);
+                getPreferences().setUptimeId(uptime.getUid());
 			}
 		}
 		else {
 			long scheduledBeepId = getPreferences().getScheduledBeepId();
 			//is there a scheduled beep, if yes, cancel it
 			if (scheduledBeepId != 0L) {
-				cancelTimer();
+				updateBeep(Beep.BeepStatus.CANCELLED);
 			}
 			
 			//cancel notifications
@@ -206,20 +218,15 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 			long uptimeId = getPreferences().getUptimeId();
 			
 			if (uptimeId != 0L) {
-				uptimeTbl.endUptime(uptimeId, Calendar.getInstance().getTime());
-				getPreferences().setUptimeId(0L);
+                UptimeTable uptimeTable = new UptimeTable(this.getApplicationContext());
+                Uptime uptime = uptimeTable.getUptime(uptimeId);
+                if (uptime != null) {
+                    uptime.setEnd(Calendar.getInstance().getTime());
+                    uptimeTable.updateUptime(uptime);
+                    getPreferences().setUptimeId(0L);
+                }
 			}
 		}
-	}
-	
-	public void setTimerProfile() {
-		//long profileId = preferences.getTimerProfileId();
-        long profileId = 1;
-		timerProfile = new TimerProfileTable(this.getApplicationContext()).getTimerProfile(profileId);
-	}
-	
-	public Timer getTimerProfile() {
-		return timerProfile;
 	}
 	
 	public void setTimer() {
@@ -227,17 +234,17 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 			Calendar alarmTime = Calendar.getInstance();
 			Calendar alarmTimeUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			
-			if (timerProfile == null) {
-				setTimerProfile();
-			}
-			
 			long timer = timerProfile.getTimer(this.getApplicationContext());
 	        alarmTime.add(Calendar.SECOND, (int)timer);
 	        //Log.i(TAG, "alarm in " + timer + " seconds.");
 	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
-	        getPreferences().setScheduledBeepId(new BeepTable(
-	        		this.getApplicationContext()).addScheduledBeep(alarmTime.getTimeInMillis(),
-	        		getPreferences().getUptimeId()));
+
+            Beep beep = new Beep();
+            beep.setCreated(Calendar.getInstance().getTime());
+            beep.setStatus(Beep.BeepStatus.ACTIVE);
+            beep.setUptimeUid(getPreferences().getUptimeId());
+            beep = new BeepTable(this.getApplicationContext()).addBeep(beep);
+            getPreferences().setScheduledBeepId(beep.getUid());
 	        
 	        Intent intent = new Intent(this, BeepActivity.class);
 	        PendingIntent alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
@@ -247,31 +254,20 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 		}
 	}
 	
-	public void declineTimer() {
-		updateTimer(4);
-	}
-	
-	public void acceptTimer() {
-		updateTimer(3);
-	}
-	
-	public void expireTimer() {
-		updateTimer(2);
-	}
-	
-	public void cancelTimer() {
-		updateTimer(1);
-	}
-	
-	public void updateTimer(int status) {
-		if (status != 3 || status != 4) {
+	public void updateBeep(Beep.BeepStatus status) {
+		if (status != Beep.BeepStatus.ACTIVE || status != Beep.BeepStatus.RECEIVED) {
 			Intent intent = new Intent(this, BeepActivity.class);
 	        PendingIntent alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
 	        		PendingIntent.FLAG_CANCEL_CURRENT);
 			alarmIntent.cancel();
 		}
-		new BeepTable(this.getApplicationContext()).updateStatus(getPreferences().getScheduledBeepId(), status);
-		if (status != 3) {
+
+        Beep beep = new Beep(getPreferences().getScheduledBeepId());
+        beep.setStatus(status);
+        beep.setUpdated(Calendar.getInstance().getTime());
+        new BeepTable(this.getApplicationContext()).updateBeep(beep);
+
+		if (status != Beep.BeepStatus.ACTIVE) {
 			getPreferences().setScheduledBeepId(0L);
 		}
 	}
@@ -283,20 +279,6 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 			startActivity(beep);
 		}
 	}
-
-	/*@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(PreferenceHandler.KEY_TIMER_PROFILE_ID)) {
-			if (isBeeperActive()) {
-				setBeeperActive(BEEPER_INACTIVE);
-				setTimerProfile();
-				setBeeperActive(BEEPER_ACTIVE);
-			}
-			else {
-				setTimerProfile();
-			}
-		}
-	}*/
 
     private void onAppUpdate(int oldVersion) {
         try {

@@ -32,7 +32,6 @@ public class PreferenceHandler {
 	
 	public static final String KEY_BEEPER_ACTIVE = "beeperActivated";
 	public static final String KEY_VIBRATE_AT_BEEP = "vibrateAtBeep";
-	//public static final String KEY_TIMER_PROFILE_ID = "timerProfileId";
 	public static final String KEY_TEST_MODE = "testMode";
 	public static final String KEY_UPTIME_ID = "uptimeId";
 	public static final String KEY_SCHEDULED_BEEP_ID = "scheduledBeepId";
@@ -168,18 +167,6 @@ public class PreferenceHandler {
 		editor.putBoolean(KEY_TEST_MODE, test);
 		editor.commit();
 	}
-	
-	/*public long getTimerProfileId() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-		return Long.valueOf(prefs.getString(KEY_TIMER_PROFILE_ID, "1"));
-	}
-	
-	public void setTimerProfileId(long profileId) {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putString(KEY_TIMER_PROFILE_ID, String.valueOf(profileId));
-		editor.commit();
-	}*/
 
     public String getBeepSoundId() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);

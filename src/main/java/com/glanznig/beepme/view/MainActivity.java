@@ -23,6 +23,7 @@ package com.glanznig.beepme.view;
 import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.data.Beep;
 import com.glanznig.beepme.data.db.BeepTable;
 
 import android.app.ActionBar;
@@ -113,11 +114,12 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 			long scheduledBeepId = app.getPreferences().getScheduledBeepId();
 			
 			if (scheduledBeepId != 0L) {
-				BeepTable sbt = new BeepTable(this.getApplicationContext());
-				if (sbt.getStatus(scheduledBeepId) != 3 && sbt.isExpired(scheduledBeepId)) {
-					app.expireTimer();
-					app.setTimer();
-				}
+                BeepTable beepTable = new BeepTable(this.getApplicationContext());
+                Beep beep = beepTable.getBeep(scheduledBeepId);
+                if (beep.getStatus() != Beep.BeepStatus.RECEIVED && beep.isOverdue()) {
+                    app.updateBeep(Beep.BeepStatus.EXPIRED);
+                    app.setTimer();
+                }
 			}
 			else {
 				app.setTimer();
@@ -188,7 +190,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         switch (item.getItemId()) {
         	case R.id.action_toggle_beeper:
         		if (app.isBeeperActive()) {
-        			app.cancelTimer(); //call before setBeeperActive
+        			app.cancelBeep(); //call before setBeeperActive
         			app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE);
         			item.setIcon(R.drawable.ic_menu_beeper_off);
         			

@@ -98,7 +98,7 @@ public class SampleListFragment extends ListFragment {
 	
 	private void updateStats() {
 		BeepMeApp app = (BeepMeApp)getActivity().getApplication();
-		Bundle stats = Statistics.getStatsOfToday(getActivity(), app.getTimerProfile());
+		Bundle stats = Statistics.getStatsOfToday(getActivity());
 		
 		int numAccepted = 0;
 		int numDeclined = 0;
@@ -108,11 +108,11 @@ public class SampleListFragment extends ListFragment {
 			if (stats.containsKey("uptimeDuration")) {
 				uptimeDur = stats.getLong("uptimeDuration") / 1000;
 			}
-			if (stats.containsKey("acceptedSamples")) {
-				numAccepted = stats.getInt("acceptedSamples");
+			if (stats.containsKey("acceptedMoments")) {
+				numAccepted = stats.getInt("acceptedMoments");
 			}
-			if (stats.containsKey("declinedSamples")) {
-				numDeclined = stats.getInt("declinedSamples");
+			if (stats.containsKey("declinedMoments")) {
+				numDeclined = stats.getInt("declinedMoments");
 			}
 		}
 		
@@ -131,7 +131,7 @@ public class SampleListFragment extends ListFragment {
 	public void onListItemClick(ListView listView, View view, int position, long id) {
 		Moment s = ((SampleListEntry)listView.getItemAtPosition(position)).getSample();
 		Intent i = new Intent(getActivity(), ViewSampleActivity.class);
-		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", s.getId());
+		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", s.getUid());
 		startActivity(i);
 	}
 	

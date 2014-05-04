@@ -28,10 +28,11 @@ import com.fima.glowpadview.GlowPadView;
 import com.fima.glowpadview.GlowPadView.OnTriggerListener;
 import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.data.Beep;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.db.BeepTable;
 import com.glanznig.beepme.data.db.MomentTable;
-import com.glanznig.beepme.data.db.UptimeTable;
+import com.glanznig.beepme.data.util.Statistics;
 import com.glanznig.beepme.helper.BeepAlert;
 
 import android.app.Activity;
@@ -156,8 +157,11 @@ public class BeepActivity extends Activity {
             if (!savedState.containsKey("beepTimestamp")) {
                 // set beep timestamp to NOW
                 beepTimestamp = Calendar.getInstance().getTimeInMillis();
-                new BeepTable(this.getApplicationContext()).receivedScheduledBeep(
-                        app.getPreferences().getScheduledBeepId(), beepTimestamp);
+                Beep beep = new Beep(app.getPreferences().getScheduledBeepId());
+                beep.setStatus(Beep.BeepStatus.RECEIVED);
+                beep.setUpdated(Calendar.getInstance().getTime());
+                beep.setReceived(new Date(beepTimestamp));
+                new BeepTable(this.getApplicationContext()).updateBeep(beep);
             } else {
                 beepTimestamp = savedState.getLong("beepTimestamp");
             }
@@ -165,8 +169,11 @@ public class BeepActivity extends Activity {
         else {
             // set beep timestamp to NOW
             beepTimestamp = Calendar.getInstance().getTimeInMillis();
-            new BeepTable(this.getApplicationContext()).receivedScheduledBeep(
-                    app.getPreferences().getScheduledBeepId(), beepTimestamp);
+            Beep beep = new Beep(app.getPreferences().getScheduledBeepId());
+            beep.setStatus(Beep.BeepStatus.RECEIVED);
+            beep.setUpdated(Calendar.getInstance().getTime());
+            beep.setReceived(new Date(beepTimestamp));
+            new BeepTable(this.getApplicationContext()).updateBeep(beep);
         }
         handler = new TimeoutHandler(BeepActivity.this);
 
@@ -209,7 +216,7 @@ public class BeepActivity extends Activity {
 		MomentTable st = new MomentTable(this.getApplicationContext());
 		int numAccepted = st.getNumAcceptedToday();
 		int numDeclined = st.getSampleCountToday() - numAccepted;
-		long uptimeDur = new UptimeTable(this.getApplicationContext(), app.getTimerProfile()).getUptimeDurToday();
+		long uptimeDur = Statistics.getUptimeDurationToday(this.getApplicationContext());
 		
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
 		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);
@@ -278,9 +285,6 @@ public class BeepActivity extends Activity {
 			alert.stop();
 		}
 		
-		BeepMeApp app = (BeepMeApp)getApplication();
-		app.acceptTimer();
-		
 		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
 		accept.putExtra(getApplication().getClass().getPackage().getName() + ".Timestamp", beepTimestamp);
 		startActivity(accept);
@@ -302,7 +306,6 @@ public class BeepActivity extends Activity {
             sample.setAccepted(false);
             sample.setUptimeId(app.getPreferences().getUptimeId());
             new MomentTable(this.getApplicationContext()).addSample(sample);
-            app.declineTimer();
             app.setTimer();
 
             if (!BeepActivity.this.isFinishing()) {

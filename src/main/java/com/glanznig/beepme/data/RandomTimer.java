@@ -4,9 +4,9 @@ import android.content.Context;
 
 /**
  * RandomTimer represents a timer which schedules random beeps. This randomness is either restricted
- * to an interval [min;max] - where the probability of the occurrence of the beep is uniformly
- * distributed within this interval - or to an interval [min;avg;max] - where the probability of
- * the occurrence of the beep follows a normal (? SELECT!!) distribution reaching highest probability
+ * to an interval [min;max] - where the probability of beep occurrence is uniformly distributed
+ * within this interval - or to an interval [min;avg;max] - where the probability of
+ * the beep occurrence follows a normal (? SELECT!!) distribution reaching highest probability
  * at AVG and reaching zero probability at MIN and MAX.
  */
 public class RandomTimer extends Timer {

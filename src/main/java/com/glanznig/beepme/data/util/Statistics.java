@@ -38,9 +38,14 @@ import com.glanznig.beepme.data.db.UptimeTable;
 import android.content.Context;
 import android.os.Bundle;
 
+/**
+ * This class provides statistics regarding count of (accepted or declined) moments and
+ * timer uptime.
+ */
 public class Statistics {
 	
 	private static final String TAG = "Statistics";
+    private static final long MIN_UPTIME_DURATION = 60L;
 	
 	private static class NegativeComparator implements Comparator<Long> {
 
@@ -58,46 +63,68 @@ public class Statistics {
 		}
 		
 	}
-	
-	public static int getSampleCountToday(Context ctx) {
+
+    /**
+     * Gets the number of moments for today.
+     * @param ctx context
+     * @return number of moments for today
+     */
+	public static int getMomentCountToday(Context ctx) {
 		Calendar now = Calendar.getInstance();
 		int year = now.get(Calendar.YEAR);
 		int month = now.get(Calendar.MONTH);
 		int day = now.get(Calendar.DAY_OF_MONTH);
 		GregorianCalendar today = new GregorianCalendar(year, month, day);
 		
-		return getSampleCount(ctx, today);
+		return getMomentCount(ctx, today);
 	}
-	
-	public static int getSampleCount(Context ctx, Calendar day) {
-		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
-		List<Moment> samples = sTbl.getSamplesOfDay(day);
+
+    /**
+     * Gets the number of moments for a specific day.
+     * @param ctx context
+     * @param day calendar object for specific day
+     * @return number of moments for the specified day
+     */
+	public static int getMomentCount(Context ctx, Calendar day) {
+		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
+		List<Moment> moments = momentTable.getSamplesOfDay(day);
 		
-		if (samples != null && samples.size() > 0) {
-			return samples.size();
+		if (moments != null && moments.size() > 0) {
+			return moments.size();
 		}
 		return 0;
 	}
-	
-	public static int getNumSamplesDeclinedToday(Context ctx) {
+
+    /**
+     * Gets the number of declined moments for today.
+     * @param ctx context
+     * @return number of declined moments for today
+     */
+	public static int getNumMomentsDeclinedToday(Context ctx) {
 		Calendar now = Calendar.getInstance();
 		int year = now.get(Calendar.YEAR);
 		int month = now.get(Calendar.MONTH);
 		int day = now.get(Calendar.DAY_OF_MONTH);
 		GregorianCalendar today = new GregorianCalendar(year, month, day);
 		
-		return getNumSamplesDeclined(ctx, today);
+		return getNumMomentsDeclined(ctx, today);
 	}
-	
-	public static int getNumSamplesDeclined(Context ctx, Calendar day) {
-		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
-		List<Moment> samples = sTbl.getSamplesOfDay(day);
+
+    /**
+     * Gets the number of declined moments for a specific day.
+     * @param ctx context
+     * @param day calendar object for specific day
+     * @return number of declined moments for the specified day
+     */
+	public static int getNumMomentsDeclined(Context ctx, Calendar day) {
+		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
+		List<Moment> moments = momentTable.getSamplesOfDay(day);
 		
-		if (samples != null && samples.size() > 0) {
+		if (moments != null && moments.size() > 0) {
 			int declined = 0;
-			for (int i = 0; i < samples.size(); i++) {
-				Moment s = samples.get(i);
-				if (s.getAccepted().equals(Boolean.FALSE)) {
+			for (int i = 0; i < moments.size(); i++) {
+				Moment moment = moments.get(i);
+				if (!moment.getAccepted()) {
 					declined += 1;
 				}
 			}
@@ -106,26 +133,37 @@ public class Statistics {
 		}
 		return 0;
 	}
-	
-	public static int getNumSamplesAcceptedToday(Context ctx) {
+
+    /**
+     * Gets the number of accepted moments for today.
+     * @param ctx context
+     * @return number of accepted moments for today
+     */
+	public static int getNumMomentsAcceptedToday(Context ctx) {
 		Calendar now = Calendar.getInstance();
 		int year = now.get(Calendar.YEAR);
 		int month = now.get(Calendar.MONTH);
 		int day = now.get(Calendar.DAY_OF_MONTH);
 		GregorianCalendar today = new GregorianCalendar(year, month, day);
-		
-		return getNumSamplesAccepted(ctx, today);
+
+		return getNumMomentsAccepted(ctx, today);
 	}
-	
-	public static int getNumSamplesAccepted(Context ctx, Calendar day) {
-		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
-		List<Moment> samples = sTbl.getSamplesOfDay(day);
+
+    /**
+     * Gets the number of accepted moments for a specific day.
+     * @param ctx context
+     * @param day calendar object for specific day
+     * @return number of accepted moments for specified day
+     */
+	public static int getNumMomentsAccepted(Context ctx, Calendar day) {
+		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
+		List<Moment> moments = momentTable.getSamplesOfDay(day);
 		
-		if (samples != null && samples.size() > 0) {
+		if (moments != null && moments.size() > 0) {
 			int accepted = 0;
-			for (int i = 0; i < samples.size(); i++) {
-				Moment s = samples.get(i);
-				if (s.getAccepted().equals(Boolean.TRUE)) {
+			for (int i = 0; i < moments.size(); i++) {
+				Moment moment = moments.get(i);
+				if (moment.getAccepted()) {
 					accepted += 1;
 				}
 			}
@@ -134,29 +172,42 @@ public class Statistics {
 		}
 		return 0;
 	}
-	
-	public static Bundle getStatsOfToday(Context ctx, Timer profile) {
+
+    /**
+     * Gets combined stats (moment count, accepted, declined, uptime duration) for today.
+     * @param ctx context
+     * @return Bundle object containing combined stats (countMoments, acceptedMoments, declinedMoments,
+     * uptimeDuration) for today
+     */
+	public static Bundle getStatsOfToday(Context ctx) {
 		Calendar now = Calendar.getInstance();
 		int year = now.get(Calendar.YEAR);
 		int month = now.get(Calendar.MONTH);
 		int day = now.get(Calendar.DAY_OF_MONTH);
 		GregorianCalendar today = new GregorianCalendar(year, month, day);
 		
-		return getStatsOfDay(ctx, profile, today);
+		return getStatsOfDay(ctx, today);
 	}
-	
-	public static Bundle getStatsOfDay(Context ctx, Timer profile, Calendar day) {
-		long uptimeDur = getUptimeDuration(ctx, profile, day);
+
+    /**
+     * Gets combined stats (moment count, accepted, declined, uptime duration) for a specific day.
+     * @param ctx context
+     * @param day calendar object for specific day
+     * @return Bundle object containing combined stats (countMoments, acceptedMoments, declinedMoments,
+     * uptimeDuration) for specified day
+     */
+	public static Bundle getStatsOfDay(Context ctx, Calendar day) {
+		long uptimeDur = getUptimeDuration(ctx, day);
 		int accepted = 0;
 		int declined = 0;
 		
-		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
-		List<Moment> samples = sTbl.getSamplesOfDay(day);
+		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
+		List<Moment> moments = momentTable.getSamplesOfDay(day);
 		
-		if (samples != null && samples.size() > 0) {
-			for (int i = 0; i < samples.size(); i++) {
-				Moment s = samples.get(i);
-				if (s.getAccepted().equals(Boolean.TRUE)) {
+		if (moments != null && moments.size() > 0) {
+			for (int i = 0; i < moments.size(); i++) {
+				Moment moment = moments.get(i);
+				if (moment.getAccepted()) {
 					accepted += 1;
 				}
 				else {
@@ -167,53 +218,59 @@ public class Statistics {
 		
 		Bundle b = new Bundle();
 		b.putLong("uptimeDuration", uptimeDur);
-		b.putInt("acceptedSamples", accepted);
-		b.putInt("declinedSamples", declined);
-		b.putInt("countSamples", accepted+declined);
+		b.putInt("acceptedMoments", accepted);
+		b.putInt("declinedMoments", declined);
+		b.putInt("countMoments", accepted+declined);
 		
 		return b;
 	}
-	
-	public static List<Bundle> getStats(Context ctx, Timer profile) {
-		UptimeTable upTbl = new UptimeTable(ctx.getApplicationContext(), profile);
+
+    /**
+     * Gets combined stats (moment count, accepted, declined, uptime duration) for all active days.
+     * @param ctx context
+     * @return List of Bundle objects, one for each active day, containing combined stats
+     * (countMoments, acceptedMoments, declinedMoments, uptimeDuration)
+     */
+	public static List<Bundle> getStats(Context ctx) {
+		UptimeTable upTbl = new UptimeTable(ctx.getApplicationContext());
 		List<Uptime> uptimes = upTbl.getUptimes();
-		MomentTable sTbl = new MomentTable(ctx.getApplicationContext());
-		List<Moment> samples = sTbl.getSamples(true);
+		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
+		List<Moment> moments = momentTable.getSamples(true);
 		
-		if (uptimes != null && samples != null) {
+		if (uptimes != null && moments != null) {
 			TreeMap<Long, Bundle> map = new TreeMap<Long, Bundle>(new NegativeComparator());
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
             Bundle item = null;
 			
-			if (samples.size() > 0) {
+			if (moments.size() > 0) {
                 // handle samples (accepted, declined, count)
-                Iterator<Moment> sampleIterator = samples.iterator();
-                Moment s = null;
+                Iterator<Moment> momentIterator = moments.iterator();
+                Moment moment = null;
 
-                while (sampleIterator.hasNext()) {
-                    s = sampleIterator.next();
+                while (momentIterator.hasNext()) {
+                    moment = momentIterator.next();
 
-                    if (!map.containsKey(Long.parseLong(dateFormat.format(s.getTimestamp())))) {
+                    if (!map.containsKey(Long.parseLong(dateFormat.format(moment.getTimestamp())))) {
                         item = new Bundle();
-                        item.putLong("timestamp", s.getTimestamp().getTime());
+                        item.putLong("timestamp", moment.getTimestamp().getTime());
                         item.putLong("uptimeDuration", 0);
-                        if (s.getAccepted().equals(Boolean.TRUE)) {
-                            item.putInt("acceptedSamples", 1);
-                            item.putInt("declinedSamples", 0);
+                        if (moment.getAccepted()) {
+                            item.putInt("acceptedMoments", 1);
+                            item.putInt("declinedMoments", 0);
                         } else {
-                            item.putInt("acceptedSamples", 0);
-                            item.putInt("declinedSamples", 1);
+                            item.putInt("acceptedMoments", 0);
+                            item.putInt("declinedMoments", 1);
                         }
-                        item.putInt("countSamples", 1);
-                        map.put(Long.parseLong(dateFormat.format(s.getTimestamp())), item);
+                        item.putInt("countMoments", 1);
+                        map.put(Long.parseLong(dateFormat.format(moment.getTimestamp())), item);
                     } else {
-                        item = map.get(Long.parseLong(dateFormat.format(s.getTimestamp())));
-                        if (s.getAccepted().equals(Boolean.TRUE)) {
-                            item.putInt("acceptedSamples", item.getInt("acceptedSamples") + 1);
+                        item = map.get(Long.parseLong(dateFormat.format(moment.getTimestamp())));
+                        if (moment.getAccepted()) {
+                            item.putInt("acceptedMoments", item.getInt("acceptedMoments") + 1);
                         } else {
-                            item.putInt("declinedSamples", item.getInt("declinedSamples") + 1);
+                            item.putInt("declinedMoments", item.getInt("declinedMoments") + 1);
                         }
-                        item.putInt("countSamples", item.getInt("countSamples") + 1);
+                        item.putInt("countMoments", item.getInt("countMoments") + 1);
                     }
                 }
             }
@@ -244,9 +301,9 @@ public class Statistics {
 							else {
 								item = new Bundle();
 								item.putLong("timestamp", up.getStart().getTime());
-								item.putInt("acceptedSamples", 0);
-								item.putInt("declinedSamples", 0);
-								item.putInt("countSamples", 0);
+								item.putInt("acceptedMoments", 0);
+								item.putInt("declinedMoments", 0);
+								item.putInt("countMoments", 0);
 								item.putLong("uptimeDuration", Math.abs(midnight.getTimeInMillis() - up.getStart().getTime()));
 								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
 							}
@@ -259,9 +316,9 @@ public class Statistics {
 							else {
 								item = new Bundle();
 								item.putLong("timestamp", up.getEnd().getTime());
-								item.putInt("acceptedSamples", 0);
-								item.putInt("declinedSamples", 0);
-								item.putInt("countSamples", 0);
+								item.putInt("acceptedMoments", 0);
+								item.putInt("declinedMoments", 0);
+								item.putInt("countMoments", 0);
 								item.putLong("uptimeDuration", Math.abs(up.getEnd().getTime() - midnight.getTimeInMillis()));
 								map.put(Long.parseLong(dateFormat.format(up.getEnd())), item);
 							}
@@ -275,9 +332,9 @@ public class Statistics {
 							else {
 								item = new Bundle();
 								item.putLong("timestamp", up.getStart().getTime());
-								item.putInt("acceptedSamples", 0);
-								item.putInt("declinedSamples", 0);
-								item.putInt("countSamples", 0);
+								item.putInt("acceptedMoments", 0);
+								item.putInt("declinedMoments", 0);
+								item.putInt("countMoments", 0);
 								item.putLong("uptimeDuration", Math.abs(up.getEnd().getTime() - up.getStart().getTime()));
 								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
 							}
@@ -318,9 +375,9 @@ public class Statistics {
 							else {
 								item = new Bundle();
 								item.putLong("timestamp", up.getStart().getTime());
-								item.putInt("acceptedSamples", 0);
-								item.putInt("declinedSamples", 0);
-								item.putInt("countSamples", 0);
+								item.putInt("acceptedMoments", 0);
+								item.putInt("declinedMoments", 0);
+								item.putInt("countMoments", 0);
 								
 								// current time can only be used if it lies within requested day
 								// else time until midnight of this day has to be used
@@ -347,16 +404,16 @@ public class Statistics {
 						else {
 							if (map.containsKey(Long.parseLong(dateFormat.format(up.getStart())))) {
 								item = map.get(Long.parseLong(dateFormat.format(up.getStart())));
-								item.putLong("uptimeDuration", item.getLong("uptimeDuration") + (long)profile.getMinUptimeDuration());
+								item.putLong("uptimeDuration", item.getLong("uptimeDuration") + MIN_UPTIME_DURATION);
 								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
 							}
 							else {
 								item = new Bundle();
 								item.putLong("timestamp", up.getStart().getTime());
-								item.putInt("acceptedSamples", 0);
-								item.putInt("declinedSamples", 0);
-								item.putInt("countSamples", 0);
-								item.putLong("uptimeDuration", (long)profile.getMinUptimeDuration());
+								item.putInt("acceptedMoments", 0);
+								item.putInt("declinedMoments", 0);
+								item.putInt("countMoments", 0);
+								item.putLong("uptimeDuration", MIN_UPTIME_DURATION);
 								map.put(Long.parseLong(dateFormat.format(up.getStart())), item);
 							}
 						}
@@ -369,19 +426,30 @@ public class Statistics {
 		
 		return null;
 	}
-	
-	public static long getUptimeDurationToday(Context ctx, Timer profile) {
+
+    /**
+     * Gets the uptime duration for today.
+     * @param ctx context
+     * @return uptime duration for today in milliseconds (>= 0)
+     */
+	public static long getUptimeDurationToday(Context ctx) {
 		Calendar now = Calendar.getInstance();
 		int year = now.get(Calendar.YEAR);
 		int month = now.get(Calendar.MONTH);
 		int day = now.get(Calendar.DAY_OF_MONTH);
 		GregorianCalendar today = new GregorianCalendar(year, month, day);
 		
-		return getUptimeDuration(ctx, profile, today);
+		return getUptimeDuration(ctx, today);
 	}
-	
-	public static long getUptimeDuration(Context ctx, Timer profile, Calendar day) {
-		UptimeTable upTbl = new UptimeTable(ctx.getApplicationContext(), profile);
+
+    /**
+     * Gets the uptime duration for a specified day.
+     * @param ctx context
+     * @param day calendar object for specific day
+     * @return uptime duraion for today in milliseconds (>= 0)
+     */
+	public static long getUptimeDuration(Context ctx, Calendar day) {
+		UptimeTable upTbl = new UptimeTable(ctx.getApplicationContext());
 		List<Uptime> times = upTbl.getUptimesOfDay(day);
 		Uptime recent = upTbl.getMostRecentUptime();
 		
@@ -400,7 +468,7 @@ public class Statistics {
 						// uptimes with missing end value are counted as minimum uptime duration
 						// unless current running uptime, then the current time is used as end time
 						if (u.getUid() != recent.getUid()) {
-							duration += profile.getMinUptimeDuration();
+							duration += MIN_UPTIME_DURATION;
 						}
 						else {
 							duration += Math.abs(new Date().getTime() - u.getStart().getTime());
@@ -434,7 +502,7 @@ public class Statistics {
 				}
 				else {
 					if (first.getUid() != recent.getUid()) {
-						duration += profile.getMinUptimeDuration();
+						duration += MIN_UPTIME_DURATION;
 					}
 					else {
 						// current time can only be used if it lies within requested day
@@ -471,7 +539,7 @@ public class Statistics {
 				}
 				else {
 					if (last.getUid() != recent.getUid()) {
-						duration += profile.getMinUptimeDuration();
+						duration += MIN_UPTIME_DURATION;
 					}
 					else {
 						// current time can only be used if it lies within requested day
