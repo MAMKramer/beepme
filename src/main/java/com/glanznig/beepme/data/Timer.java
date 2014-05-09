@@ -53,11 +53,11 @@ public abstract class Timer {
     }
 
     /**
-     * Gets the next scheduled beep according to timer strategy. Has to be implemented
-     * by specific subclass.
-     * @return next scheduled beep
+     * Gets the next scheduled beep (positive offset now in milliseconds) according to timer
+     * strategy. Has to be implemented by specific subclass.
+     * @return next scheduled beep (positive offset from now in milliseconds)
      */
-    public abstract Beep getNext();
+    public abstract long getNext();
 
     /**
      * Transforms the Timer object into a string representation (for serialization, persistance).

@@ -25,9 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.glanznig.beepme.BeepMeApp;
+import com.glanznig.beepme.MomentListEntry;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.SampleListAdapter;
-import com.glanznig.beepme.SampleListEntry;
 import com.glanznig.beepme.ListItem;
 import com.glanznig.beepme.DateListSectionHeader;
 import com.glanznig.beepme.data.Moment;
@@ -75,7 +75,7 @@ public class SampleListFragment extends ListFragment {
 	}
 	
 	private void populateList() {
-		List<Moment> samplesList = new MomentTable(getActivity().getApplicationContext()).getSamples();
+		List<Moment> samplesList = new MomentTable(getActivity().getApplicationContext()).getMoments();
 		ArrayList<ListItem> viewList = new ArrayList<ListItem>();
 		
 		Iterator<Moment> i = samplesList.iterator();
@@ -86,7 +86,7 @@ public class SampleListFragment extends ListFragment {
 				header = new DateListSectionHeader(s.getTimestamp());
 				viewList.add(header);
 			}
-			viewList.add(new SampleListEntry(s));
+			viewList.add(new MomentListEntry(this.getActivity().getApplicationContext(), s));
 		}
 		
         SampleListAdapter samples = new SampleListAdapter(getActivity(), viewList);
@@ -129,9 +129,9 @@ public class SampleListFragment extends ListFragment {
 	
 	@Override
 	public void onListItemClick(ListView listView, View view, int position, long id) {
-		Moment s = ((SampleListEntry)listView.getItemAtPosition(position)).getSample();
+		long momentUid = ((MomentListEntry)listView.getItemAtPosition(position)).getMomentUid();
 		Intent i = new Intent(getActivity(), ViewSampleActivity.class);
-		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", s.getUid());
+		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", momentUid);
 		startActivity(i);
 	}
 	

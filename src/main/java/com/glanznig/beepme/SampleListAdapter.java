@@ -150,7 +150,7 @@ public class SampleListAdapter extends ArrayAdapter<ListItem> {
 			}
 			
 			EntryHolder holder = (EntryHolder)rowView.getTag();
-			SampleListEntry entry = (SampleListEntry)samples.get(position);
+			MomentListEntry entry = (MomentListEntry)samples.get(position);
 			
 			if (entry.getTitle() != null && entry.getTitle().length() > 0) {
 				String entryTitle = entry.getTitle();

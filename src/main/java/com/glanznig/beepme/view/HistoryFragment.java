@@ -59,8 +59,7 @@ public class HistoryFragment extends ListFragment {
 	}
 	
 	private void populateList() {
-		BeepMeApp app = (BeepMeApp)getActivity().getApplication();
-		List<Bundle> statList = Statistics.getStats(getActivity(), app.getTimerProfile());
+		List<Bundle> statList = Statistics.getStats(getActivity());
 		
         HistoryListAdapter historyAdapter = new HistoryListAdapter(getActivity(), statList);
         setListAdapter(historyAdapter);

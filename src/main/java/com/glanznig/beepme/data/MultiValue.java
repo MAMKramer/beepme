@@ -46,4 +46,14 @@ public class MultiValue extends Value {
     public Set<Long> getValues() {
         return values.keySet();
     }
+
+    /**
+     * Gets a string representation of all values referenced by this MultiValue. The delimiter character
+     * is a comma (,).
+     * @return comma delimited string representation of all value references
+     * todo implement
+     */
+    public String getValueString() {
+        return "";
+    }
 }

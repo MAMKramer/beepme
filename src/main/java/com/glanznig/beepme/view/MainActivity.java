@@ -25,6 +25,7 @@ import com.glanznig.beepme.MainSectionsPagerAdapter;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Beep;
 import com.glanznig.beepme.data.db.BeepTable;
+import com.glanznig.beepme.data.util.PreferenceHandler;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -111,18 +112,16 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		//make sure that scheduled beeps do not expire due to an error
 		BeepMeApp app = (BeepMeApp)getApplication();
 		if (app.isBeeperActive()) {
-			long scheduledBeepId = app.getPreferences().getScheduledBeepId();
+            Beep currentBeep = app.getCurrentScheduledBeep();
 			
-			if (scheduledBeepId != 0L) {
-                BeepTable beepTable = new BeepTable(this.getApplicationContext());
-                Beep beep = beepTable.getBeep(scheduledBeepId);
-                if (beep.getStatus() != Beep.BeepStatus.RECEIVED && beep.isOverdue()) {
+			if (currentBeep != null) {
+                if (currentBeep.getStatus() != Beep.BeepStatus.RECEIVED && currentBeep.isOverdue()) {
                     app.updateBeep(Beep.BeepStatus.EXPIRED);
-                    app.setTimer();
+                    app.scheduleBeep();
                 }
 			}
 			else {
-				app.setTimer();
+				app.scheduleBeep();
 			}
 		}
 	}
@@ -190,8 +189,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         switch (item.getItemId()) {
         	case R.id.action_toggle_beeper:
         		if (app.isBeeperActive()) {
-        			app.cancelBeep(); //call before setBeeperActive
-        			app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE);
+                    app.setBeeperStatus(PreferenceHandler.BeeperStatus.INACTIVE);
         			item.setIcon(R.drawable.ic_menu_beeper_off);
         			
         			// hide generate beep menu entry
@@ -201,8 +199,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         			}
         		}
         		else {
-        			app.setBeeperActive(BeepMeApp.BEEPER_ACTIVE);
-        			app.setTimer();
+                    app.setBeeperStatus(PreferenceHandler.BeeperStatus.ACTIVE);
         			item.setIcon(R.drawable.ic_menu_beeper_on);
         			
         			// show generate beep menu entry

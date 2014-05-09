@@ -266,6 +266,15 @@ public class Project {
     }
 
     /**
+     * Gets whether this project has the specified option set
+     * @param key specified option
+     * @return true if option is set, false otherwise
+     */
+    public boolean hasOption(String key) {
+        return options.containsKey(key);
+    }
+
+    /**
      * Sets a new restriction or updates an existing one (only one restriction per type can exist)
      * @param restriction restriction to add or update
      */

@@ -118,7 +118,7 @@ public class UptimeTable extends StorageHandler {
         if (!cursor.isNull(2)) {
             uptime.setEnd(new Date(cursor.getLong(2)));
         }
-        uptime.setProjectUid(cursor.getInt(3));
+        uptime.setProjectUid(cursor.getLong(3));
 
         return uptime;
     }

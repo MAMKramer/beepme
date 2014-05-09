@@ -22,16 +22,19 @@ package com.glanznig.beepme.data.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.glanznig.beepme.data.Project;
-import com.glanznig.beepme.data.RandomTimer;
+import com.glanznig.beepme.data.timer.RandomTimer;
 import com.glanznig.beepme.data.Restriction;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * Represents the table PROJECT (logical units related to research projects)
@@ -90,8 +93,11 @@ public class ProjectTable extends StorageHandler {
         invStatusMap.put(zero, archived);
     }
 
+    private Context ctx;
+
     public ProjectTable(Context ctx) {
         super(ctx);
+        this.ctx = ctx.getApplicationContext();
     }
 
     /**
@@ -180,6 +186,46 @@ public class ProjectTable extends StorageHandler {
     }
 
     /**
+     * Populates a uptime object by reading values from a cursor
+     * @param cursor cursor object
+     * @return populated uptime object
+     */
+    private Project populateObject(Cursor cursor) {
+        String[] a = new String[] { "_id", "name", "type", "status", "startA",
+                "expireA", "lang", "restrictionsA", "timer", "options" };
+
+        Project project = new Project(cursor.getLong(0));
+        project.setName(cursor.getString(1));
+        project.setType(invTypeMap.get(cursor.getInt(2)));
+        project.setStatus(invStatusMap.get(cursor.getInt(3)));
+        if (!cursor.isNull(4)) {
+            project.setStart(new Date(cursor.getLong(4)));
+        }
+        if (!cursor.isNull(5)) {
+            project.setExpire(new Date(cursor.getLong(5)));
+        }
+        project.setLanguage(new Locale(cursor.getString(6)));
+        if (!cursor.isNull(7)) {
+            String[] restrictions = cursor.getString(7).split(";");
+            for (int i=0; i < restrictions.length; i++) {
+                project.setRestriction(Restriction.fromString(restrictions[i]));
+            }
+        }
+        String timerString = cursor.getString(8);
+        if (timerString.startsWith("type=random")) {
+            timerString = timerString.substring(11);
+            project.setTimer(RandomTimer.fromString(ctx, timerString));
+        }
+        String[] options = cursor.getString(9).split(",");
+        for (int i=0; i < options.length; i++) {
+            String option[] = options[i].split("=");
+            project.setOption(option[0], option[1]);
+        }
+
+        return project;
+    }
+
+    /**
      * Adds a new project to the database
      * @param project values to add to the project table
      * @return new project object with set values and uid, or null if an error occurred
@@ -220,6 +266,28 @@ public class ProjectTable extends StorageHandler {
         }
 
         return numRows == 1;
+    }
+
+    /**
+     * Gets an project entry by its uid.
+     * @return project entry, or null if not found
+     */
+    public Project getProject(long uid) {
+        SQLiteDatabase db = getDb();
+        Project project = null;
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "name", "type", "status", "start",
+                "expire", "lang", "restrictions", "timer", "options" },
+                "_id=?", new String[] { Long.valueOf(uid).toString() }, null, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            project = populateObject(cursor);
+            cursor.close();
+        }
+        db.close();
+
+        return project;
     }
 
 }

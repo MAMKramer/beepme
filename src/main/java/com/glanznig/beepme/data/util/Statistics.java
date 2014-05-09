@@ -235,7 +235,7 @@ public class Statistics {
 		UptimeTable upTbl = new UptimeTable(ctx.getApplicationContext());
 		List<Uptime> uptimes = upTbl.getUptimes();
 		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
-		List<Moment> moments = momentTable.getSamples(true);
+		List<Moment> moments = momentTable.getMoments(true);
 		
 		if (uptimes != null && moments != null) {
 			TreeMap<Long, Bundle> map = new TreeMap<Long, Bundle>(new NegativeComparator());

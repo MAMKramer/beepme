@@ -21,9 +21,10 @@ http://beepme.yourexp.at
 package com.glanznig.beepme;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import com.glanznig.beepme.data.VocabularyItem;
-import com.glanznig.beepme.data.db.ValueVocabularyItemTable;
+import com.glanznig.beepme.data.db.VocabularyItemTable;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -95,8 +96,8 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
                     // Retrieve the auto-complete results.
-            		ArrayList<VocabularyItem> results = (ArrayList<VocabularyItem>)new ValueVocabularyItemTable(ctx.getApplicationContext())
-            						.getTags(vocabularyId, constraint.toString());
+            		ArrayList<VocabularyItem> results = (ArrayList<VocabularyItem>)new VocabularyItemTable(ctx.getApplicationContext())
+            						.getVocabularyItems(vocabularyId, Locale.getDefault(), constraint.toString());
                     
                     // Assign the data to the FilterResults
                     filterResults.values = results;

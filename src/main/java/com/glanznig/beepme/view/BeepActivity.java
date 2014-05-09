@@ -32,6 +32,7 @@ import com.glanznig.beepme.data.Beep;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.db.BeepTable;
 import com.glanznig.beepme.data.db.MomentTable;
+import com.glanznig.beepme.data.util.PreferenceHandler;
 import com.glanznig.beepme.data.util.Statistics;
 import com.glanznig.beepme.helper.BeepAlert;
 
@@ -157,11 +158,7 @@ public class BeepActivity extends Activity {
             if (!savedState.containsKey("beepTimestamp")) {
                 // set beep timestamp to NOW
                 beepTimestamp = Calendar.getInstance().getTimeInMillis();
-                Beep beep = new Beep(app.getPreferences().getScheduledBeepId());
-                beep.setStatus(Beep.BeepStatus.RECEIVED);
-                beep.setUpdated(Calendar.getInstance().getTime());
-                beep.setReceived(new Date(beepTimestamp));
-                new BeepTable(this.getApplicationContext()).updateBeep(beep);
+                app.updateBeep(Beep.BeepStatus.RECEIVED);
             } else {
                 beepTimestamp = savedState.getLong("beepTimestamp");
             }
@@ -169,17 +166,13 @@ public class BeepActivity extends Activity {
         else {
             // set beep timestamp to NOW
             beepTimestamp = Calendar.getInstance().getTimeInMillis();
-            Beep beep = new Beep(app.getPreferences().getScheduledBeepId());
-            beep.setStatus(Beep.BeepStatus.RECEIVED);
-            beep.setUpdated(Calendar.getInstance().getTime());
-            beep.setReceived(new Date(beepTimestamp));
-            new BeepTable(this.getApplicationContext()).updateBeep(beep);
+            app.updateBeep(Beep.BeepStatus.RECEIVED);
         }
         handler = new TimeoutHandler(BeepActivity.this);
 
         // decline and pause beeper if active call
         if (app.getPreferences().getPauseBeeperDuringCall() && app.getPreferences().isCall()) {
-            app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE_AFTER_CALL);
+            app.setBeeperStatus(PreferenceHandler.BeeperStatus.INACTIVE_AFTER_CALL);
             decline();
             return;
         }
@@ -203,7 +196,7 @@ public class BeepActivity extends Activity {
 			public void onReceive(Context context, Intent intent) {
 				if (intent.getAction().equals(CANCEL_INTENT)) {
 					if (app.getPreferences().getPauseBeeperDuringCall()) {
-						app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE_AFTER_CALL);
+						app.setBeeperStatus(PreferenceHandler.BeeperStatus.INACTIVE_AFTER_CALL);
 						decline();
 					}
 				}
@@ -212,10 +205,9 @@ public class BeepActivity extends Activity {
         registerReceiver(cancelReceiver, new IntentFilter(CANCEL_INTENT));
 		
 		alert = new BeepAlert(BeepActivity.this);
-		
-		MomentTable st = new MomentTable(this.getApplicationContext());
-		int numAccepted = st.getNumAcceptedToday();
-		int numDeclined = st.getSampleCountToday() - numAccepted;
+
+		int numAccepted = Statistics.getNumMomentsAcceptedToday(this.getApplicationContext());
+		int numDeclined = Statistics.getNumMomentsDeclinedToday(this.getApplicationContext());
 		long uptimeDur = Statistics.getUptimeDurationToday(this.getApplicationContext());
 		
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
@@ -292,7 +284,7 @@ public class BeepActivity extends Activity {
 	
 	public void declinePause() {
 		BeepMeApp app = (BeepMeApp)getApplication();
-		app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE);
+		app.setBeeperStatus(PreferenceHandler.BeeperStatus.INACTIVE);
 		decline();
 	}
 	
@@ -304,9 +296,9 @@ public class BeepActivity extends Activity {
             Moment sample = new Moment();
             sample.setTimestamp(new Date(beepTimestamp));
             sample.setAccepted(false);
-            sample.setUptimeId(app.getPreferences().getUptimeId());
+            sample.setUptimeUid(app.getCurrentUptime().getUid());
             new MomentTable(this.getApplicationContext()).addSample(sample);
-            app.setTimer();
+            app.scheduleBeep();
 
             if (!BeepActivity.this.isFinishing()) {
                 finish();

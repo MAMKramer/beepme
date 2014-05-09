@@ -53,7 +53,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		if (key.equals(PreferenceHandler.KEY_TEST_MODE)) {
 			BeepMeApp app = (BeepMeApp)getApplication();
 			if (app.isBeeperActive()) {
-				app.setBeeperActive(BeepMeApp.BEEPER_INACTIVE);
+				app.setBeeperStatus(PreferenceHandler.BeeperStatus.INACTIVE);
 			}
 		}
 	}

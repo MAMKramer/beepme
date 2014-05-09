@@ -24,13 +24,16 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 import com.glanznig.beepme.data.Beep;
 import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.Project;
 import com.glanznig.beepme.data.Timer;
 import com.glanznig.beepme.data.Uptime;
+import com.glanznig.beepme.data.db.ProjectTable;
 import com.glanznig.beepme.data.util.PreferenceHandler;
 import com.glanznig.beepme.data.db.BeepTable;
 import com.glanznig.beepme.data.db.MomentTable;
@@ -60,17 +63,16 @@ import android.util.DisplayMetrics;
 public class BeepMeApp extends Application { //implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
 	private PreferenceHandler preferences = null;
-	private Timer timerProfile;
 	private BeepMeApp.CallStateListener callStateListener;
 	
 	private static final int ALARM_INTENT_ID = 5332;
-	private static final int NOTIFICATION_ID = 1283;
-	private static final String TAG = "BeeperApp";
-	
-	public static final int BEEPER_INACTIVE = 0;
-	public static final int BEEPER_ACTIVE = 1;
-	public static final int BEEPER_INACTIVE_AFTER_CALL = 2;
-	
+	private static final int NOTIFICATION_ID = 1283; // unique id to identify the beeper notificatoin
+	private static final String TAG = "BeepMeApp";
+
+    /**
+     * Gets a reference to the preference handling class that provides setter and getter methods.
+     * @return reference to preference handler
+     */
 	public PreferenceHandler getPreferences() {
 		if (preferences == null) {
 			preferences = new PreferenceHandler(this.getApplicationContext());
@@ -79,44 +81,98 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 		
 		return preferences;
 	}
-	
-	public boolean isBeeperActive() {
-		int active = getPreferences().getBeeperActive();
-		if (active == BEEPER_ACTIVE) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public void setBeeperActive(int active) {
-		getPreferences().setBeeperActive(active);
-		
-		if (active == BEEPER_ACTIVE) {
+
+    /**
+     * Gets the current project.
+     * @return current project, or null if none
+     */
+    public Project getCurrentProject() {
+        long projectId = getPreferences().getProjectId();
+        if (projectId != 0L) {
+            return new ProjectTable(this.getApplicationContext()).getProject(projectId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the current uptime.
+     * @return current uptime, or null if none
+     */
+    public Uptime getCurrentUptime() {
+        long uptimeId = getPreferences().getUptimeId();
+        if (uptimeId != 0L) {
+            return new UptimeTable(this.getApplicationContext()).getUptime(uptimeId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Starts a new uptime (creates a new object, sets start time and sets uptime uid in preferences)
+     */
+    public void startUptime() {
+        if (getCurrentUptime() == null) {
             Uptime uptime = new Uptime();
             uptime.setStart(Calendar.getInstance().getTime());
             uptime = new UptimeTable(this.getApplicationContext()).addUptime(uptime);
-			getPreferences().setUptimeId(uptime.getUid());
-			createNotification();
+            getPreferences().setUptimeId(uptime.getUid());
+        }
+    }
+
+    /**
+     * Ends the current uptime (retrieves current uptime object, sets end time and
+     * clears uptime uid in preferences)
+     */
+    public void endUptime() {
+        Uptime uptime = getCurrentUptime();
+        if (uptime != null) {
+            uptime.setEnd(Calendar.getInstance().getTime());
+            new UptimeTable(this.getApplicationContext()).updateUptime(uptime);
+            getPreferences().setUptimeId(0L);
+        }
+    }
+
+    /**
+     * Gets whether the beeper is active and hence new beeps can be scheduled.
+     * @return true if beeper status is ACTIVE, and false if status is INACTIVE or INACTIVE_AFTER_CALL
+     */
+    public boolean isBeeperActive() {
+        PreferenceHandler.BeeperStatus active = getPreferences().getBeeperStatus();
+        if (active == PreferenceHandler.BeeperStatus.ACTIVE) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Sets the beeper status to either ACTIVE, INACTIVE, or INACTIVE_AFTER_CALL, starts or
+     * ends the corresponding uptime, creates or removes the corresponding notification and schedules
+     * or cancels the current beep.
+     * @param status the beeper status
+     */
+	public void setBeeperStatus(PreferenceHandler.BeeperStatus status) {
+		getPreferences().setBeeperStatus(status);
+		
+		if (status == PreferenceHandler.BeeperStatus.ACTIVE) {
+            startUptime();
+			createBeeperNotification();
+            scheduleBeep();
 		}
 		else {
-			long uptimeId = getPreferences().getUptimeId();
-			
-			if (uptimeId != 0L) {
-                UptimeTable uptimeTable = new UptimeTable(this.getApplicationContext());
-                Uptime uptime = uptimeTable.getUptime(uptimeId);
-                if (uptime != null) {
-                    uptime.setEnd(Calendar.getInstance().getTime());
-                    uptimeTable.updateUptime(uptime);
-                    getPreferences().setUptimeId(0L);
-                    NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    manager.cancel(TAG, NOTIFICATION_ID);
-                }
-			}
+            if (getCurrentUptime() != null) {
+                removeBeeperNotification();
+            }
+            updateBeep(Beep.BeepStatus.CANCELLED);
+            endUptime();
 		}
 	}
-	
-	private void createNotification() {
+
+    /**
+     * Creates a entry in the Android notification drawer to notify the user that the beeper is active.
+     */
+	private void createBeeperNotification() {
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
 		
 		if (this.getPreferences().isTestMode()) {
@@ -130,24 +186,26 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 		notificationBuilder.setContentText(getString(R.string.notify_content));
 		//set as ongoing, so it cannot be cleared
 		notificationBuilder.setOngoing(true);
-		// Creates an explicit intent for an Activity in your app
 		Intent resultIntent = new Intent(this, MainActivity.class);
 
-		// The stack builder object will contain an artificial back stack for the
-		// started Activity.
-		// This ensures that navigating backward from the Activity leads out of
-		// your application to the Home screen.
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-		// Adds the back stack for the Intent (but not the Intent itself)
 		stackBuilder.addParentStack(MainActivity.class);
-		// Adds the Intent that starts the Activity to the top of the stack
 		stackBuilder.addNextIntent(resultIntent);
+
 		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		notificationBuilder.setContentIntent(resultPendingIntent);
+
 		NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		// notification_id allows you to update the notification later on.
 		manager.notify(TAG, NOTIFICATION_ID, notificationBuilder.build());
 	}
+
+    /**
+     * Removes the entry in the Android notification drawer (if present).
+     */
+    private void removeBeeperNotification() {
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(TAG, NOTIFICATION_ID);
+    }
 	
 	@Override
 	public void onCreate() {
@@ -172,8 +230,6 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 		//set export running to false
 		getPreferences().setExportRunningSince(0L);
 		
-		UptimeTable uptimeTbl = new UptimeTable(this.getApplicationContext());
-		
 		if (isBeeperActive()) {
 			long scheduledBeepId = getPreferences().getScheduledBeepId();
 			//is there a scheduled beep, if no, create one, if yes and it is expired, create a new one
@@ -182,25 +238,19 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
                 Beep beep = beepTable.getBeep(scheduledBeepId);
 				if (beep.getStatus() != Beep.BeepStatus.RECEIVED && beep.isOverdue()) {
 					updateBeep(Beep.BeepStatus.EXPIRED);
-					setTimer();
+					scheduleBeep();
 				}
 			}
 			else {
-				setTimer();
+				scheduleBeep();
 			}
 			
 			//is there a notification, if no, create one
 			//cannot check if there is a notification or not, so call create, it will be replaced
-			createNotification();
+			createBeeperNotification();
 			
 			//is there a open uptime interval, if no, create one
-			long uptimeId = getPreferences().getUptimeId();
-			if (uptimeId == 0L) {
-                Uptime uptime = new Uptime();
-                uptime.setStart(Calendar.getInstance().getTime());
-                uptime = new UptimeTable(this.getApplicationContext()).addUptime(uptime);
-                getPreferences().setUptimeId(uptime.getUid());
-			}
+			startUptime();
 		}
 		else {
 			long scheduledBeepId = getPreferences().getScheduledBeepId();
@@ -210,39 +260,51 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 			}
 			
 			//cancel notifications
+            removeBeeperNotification();
 			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-			manager.cancel(TAG, NOTIFICATION_ID);
             manager.cancel(TAG, ExportActivity.EXPORT_RUNNING_NOTIFICATION);
 			
 			//is there a open uptime interval, if yes, end it
-			long uptimeId = getPreferences().getUptimeId();
-			
-			if (uptimeId != 0L) {
-                UptimeTable uptimeTable = new UptimeTable(this.getApplicationContext());
-                Uptime uptime = uptimeTable.getUptime(uptimeId);
-                if (uptime != null) {
-                    uptime.setEnd(Calendar.getInstance().getTime());
-                    uptimeTable.updateUptime(uptime);
-                    getPreferences().setUptimeId(0L);
-                }
-			}
+            endUptime();
 		}
 	}
-	
-	public void setTimer() {
+
+    /**
+     * Gets the current scheduled beep object.
+     * @return current scheduled beep object, or null if not set
+     */
+    public Beep getCurrentScheduledBeep() {
+        if (getPreferences().getScheduledBeepId() != 0L) {
+            return new BeepTable(this.getApplicationContext()).getBeep(getPreferences().getScheduledBeepId());
+        }
+        return null;
+    }
+
+    /**
+     * Schedules the next beep according to timer strategy. Uses the timer class referenced by the
+     * current project to get the next timestamp.
+     */
+	public void scheduleBeep() {
 		if (isBeeperActive()) {
 			Calendar alarmTime = Calendar.getInstance();
 			Calendar alarmTimeUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-			
-			long timer = timerProfile.getTimer(this.getApplicationContext());
-	        alarmTime.add(Calendar.SECOND, (int)timer);
-	        //Log.i(TAG, "alarm in " + timer + " seconds.");
-	        alarmTimeUTC.add(Calendar.SECOND, (int)timer);
+
+            Project current = getCurrentProject();
+            Timer timer = current.getTimer();
+            long nextBeep = 0;
+            do {
+                nextBeep = timer.getNext();
+            }
+            while (nextBeep <= 0L); // make sure that timer class delivers only positive offsets
+
+	        alarmTime.add(Calendar.MILLISECOND, (int)nextBeep);
+	        alarmTimeUTC.add(Calendar.MILLISECOND, (int)nextBeep);
 
             Beep beep = new Beep();
             beep.setCreated(Calendar.getInstance().getTime());
             beep.setStatus(Beep.BeepStatus.ACTIVE);
-            beep.setUptimeUid(getPreferences().getUptimeId());
+            beep.setUptimeUid(getCurrentUptime().getUid());
+            beep.setTimestamp(alarmTime.getTime());
             beep = new BeepTable(this.getApplicationContext()).addBeep(beep);
             getPreferences().setScheduledBeepId(beep.getUid());
 	        
@@ -253,8 +315,14 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 	        manager.set(AlarmManager.RTC_WAKEUP, alarmTimeUTC.getTimeInMillis(), alarmIntent);
 		}
 	}
-	
+
+    /**
+     * Updates the beep object with a new status and update timestamp.
+     * @param status one of ACTIVE, RECEIVED, CANCELLED or EXPIRED
+     */
 	public void updateBeep(Beep.BeepStatus status) {
+        Date time = Calendar.getInstance().getTime();
+
 		if (status != Beep.BeepStatus.ACTIVE || status != Beep.BeepStatus.RECEIVED) {
 			Intent intent = new Intent(this, BeepActivity.class);
 	        PendingIntent alarmIntent = PendingIntent.getActivity(this, ALARM_INTENT_ID, intent,
@@ -264,14 +332,22 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
 
         Beep beep = new Beep(getPreferences().getScheduledBeepId());
         beep.setStatus(status);
-        beep.setUpdated(Calendar.getInstance().getTime());
+        beep.setUpdated(time);
+
+        if (status == Beep.BeepStatus.RECEIVED) {
+            beep.setReceived(time);
+        }
+
         new BeepTable(this.getApplicationContext()).updateBeep(beep);
 
 		if (status != Beep.BeepStatus.ACTIVE) {
 			getPreferences().setScheduledBeepId(0L);
 		}
 	}
-	
+
+    /**
+     * Start a test beep.
+     */
 	public void beep() {
 		if (isBeeperActive()) {
 			Intent beep = new Intent(BeepMeApp.this, BeepActivity.class);
@@ -291,7 +367,7 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
                 for (int mVers = oldVersion; mVers < newVersion; mVers++) {
                     switch (mVers) {
                         case 16:
-                            String dbName;
+                            /*String dbName;
                             String picDirName;
                             if (getPreferences().isTestMode()) {
                                 dbName = StorageHandler.getTestModeDatabaseName();
@@ -329,7 +405,7 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
                                 }
 
                                 MomentTable st = new MomentTable(this);
-                                List<Moment> list = st.getSamples();
+                                List<Moment> list = st.getMoments();
                                 for (int i = 0; i < list.size(); i++) {
                                     Moment s = list.get(i);
                                     String uri = s.getPhotoUri();
@@ -340,7 +416,7 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
                                         st.editSample(s);
                                     }
                                 }
-                            }
+                            }*/
 
                             break;
                     }
@@ -368,8 +444,8 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
                     case TelephonyManager.CALL_STATE_IDLE:
                         app.getPreferences().setCall(false);
                         // beeper was paused by call, reactivate it
-                        if (app.getPreferences().getBeeperActive() == BeepMeApp.BEEPER_INACTIVE_AFTER_CALL) {
-                            app.setBeeperActive(BeepMeApp.BEEPER_ACTIVE);
+                        if (app.getPreferences().getBeeperStatus() == PreferenceHandler.BeeperStatus.INACTIVE_AFTER_CALL) {
+                            app.setBeeperStatus(PreferenceHandler.BeeperStatus.ACTIVE);
                         }
                         break;
                     case TelephonyManager.CALL_STATE_OFFHOOK:

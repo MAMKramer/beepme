@@ -34,15 +34,23 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.glanznig.beepme.BeepMeApp;
+import com.glanznig.beepme.data.InputElement;
 import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.MultiValue;
+import com.glanznig.beepme.data.SingleValue;
+import com.glanznig.beepme.data.Value;
 import com.glanznig.beepme.data.VocabularyItem;
+import com.glanznig.beepme.data.db.InputElementTable;
 import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.data.db.StorageHandler;
 import com.glanznig.beepme.helper.PhotoUtils;
@@ -70,54 +78,47 @@ public class DataExporter {
 	}
 
     private File writeDataCSV(File tempDir) {
-        MomentTable st = new MomentTable(ctx.getApplicationContext());
-        List<Moment> sampleList = st.getSamples();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        BeepMeApp app = (BeepMeApp)ctx;
+        MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
+        List<Moment> momentList = momentTable.getMomentsWithValues(app.getCurrentProject().getUid());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+
+        Iterator<InputElement> inputElementsIterator = new InputElementTable(ctx.getApplicationContext())
+                .getInputElements(app.getCurrentProject().getUid()).iterator();
+
+        ArrayList<String> colTitlesList = new ArrayList<String>();
+        while (inputElementsIterator.hasNext()) {
+            InputElement inputElement = inputElementsIterator.next();
+            colTitlesList.add(inputElement.getName());
+        }
+        String[] colTitles = new String[colTitlesList.size()];
+        colTitlesList.toArray(colTitles);
 
         File csvFile = new File(tempDir, "data.csv");
 
         try {
             CSVWriter writer = new CSVWriter(new FileWriter(csvFile), ';');
-            writer.writeNext("Timestamp#Title#Description#Photo#Tags".split("#"));
+            writer.writeNext(colTitles);
 
-            Iterator<Moment> i = sampleList.iterator();
+            Iterator<Moment> i = momentList.iterator();
             while (i.hasNext()) {
-                Moment item = i.next();
+                HashMap<String, Value> values = i.next().getValues();
                 ArrayList<String> list = new ArrayList<String>();
-                list.add(dateFormat.format(item.getTimestamp()));
-                if (item.getTitle() != null) {
-                    list.add(item.getTitle());
-                }
-                else {
-                    list.add("");
-                }
-                if (item.getDescription() != null) {
-                    list.add(item.getDescription());
-                }
-                else {
-                    list.add("");
-                }
-                if (item.getPhotoUri() != null) {
-                    File photo = new File(item.getPhotoUri());
-                    list.add(photo.getName());
-                }
-                else {
-                    list.add("");
-                }
 
-                List<VocabularyItem> tags = st.getTagsOfSample(item.getId());
-                if (tags!= null && tags.size() > 0) {
-                    Iterator<VocabularyItem> it = tags.iterator();
-                    String tagString = it.next().getName();
-
-                    while (it.hasNext()) {
-                        tagString += ", ";
-                        tagString += it.next().getName();
+                Iterator<String> colTitleIterator = colTitlesList.iterator();
+                while (colTitleIterator.hasNext()) {
+                    String colTitle = colTitleIterator.next();
+                    if (values.containsKey(colTitle)) {
+                        Value value = values.get(colTitle);
+                        if (value instanceof SingleValue) {
+                            list.add(((SingleValue)value).getValue());
+                        }
+                        else if (value instanceof MultiValue) {
+                            list.add(((MultiValue)value).getValueString());
+                        }
+                    } else {
+                        list.add("");
                     }
-                    list.add(tagString);
-                }
-                else {
-                    list.add("");
                 }
 
                 String[] listArray = new String[list.size()];
@@ -136,9 +137,8 @@ public class DataExporter {
     }
 
     private File writeHistoryCSV(File tempDir) {
-        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
-        List<Bundle> statList = Statistics.getStats(ctx, app.getTimerProfile());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        List<Bundle> statList = Statistics.getStats(ctx);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
         File csvFile = new File(tempDir, "history.csv");
 
@@ -152,14 +152,14 @@ public class DataExporter {
                 ArrayList<String> list = new ArrayList<String>();
                 list.add(dateFormat.format(new Date(item.getLong("timestamp"))));
 
-                if (item.containsKey("acceptedSamples")) {
-                    list.add(String.valueOf(item.getInt("acceptedSamples", 0)));
+                if (item.containsKey("acceptedMoments")) {
+                    list.add(String.valueOf(item.getInt("acceptedMoments", 0)));
                 }
                 else {
                     list.add("0");
                 }
-                if (item.containsKey("declinedSamples")) {
-                    list.add(String.valueOf(item.getInt("declinedSamples", 0)));
+                if (item.containsKey("declinedMoments")) {
+                    list.add(String.valueOf(item.getInt("declinedMoments", 0)));
                 }
                 else {
                     list.add("0");

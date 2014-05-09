@@ -27,7 +27,7 @@ import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.InputElement;
 import com.glanznig.beepme.data.InputGroup;
 import com.glanznig.beepme.data.Project;
-import com.glanznig.beepme.data.RandomTimer;
+import com.glanznig.beepme.data.timer.RandomTimer;
 import com.glanznig.beepme.data.Restriction;
 import com.glanznig.beepme.data.Timer;
 import com.glanznig.beepme.data.TranslationElement;
@@ -409,7 +409,7 @@ public class ProjectXml {
                     String id = parser.getAttributeValue(null, "id");
                     mRefs.add(currentVocabulary.getName()+"_"+id);
                     currentVocabularyItem = new VocabularyItem(true);
-                    currentVocabularyItem.setName(id);
+                    //currentVocabularyItem.setName(id);
                     currentVocabularyItem.setLanguage(new Locale(currentLanguage));
                 }
             }

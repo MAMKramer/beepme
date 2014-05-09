@@ -26,20 +26,26 @@ package com.glanznig.beepme.data;
  */
 public class Value {
 
-    protected Long uid;
-    protected Long inputElementUid;
-    protected Long momentUid;
+    private Long uid;
+    private Long inputElementUid;
+    private Long momentUid;
+
+    private String inputElementName;
 
     public Value() {
         uid = null;
         inputElementUid = null;
         momentUid = null;
+
+        inputElementName = null;
     }
 
     public Value(long uid) {
         setUid(uid);
         inputElementUid = null;
         momentUid = null;
+
+        inputElementName = null;
     }
 
     /**
@@ -101,6 +107,22 @@ public class Value {
         }
 
         return 0L;
+    }
+
+    /**
+     * Sets the name (display id) of the associated input element.
+     * @param name name (display id) of input element
+     */
+    public void setInputElementName(String name) {
+        inputElementName = name;
+    }
+
+    /**
+     * Gets the name (display id) of the associated input element
+     * @return name (display id), or null if not set
+     */
+    public String getInputElementName() {
+        return inputElementName;
     }
 
     @Override

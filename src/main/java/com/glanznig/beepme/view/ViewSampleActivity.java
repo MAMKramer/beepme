@@ -23,7 +23,7 @@ package com.glanznig.beepme.view;
 import java.util.Calendar;
 
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.ViewSamplePagerAdapter;
+import com.glanznig.beepme.ViewMomentPagerAdapter;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.db.MomentTable;
 
@@ -40,7 +40,7 @@ import android.widget.TextView;
 public class ViewSampleActivity extends FragmentActivity {
 	
 	private static final String TAG = "ViewSampleActivity";
-	private ViewSamplePagerAdapter pagerAdapter = null;
+	private ViewMomentPagerAdapter pagerAdapter = null;
 	private ViewPager pager = null;
 	private long sampleId = 0L;
 	
@@ -49,7 +49,7 @@ public class ViewSampleActivity extends FragmentActivity {
         super.onCreate(savedState);
         setContentView(R.layout.view_sample_pager);
         
-        pagerAdapter = new ViewSamplePagerAdapter(getSupportFragmentManager(), this);
+        pagerAdapter = new ViewMomentPagerAdapter(getSupportFragmentManager(), this);
         pager = (ViewPager)findViewById(R.id.view_sample_swipe_pager);
         pager.setAdapter(pagerAdapter);
         
@@ -63,7 +63,7 @@ public class ViewSampleActivity extends FragmentActivity {
             public void onPageSelected(int position) {
             	invalidateOptionsMenu();
                 getActionBar().setTitle(pagerAdapter.getPageTitle(position));
-                sampleId = pagerAdapter.getSampleId(position);
+                sampleId = pagerAdapter.getMomentId(position);
                 
                 TextView pos = (TextView)findViewById(R.id.sample_swipe_pos);
                 pos.setText(String.format(getString(R.string.sample_swipe_pos), position + 1, pagerAdapter.getCount()));
@@ -110,7 +110,7 @@ public class ViewSampleActivity extends FragmentActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem edit = menu.findItem(R.id.action_edit_sample);
-		Moment s = new MomentTable(this.getApplicationContext()).getSampleWithTags(pagerAdapter.getSampleId(pager.getCurrentItem()));
+		Moment s = new MomentTable(this.getApplicationContext()).getSampleWithTags(pagerAdapter.getMomentId(pager.getCurrentItem()));
 		
 		//not editable if more than a day old
 		if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
@@ -128,7 +128,7 @@ public class ViewSampleActivity extends FragmentActivity {
         switch (item.getItemId()) {
         	case R.id.action_edit_sample:
         		Intent i = new Intent(ViewSampleActivity.this, EditSampleActivity.class);
-        		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", pagerAdapter.getSampleId(pager.getCurrentItem()));
+        		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", pagerAdapter.getMomentId(pager.getCurrentItem()));
         		startActivity(i);
         		
         		return true;

@@ -21,11 +21,14 @@ http://beepme.yourexp.at
 package com.glanznig.beepme.data;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A moment is a defined point in time (timestamp), where something happened, something was felt -
- * it had a quality. A moment is associated to a certain project. For sampling and life logging
- * projects it is associated to a timer uptime and has been either accepted or declined.
+ * it had a quality. A moment is associated to a certain project. For sampling (life logging)
+ * projects it is (may be) associated to a timer uptime and has been either accepted or declined.
  * A moment has several values of different form, where the user added some data.
  */
 public class Moment {
@@ -36,12 +39,16 @@ public class Moment {
     private Long uptimeUid;
     private Long projectUid;
 
+    private HashMap<String, Value> values;
+
     public Moment() {
         uid = null;
         timestamp = null;
         accepted = Boolean.FALSE;
         uptimeUid = null;
         projectUid = null;
+
+        values = new HashMap<String, Value>();
     }
 
     public Moment(long uid) {
@@ -50,6 +57,8 @@ public class Moment {
         accepted = Boolean.FALSE;
         uptimeUid = null;
         projectUid = null;
+
+        values = new HashMap<String, Value>();
     }
 
     /**
@@ -143,6 +152,35 @@ public class Moment {
         }
 
         return 0L;
+    }
+
+    /**
+     * Sets a specific value (identified by input element id) for this moment.
+     * @param key value identifier (input element display id)
+     * @param value value object (can be SingleValue or MultiValue)
+     */
+    public void setValue(String key, Value value) {
+        if (key != null && value != null) {
+            values.put(key, value);
+        }
+    }
+
+    /**
+     * Gets a specific value (identified by input element display id) of this moment.
+     * @param key value identifier (input element display id)
+     * @return value object, or null if no value for this identifier
+     */
+    public Value getValue(String key) {
+        return values.get(key);
+    }
+
+    /**
+     * Gets a map of all value entries for this moment. Value entries are mapped from input
+     * element display id to value objects (SingleValue or MultiValue).
+     * @return map with value entries, or empty map if no values
+     */
+    public HashMap<String, Value> getValues() {
+        return values;
     }
 
     @Override

@@ -22,13 +22,16 @@ package com.glanznig.beepme.data.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.glanznig.beepme.data.InputElement;
 import com.glanznig.beepme.data.Restriction;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents the table INPUT_ELEMENT (input element belonging to a input group of a project)
@@ -174,6 +177,40 @@ public class InputElementTable extends StorageHandler {
     }
 
     /**
+     * Populates a input element object by reading values from a cursor
+     * @param cursor cursor object
+     * @return populated input element object
+     */
+    private InputElement populateObject(Cursor cursor) {
+        InputElement inputElement = new InputElement(cursor.getLong(0));
+        inputElement.setType(invTypeMap.get(cursor.getInt(1)));
+        inputElement.setName(cursor.getString(2));
+        if (cursor.getInt(3) == 1) {
+            inputElement.setMandatory(true);
+        }
+        else {
+            inputElement.setMandatory(false);
+        }
+        String[] restrictions = cursor.getString(4).split(";");
+        for (int i=0; i < restrictions.length; i++) {
+            inputElement.setRestriction(Restriction.fromString(restrictions[i]));
+        }
+        if (!cursor.isNull(5)) {
+            String[] options = cursor.getString(5).split(",");
+            for (int i=0; i < options.length; i++) {
+                String option[] = options[i].split("=");
+                inputElement.setOption(option[0], option[1]);
+            }
+        }
+        if (!cursor.isNull(6)) {
+            inputElement.setVocabularyUid(cursor.getLong(6));
+        }
+        inputElement.setInputGroupUid(cursor.getLong(7));
+
+        return inputElement;
+    }
+
+    /**
      * Adds a new input element to the database
      * @param element values to add to the input element table
      * @return new input element object with set values and uid, or null if an error occurred
@@ -216,5 +253,85 @@ public class InputElementTable extends StorageHandler {
         }
 
         return numRows == 1;
+    }
+
+    /**
+     * Gets an input element by its name (display id), which is unique per project.
+     * @param projectUid project uid of project where the input element belongs to
+     * @param name name (display id) of the desired input element
+     * @return input element, or null if not found
+     */
+    public InputElement getInputElementByName(long projectUid, String name) {
+        SQLiteDatabase db = getDb();
+        InputElement inputElement = null;
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "type", "name", "mandatory",
+                        "restrict", "options", "vocabulary_id", "input_group_id" },
+                "project_id=? AND name=?",
+                new String[] { Long.valueOf(projectUid).toString(), name },
+                null, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            inputElement = populateObject(cursor);
+            cursor.close();
+        }
+        db.close();
+
+        return inputElement;
+    }
+
+    /**
+     * Gets the (only) photo input element for the specified project.
+     * @param projectUid project uid of project where the input element belongs to
+     * @return photo input element, or null if none
+     */
+    public InputElement getPhotoInputElement(long projectUid) {
+        SQLiteDatabase db = getDb();
+        InputElement inputElement = null;
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "type", "name", "mandatory",
+                        "restrict", "options", "vocabulary_id", "input_group_id" },
+                "project_id=? AND type=?",
+                new String[] { Long.valueOf(projectUid).toString(),
+                        Integer.valueOf(typeMap.get(InputElement.InputElementType.PHOTO)).toString() },
+                null, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            inputElement = populateObject(cursor);
+            cursor.close();
+        }
+        db.close();
+
+        return inputElement;
+    }
+
+    /**
+     * Gets a list of all input elements for the specified project.
+     * @param projectUid project uid of project where the input elements belong to
+     * @return list of input elements, or empty list if none
+     */
+    public List<InputElement> getInputElements(long projectUid) {
+        SQLiteDatabase db = getDb();
+        ArrayList<InputElement> inputElementList = new ArrayList<InputElement>();
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "type", "name", "mandatory",
+                        "restrict", "options", "vocabulary_id", "input_group_id" },
+                "project_id=?", new String[] { Long.valueOf(projectUid).toString() },
+                null, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                InputElement inputElement = populateObject(cursor);
+                inputElementList.add(inputElement);
+            }
+            while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+
+        return inputElementList;
     }
 }

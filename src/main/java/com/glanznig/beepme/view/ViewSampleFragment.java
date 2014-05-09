@@ -78,7 +78,7 @@ public class ViewSampleFragment extends Fragment implements Callback {
         
         View rootView = inflater.inflate(R.layout.view_sample, container, false);
         Bundle args = getArguments();
-		sampleId = args.getLong("sampleId");
+		sampleId = args.getLong("momentId");
         
         return rootView;
 	}

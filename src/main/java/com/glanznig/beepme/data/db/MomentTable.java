@@ -23,12 +23,12 @@ package com.glanznig.beepme.data.db;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.Value;
 import com.glanznig.beepme.data.VocabularyItem;
 
 import android.content.ContentValues;
@@ -54,9 +54,12 @@ public class MomentTable extends StorageHandler {
 			"FOREIGN KEY (uptime_id) REFERENCES "  + UptimeTable.getTableName() + " (_id), " +
             "FOREIGN KEY (project_id) REFERENCES "  + ProjectTable.getTableName() + " (_id)" +
 			")";
+
+    private Context ctx;
 	
 	public MomentTable(Context ctx) {
 		super(ctx);
+        this.ctx = ctx.getApplicationContext();
 	}
 
     /**
@@ -82,48 +85,160 @@ public class MomentTable extends StorageHandler {
 	public static void dropTable(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
 	}
-	
-	public Moment getSample(long id) {
+
+    /**
+     * Populates a moment object by reading values from a cursor
+     * @param cursor cursor object
+     * @return populated moment object
+     */
+    private Moment populateObject(Cursor cursor) {
+        Moment moment = new Moment(cursor.getLong(0));
+        moment.setTimestamp(new Date(cursor.getLong(1)));
+        if (cursor.getInt(2) == 1) {
+            moment.setAccepted(true);
+        }
+        else {
+            moment.setAccepted(false);
+        }
+        if (!cursor.isNull(3)) {
+            moment.setUptimeUid(cursor.getLong(3));
+        }
+        moment.setProjectUid(cursor.getLong(4));
+
+        return moment;
+    }
+
+    /**
+     * Gets all moment uids of the specified project
+     * @param projectUid uid of project where moments belong to
+     * @return list of moment uids or empty list if none
+     */
+    public List<Long> getMomentUids(long projectUid) {
+        SQLiteDatabase db = getDb();
+        List<Long> idList = new ArrayList<Long>();
+
+        Cursor cursor = db.query(getTableName(), new String[] {"_id"}, "accepted=? AND project_id=?"
+                , new String[] { "1", Long.valueOf(projectUid).toString() }, null, null, "timestamp DESC");
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+
+            do {
+                idList.add(cursor.getLong(0));
+            }
+            while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+
+        return idList;
+    }
+
+    /**
+     * Gets a specific moment by its uid.
+     * @param uid uid of moment
+     * @return moment, or null if not found
+     */
+	public Moment getMoment(long uid) {
 		SQLiteDatabase db = getDb();
-		Moment s = null;
+		Moment moment = null;
 		
-		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "timestamp", "title", "description", "accepted",
-				"photoUri", "uptimeId"},
-				"_id=?", new String[] { String.valueOf(id) }, null, null, null);
+		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "timestamp", "accepted", "uptime_id", "project_id"},
+				"_id=?", new String[] { String.valueOf(uid) }, null, null, null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
-			cursor.moveToFirst();
-			
-			s = new Moment(cursor.getLong(0));
-			long timestamp = cursor.getLong(1);
-			s.setTimestamp(new Date(timestamp));
-			if (!cursor.isNull(2)) {
-				s.setTitle(cursor.getString(2));
-			}
-			if (!cursor.isNull(3)) {
-				s.setDescription(cursor.getString(3));
-			}
-			if (cursor.getInt(4) == 0) {
-				s.setAccepted(false);
-			}
-			else {
-				s.setAccepted(true);
-			}
-			if (!cursor.isNull(5)) {
-				s.setPhotoUri(cursor.getString(5));
-			}
-			if (!cursor.isNull(6)) {
-				s.setUptimeId(cursor.getLong(6));
-			}
-		}
-		cursor.close();
+            cursor.moveToFirst();
+            moment = populateObject(cursor);
+            cursor.close();
+        }
 		db.close();
 		
-		return s;
+		return moment;
 	}
+
+    /**
+     * Gets a list of accepted moments without values for the specified project.
+     * @return list of moments, or empty list if none
+     */
+    public List<Moment> getMoments(long projectUid) {
+        return getMoments(projectUid, false, false);
+    }
+
+    /**
+     * Gets a list of accepted moments with values for the specified project.
+     * @return list of moments, or empty list if none
+     */
+    public List<Moment> getMomentsWithValues(long projectUid) {
+        return getMoments(projectUid, false, true);
+    }
+
+    /**
+     * Gets a list of all moments (accepted and declined) without values for the specified project.
+     * @return list of moments, or empty list if none
+     */
+    public List<Moment> getAllMoments(long projectUid) {
+        return getMoments(projectUid, true, false);
+    }
+
+    /**
+     * Gets a list of all moments (accepted and declined) with values (accepted only) for the specified project.
+     * @return list of moments, or empty list if none
+     */
+    public List<Moment> getAllMomentsWithValues(long projectUid) {
+        return getMoments(projectUid, true, true);
+    }
+
+    /**
+     * Gets a list of moments for the specified project according to parameters accepted and values.
+     * @param projectUid uid of project where moments belong to
+     * @param declined if set to true all moments (accepted and declined are returned), else only accepted ones
+     * @param values if set to true a list of values is included with each moment, else only base data is returned
+     * @return a list of moments according to parameters, or empty list if none
+     */
+    private List<Moment> getMoments(long projectUid, boolean declined, boolean values) {
+        SQLiteDatabase db = getDb();
+        ArrayList<Moment> momentList = new ArrayList<Moment>();
+        ValueTable valueTable = new ValueTable(ctx);
+
+        String where = "project_id=?";
+        String[] whereArgs = new String[] { Long.valueOf(projectUid).toString() };
+        if (declined == false) {
+            where += " AND accepted=?";
+            whereArgs[1] = "1";
+        }
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "timestamp", "accepted",
+                "uptime_id", "project_id" }, where, whereArgs, null, null, "timestamp DESC");
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+
+            do {
+                Moment m = populateObject(cursor);
+
+                if (values) {
+                    Iterator<Value> valueIterator = valueTable.getValues(m.getUid()).iterator();
+
+                    while (valueIterator.hasNext()) {
+                        Value value = valueIterator.next();
+                        m.setValue(value.getInputElementName(), value);
+                    }
+                }
+
+                momentList.add(m);
+            }
+            while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+
+        return momentList;
+    }
+
+    // todo refactor
 	
 	public Moment getSampleWithTags(long id) {
-		Moment s = getSample(id);
+		Moment s = getMoment(id);
 		if (s != null) {
 			List<VocabularyItem> tagList = getTagsOfSample(s.getId());
 			if (tagList != null) {
@@ -166,77 +281,6 @@ public class MomentTable extends StorageHandler {
 		}
 		
 		return null;
-	}
-	
-	public List<Moment> getSamples() {
-		return getSamples(false);
-	}
-	
-	public List<Moment> getSamples(boolean declined) {
-		SQLiteDatabase db = getDb();
-		List<Moment> sampleList = new ArrayList<Moment>();
-		
-		String where = null;
-		if (declined == false) {
-			where = "accepted = 1";
-		}
-		
-		Cursor cursor = db.query(getTableName(), new String[] {"_id", "timestamp", "title", "description",
-				"accepted", "photoUri", "uptimeId"}, where, null, null, null, "timestamp DESC");
-		
-		if (cursor != null && cursor.getCount() > 0) {
-			cursor.moveToFirst();
-			
-			do {
-				Moment s = new Moment(cursor.getLong(0));
-				long timestamp = cursor.getLong(1);
-				s.setTimestamp(new Date(timestamp));
-				if (!cursor.isNull(2)) {
-					s.setTitle(cursor.getString(2));
-				}
-				if (!cursor.isNull(3)) {
-					s.setDescription(cursor.getString(3));
-				}
-				if (cursor.getInt(4) == 0) {
-					s.setAccepted(false);
-				}
-				else {
-					s.setAccepted(true);
-				}
-				if (!cursor.isNull(5)) {
-					s.setPhotoUri(cursor.getString(5));
-				}
-				if (!cursor.isNull(6)) {
-					s.setUptimeId(cursor.getLong(6));
-				}
-				sampleList.add(s);
-			}
-			while (cursor.moveToNext());
-			cursor.close();
-		}
-		db.close();
-		
-		return sampleList;
-	}
-	
-	public List<Long> getSampleIds() {
-		SQLiteDatabase db = getDb();
-		List<Long> idList = new ArrayList<Long>();
-		
-		Cursor cursor = db.query(getTableName(), new String[] {"_id"}, "accepted = 1", null, null, null, "timestamp DESC");
-		
-		if (cursor != null && cursor.getCount() > 0) {
-			cursor.moveToFirst();
-			
-			do {
-				idList.add(cursor.getLong(0));
-			}
-			while (cursor.moveToNext());
-			cursor.close();
-		}
-		db.close();
-		
-		return idList;
 	}
 	
 	public Moment addSample(Moment s) {
@@ -425,97 +469,6 @@ public class MomentTable extends StorageHandler {
 		}
 		
 		return null;
-	}
-	
-	public int getNumAcceptedToday() {
-		int count = 0;
-		
-		SQLiteDatabase db = getDb();
-		Calendar now = Calendar.getInstance();
-		int year = now.get(Calendar.YEAR);
-		int month = now.get(Calendar.MONTH);
-		int day = now.get(Calendar.DAY_OF_MONTH);
-		GregorianCalendar today = new GregorianCalendar(year, month, day);
-		long startOfDay = today.getTimeInMillis();
-		today.roll(Calendar.DAY_OF_MONTH, true);
-		long endOfDay = today.getTimeInMillis();
-		today.roll(Calendar.DAY_OF_MONTH, false);
-		
-		Cursor cursor = db.query(getTableName(), new String[] {"_id"}, "timestamp between ? and ? and accepted = 1",
-				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
-		
-		if (cursor != null && cursor.getCount() > 0) {
-			count = cursor.getCount();
-			cursor.close();
-		}
-		db.close();
-		
-		return count;
-	}
-	
-	public int getSampleCountToday() {
-		int count = 0;
-		
-		SQLiteDatabase db = getDb();
-		Calendar now = Calendar.getInstance();
-		int year = now.get(Calendar.YEAR);
-		int month = now.get(Calendar.MONTH);
-		int day = now.get(Calendar.DAY_OF_MONTH);
-		GregorianCalendar today = new GregorianCalendar(year, month, day);
-		long startOfDay = today.getTimeInMillis();
-		today.roll(Calendar.DAY_OF_MONTH, true);
-		long endOfDay = today.getTimeInMillis();
-		today.roll(Calendar.DAY_OF_MONTH, false);
-		
-		Cursor cursor = db.query(getTableName(), new String[] {"accepted"}, "timestamp between ? and ?",
-				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
-		
-		if (cursor != null && cursor.getCount() > 0) {
-			count = cursor.getCount();
-			cursor.close();
-		}
-		db.close();
-		
-		return count;
-	}
-	
-	public double getRatioAcceptedToday() {
-		int count = 0;
-		int accepted = 0;
-		
-		SQLiteDatabase db = getDb();
-		Calendar now = Calendar.getInstance();
-		int year = now.get(Calendar.YEAR);
-		int month = now.get(Calendar.MONTH);
-		int day = now.get(Calendar.DAY_OF_MONTH);
-		GregorianCalendar today = new GregorianCalendar(year, month, day);
-		long startOfDay = today.getTimeInMillis();
-		today.roll(Calendar.DAY_OF_MONTH, true);
-		long endOfDay = today.getTimeInMillis();
-		today.roll(Calendar.DAY_OF_MONTH, false);
-		
-		Cursor cursor = db.query(getTableName(), new String[] {"accepted"}, "timestamp between ? and ?",
-				new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, null);
-		
-		if (cursor != null && cursor.getCount() > 0) {
-			cursor.moveToFirst();
-			
-			do {
-				count += 1;
-				if (cursor.getInt(0) == 1) {
-					accepted += 1;
-				}
-			}
-			while (cursor.moveToNext());
-			cursor.close();
-		}
-		db.close();
-		
-		if (count == 0) {
-			return 0;
-		}
-		
-		return accepted/count;
 	}
 
 }

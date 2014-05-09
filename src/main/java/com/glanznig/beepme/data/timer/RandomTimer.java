@@ -1,6 +1,9 @@
-package com.glanznig.beepme.data;
+package com.glanznig.beepme.data.timer;
 
 import android.content.Context;
+
+import com.glanznig.beepme.data.Beep;
+import com.glanznig.beepme.data.Timer;
 
 /**
  * RandomTimer represents a timer which schedules random beeps. This randomness is either restricted
@@ -75,8 +78,8 @@ public class RandomTimer extends Timer {
         return 0L;
     }
 
-    public Beep getNext() {
-        return null;
+    public long getNext() {
+        return 0L;
     }
 
     /**

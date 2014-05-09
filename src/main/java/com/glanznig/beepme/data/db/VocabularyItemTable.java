@@ -22,10 +22,17 @@ package com.glanznig.beepme.data.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.glanznig.beepme.BeepMeApp;
+import com.glanznig.beepme.data.Vocabulary;
 import com.glanznig.beepme.data.VocabularyItem;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents the table VOCABULARY_ITEM (content of vocabularies)
@@ -38,7 +45,7 @@ public class VocabularyItemTable extends StorageHandler {
     private static final String TBL_CREATE =
             "CREATE TABLE IF NOT EXISTS " + TBL_NAME + " (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "name TEXT NOT NULL, " +
+                    "name TEXT, " +
                     "lang TEXT NOT NULL, " +
                     "value TEXT NOT NULL, " +
                     "predefined INTEGER NOT NULL, " +
@@ -48,8 +55,11 @@ public class VocabularyItemTable extends StorageHandler {
                     "FOREIGN KEY(translation_of) REFERENCES " + VocabularyItemTable.getTableName() + "(_id)" +
                     ")";
 
+    private Context ctx;
+
     public VocabularyItemTable(Context ctx) {
         super(ctx);
+        this.ctx = ctx.getApplicationContext();
     }
 
     /**
@@ -119,6 +129,32 @@ public class VocabularyItemTable extends StorageHandler {
     }
 
     /**
+     * Populates a vocabulary item object by reading values from a cursor
+     * @param cursor cursor object
+     * @return populated vocabulary item object
+     */
+    private VocabularyItem populateObject(Cursor cursor) {
+        VocabularyItem item = new VocabularyItem(cursor.getLong(0));
+        if (!cursor.isNull(1)) {
+            item.setName(cursor.getString(1));
+        }
+        item.setLanguage(new Locale(cursor.getString(2)));
+        item.setValue(cursor.getString(3));
+        if (cursor.getInt(4) == 1) {
+            item.setPredefined(true);
+        }
+        else {
+            item.setPredefined(false);
+        }
+        item.setVocabularyUid(cursor.getLong(5));
+        if (!cursor.isNull(6)) {
+            item.setTranslationOfUid(cursor.getLong(6));
+        }
+
+        return item;
+    }
+
+    /**
      * Adds a new vocabulary item to the database
      * @param vocabularyItem values to add to the vocabulary item table
      * @return new vocabulary item object with set values and uid, or null if an error occurred
@@ -161,5 +197,73 @@ public class VocabularyItemTable extends StorageHandler {
         }
 
         return numRows == 1;
+    }
+
+    /**
+     * Gets a list of vocabulary items of the specified language and the specified vocabulary. For
+     * predefined items the base version is returned if there is no translation available.
+     * @param vocabularyUid uid of the vocabulary where the items belong to
+     * @param locale language of the items
+     * @return list of vocabulary items in the specified language and for predefined items also
+     * items of the base language if no translation exists
+     */
+    public List<VocabularyItem> getVocabularyItems(long vocabularyUid, Locale locale) {
+        return getVocabularyItems(vocabularyUid, locale, "");
+    }
+
+    /**
+     * Gets a list of vocabulary items of the specified language and the specified vocabulary. For
+     * predefined items the base version is returned if there is no translation available. The output
+     * is filtered according to the last parameter, that is items that start with the value of search
+     * are contained in the output.
+     * @param vocabularyUid uid of the vocabulary where the items belong to
+     * @param locale language of the items
+     * @param search filter string, items are selected if they start with this string
+     * @return list of vocabulary items in the specified language and for predefined items also
+     * items of the base language if no translation exists
+     */
+    public List<VocabularyItem> getVocabularyItems(long vocabularyUid, Locale locale, String search) {
+        ArrayList<VocabularyItem> list = new ArrayList<VocabularyItem>();
+        SQLiteDatabase db = getDb();
+        String baseLang = ((BeepMeApp)ctx).getCurrentProject().getLanguage().getLanguage();
+
+        // todo test query with high number of items, may need performance optimization
+        String fields = "_id, name, lang, value, predefined, vocabulary_id, translation_of";
+        String itemWhere = "WHERE vocabulary_id=? AND lang=? AND predefined=?";
+        String query = "SELECT " + fields + " FROM" +
+                "(SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + " AND " +
+                "_id NOT IN (SELECT translation_of FROM " + getTableName() + " " + itemWhere + ") " +
+                "UNION SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + " " +
+                "UNION SELECT " + fields + " FROM " +getTableName() + " " + itemWhere + ") ";
+        String filterQuery = query + "WHERE value LIKE '?%' ORDER BY value";
+        query += "ORDER BY value";
+
+        String vocabularyUidStr = Long.valueOf(vocabularyUid).toString();
+        String[] args = new String[] { vocabularyUidStr, baseLang, "1",
+                vocabularyUidStr, locale.getLanguage(), "1",
+                vocabularyUidStr, locale.getLanguage(), "1",
+                vocabularyUidStr, locale.getLanguage(), "0" };
+
+        Cursor cursor = null;
+        if (search.length() > 0) {
+            cursor = db.rawQuery(filterQuery, args);
+        }
+        else {
+            cursor = db.rawQuery(query, args);
+        }
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            VocabularyItem vocabularyItem = null;
+            do {
+                vocabularyItem = populateObject(cursor);
+                list.add(vocabularyItem);
+            }
+            while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+
+        return list;
     }
 }

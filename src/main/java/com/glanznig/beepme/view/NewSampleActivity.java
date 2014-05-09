@@ -265,7 +265,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		
 		sample.setTitle(title.getText().toString());
 		sample.setDescription(description.getText().toString());
-		sample.setUptimeId(app.getPreferences().getUptimeId());
+		sample.setUptimeUid(app.getCurrentUptime().getUid());
 		
 		// also save non-added keywords
 		TagButtonContainer keywordTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
@@ -279,7 +279,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		
 		new MomentTable(this.getApplicationContext()).editSample(sample);
 		
-		app.setTimer();
+		app.scheduleBeep();
 	}
 	
 	@Override
