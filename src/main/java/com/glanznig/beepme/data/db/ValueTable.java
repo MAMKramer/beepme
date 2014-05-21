@@ -27,9 +27,12 @@ import android.database.sqlite.SQLiteDatabase;
 import com.glanznig.beepme.data.MultiValue;
 import com.glanznig.beepme.data.SingleValue;
 import com.glanznig.beepme.data.Value;
+import com.glanznig.beepme.data.VocabularyItem;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents the table VALUE (values of a input element for a certain moment)
@@ -49,8 +52,11 @@ public class ValueTable extends StorageHandler {
                     "FOREIGN KEY(moment_id) REFERENCES "+ MomentTable.getTableName() +"(_id)" +
                     ")";
 
+    private Context ctx;
+
     public ValueTable(Context ctx) {
         super(ctx);
+        this.ctx = ctx.getApplicationContext();
     }
 
     /**
@@ -86,7 +92,6 @@ public class ValueTable extends StorageHandler {
         Value value = null;
         if (cursor.isNull(1)) {
             value = new MultiValue(cursor.getLong(0));
-            // todo: multivalues
         }
         else {
             SingleValue singleValue = new SingleValue(cursor.getLong(0));
@@ -115,11 +120,20 @@ public class ValueTable extends StorageHandler {
                         "WHERE v.moment_id=? AND v.input_element_id=? AND v.input_element_id=t._id",
                 new String[] {  Long.valueOf(momentUid).toString(), Long.valueOf(inputElementUid).toString() });
 
-        // todo: multivalues
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             value = populateObject(cursor);
             cursor.close();
+
+            if (value instanceof MultiValue) {
+                MultiValue multiValue = (MultiValue)value;
+                VocabularyItemTable vocabularyItemTable = new VocabularyItemTable(ctx);
+                List<VocabularyItem> valueItems = vocabularyItemTable.getVocabularyItemsOfValue(multiValue.getUid(), Locale.getDefault());
+                Iterator<VocabularyItem> valueItemsIterator = valueItems.iterator();
+                while (valueItemsIterator.hasNext()) {
+                    multiValue.setValue(valueItemsIterator.next());
+                }
+            }
         }
         db.close();
 
@@ -140,12 +154,22 @@ public class ValueTable extends StorageHandler {
                 "WHERE v.moment_id=? AND v.input_element_id=t._id",
                 new String[] { Long.valueOf(momentUid).toString() });
 
-        // todo: multivalues
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
 
             do {
                 Value value = populateObject(cursor);
+
+                if (value instanceof MultiValue) {
+                    MultiValue multiValue = (MultiValue)value;
+                    VocabularyItemTable vocabularyItemTable = new VocabularyItemTable(ctx);
+                    List<VocabularyItem> valueItems = vocabularyItemTable.getVocabularyItemsOfValue(multiValue.getUid(), Locale.getDefault());
+                    Iterator<VocabularyItem> valueItemsIterator = valueItems.iterator();
+                    while (valueItemsIterator.hasNext()) {
+                        multiValue.setValue(valueItemsIterator.next());
+                    }
+                }
+
                 valueList.add(value);
             }
             while (cursor.moveToNext());
@@ -154,5 +178,17 @@ public class ValueTable extends StorageHandler {
         db.close();
 
         return valueList;
+    }
+
+    /**
+     * Deletes all values of the given moment from the database.
+     * @param momentUid uid of the moment
+     */
+    public void deleteValues(long momentUid) {
+        SQLiteDatabase db = getDb();
+
+        int rows = db.delete(getTableName(), "moment_id=?", new String[] { Long.valueOf(momentUid).toString() });
+        // todo: multivalues (also delete orphaned user-added vocabulary items?)
+        db.close();
     }
 }

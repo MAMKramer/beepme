@@ -200,6 +200,33 @@ public class VocabularyItemTable extends StorageHandler {
     }
 
     /**
+     * Get a vocabulary item based on its vocabulary id, language and value.
+     * @param vocabularyUid uid of the vocabulary where the items belong to
+     * @param lang language of the item
+     * @param value value of the item
+     * @return a vocabulary item, or null if not found
+     */
+    public VocabularyItem getVocabularyItem(long vocabularyUid, Locale lang, String value) {
+        SQLiteDatabase db = getDb();
+        VocabularyItem vocabularyItem = null;
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "name", "lang", "value",
+                        "predefined", "vocabulary_id", "translation_of" },
+                "vocabulary_id=? AND lang=? AND value=?",
+                new String[] { Long.valueOf(vocabularyUid).toString(), lang.getLanguage(), value },
+                null, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            vocabularyItem = populateObject(cursor);
+            cursor.close();
+        }
+        db.close();
+
+        return vocabularyItem;
+    }
+
+    /**
      * Gets a list of vocabulary items of the specified language and the specified vocabulary. For
      * predefined items the base version is returned if there is no translation available.
      * @param vocabularyUid uid of the vocabulary where the items belong to
@@ -214,7 +241,7 @@ public class VocabularyItemTable extends StorageHandler {
     /**
      * Gets a list of vocabulary items of the specified language and the specified vocabulary. For
      * predefined items the base version is returned if there is no translation available. The output
-     * is filtered according to the last parameter, that is items that start with the value of search
+     * is filtered according to the last parameter, that is only items that start with the value of search
      * are contained in the output.
      * @param vocabularyUid uid of the vocabulary where the items belong to
      * @param locale language of the items
@@ -234,7 +261,7 @@ public class VocabularyItemTable extends StorageHandler {
                 "(SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + " AND " +
                 "_id NOT IN (SELECT translation_of FROM " + getTableName() + " " + itemWhere + ") " +
                 "UNION SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + " " +
-                "UNION SELECT " + fields + " FROM " +getTableName() + " " + itemWhere + ") ";
+                "UNION SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + ") ";
         String filterQuery = query + "WHERE value LIKE '?%' ORDER BY value";
         query += "ORDER BY value";
 
@@ -246,11 +273,61 @@ public class VocabularyItemTable extends StorageHandler {
 
         Cursor cursor = null;
         if (search.length() > 0) {
+            args[args.length] = search;
             cursor = db.rawQuery(filterQuery, args);
         }
         else {
             cursor = db.rawQuery(query, args);
         }
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            VocabularyItem vocabularyItem = null;
+            do {
+                vocabularyItem = populateObject(cursor);
+                list.add(vocabularyItem);
+            }
+            while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+
+        return list;
+    }
+
+    /**
+     * Gets a list of vocabulary items of the specified language associated to a specific value. For
+     * predefined items the base version is returned if there is no translation available.
+     * @param valueUid uid of the value where the items are associated to
+     * @param locale language of the items
+     * @return list of vocabulary items in the specified language and for predefined items also
+     * items of the base language if no translation exists
+     */
+    public List<VocabularyItem> getVocabularyItemsOfValue(long valueUid, Locale locale) {
+        ArrayList<VocabularyItem> list = new ArrayList<VocabularyItem>();
+        SQLiteDatabase db = getDb();
+        String baseLang = ((BeepMeApp)ctx).getCurrentProject().getLanguage().getLanguage();
+
+        // todo test query with high number of items, may need performance optimization
+        String fields = "vo._id, vo.name, vo.lang, vo.value, vo.predefined, vo.vocabulary_id, vo.translation_of";
+        String itemWhere = "WHERE va.value_id=? AND vo.lang=? AND vo.predefined=?";
+        String tableJoin = "FROM " + getTableName() + " vo INNER JOIN " + ValueVocabularyItemTable.getTableName() +
+                " va ON va.vocabulary_item_id=vo._id";
+
+        String query = "SELECT " + fields + " FROM" +
+                "(SELECT " + fields + " " + tableJoin + " " + itemWhere + " AND " +
+                "_id NOT IN (SELECT translation_of " + tableJoin + " " + itemWhere + ") " +
+                "UNION SELECT " + fields + " " + tableJoin + " " + itemWhere + " " +
+                "UNION SELECT " + fields + " " + tableJoin + " " + itemWhere + ") " +
+                "ORDER BY value";
+
+        String valueUidStr = Long.valueOf(valueUid).toString();
+        String[] args = new String[] { valueUidStr, baseLang, "1",
+                valueUidStr, locale.getLanguage(), "1",
+                valueUidStr, locale.getLanguage(), "1",
+                valueUidStr, locale.getLanguage(), "0" };
+
+        Cursor cursor = db.rawQuery(query, args);
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();

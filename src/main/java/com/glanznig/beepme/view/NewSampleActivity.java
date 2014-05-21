@@ -30,12 +30,13 @@ import java.util.Locale;
 
 import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.TagAutocompleteAdapter;
+import com.glanznig.beepme.view.input.TagAutocompleteAdapter;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.VocabularyItem;
 import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
+import com.glanznig.beepme.view.input.TagControl;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -62,7 +63,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 	
 	private static final String TAG = "NewSampleActivity";
 	
-	private Moment sample = new Moment();
+	private Moment moment = new Moment();
 	private SamplePhotoView photoView = null;
 	
 	private static class ImgLoadHandler extends Handler {
@@ -104,27 +105,27 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
         actionBar.setCustomView(customActionBarView);
         
         setContentView(R.layout.new_sample);
-        MomentTable st = new MomentTable(this.getApplicationContext());
+        MomentTable momentTable = new MomentTable(this.getApplicationContext());
 		
 		if (savedState != null) {
 			if (savedState.getLong("sampleId") != 0L) {
-				sample = st.getSampleWithTags(savedState.getLong("sampleId"));
+				moment = momentTable.getMomentWithValues(savedState.getLong("sampleId"));
 			}
 			
 			if (savedState.getLong("timestamp") != 0L) {
-				sample.setTimestamp(new Date(savedState.getLong("timestamp")));
+				moment.setTimestamp(new Date(savedState.getLong("timestamp")));
 			}
 			
 			if (savedState.getCharSequence("title") != null) {
-				sample.setTitle(savedState.getCharSequence("title").toString());
+				moment.setTitle(savedState.getCharSequence("title").toString());
 			}
 			
 			if (savedState.getCharSequence("description") != null) {
-				sample.setDescription(savedState.getCharSequence("description").toString());
+				moment.setDescription(savedState.getCharSequence("description").toString());
 			}
 			
 			if (savedState.getCharSequence("imgUri") != null) {
-				sample.setPhotoUri(savedState.getCharSequence("imgUri").toString());
+				moment.setPhotoUri(savedState.getCharSequence("imgUri").toString());
 			}
 			
 			if (savedState.getCharSequence("keyword") != null) {
@@ -137,7 +138,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 				while (i.hasNext()) {
 					VocabularyItem t = VocabularyItem.valueOf(i.next());
 					if (t != null) {
-						sample.addTag(t);
+						moment.addTag(t);
 					}
 				}
 			}
@@ -147,9 +148,9 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 			if (b != null) {
 				if (b.containsKey(getApplication().getClass().getPackage().getName() + ".Timestamp")) {
 					long timestamp = b.getLong(getApplication().getClass().getPackage().getName() + ".Timestamp");
-					sample.setTimestamp(new Date(timestamp));
-					sample.setAccepted(true);
-					sample = st.addSample(sample);
+					moment.setTimestamp(new Date(timestamp));
+					moment.setAccepted(true);
+					moment = momentTable.addSample(moment);
 				}
 			}
 		}
@@ -171,7 +172,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 			photoView.setVisibility(View.VISIBLE);
 			photoView.setOnMenuItemClickListener(NewSampleActivity.this);
 			
-			String thumbnailUri = PhotoUtils.getThumbnailUri(sample.getPhotoUri(), 48);
+			String thumbnailUri = PhotoUtils.getThumbnailUri(moment.getPhotoUri(), 48);
 			if (thumbnailUri != null) {
 				File thumb = new File(thumbnailUri);
 				if (thumb.exists()) {
@@ -183,20 +184,20 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
         
     	setTitle(R.string.new_sample);
         
-        if (sample.getTimestamp() != null) {
+        if (moment.getTimestamp() != null) {
         	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-			timestamp.setText(dateFormat.format(sample.getTimestamp()));
+			timestamp.setText(dateFormat.format(moment.getTimestamp()));
         }
 		
-        if (sample.getTitle() != null) {
+        if (moment.getTitle() != null) {
         	EditText titleWidget = (EditText)findViewById(R.id.new_sample_title);
-        	titleWidget.setText(sample.getTitle());
+        	titleWidget.setText(moment.getTitle());
         }
 		
-        if (sample.getDescription() != null) {
+        if (moment.getDescription() != null) {
         	EditText descriptionWidget = (EditText)findViewById(R.id.new_sample_description);
-        	descriptionWidget.setText(sample.getDescription());
+        	descriptionWidget.setText(moment.getDescription());
         }
         
         AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_keyword);
@@ -205,9 +206,9 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
     	//after how many chars should auto-complete list appear?
     	autocompleteTags.setThreshold(2);
     	
-    	TagButtonContainer keywordHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
-    	keywordHolder.setVocabularyId(1);
-    	Iterator<VocabularyItem> i = sample.getTags().iterator();
+    	TagControl keywordHolder = (TagControl)findViewById(R.id.new_sample_keyword_container);
+    	keywordHolder.setVocabularyUid(1);
+    	Iterator<VocabularyItem> i = moment.getTags().iterator();
 		VocabularyItem tag = null;
 		
 		while (i.hasNext()) {
@@ -219,13 +220,13 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 	}
 	
 	public void onClickAddKeyword(View view) {
-		TagButtonContainer tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
+		TagControl tagHolder = (TagControl)findViewById(R.id.new_sample_keyword_container);
 		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_keyword);
 		if (enteredTag.getText().length() > 0) {
 			VocabularyItem t = new VocabularyItem();
-			t.setVocabularyUid(tagHolder.getVocabularyId());
+			t.setVocabularyUid(tagHolder.getVocabularyUid());
 			t.setName(enteredTag.getText().toString().toLowerCase(Locale.getDefault()));
-			if (sample.addTag(t)) {
+			if (moment.addTag(t)) {
 				tagHolder.addTagButton(t.getName(), this);
 				enteredTag.setText("");
 			}
@@ -239,16 +240,16 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		if (view instanceof TagButton) {
 			TagButton btn = (TagButton)view;
 			
-			TagButtonContainer tagHolder = null;
+			TagControl tagHolder = null;
 			if (btn.getVocabularyId() == 1) {
-				tagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
+				tagHolder = (TagControl)findViewById(R.id.new_sample_keyword_container);
 			}
 			
 			VocabularyItem t = new VocabularyItem();
 			t.setName((btn.getText()).toString());
 			t.setVocabularyUid(btn.getVocabularyId());
 			tagHolder.removeTagButton(btn);
-			sample.removeTag(t);
+			moment.removeTag(t);
 		}
 	}
 	
@@ -263,21 +264,21 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		EditText title = (EditText)findViewById(R.id.new_sample_title);
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
 		
-		sample.setTitle(title.getText().toString());
-		sample.setDescription(description.getText().toString());
-		sample.setUptimeUid(app.getCurrentUptime().getUid());
+		moment.setTitle(title.getText().toString());
+		moment.setDescription(description.getText().toString());
+		moment.setUptimeUid(app.getCurrentUptime().getUid());
 		
 		// also save non-added keywords
-		TagButtonContainer keywordTagHolder = (TagButtonContainer)findViewById(R.id.new_sample_keyword_container);
+		TagControl keywordTagHolder = (TagControl)findViewById(R.id.new_sample_keyword_container);
 		EditText keyword = (EditText)findViewById(R.id.new_sample_add_keyword);
 		if (keyword.getText().length() > 0) {
 			VocabularyItem t = new VocabularyItem();
-			t.setVocabularyUid(keywordTagHolder.getVocabularyId());
+			t.setVocabularyUid(keywordTagHolder.getVocabularyUid());
 			t.setName(keyword.getText().toString().toLowerCase(Locale.getDefault()));
-			sample.addTag(t);
+			moment.addTag(t);
 		}
 		
-		new MomentTable(this.getApplicationContext()).editSample(sample);
+		new MomentTable(this.getApplicationContext()).editSample(moment);
 		
 		app.scheduleBeep();
 	}
@@ -289,18 +290,18 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 			case PhotoUtils.TAKE_PHOTO_INTENT:
 				if (resultCode == Activity.RESULT_OK) {
 					Handler handler = new Handler(NewSampleActivity.this);
-					PhotoUtils.generateThumbnails(NewSampleActivity.this, sample.getPhotoUri(), handler);
+					PhotoUtils.generateThumbnails(NewSampleActivity.this, moment.getPhotoUri(), handler);
 				}
 				else {
-					sample.setPhotoUri(null);
+					moment.setPhotoUri(null);
 				}
 				break;
 			
 			case PhotoUtils.CHANGE_PHOTO_INTENT:
 				if (resultCode == Activity.RESULT_OK) {
-					if (PhotoUtils.swapPhoto(NewSampleActivity.this, sample.getTimestamp())) {
+					if (PhotoUtils.swapPhoto(NewSampleActivity.this, moment.getTimestamp())) {
 						Handler handler = new Handler(NewSampleActivity.this);
-						PhotoUtils.regenerateThumbnails(NewSampleActivity.this, sample.getPhotoUri(), handler);
+						PhotoUtils.regenerateThumbnails(NewSampleActivity.this, moment.getPhotoUri(), handler);
 					}
 				}
 				else {
@@ -316,21 +317,21 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		EditText description = (EditText)findViewById(R.id.new_sample_description);
 		EditText keyword = (EditText)findViewById(R.id.new_sample_add_keyword);
 		
-		if (sample.getTimestamp() != null) {
-			savedState.putLong("timestamp", sample.getTimestamp().getTime());
+		if (moment.getTimestamp() != null) {
+			savedState.putLong("timestamp", moment.getTimestamp().getTime());
 		}
-		savedState.putLong("sampleId", sample.getId());
+		savedState.putLong("sampleId", moment.getId());
 		savedState.putCharSequence("title", title.getText());
 		savedState.putCharSequence("description", description.getText());
-		savedState.putBoolean("accepted", sample.getAccepted());
-		savedState.putCharSequence("imgUri", sample.getPhotoUri());
+		savedState.putBoolean("accepted", moment.getAccepted());
+		savedState.putCharSequence("imgUri", moment.getPhotoUri());
 		
 		if (keyword.getText().length() > 0) {
 			savedState.putCharSequence("keyword", keyword.getText());
 		}
 		
-		if (sample.getTags().size() > 0) {
-			Iterator<VocabularyItem> i = sample.getTags().iterator();
+		if (moment.getTags().size() > 0) {
+			Iterator<VocabularyItem> i = moment.getTags().iterator();
 			ArrayList<String> tags = new ArrayList<String>();
 			
 			while (i.hasNext()) {
@@ -342,7 +343,7 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 
 	@Override
 	public void onClick(View v) {
-		if (v.getParent() instanceof TagButtonContainer) {
+		if (v.getParent() instanceof TagControl) {
 			onClickRemoveTag(v);
 		}
 	}
@@ -376,12 +377,12 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		switch (item.getItemId()) {
 			case R.id.action_take_photo:
 				
-				Intent takePhoto = PhotoUtils.getTakePhotoIntent(NewSampleActivity.this, sample.getTimestamp());
+				Intent takePhoto = PhotoUtils.getTakePhotoIntent(NewSampleActivity.this, moment.getTimestamp());
 				
 				if (takePhoto != null) {
 					Bundle extras = takePhoto.getExtras();
 					Uri photoUri = (Uri)extras.get(PhotoUtils.EXTRA_KEY);
-					sample.setPhotoUri(photoUri.getPath());
+					moment.setPhotoUri(photoUri.getPath());
 					
 					startActivityForResult(takePhoto, PhotoUtils.TAKE_PHOTO_INTENT);
 				}
@@ -404,9 +405,9 @@ public class NewSampleActivity extends Activity implements OnClickListener, Popu
 		        deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 		            public void onClick(DialogInterface dialog, int id) {
 		            	// delete photo on storage
-		            	PhotoUtils.deletePhoto(NewSampleActivity.this, sample.getPhotoUri());
+		            	PhotoUtils.deletePhoto(NewSampleActivity.this, moment.getPhotoUri());
 		            	
-		            	sample.setPhotoUri(null);
+		            	moment.setPhotoUri(null);
 		            	photoView.unsetPhoto();
 		            }
 		        });

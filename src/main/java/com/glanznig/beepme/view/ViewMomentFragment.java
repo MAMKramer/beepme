@@ -24,33 +24,46 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.data.InputElement;
+import com.glanznig.beepme.data.InputGroup;
 import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.SingleValue;
+import com.glanznig.beepme.data.Value;
 import com.glanznig.beepme.data.VocabularyItem;
 import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.FlowLayout;
 import com.glanznig.beepme.helper.PhotoUtils;
+import com.glanznig.beepme.view.input.InputControl;
+import com.glanznig.beepme.view.input.TextControl;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ViewSampleFragment extends Fragment implements Callback {
+public class ViewMomentFragment extends Fragment implements Callback {
 	
-	private static final String TAG = "ViewSampleFragment";
-	private long sampleId = 0L;
+	private static final String TAG = "ViewMomentFragment";
+	private long momentId = 0L;
+    private ViewManager viewManager;
 	private SamplePhotoView photoView; 
 	
 	private static class ImgLoadHandler extends Handler {
@@ -75,10 +88,13 @@ public class ViewSampleFragment extends Fragment implements Callback {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         super.onCreate(savedState);
-        
-        View rootView = inflater.inflate(R.layout.view_sample, container, false);
+
         Bundle args = getArguments();
-		sampleId = args.getLong("momentId");
+        momentId = args.getLong("momentId");
+        
+        //View rootView = inflater.inflate(R.layout.view_sample, container, false);
+        viewManager = new ViewManager(getActivity());
+        View rootView = viewManager.getLayout(InputControl.Mode.VIEW);
         
         return rootView;
 	}
@@ -91,30 +107,38 @@ public class ViewSampleFragment extends Fragment implements Callback {
 	
 	private void populateFields() {
 		
-		if (sampleId != 0L) {
-			Moment s = new MomentTable(getActivity().getApplicationContext()).getSampleWithTags(sampleId);
-			
+		if (momentId != 0L) {
+            String titleName = ((BeepMeApp)getActivity().getApplicationContext()).getCurrentProject().getOption("listTitle");
+			Moment moment = new MomentTable(getActivity().getApplicationContext()).getMomentWithValues(momentId);
+            HashMap<String, Value> values = moment.getValues();
+            Iterator<String> keyIterator = values.keySet().iterator();
+
+            while (keyIterator.hasNext()) {
+                String name = keyIterator.next();
+                viewManager.getInputControl(name).setValue(values.get(name));
+            }
+
 			TextView timestamp = (TextView)getView().findViewById(R.id.view_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-			timestamp.setText(dateFormat.format(s.getTimestamp()));
+			timestamp.setText(dateFormat.format(moment.getTimestamp()));
 			
 			TextView title = (TextView)getView().findViewById(R.id.view_sample_title);
-			if (s.getTitle() != null && s.getTitle().length() > 0) {
-				title.setText(s.getTitle());
+			if (titleName != null && values.get(titleName) != null && values.get(titleName) instanceof SingleValue) {
+				title.setText(((SingleValue)values.get(titleName)).getValue());
 			}
 			else {
 				title.setText(getString(R.string.sample_untitled));
 			}
 			
-			TextView description = (TextView)getView().findViewById(R.id.view_sample_description);
-			if (s.getDescription() != null && s.getDescription().length() > 0) {
+			/*TextView description = (TextView)getView().findViewById(R.id.view_sample_description);
+			if (moment.getDescription() != null && moment.getDescription().length() > 0) {
 				description.setTextSize(14);
-				description.setText(s.getDescription());
+				description.setText(moment.getDescription());
 			}
 			else {
 				description.setTextSize(12);
 				// not editable any more
-				if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
+				if ((Calendar.getInstance().getTimeInMillis() - moment.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
 					description.setText(getString(R.string.sample_no_description));
 				}
 				else {
@@ -127,7 +151,7 @@ public class ViewSampleFragment extends Fragment implements Callback {
 			FlowLayout keywordHolder = (FlowLayout)getView().findViewById(R.id.view_sample_keyword_container);
 			keywordHolder.removeAllViews();
 			
-	    	Iterator<VocabularyItem> i = s.getTags().iterator();
+	    	Iterator<VocabularyItem> i = moment.getTags().iterator();
 			VocabularyItem tag = null;
 			
 			while (i.hasNext()) {
@@ -154,7 +178,7 @@ public class ViewSampleFragment extends Fragment implements Callback {
 				keywordHolder.setVisibility(View.GONE);
 				noKeywordsView.setVisibility(View.VISIBLE);
 				// not editable any more (after 1 day)
-				if ((Calendar.getInstance().getTimeInMillis() - s.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
+				if ((Calendar.getInstance().getTimeInMillis() - moment.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
 					noKeywordsView.setText(getString(R.string.sample_no_keywords));
 				}
 				else {
@@ -179,7 +203,7 @@ public class ViewSampleFragment extends Fragment implements Callback {
                 thumbnailSize = (int)(metrics.heightPixels / metrics.density + 0.5f);
             }
 			
-			String thumbnailUri = PhotoUtils.getThumbnailUri(s.getPhotoUri(), thumbnailSize);
+			String thumbnailUri = PhotoUtils.getThumbnailUri(moment.getPhotoUri(), thumbnailSize);
 			if (thumbnailUri != null) {
 				File thumb = new File(thumbnailUri);
 				if (thumb.exists()) {
@@ -188,12 +212,12 @@ public class ViewSampleFragment extends Fragment implements Callback {
 				}
 				else {
 					Handler handler = new Handler(this);
-					PhotoUtils.generateThumbnails(getView().getContext(), s.getPhotoUri(), handler);
+					PhotoUtils.generateThumbnails(getView().getContext(), moment.getPhotoUri(), handler);
 				}
 			}
             else {
                 photoView.unsetPhoto();
-            }
+            }*/
 		}
 	}
 	

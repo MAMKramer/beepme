@@ -22,10 +22,14 @@ package com.glanznig.beepme.data.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.glanznig.beepme.data.InputGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents the table INPUT_GROUP (grouping of input elements)
@@ -103,6 +107,20 @@ public class InputGroupTable extends StorageHandler {
     }
 
     /**
+     * Populates a input group object by reading values from a cursor
+     * @param cursor cursor object
+     * @return populated input group object
+     */
+    private InputGroup populateObject(Cursor cursor) {
+        InputGroup inputGroup = new InputGroup(cursor.getLong(0));
+        inputGroup.setName(cursor.getString(1));
+        inputGroup.setTitle(cursor.getString(2));
+        inputGroup.setProjectUid(cursor.getLong(3));
+
+        return inputGroup;
+    }
+
+    /**
      * Adds a new input group to the database
      * @param group values to add to the input group table
      * @return new input group object with set values and uid, or null if an error occurred
@@ -134,7 +152,7 @@ public class InputGroupTable extends StorageHandler {
      * @param group values to update for this input group
      * @return true on success or false if an error occurred
      */
-    public boolean updateProject(InputGroup group) {
+    public boolean updateInputGroup(InputGroup group) {
         int numRows = 0;
         if (group.getUid() != 0L) {
             SQLiteDatabase db = getDb();
@@ -145,5 +163,32 @@ public class InputGroupTable extends StorageHandler {
         }
 
         return numRows == 1;
+    }
+
+    /**
+     * Gets a list of all input groups for the specified project.
+     * @param projectUid project uid of project where the input groups belong to
+     * @return list of input groups, or empty list if none
+     */
+    public List<InputGroup> getInputGroups(long projectUid) {
+        SQLiteDatabase db = getDb();
+        ArrayList<InputGroup> inputGroupList = new ArrayList<InputGroup>();
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "name", "title", "project_id" },
+                "project_id=?", new String[] { Long.valueOf(projectUid).toString() },
+                null, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                InputGroup inputGroup = populateObject(cursor);
+                inputGroupList.add(inputGroup);
+            }
+            while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+
+        return inputGroupList;
     }
 }

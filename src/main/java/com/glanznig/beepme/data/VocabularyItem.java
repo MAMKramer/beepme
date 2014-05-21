@@ -288,6 +288,9 @@ public class VocabularyItem {
         if (name != null) {
             representation += name + delimiter;
         }
+        if (lang != null) {
+            representation += lang.toString() + delimiter;
+        }
         if (value != null) {
             representation += value;
         }

@@ -18,11 +18,12 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 */
 
-package com.glanznig.beepme;
+package com.glanznig.beepme.view.input;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
+import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.VocabularyItem;
 import com.glanznig.beepme.data.db.VocabularyItemTable;
 
@@ -35,6 +36,9 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+/**
+ * Provides the tag autocomplete text view with data.
+ */
 public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filterable {
 	
 	private static final String TAG = "TagAutocompleteAdapter";
@@ -90,7 +94,7 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
 
     @Override
     public Filter getFilter() {
-        Filter filter = new Filter() {
+        return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
@@ -119,7 +123,6 @@ public class TagAutocompleteAdapter extends ArrayAdapter<String> implements Filt
                 }
             }
         };
-        return filter;
     }
 
 }

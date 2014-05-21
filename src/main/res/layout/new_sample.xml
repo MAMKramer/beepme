@@ -160,7 +160,7 @@ http://beepme.yourexp.at
             android:textSize="12sp"
             android:paddingLeft="4dp" />
         
-        <com.glanznig.beepme.view.TagButtonContainer
+        <com.glanznig.beepme.view.input.TagControl
             android:id="@+id/new_sample_keyword_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -44,9 +44,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class SampleListFragment extends ListFragment {
+public class MomentListFragment extends ListFragment {
 	
-	private static final String TAG = "ListSamplesFragment";
+	private static final String TAG = "MomentListFragment";
 	private int position = 0;
 	
 	@Override
@@ -75,22 +75,23 @@ public class SampleListFragment extends ListFragment {
 	}
 	
 	private void populateList() {
-		List<Moment> samplesList = new MomentTable(getActivity().getApplicationContext()).getMoments();
+        BeepMeApp app = (BeepMeApp)getActivity().getApplication();
+		List<Moment> momentList = new MomentTable(getActivity().getApplicationContext()).getMoments(app.getCurrentProject().getUid());
 		ArrayList<ListItem> viewList = new ArrayList<ListItem>();
 		
-		Iterator<Moment> i = samplesList.iterator();
+		Iterator<Moment> momentIterator = momentList.iterator();
 		DateListSectionHeader header = null;
-		while (i.hasNext()) {
-			Moment s = i.next();
-			if (header == null || !header.isSameDay(s.getTimestamp())) {
-				header = new DateListSectionHeader(s.getTimestamp());
+		while (momentIterator.hasNext()) {
+			Moment moment = momentIterator.next();
+			if (header == null || !header.isSameDay(moment.getTimestamp())) {
+				header = new DateListSectionHeader(moment.getTimestamp());
 				viewList.add(header);
 			}
-			viewList.add(new MomentListEntry(this.getActivity().getApplicationContext(), s));
+			viewList.add(new MomentListEntry(this.getActivity().getApplicationContext(), moment));
 		}
 		
-        SampleListAdapter samples = new SampleListAdapter(getActivity(), viewList);
-        setListAdapter(samples);
+        SampleListAdapter moments = new SampleListAdapter(getActivity(), viewList);
+        setListAdapter(moments);
         
         ListView list = (ListView)getView().findViewById(android.R.id.list);
         list.setSelectionFromTop(position, 0);
@@ -130,7 +131,7 @@ public class SampleListFragment extends ListFragment {
 	@Override
 	public void onListItemClick(ListView listView, View view, int position, long id) {
 		long momentUid = ((MomentListEntry)listView.getItemAtPosition(position)).getMomentUid();
-		Intent i = new Intent(getActivity(), ViewSampleActivity.class);
+		Intent i = new Intent(getActivity(), ViewMomentActivity.class);
 		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", momentUid);
 		startActivity(i);
 	}

@@ -30,6 +30,7 @@ http://beepme.yourexp.at
     <string name="action_about">About</string>
     <string name="action_beeper_off">Turn Beeper Off</string>
     <string name="action_beeper_on">Turn Beeper On</string>
+    <string name="action_delete_moment">Delete Moment</string>
     <string name="action_edit_sample">Edit Moment</string>
     <string name="action_export">Export Data</string>
     <string name="action_settings">Settings</string>
@@ -63,6 +64,8 @@ http://beepme.yourexp.at
     <string name="export_successful">Export was successful</string>
     <string name="history">History</string>
     <string name="history_empty">You will find your sampling history here.</string>
+    <string name="moment_delete_warning_title">Delete Moment</string>
+    <string name="moment_delete_warning_msg">This cannot be undone. Really delete this moment?</string>
     <string name="new_sample">New Moment</string>
     <string name="new_sample_add_tag_error">Keyword has already been added.</string>
     <string name="new_sample_back_warning_msg">Please take some time to enter the details of your moment.\n\nIf you leave here your moment is saved as it is now. You can edit it later.</string>

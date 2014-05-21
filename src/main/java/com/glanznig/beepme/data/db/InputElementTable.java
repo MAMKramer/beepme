@@ -334,4 +334,32 @@ public class InputElementTable extends StorageHandler {
 
         return inputElementList;
     }
+
+    /**
+     * Gets a list of all input elements that belong to the specified input group.
+     * @param inputGroupUid input group uid of input group where the input elements belong to
+     * @return list of input elements, or empty list if none
+     */
+    public List<InputElement> getInputElementsByGroup(long inputGroupUid) {
+        SQLiteDatabase db = getDb();
+        ArrayList<InputElement> inputElementList = new ArrayList<InputElement>();
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "type", "name", "mandatory",
+                        "restrict", "options", "vocabulary_id", "input_group_id" },
+                "input_group_id=?", new String[] { Long.valueOf(inputGroupUid).toString() },
+                null, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                InputElement inputElement = populateObject(cursor);
+                inputElementList.add(inputElement);
+            }
+            while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+
+        return inputElementList;
+    }
 }

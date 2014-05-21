@@ -29,7 +29,7 @@ import com.glanznig.beepme.data.Value;
 import com.glanznig.beepme.data.db.InputElementTable;
 import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.data.db.ValueTable;
-import com.glanznig.beepme.view.ViewSampleFragment;
+import com.glanznig.beepme.view.ViewMomentFragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -64,12 +64,22 @@ public class ViewMomentPagerAdapter extends FragmentStatePagerAdapter {
 	public Fragment getItem(int position) {
 		long momentId = items.get(position).longValue();
 		
-		Fragment fragment = new ViewSampleFragment();
+		Fragment fragment = new ViewMomentFragment();
         Bundle args = new Bundle();
         args.putLong("momentId", momentId);
         fragment.setArguments(args);
         return fragment;
 	}
+
+    /**
+     * Removes a moment (uid) from the list
+     * @param momentId uid of the moment to remove
+     */
+    public void removeMoment(long momentId) {
+        if (items.contains(Long.valueOf(momentId))) {
+            items.remove(Long.valueOf(momentId));
+        }
+    }
 
     /**
      * Converts a list position into a moment uid.

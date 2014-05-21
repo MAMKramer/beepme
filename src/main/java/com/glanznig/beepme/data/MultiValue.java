@@ -1,7 +1,8 @@
 package com.glanznig.beepme.data;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.Iterator;
 
 /**
  * A MultiValue (data entered by the user) can have multiple values. Examples are tags or
@@ -10,50 +11,59 @@ import java.util.Set;
  */
 public class MultiValue extends Value {
 
-    private HashMap<Long, Long> values;
+    private HashMap<String, VocabularyItem> values;
 
     public MultiValue() {
         super();
-        values = new HashMap<Long, Long>();
+        values = new HashMap<String, VocabularyItem>();
     }
 
     public MultiValue(long uid) {
         super(uid);
-        values = new HashMap<Long, Long>();
+        values = new HashMap<String, VocabularyItem>();
     }
 
     /**
-     * Sets a value reference for this multi-value
-     * @param valueUid vocabulary item uid of referenced item
+     * Sets a value (vocabulary item) for this multi-value
+     * @param value vocabulary item that should be part of this multi-value
      */
-    public void setValue(long valueUid) {
-        values.put(new Long(valueUid), null);
+    public void setValue(VocabularyItem value) {
+        values.put(value.getValue(), value);
     }
 
     /**
-     * Returns whether a particular value reference (vocabulary item uid) is part of this multi-value
-     * @param valueUid vocabulary item uid of referenced item
+     * Returns whether a particular value is part of this multi-value
+     * @param value vocabulary item value of referenced item
      * @return true if part of this multi-value, false otherwise
      */
-    public boolean hasValue(long valueUid) {
-        return values.containsKey(new Long(valueUid));
+    public boolean hasValue(String value) {
+        return values.containsKey(value);
     }
 
     /**
-     * Gets all value references that are part of this multi-value
-     * @return Set of Long containing all vocabulary item uids that are referenced by this multi-value
+     * Gets all values (vocabulary items) that are part of this multi-value
+     * @return Collection of vocabulary items that are referenced by this multi-value
      */
-    public Set<Long> getValues() {
-        return values.keySet();
+    public Collection<VocabularyItem> getValues() {
+        return values.values();
     }
 
     /**
      * Gets a string representation of all values referenced by this MultiValue. The delimiter character
      * is a comma (,).
      * @return comma delimited string representation of all value references
-     * todo implement
      */
     public String getValueString() {
-        return "";
+        String valueString = "";
+        Iterator<VocabularyItem> valueIterator = values.values().iterator();
+        while (valueIterator.hasNext()) {
+            VocabularyItem value = valueIterator.next();
+            valueString += value.getValue();
+            if (valueIterator.hasNext()) {
+                valueString += ",";
+            }
+        }
+
+        return valueString;
     }
 }

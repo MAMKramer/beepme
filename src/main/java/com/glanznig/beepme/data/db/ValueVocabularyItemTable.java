@@ -21,7 +21,15 @@ http://beepme.yourexp.at
 package com.glanznig.beepme.data.db;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.glanznig.beepme.BeepMeApp;
+import com.glanznig.beepme.data.VocabularyItem;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents the table VALUE_VOCABULARY_ITEM (vocabulary items as values of input elements)

@@ -135,12 +135,32 @@ public class MomentTable extends StorageHandler {
     }
 
     /**
-     * Gets a specific moment by its uid.
+     * Gets a specific moment by its uid (without values, only basedata)
      * @param uid uid of moment
      * @return moment, or null if not found
      */
-	public Moment getMoment(long uid) {
+    public Moment getMoment(long uid) {
+        return getMoment(uid, false);
+    }
+
+    /**
+     * Gets a specfic moment by its uid (with values)
+     * @param uid uid of moment
+     * @return moment, or null if not found
+     */
+    public Moment getMomentWithValues(long uid) {
+        return getMoment(uid, true);
+    }
+
+    /**
+     * Gets a specific moment by its uid (with or without values).
+     * @param uid uid of moment
+     * @param values if set to true a list of values is included with each moment, else only base data is returned
+     * @return moment, or null if not found
+     */
+	private Moment getMoment(long uid, boolean values) {
 		SQLiteDatabase db = getDb();
+        ValueTable valueTable = new ValueTable(ctx);
 		Moment moment = null;
 		
 		Cursor cursor = db.query(TBL_NAME, new String[] {"_id", "timestamp", "accepted", "uptime_id", "project_id"},
@@ -149,6 +169,16 @@ public class MomentTable extends StorageHandler {
 		if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             moment = populateObject(cursor);
+
+            if (values && moment.getAccepted()) {
+                Iterator<Value> valueIterator = valueTable.getValues(moment.getUid()).iterator();
+
+                while (valueIterator.hasNext()) {
+                    Value value = valueIterator.next();
+                    moment.setValue(value.getInputElementName(), value);
+                }
+            }
+
             cursor.close();
         }
 		db.close();
@@ -158,44 +188,69 @@ public class MomentTable extends StorageHandler {
 
     /**
      * Gets a list of accepted moments without values for the specified project.
+     * @param projectUid uid of project where moments belong to
      * @return list of moments, or empty list if none
      */
     public List<Moment> getMoments(long projectUid) {
-        return getMoments(projectUid, false, false);
+        return getMoments(projectUid, false, false, null);
     }
 
     /**
      * Gets a list of accepted moments with values for the specified project.
+     * @param projectUid uid of project where moments belong to
      * @return list of moments, or empty list if none
      */
     public List<Moment> getMomentsWithValues(long projectUid) {
-        return getMoments(projectUid, false, true);
+        return getMoments(projectUid, false, true, null);
     }
 
     /**
      * Gets a list of all moments (accepted and declined) without values for the specified project.
+     * @param projectUid uid of project where moments belong to
      * @return list of moments, or empty list if none
      */
     public List<Moment> getAllMoments(long projectUid) {
-        return getMoments(projectUid, true, false);
+        return getMoments(projectUid, true, false, null);
     }
 
     /**
      * Gets a list of all moments (accepted and declined) with values (accepted only) for the specified project.
+     * @param projectUid uid of project where moments belong to
      * @return list of moments, or empty list if none
      */
     public List<Moment> getAllMomentsWithValues(long projectUid) {
-        return getMoments(projectUid, true, true);
+        return getMoments(projectUid, true, true, null);
     }
 
     /**
-     * Gets a list of moments for the specified project according to parameters accepted and values.
+     * Gets a list of moments (accepted only) without values for the specified day.
+     * @param projectUid uid of project where moments belong to
+     * @param day day on which the moments occured
+     * @return list of moments, or empty list if none
+     */
+    public List<Moment> getMomentsOfDay(long projectUid, Calendar day) {
+        return getMoments(projectUid, false, false, day);
+    }
+
+    /**
+     * Gets a list of all moments (accepted and declined) without values for the specified day.
+     * @param projectUid uid of project where moments belong to
+     * @param day day on which the moments occured
+     * @return list of moments, or empty list if none
+     */
+    public List<Moment> getAllMomentsOfDay(long projectUid, Calendar day) {
+        return getMoments(projectUid, true, false, day);
+    }
+
+    /**
+     * Gets a list of moments for the specified project according to parameters declined, values and day.
      * @param projectUid uid of project where moments belong to
      * @param declined if set to true all moments (accepted and declined are returned), else only accepted ones
      * @param values if set to true a list of values is included with each moment, else only base data is returned
+     * @param day if not null this parameter provides a filter for the specified day
      * @return a list of moments according to parameters, or empty list if none
      */
-    private List<Moment> getMoments(long projectUid, boolean declined, boolean values) {
+    private List<Moment> getMoments(long projectUid, boolean declined, boolean values, Calendar day) {
         SQLiteDatabase db = getDb();
         ArrayList<Moment> momentList = new ArrayList<Moment>();
         ValueTable valueTable = new ValueTable(ctx);
@@ -205,6 +260,16 @@ public class MomentTable extends StorageHandler {
         if (declined == false) {
             where += " AND accepted=?";
             whereArgs[1] = "1";
+        }
+        if (day != null && day.isSet(Calendar.YEAR) && day.isSet(Calendar.MONTH) && day.isSet(Calendar.DAY_OF_MONTH)) {
+            long startOfDay = day.getTimeInMillis();
+            day.roll(Calendar.DAY_OF_MONTH, true);
+            long endOfDay = day.getTimeInMillis();
+            day.roll(Calendar.DAY_OF_MONTH, false);
+
+            where += " AND timestamp between ? and ?";
+            whereArgs[whereArgs.length - 1] = Long.valueOf(startOfDay).toString();
+            whereArgs[whereArgs.length - 1] = Long.valueOf(endOfDay).toString();
         }
 
         Cursor cursor = db.query(getTableName(), new String[] { "_id", "timestamp", "accepted",
@@ -235,21 +300,25 @@ public class MomentTable extends StorageHandler {
         return momentList;
     }
 
+    /**
+     * Deletes the given moment (and all its values) from the database.
+     * @param uid uid of moment
+     * @return true if successfully deleted, false otherwise
+     */
+    public boolean deleteMoment(long uid) {
+        SQLiteDatabase db = getDb();
+
+        ValueTable valueTable = new ValueTable(ctx);
+        // first delete values of moment
+        valueTable.deleteValues(uid);
+
+        int rows = db.delete(TBL_NAME, "_id=?", new String[] { String.valueOf(uid) });
+        db.close();
+
+        return rows == 1;
+    }
+
     // todo refactor
-	
-	public Moment getSampleWithTags(long id) {
-		Moment s = getMoment(id);
-		if (s != null) {
-			List<VocabularyItem> tagList = getTagsOfSample(s.getId());
-			if (tagList != null) {
-				Iterator<VocabularyItem> i = tagList.iterator();
-				while (i.hasNext()) {
-					s.addTag(i.next());
-				}
-			}
-		}
-		return s;
-	}
 	
 	public List<VocabularyItem> getTagsOfSample(long id) {
 		if (id != 0L) {
@@ -419,56 +488,6 @@ public class MomentTable extends StorageHandler {
 	    }
 		
 		return numRows == 1;
-	}
-	
-	public List<Moment> getSamplesOfDay(Calendar day) {
-		if (day.isSet(Calendar.YEAR) && day.isSet(Calendar.MONTH) && day.isSet(Calendar.DAY_OF_MONTH)) {
-			ArrayList<Moment> list = new ArrayList<Moment>();
-			SQLiteDatabase db = getDb();
-			long startOfDay = day.getTimeInMillis();
-			day.roll(Calendar.DAY_OF_MONTH, true);
-			long endOfDay = day.getTimeInMillis();
-			day.roll(Calendar.DAY_OF_MONTH, false);
-			
-			Cursor cursor = db.query(getTableName(), new String[] {"_id", "timestamp", "title", "description",
-				"accepted", "photoUri", "uptimeId"}, "timestamp between ? and ?",
-					new String[] { String.valueOf(startOfDay), String.valueOf(endOfDay) }, null, null, "timestamp DESC");
-			
-			if (cursor != null && cursor.getCount() > 0) {
-				cursor.moveToFirst();
-				
-				do {
-					Moment s = new Moment(cursor.getLong(0));
-					long timestamp = cursor.getLong(1);
-					s.setTimestamp(new Date(timestamp));
-					if (!cursor.isNull(2)) {
-						s.setTitle(cursor.getString(2));
-					}
-					if (!cursor.isNull(3)) {
-						s.setDescription(cursor.getString(3));
-					}
-					if (cursor.getInt(4) == 0) {
-						s.setAccepted(false);
-					}
-					else {
-						s.setAccepted(true);
-					}
-					if (!cursor.isNull(5)) {
-						s.setPhotoUri(cursor.getString(5));
-					}
-					if (!cursor.isNull(6)) {
-						s.setUptimeId(cursor.getLong(6));
-					}
-					list.add(s);
-				}
-				while (cursor.moveToNext());
-				cursor.close();
-				
-				return list;
-			}
-		}
-		
-		return null;
 	}
 
 }

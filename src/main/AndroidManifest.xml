@@ -90,7 +90,7 @@ http://beepme.yourexp.at
 	    </activity>
 	    
 	    <activity
-	        android:name=".view.ViewSampleActivity"
+	        android:name=".view.ViewMomentActivity"
 	        android:label="@string/view_sample"
 	        android:parentActivityName=".view.MainActivity">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.ListSamplesActivity" />

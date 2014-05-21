@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.Uptime;
 import com.glanznig.beepme.data.db.MomentTable;
@@ -87,7 +88,8 @@ public class Statistics {
      */
 	public static int getMomentCount(Context ctx, Calendar day) {
 		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
-		List<Moment> moments = momentTable.getSamplesOfDay(day);
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
+		List<Moment> moments = momentTable.getAllMomentsOfDay(app.getCurrentProject().getUid(), day);
 		
 		if (moments != null && moments.size() > 0) {
 			return moments.size();
@@ -118,7 +120,8 @@ public class Statistics {
      */
 	public static int getNumMomentsDeclined(Context ctx, Calendar day) {
 		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
-		List<Moment> moments = momentTable.getSamplesOfDay(day);
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
+        List<Moment> moments = momentTable.getAllMomentsOfDay(app.getCurrentProject().getUid(), day);
 		
 		if (moments != null && moments.size() > 0) {
 			int declined = 0;
@@ -157,7 +160,8 @@ public class Statistics {
      */
 	public static int getNumMomentsAccepted(Context ctx, Calendar day) {
 		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
-		List<Moment> moments = momentTable.getSamplesOfDay(day);
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
+		List<Moment> moments = momentTable.getAllMomentsOfDay(app.getCurrentProject().getUid(), day);
 		
 		if (moments != null && moments.size() > 0) {
 			int accepted = 0;
@@ -202,7 +206,8 @@ public class Statistics {
 		int declined = 0;
 		
 		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
-		List<Moment> moments = momentTable.getSamplesOfDay(day);
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
+        List<Moment> moments = momentTable.getAllMomentsOfDay(app.getCurrentProject().getUid(), day);
 		
 		if (moments != null && moments.size() > 0) {
 			for (int i = 0; i < moments.size(); i++) {
@@ -235,7 +240,8 @@ public class Statistics {
 		UptimeTable upTbl = new UptimeTable(ctx.getApplicationContext());
 		List<Uptime> uptimes = upTbl.getUptimes();
 		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
-		List<Moment> moments = momentTable.getMoments(true);
+        BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
+		List<Moment> moments = momentTable.getAllMoments(app.getCurrentProject().getUid());
 		
 		if (uptimes != null && moments != null) {
 			TreeMap<Long, Bundle> map = new TreeMap<Long, Bundle>(new NegativeComparator());

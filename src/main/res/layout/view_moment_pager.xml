@@ -25,13 +25,13 @@ http://beepme.yourexp.at
     android:orientation="vertical" >
 	
 	<android.support.v4.view.ViewPager
-    	android:id="@+id/view_sample_swipe_pager"
+    	android:id="@+id/view_moment_swipe_pager"
     	android:layout_width="match_parent"
     	android:layout_height="0dp"
     	android:layout_weight="1" />
 	
 	<LinearLayout
-	    android:id="@+id/sample_swipe_locator"
+	    android:id="@+id/moment_swipe_locator"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="horizontal"
@@ -42,7 +42,7 @@ http://beepme.yourexp.at
 	    android:paddingBottom="4dp">
 	    
 	    <TextView
-            android:id="@+id/sample_swipe_newer"
+            android:id="@+id/moment_swipe_newer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
@@ -51,7 +51,7 @@ http://beepme.yourexp.at
             android:paddingRight="8dp" />
 	    
 	    <TextView
-            android:id="@+id/sample_swipe_pos"
+            android:id="@+id/moment_swipe_pos"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -59,7 +59,7 @@ http://beepme.yourexp.at
             android:layout_weight="1" />
 	    
 	    <TextView
-            android:id="@+id/sample_swipe_older"
+            android:id="@+id/moment_swipe_older"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
