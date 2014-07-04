@@ -20,43 +20,32 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.view;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
-import com.glanznig.beepme.data.InputElement;
-import com.glanznig.beepme.data.InputGroup;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.SingleValue;
 import com.glanznig.beepme.data.Value;
-import com.glanznig.beepme.data.VocabularyItem;
 import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
-import com.glanznig.beepme.helper.FlowLayout;
 import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.input.InputControl;
-import com.glanznig.beepme.view.input.TextControl;
+import com.glanznig.beepme.view.input.PhotoControl;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ViewMomentFragment extends Fragment implements Callback {
@@ -64,13 +53,13 @@ public class ViewMomentFragment extends Fragment implements Callback {
 	private static final String TAG = "ViewMomentFragment";
 	private long momentId = 0L;
     private ViewManager viewManager;
-	private SamplePhotoView photoView; 
+	private PhotoControl photoView;
 	
 	private static class ImgLoadHandler extends Handler {
-		WeakReference<SamplePhotoView> view;
+		WeakReference<PhotoControl> view;
 		
-		ImgLoadHandler(SamplePhotoView view) {
-			this.view = new WeakReference<SamplePhotoView>(view);
+		ImgLoadHandler(PhotoControl view) {
+			this.view = new WeakReference<PhotoControl>(view);
 		}
 		
 	    @Override
@@ -111,12 +100,7 @@ public class ViewMomentFragment extends Fragment implements Callback {
             String titleName = ((BeepMeApp)getActivity().getApplicationContext()).getCurrentProject().getOption("listTitle");
 			Moment moment = new MomentTable(getActivity().getApplicationContext()).getMomentWithValues(momentId);
             HashMap<String, Value> values = moment.getValues();
-            Iterator<String> keyIterator = values.keySet().iterator();
-
-            while (keyIterator.hasNext()) {
-                String name = keyIterator.next();
-                viewManager.getInputControl(name).setValue(values.get(name));
-            }
+            viewManager.setValues(values);
 
 			TextView timestamp = (TextView)getView().findViewById(R.id.view_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);

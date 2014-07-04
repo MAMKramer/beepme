@@ -25,7 +25,7 @@ http://beepme.yourexp.at
         <attr name="layout_verticalSpacing" format="dimension"/>
     </declare-styleable>
     
-    <declare-styleable name="SamplePhotoView">
+    <declare-styleable name="PhotoControl">
         <attr name="placeholder" format="reference"/>
         <attr name="imgWidth" format="dimension"/>
         <attr name="imgHeight" format="dimension"/>

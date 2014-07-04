@@ -20,6 +20,7 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -73,4 +74,62 @@ public class ValueVocabularyItemTable extends StorageHandler {
 	public static void dropTable(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
 	}
+
+    /**
+     * Adds a new value - vocabulary item connection to the database
+     * @param valueUid uid of the value
+     * @param vocabularyItemUid uid of the vocabulary item
+     */
+    public void addValueVocabularyItem(long valueUid, long vocabularyItemUid) {
+        if (valueUid != 0L && vocabularyItemUid != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = new ContentValues();
+            values.put("value_id", valueUid);
+            values.put("vocabulary_item_id", vocabularyItemUid);
+            db.insert(getTableName(), null, values);
+            db.close();
+        }
+    }
+
+    /**
+     * Removes a value - vocabulary item connection from the database
+     * @param valueUid uid of the value
+     * @param vocabularyItemUid uid of the vocabulary item
+     * @return true, if one item has been deleted, false otherwise
+     */
+    public boolean deleteValueVocabularyItem(long valueUid, long vocabularyItemUid) {
+        if (valueUid != 0L && vocabularyItemUid != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = new ContentValues();
+            values.put("value_id", valueUid);
+            values.put("vocabulary_item_id", vocabularyItemUid);
+
+            int rows = db.delete(TBL_NAME, "value_id=? AND vocabulary_item_id=?", new String[] { String.valueOf(valueUid), String.valueOf(vocabularyItemUid) });
+            db.close();
+
+            return rows == 1;
+        }
+
+        return false;
+    }
+
+    /**
+     * Removes all value - vocabulary item connections of a specific value from the database
+     * @param valueUid uid of the value
+     * @return true, if one item has been deleted, false otherwise
+     */
+    public boolean deleteAllOfValue(long valueUid) {
+        if (valueUid != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = new ContentValues();
+            values.put("value_id", valueUid);
+
+            int rows = db.delete(TBL_NAME, "value_id=?", new String[] { String.valueOf(valueUid) });
+            db.close();
+
+            return rows == 1;
+        }
+
+        return false;
+    }
 }

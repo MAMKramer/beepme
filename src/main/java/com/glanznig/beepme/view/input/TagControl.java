@@ -45,6 +45,9 @@ import com.glanznig.beepme.data.VocabularyItem;
 import com.glanznig.beepme.data.db.VocabularyItemTable;
 import com.glanznig.beepme.helper.FlowLayout;
 
+/**
+ * A tag control provides a UI element to add (free-text) keywords.
+ */
 public class TagControl extends LinearLayout implements InputControl, View.OnClickListener {
 	
 	private static final String TAG = "TagControl";
@@ -82,6 +85,12 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         setupView();
 	}
 
+    /**
+     * Constructor
+     * @param ctx the view context
+     * @param mode the view mode
+     * @param restrictions access restrictions for this tag control
+     */
 	public TagControl(Context ctx, Mode mode, Collection<Restriction> restrictions) {
 		super(ctx);
         this.ctx = ctx.getApplicationContext();
@@ -91,10 +100,9 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         this.mode = mode;
         name = null;
         mandatory = false;
+        restrictEdit = false;
 
         if (restrictions != null) {
-            restrictEdit = false;
-
             Iterator<Restriction> restrictionIterator = restrictions.iterator();
             while (restrictionIterator.hasNext()) {
                 Restriction restriction = restrictionIterator.next();
@@ -106,9 +114,6 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
                     restrictEdit = true;
                 }
             }
-        }
-        else {
-            restrictEdit = false;
         }
 
         setupView();
@@ -128,6 +133,9 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         setupView();
 	}
 
+    /**
+     * Adds all the necessary sub-elements for the given view mode.
+     */
     private void setupView() {
         if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && !restrictEdit)) {
             setOrientation(LinearLayout.VERTICAL);
@@ -226,26 +234,45 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         return value;
     }
 
+    /**
+     * Sets the vocabulary uid of this tag control.
+     * @param vocabulary
+     */
     public void setVocabularyUid(long vocabulary) {
         this.vocabularyUid = vocabulary;
     }
 
+    /**
+     * Gets the vocabulary uid of this tag control.
+     * @return vocabulary uid, or 0L if not set
+     */
     public long getVocabularyUid() {
         return vocabularyUid;
     }
 
+    /**
+     * Adds a listener that should be notified if a tag gets added or removed
+     * @param listener listener class implementing OnTagControlChangeListener
+     */
     public void addOnTagControlChangeListener(OnTagControlChangeListener listener) {
         if (listener != null) {
             listeners.add(listener);
         }
     }
 
+    /**
+     * Removes a listener that should no longer being notified if a tag gets added or removed
+     * @param listener listener class implementing OnTagControlChangeListener
+     */
     public void removeOnTagControlChangeListener(OnTagControlChangeListener listener) {
         if (listeners.contains(listener)) {
             listeners.remove(listener);
         }
     }
 
+    /**
+     * Adds a tag to this tag control.
+     */
     public void addTag() {
         if (tagInput.getText().length() > 0) {
             String itemText = tagInput.getText().toString().toLowerCase(Locale.getDefault());
@@ -286,6 +313,10 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         }
     }
 
+    /**
+     * Removes a tag from this tag control.
+     * @param button tag holder button, that should be removed
+     */
     public void removeTag(TagButton button) {
         VocabularyItem item = button.getVocabularyItem();
 
@@ -310,6 +341,9 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         }
     }
 
+    /**
+     * Holder class for tag buttons (extends Button).
+     */
     private class TagButton extends Button {
 
         private VocabularyItem vocabularyItem;

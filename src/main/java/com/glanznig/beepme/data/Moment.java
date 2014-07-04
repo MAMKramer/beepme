@@ -22,6 +22,7 @@ package com.glanznig.beepme.data;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -181,6 +182,23 @@ public class Moment {
      */
     public HashMap<String, Value> getValues() {
         return values;
+    }
+
+    /**
+     * Copies all member variables (except uid) to a new object
+     * @param copy copy object
+     */
+    public void copyTo(Moment copy) {
+        copy.setAccepted(accepted);
+        copy.setTimestamp(timestamp);
+        copy.setUptimeUid(uptimeUid);
+        copy.setProjectUid(projectUid);
+
+        Iterator<Map.Entry<String, Value>> valueIterator = values.entrySet().iterator();
+        while (valueIterator.hasNext()) {
+            Map.Entry<String, Value> entry = valueIterator.next();
+            copy.setValue(entry.getKey(), entry.getValue());
+        }
     }
 
     @Override

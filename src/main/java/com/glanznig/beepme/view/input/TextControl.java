@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Created by michael on 09.05.14.
+ * A text control provides a UI element to add/display text.
  */
 public class TextControl extends LinearLayout implements InputControl {
 
@@ -31,16 +31,21 @@ public class TextControl extends LinearLayout implements InputControl {
     private TextView help;
     private TextView title;
 
+    /**
+     * Constructor
+     * @param ctx the view context
+     * @param mode the view mode
+     * @param restrictions access restrictions for this text control
+     */
     public TextControl(Context ctx, Mode mode, Collection<Restriction> restrictions) {
         super(ctx);
         this.ctx = ctx.getApplicationContext();
         this.mode = mode;
         name = null;
         mandatory = false;
+        restrictEdit = false;
 
         if (restrictions != null) {
-            restrictEdit = false;
-
             Iterator<Restriction> restrictionIterator = restrictions.iterator();
             while (restrictionIterator.hasNext()) {
                 Restriction restriction = restrictionIterator.next();
@@ -52,9 +57,6 @@ public class TextControl extends LinearLayout implements InputControl {
                     restrictEdit = true;
                 }
             }
-        }
-        else {
-            restrictEdit = false;
         }
 
         setupView();
@@ -82,6 +84,9 @@ public class TextControl extends LinearLayout implements InputControl {
         setupView();
     }
 
+    /**
+     * Adds all the necessary sub-elements for the given view mode.
+     */
     private void setupView() {
         setOrientation(LinearLayout.VERTICAL);
         help = new TextView(ctx);
@@ -95,10 +100,15 @@ public class TextControl extends LinearLayout implements InputControl {
             title = new TextView(ctx);
             textDisplay = new TextView(ctx);
 
+            addView(title);
             addView(textDisplay);
         }
     }
 
+    /**
+     * Sets the number of lines for this text control.
+     * @param lines number of lines
+     */
     public void setLines(int lines) {
         if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && !restrictEdit)) {
             textInput.setLines(lines);

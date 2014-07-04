@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.view.input.PhotoControl;
 import com.glanznig.beepme.view.input.TagAutocompleteAdapter;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.VocabularyItem;
@@ -57,18 +58,18 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class EditSampleActivity extends Activity implements OnClickListener, PopupMenu.OnMenuItemClickListener, Callback {
+public class EditSampleActivity extends Activity { //implements OnClickListener, PopupMenu.OnMenuItemClickListener, Callback {
 	
 	private static final String TAG = "EditSampleActivity";
 	
 	private Moment moment = new Moment();
-	private SamplePhotoView photoView;
+	private PhotoControl photoView;
 	
 	private static class ImgLoadHandler extends Handler {
-		WeakReference<SamplePhotoView> view;
+		WeakReference<PhotoControl> view;
 		
-		ImgLoadHandler(SamplePhotoView view) {
-			this.view = new WeakReference<SamplePhotoView>(view);
+		ImgLoadHandler(PhotoControl view) {
+			this.view = new WeakReference<PhotoControl>(view);
 		}
 		
 	    @Override
@@ -94,7 +95,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         
-        final LayoutInflater inflater = (LayoutInflater) getActionBar().getThemedContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        /*final LayoutInflater inflater = (LayoutInflater) getActionBar().getThemedContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         final View customActionBarView = inflater.inflate(R.layout.actionbar_custom_done_cancel, null);
         customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
                 new View.OnClickListener() {
@@ -164,7 +165,7 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 					moment = momentTable.getMomentWithValues(momentId);
 				}
 			}
-		}
+		}*/
 	}
 	
 	@Override
@@ -174,8 +175,8 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	}
 	
 	private void populateFields() {
-		//findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
-		photoView = (SamplePhotoView)findViewById(R.id.new_sample_photoview);
+		/*//findViewById(R.id.new_sample_btn_photo).setVisibility(View.GONE);
+		photoView = (PhotoControl)findViewById(R.id.new_sample_photoview);
 		photoView.setRights(false, true);
 		photoView.setOnMenuItemClickListener(this);
 		
@@ -235,10 +236,10 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 			if (tag.getVocabularyUid() == 1) {
 				keywordHolder.addTagButton(tag.getName(), this);
 			}
-		}
+		}*/
 	}
 	
-	public void onClickAddKeyword(View view) {
+	/*public void onClickAddKeyword(View view) {
 		TagControl tagHolder = (TagControl)findViewById(R.id.new_sample_keyword_container);
 		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_keyword);
 		if (enteredTag.getText().length() > 0) {
@@ -288,8 +289,9 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 			t.setName(keyword.getText().toString().toLowerCase(Locale.getDefault()));
 			moment.addTag(t);
 		}
-		
-		new MomentTable(this.getApplicationContext()).editSample(moment);
+
+        // todo update values instead
+		//new MomentTable(this.getApplicationContext()).editSample(moment);
 		
 		finish();
 	}
@@ -347,7 +349,8 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 	            	
 	            	moment.setPhotoUri(null);
 	            	// save immediately to prevent orphan uris when leaving with dismiss
-	            	st.editSample(moment);
+                    // todo update value instead
+	            	//st.editSample(moment);
 	            	
 	            	// delete photo on storage
 	            	PhotoUtils.deletePhoto(EditSampleActivity.this, photoUri);
@@ -386,5 +389,5 @@ public class EditSampleActivity extends Activity implements OnClickListener, Pop
 		}
 		
 		return false;
-	}
+	}*/
 }

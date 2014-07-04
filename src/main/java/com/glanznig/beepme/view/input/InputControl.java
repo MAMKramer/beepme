@@ -2,8 +2,10 @@ package com.glanznig.beepme.view.input;
 
 import com.glanznig.beepme.data.Value;
 
+import java.io.Serializable;
+
 /**
- * Created by michael on 09.05.14.
+ * Base interface for common methods of input controls (UI elements).
  */
 public interface InputControl {
 

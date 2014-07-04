@@ -18,14 +18,13 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 */
 
-package com.glanznig.beepme.view;
+package com.glanznig.beepme.view.input;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -33,20 +32,36 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import com.glanznig.beepme.R;
+import com.glanznig.beepme.data.Restriction;
+import com.glanznig.beepme.data.SingleValue;
+import com.glanznig.beepme.data.Value;
 import com.glanznig.beepme.helper.PhotoUtils;
 
-public class SamplePhotoView extends LinearLayout {
+import java.util.Collection;
+import java.util.Iterator;
+
+/**
+ * A PhotoControl is a UI element that displays a photo and/or allows to take one.
+ */
+public class PhotoControl extends LinearLayout implements InputControl {
 	
-	private static final String TAG = "SamplePhotoView";
+	private static final String TAG = "PhotoControl";
+
+    private Context ctx;
+    private Mode mode;
+    private String name;
+    private boolean mandatory;
 
     private ImageView photo;
     private View frameView;
     private FrameLayout frame;
     private ImageView photoTriangle;
     private PopupMenu popup;
-    private Context ctx;
+    private TextView help;
+    private TextView title;
     
     private int placeholderResId = 0;
     private int width;
@@ -54,36 +69,78 @@ public class SamplePhotoView extends LinearLayout {
     private boolean canDelete = true;
     private boolean canChange = true;
     private boolean hasPhotoSet = false;
+    private String photoUri;
 
-    public SamplePhotoView(Context context) {
+    public PhotoControl(Context context) {
         super(context);
         ctx = context;
+        name = null;
+        mode = Mode.CREATE;
+        mandatory = false;
         
-        setupComponents();
+        setupView();
     }
 
-    public SamplePhotoView(Context context, AttributeSet attrs) {
+    public PhotoControl(Context context, AttributeSet attrs) {
         super(context, attrs);
         readStyleParameters(context, attrs);
         ctx = context;
-        
-        setupComponents();
+        name = null;
+        mode = Mode.CREATE;
+        mandatory = false;
+
+        setupView();
+    }
+
+    /**
+     * Constructor
+     * @param ctx the view context
+     * @param mode the view mode
+     * @param restrictions access restrictions for this photo control
+     */
+    public PhotoControl(Context ctx, Mode mode, Collection<Restriction> restrictions) {
+        super(ctx);
+        this.ctx = ctx.getApplicationContext();
+        this.mode = mode;
+        name = null;
+        mandatory = false;
+
+        if (restrictions != null) {
+            Iterator<Restriction> restrictionIterator = restrictions.iterator();
+            while (restrictionIterator.hasNext()) {
+                Restriction restriction = restrictionIterator.next();
+                if (restriction.getType().equals(Restriction.RestrictionType.EDIT) && restriction.getAllowed() == false) {
+                    canChange = false;
+                }
+                if (restriction.getType().equals(Restriction.RestrictionType.DELETE) && restriction.getAllowed() == false) {
+                    canDelete = false;
+                }
+            }
+        }
+
+        setupView();
     }
     
     private void readStyleParameters(Context context, AttributeSet attributeSet) {
-        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.SamplePhotoView);
+        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.PhotoControl);
         try {
-            placeholderResId = a.getResourceId(R.styleable.SamplePhotoView_placeholder, 0);
-            width = (int)a.getDimension(R.styleable.SamplePhotoView_imgWidth, 48);
-            height = (int)a.getDimension(R.styleable.SamplePhotoView_imgHeight, 48);
+            placeholderResId = a.getResourceId(R.styleable.PhotoControl_placeholder, 0);
+            width = (int)a.getDimension(R.styleable.PhotoControl_imgWidth, 48);
+            height = (int)a.getDimension(R.styleable.PhotoControl_imgHeight, 48);
         } finally {
             a.recycle();
         }
     }
-    
-    private void setupComponents() {
+
+    /**
+     * Adds all the necessary sub-elements for the given view mode.
+     */
+    private void setupView() {
     	setOrientation(LinearLayout.HORIZONTAL);
     	setGravity(Gravity.BOTTOM);
+
+        title = new TextView(ctx);
+        addView(title);
     	
     	frame = new FrameLayout(ctx);
     	LayoutParams params = new LayoutParams(width, height);
@@ -178,6 +235,11 @@ public class SamplePhotoView extends LinearLayout {
     			}
     		}
     	}
+
+        if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && canChange)) {
+            help = new TextView(ctx);
+            addView(help);
+        }
     }
     
     public void setPhoto(Bitmap photoBitmap) {
@@ -291,36 +353,59 @@ public class SamplePhotoView extends LinearLayout {
     	updateAppearance();
     }
     
-    public void setCanChange(boolean canChange) {
-    	this.canChange = canChange;
-    	updateAppearance();
-    }
-    
-    public void setCanDelete(boolean canDelete) {
-    	this.canDelete = canDelete;
-    	updateAppearance();
-    }
-    
-    public boolean canChange() {
-    	return canChange;
-    }
-    
-    public boolean canDelete() {
-    	return canDelete;
-    }
-    
-    public boolean isReadOnly() {
-    	if (!canChange && !canDelete) {
-    		return true;
-    	}
-    	return false;
-    }
-    
     public boolean isPhotoSet() {
     	return hasPhotoSet;
     }
     
     public void setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener listener) {
     	popup.setOnMenuItemClickListener(listener);
+    }
+
+    @Override
+    public void setValue(Value value) {
+        if (value instanceof SingleValue) {
+            SingleValue singleValue = (SingleValue)value;
+            photoUri = singleValue.getValue();
+
+            // todo set photo
+        }
+    }
+
+    @Override
+    public Value getValue() {
+        SingleValue value = new SingleValue();
+        value.setValue(photoUri);
+
+        return value;
+    }
+
+    @Override
+    public void setHelpText(String help) {
+        this.help.setText(help);
+    }
+
+    @Override
+    public void setTitle(String title) {
+        this.title.setText(title);
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setMandatory(boolean mandatory) {
+        this.mandatory = mandatory;
+    }
+
+    @Override
+    public boolean getMandatory() {
+        return mandatory;
     }
 }

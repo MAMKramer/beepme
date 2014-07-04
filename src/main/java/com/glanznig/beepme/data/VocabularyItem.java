@@ -32,7 +32,7 @@ import java.util.Locale;
  */
 public class VocabularyItem {
 
-    private static final String delimiter = "_#_";
+    private static final String DELIMITER = "_#_";
     private static final String TAG = "VocabularyItem";
 
     private Long uid;
@@ -281,21 +281,137 @@ public class VocabularyItem {
     @Override
     public String toString() {
         String representation = "";
+        boolean first = true;
 
-        if (vocabularyUid != null) {
-            representation += vocabularyUid.toString() + delimiter;
+        if (uid != null) {
+            representation += "uid=" + uid.toString();
+            first = false;
         }
         if (name != null) {
-            representation += name + delimiter;
+            if (!first) {
+                representation += DELIMITER;
+            }
+            representation += "name=" + name;
+            first = false;
         }
         if (lang != null) {
-            representation += lang.toString() + delimiter;
+            if (!first) {
+                representation += DELIMITER;
+            }
+            representation += "lang=" + lang.getLanguage();
+            first = false;
         }
         if (value != null) {
-            representation += value;
+            if (!first) {
+                representation += DELIMITER;
+            }
+            representation += "value=" + value;
+            first = false;
+        }
+        if (predefined != null) {
+            if (!first) {
+                representation += DELIMITER;
+            }
+            if (predefined == Boolean.TRUE) {
+                representation += "predefined=yes";
+            }
+            else if (predefined == Boolean.FALSE) {
+                representation += "predefined=no";
+            }
+            first = false;
+        }
+        if (translationOfUid != null) {
+            if (!first) {
+                representation += DELIMITER;
+            }
+            representation += "translationOfUid=" + translationOfUid.toString();
+            first = false;
+        }
+        if (vocabularyUid != null) {
+            if (!first) {
+                representation += DELIMITER;
+            }
+            representation += "vocuabularyUid=" + vocabularyUid.toString();
+            first = false;
         }
 
         return representation;
+    }
+
+    /**
+     * Transforms a string representation of a VocabularyItem object (e.g. from storage) into
+     * an object.
+     * @param objRepresentation string representation of VocabularyItem object
+     * @return VocabularyItem object, or null if string representation was not valid
+     */
+    public static VocabularyItem fromString(String objRepresentation) {
+        //todo correct regex for string validation
+        if (objRepresentation.toLowerCase().matches("^uid=(edit|delete),allowed=(yes|no)(,until=\\d+)?$")) {
+            String uid = "";
+            String name = "";
+            String lang = "";
+            String value = "";
+            String predefined = "";
+            String translationOfUid = "";
+            String vocabularyUid = "";
+
+            String[] splitRep = objRepresentation.split(DELIMITER);
+            for (int i=0; i < splitRep.length; i++) {
+                if (splitRep[i].startsWith("uid")) {
+                    uid = splitRep[i].substring(4);
+                }
+                else if (splitRep[i].startsWith("name")) {
+                    name = splitRep[i].substring(5);
+                }
+                else if (splitRep[i].startsWith("lang")) {
+                    lang = splitRep[i].substring(5);
+                }
+                else if (splitRep[i].startsWith("value")) {
+                    value = splitRep[i].substring(6);
+                }
+                else if (splitRep[i].startsWith("predefined")) {
+                    predefined = splitRep[i].substring(11);
+                }
+                else if (splitRep[i].startsWith("translationOfUid")) {
+                    translationOfUid = splitRep[i].substring(17);
+                }
+                else if (splitRep[i].startsWith("vocabularyUid")) {
+                    vocabularyUid = splitRep[i].substring(14);
+                }
+            }
+
+            VocabularyItem vocabularyItem = null;
+            if (uid.length() > 0) {
+                vocabularyItem = new VocabularyItem(Long.valueOf(uid));
+            }
+            else {
+                vocabularyItem = new VocabularyItem();
+            }
+            if (name.length() > 0) {
+                vocabularyItem.setName(name);
+            }
+            if (lang.length() > 0) {
+                vocabularyItem.setLanguage(new Locale(lang));
+            }
+            if (value.length() > 0) {
+                vocabularyItem.setValue(value);
+            }
+            if (predefined.equals("yes")) {
+                vocabularyItem.setPredefined(true);
+            }
+            else if (predefined.equals("no")) {
+                vocabularyItem.setPredefined(false);
+            }
+            if (translationOfUid.length() > 0) {
+                vocabularyItem.setTranslationOfUid(Long.valueOf(translationOfUid));
+            }
+            if (vocabularyUid.length() > 0) {
+                vocabularyItem.setVocabularyUid(Long.valueOf(vocabularyUid));
+            }
+
+            return vocabularyItem;
+        }
+        return null;
     }
 
     @Override

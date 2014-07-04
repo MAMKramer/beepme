@@ -35,7 +35,7 @@ http://beepme.yourexp.at
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
        
-		    <com.glanznig.beepme.view.SamplePhotoView
+		    <com.glanznig.beepme.view.input.PhotoControl
 		        android:id="@+id/view_sample_photo"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"

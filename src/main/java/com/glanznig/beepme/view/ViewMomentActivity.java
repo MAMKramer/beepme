@@ -146,8 +146,8 @@ public class ViewMomentActivity extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         	case R.id.action_edit_moment:
-        		Intent i = new Intent(ViewMomentActivity.this, EditSampleActivity.class);
-        		i.putExtra(getApplication().getClass().getPackage().getName() + ".SampleId", pagerAdapter.getMomentId(pager.getCurrentItem()));
+        		Intent i = new Intent(ViewMomentActivity.this, ChangeMomentActivity.class);
+        		i.putExtra(getApplication().getClass().getPackage().getName() + ".MomentUid", pagerAdapter.getMomentId(pager.getCurrentItem()));
         		startActivity(i);
         		
         		return true;

@@ -20,6 +20,7 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -81,6 +82,30 @@ public class ValueTable extends StorageHandler {
      */
     public static void dropTable(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS " + TBL_NAME);
+    }
+
+    /**
+     * Populates content values for the set variables of the value.
+     * @param value the value
+     * @return populated content values
+     */
+    private ContentValues getContentValues(Value value) {
+        ContentValues values = new ContentValues();
+
+        if (value.getMomentUid() != 0L) {
+            values.put("moment_id", value.getMomentUid());
+        }
+        if (value.getInputElementUid() != 0L) {
+            values.put("input_element_id", value.getInputElementUid());
+        }
+
+        if (value instanceof SingleValue) {
+            if (((SingleValue)value).getValue() != null) {
+                values.put("value", ((SingleValue)value).getValue());
+            }
+        }
+
+        return values;
     }
 
     /**
@@ -178,6 +203,81 @@ public class ValueTable extends StorageHandler {
         db.close();
 
         return valueList;
+    }
+
+    /**
+     * Adds a new value (SingleValue or MultiValue) to the database
+     * @param value value to add
+     * @return new value object with set variables and uid, or null if an error occurred
+     */
+    public Value addValue(Value value) {
+        Value newValue = null;
+
+        if (value != null) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = getContentValues(value);
+
+            long valueUid = db.insert(getTableName(), null, values);
+
+            if (value instanceof MultiValue) {
+                VocabularyItemTable vocabularyItemTable = new VocabularyItemTable(ctx);
+                ValueVocabularyItemTable valueVocabularyItemTable = new ValueVocabularyItemTable(ctx);
+                Iterator<VocabularyItem> valueIterator = ((MultiValue)value).getValues().iterator();
+
+                while (valueIterator.hasNext()) {
+                    VocabularyItem vocabularyItem = valueIterator.next();
+                    if (vocabularyItem.getUid() == 0L) {
+                        vocabularyItem = vocabularyItemTable.addVocabularyItem(vocabularyItem);
+                    }
+                    valueVocabularyItemTable.addValueVocabularyItem(valueUid, vocabularyItem.getUid());
+                }
+            }
+
+            db.close();
+            // only if no error occurred
+            if (valueUid != -1) {
+                if (value instanceof SingleValue) {
+                    newValue = new SingleValue(valueUid);
+                    ((SingleValue)value).copyTo((SingleValue)newValue);
+                }
+                else if (value instanceof MultiValue) {
+                    newValue = new MultiValue(valueUid);
+                    ((MultiValue)value).copyTo((MultiValue)newValue);
+                }
+            }
+        }
+
+        return newValue;
+    }
+
+    /**
+     * Updates a value object in the database
+     * @param value values to update for this value object
+     * @return true on success or false if an error occurred
+     */
+    public boolean updateValue(Value value) {
+        int numRows = 0;
+        if (value.getUid() != 0L) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = getContentValues(value);
+
+            numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(value.getUid()) });
+
+            if (value instanceof MultiValue) {
+                ValueVocabularyItemTable valueVocabularyItemTable = new ValueVocabularyItemTable(ctx);
+                // delete all connections first and then re-add new/changed ones
+                valueVocabularyItemTable.deleteAllOfValue(value.getUid());
+
+                Iterator<VocabularyItem> valueIterator = ((MultiValue)value).getValues().iterator();
+                while (valueIterator.hasNext()) {
+                    VocabularyItem vocabularyItem = valueIterator.next();
+                    valueVocabularyItemTable.addValueVocabularyItem(value.getUid(), vocabularyItem.getUid());
+                }
+            }
+            db.close();
+        }
+
+        return numRows == 1;
     }
 
     /**

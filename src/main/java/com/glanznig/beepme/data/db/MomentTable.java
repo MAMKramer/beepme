@@ -87,6 +87,33 @@ public class MomentTable extends StorageHandler {
 	}
 
     /**
+     * Populates content values for the set variables of the moment.
+     * @param moment the moment
+     * @return populated content values
+     */
+    private ContentValues getContentValues(Moment moment) {
+        ContentValues values = new ContentValues();
+
+        if (moment.getProjectUid() != 0L) {
+            values.put("project_id", moment.getProjectUid());
+        }
+        if (moment.getUptimeUid() != 0L) {
+            values.put("uptime_id", moment.getUptimeUid());
+        }
+        if (moment.getTimestamp() != null) {
+            values.put("timestamp", moment.getTimestamp().getTime());
+        }
+        if (moment.getAccepted()) {
+            values.put("accepted", 1);
+        }
+        else {
+            values.put("accepted", 0);
+        }
+
+        return values;
+    }
+
+    /**
      * Populates a moment object by reading values from a cursor
      * @param cursor cursor object
      * @return populated moment object
@@ -301,6 +328,30 @@ public class MomentTable extends StorageHandler {
     }
 
     /**
+     * Adds a new moment to the database
+     * @param moment values to add to the moment table
+     * @return new moment object with set values and uid, or null if an error occurred
+     */
+    public Moment addMoment(Moment moment) {
+        Moment newMoment = null;
+
+        if (moment != null) {
+            SQLiteDatabase db = getDb();
+            ContentValues values = getContentValues(moment);
+
+            long momentId = db.insert(getTableName(), null, values);
+            db.close();
+            // only if no error occurred
+            if (momentId != -1) {
+                newMoment = new Moment(momentId);
+                moment.copyTo(newMoment);
+            }
+        }
+
+        return newMoment;
+    }
+
+    /**
      * Deletes the given moment (and all its values) from the database.
      * @param uid uid of moment
      * @return true if successfully deleted, false otherwise
@@ -317,177 +368,4 @@ public class MomentTable extends StorageHandler {
 
         return rows == 1;
     }
-
-    // todo refactor
-	
-	public List<VocabularyItem> getTagsOfSample(long id) {
-		if (id != 0L) {
-			ArrayList<VocabularyItem> tagList = new ArrayList<VocabularyItem>();
-			SQLiteDatabase db = getDb();
-			Cursor cursor = db.rawQuery("SELECT t._id, t.name, t.vocabulary_id FROM " + ValueVocabularyItemTable.getTableName() + " t " +
-					"INNER JOIN " + VocabularyItemTable.getTableName() + " st ON st.tag_id = t._id WHERE st.sample_id = ?",
-					new String[] { String.valueOf(id) });
-			
-			if (cursor != null && cursor.getCount() > 0) {
-				cursor.moveToFirst();
-				VocabularyItem t = null;
-				do {
-					t = new VocabularyItem(cursor.getLong(0));
-					t.setName(cursor.getString(1));
-					t.setVocabularyUid(cursor.getLong(2));
-					tagList.add(t);
-				}
-				while (cursor.moveToNext());
-				cursor.close();
-				db.close();
-				
-				return tagList;
-			}
-			else if (cursor != null) {
-				cursor.close();
-			}
-			db.close();
-		}
-		
-		return null;
-	}
-	
-	public Moment addSample(Moment s) {
-		Moment sCreated = null;
-		
-		if (s != null) {
-			boolean success = true;
-			SQLiteDatabase db = getDb();
-			 
-		    ContentValues values = new ContentValues();
-		    if (s.getTimestamp() != null) {
-		    	values.put("timestamp", String.valueOf(s.getTimestamp().getTime()));
-		    }
-		    else {
-		    	success = false;
-		    }
-		    values.put("title", s.getTitle());
-		    values.put("description", s.getDescription());
-		    if (s.getAccepted()) {
-		    	values.put("accepted", "1");
-		    }
-		    else {
-		    	values.put("accepted", "0");
-		    }
-		    values.put("photoUri", s.getPhotoUri());
-		    values.put("uptimeId", s.getUptimeId());
-		 
-		    if (success) {
-		    	long sampleId = db.insert(getTableName(), null, values);
-		    	sCreated = new Moment(sampleId);
-		    	sCreated.setAccepted(s.getAccepted());
-		    	if (s.getDescription() != null) {
-		    		sCreated.setDescription(s.getDescription());
-		    	}
-		    	if (s.getPhotoUri() != null) {
-		    		sCreated.setPhotoUri(s.getPhotoUri());
-		    	}
-		    	if (s.getTimestamp() != null) {
-		    		sCreated.setTimestamp(s.getTimestamp());
-		    	}
-		    	if (s.getTitle() != null) {
-		    		sCreated.setTitle(s.getTitle());
-		    	}
-		    	if (s.getUptimeId() != 0L) {
-		    		sCreated.setUptimeId(s.getUptimeId());
-		    	}
-		    }
-		    db.close();
-		    
-		    if (s.getTags().size() > 0) {
-		    	Iterator<VocabularyItem> i = s.getTags().iterator();
-		    	ValueVocabularyItemTable tt = new ValueVocabularyItemTable(this.getContext());
-		    	while (i.hasNext()) {
-		    		VocabularyItem t = i.next();
-		    		sCreated.addTag(tt.addTag(t.getVocabularyUid(), t.getName(), s.getId()));
-		    	}
-		    }
-		}
-		
-		return sCreated;
-	}
-	
-	public boolean editSample(Moment s) {
-		SQLiteDatabase db = getDb();
-		ValueVocabularyItemTable tt = new ValueVocabularyItemTable(this.getContext());
-		 
-	    ContentValues values = new ContentValues();
-	    values.put("title", s.getTitle());
-	    values.put("description", s.getDescription());
-	    if (s.getAccepted()) {
-	    	values.put("accepted", "1");
-	    }
-	    else {
-	    	values.put("accepted", "0");
-	    }
-	    values.put("photoUri", s.getPhotoUri());
-	    values.put("uptimeId", s.getUptimeId());
-	    
-	    int numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(s.getId()) });
-	    db.close();
-	    
-	    List<VocabularyItem> dbTagList = getTagsOfSample(s.getId());
-	    List<VocabularyItem> sTagList = s.getTags();
-	    
-	    if (sTagList.size() == 0 && dbTagList != null) {
-	    	//delete all
-	    	Iterator<VocabularyItem> i = dbTagList.iterator();
-	    	while (i.hasNext()) {
-	    		VocabularyItem t = i.next();
-	    		tt.removeTag(t.getVocabularyUid(), t.getName(), s.getId());
-	    	}
-	    }
-	    else if (sTagList.size() > 0 && dbTagList == null) {
-	    	//add all
-	    	Iterator<VocabularyItem> i = sTagList.iterator();
-	    	while (i.hasNext()) {
-	    		VocabularyItem t = i.next();
-	    		tt.addTag(t.getVocabularyUid(), t.getName(), s.getId());
-	    	}
-	    }
-	    else if (sTagList.size() > 0 && dbTagList != null) {
-	    	//sync, if changes
-	    	if (!sTagList.equals(dbTagList)) {
-	    		HashSet<String> sTagSet = new HashSet<String>();
-	    		Iterator<VocabularyItem> i = sTagList.iterator();
-	    		while (i.hasNext()) {
-	    			VocabularyItem t = i.next();
-	    			sTagSet.add(t.getName());
-	    		}
-	    		
-	    		HashSet<String> dbTagSet = new HashSet<String>();
-	    		i = dbTagList.iterator();
-	    		while (i.hasNext()) {
-	    			VocabularyItem t = i.next();
-	    			dbTagSet.add(t.getName());
-	    		}
-	    		
-	    		//sample side
-	    		i = sTagList.iterator();
-	    		while (i.hasNext()) {
-	    			VocabularyItem t = i.next();
-	    			if (!dbTagSet.contains(t.getName())) {
-	    				tt.addTag(t.getVocabularyUid(), t.getName(), s.getId());
-	    			}
-	    		}
-	    		
-	    		//db side
-	    		i = dbTagList.iterator();
-	    		while (i.hasNext()) {
-	    			VocabularyItem t = i.next();
-	    			if (!sTagSet.contains(t.getName())) {
-	    				tt.removeTag(t.getVocabularyUid(), t.getName(), s.getId());
-	    			}
-	    		}
-	    	}
-	    }
-		
-		return numRows == 1;
-	}
-
 }

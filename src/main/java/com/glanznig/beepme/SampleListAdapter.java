@@ -28,7 +28,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import com.glanznig.beepme.helper.PhotoUtils;
-import com.glanznig.beepme.view.SamplePhotoView;
+import com.glanznig.beepme.view.input.PhotoControl;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -51,7 +51,7 @@ public class SampleListAdapter extends ArrayAdapter<ListItem> {
 	    public TextView title;
 	    public TextView description;
 	    public TextView timestamp;
-	    public SamplePhotoView photo;
+	    public PhotoControl photo;
 	}
 	
 	static class HeaderHolder {
@@ -59,11 +59,11 @@ public class SampleListAdapter extends ArrayAdapter<ListItem> {
 	}
 	
 	private static class ImgLoadHandler extends Handler {
-		WeakReference<SamplePhotoView> view;
+		WeakReference<PhotoControl> view;
 		String uri;
 		
-		ImgLoadHandler(SamplePhotoView view, String uri) {
-			this.view = new WeakReference<SamplePhotoView>(view);
+		ImgLoadHandler(PhotoControl view, String uri) {
+			this.view = new WeakReference<PhotoControl>(view);
 			this.uri = uri;
 		}
 		
@@ -144,7 +144,7 @@ public class SampleListAdapter extends ArrayAdapter<ListItem> {
 				holder.title = (TextView)rowView.findViewById(R.id.sample_title);
 				holder.timestamp = (TextView)rowView.findViewById(R.id.sample_timestamp);
 				holder.description = (TextView)rowView.findViewById(R.id.sample_description);
-				holder.photo = (SamplePhotoView)rowView.findViewById(R.id.sample_photo);
+				holder.photo = (PhotoControl)rowView.findViewById(R.id.sample_photo);
 				holder.photo.setRights(false, false); // read only
 				rowView.setTag(holder);
 			}

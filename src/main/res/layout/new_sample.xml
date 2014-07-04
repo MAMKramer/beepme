@@ -99,7 +99,7 @@ http://beepme.yourexp.at
 
             </LinearLayout>
 	        
-	        <com.glanznig.beepme.view.SamplePhotoView
+	        <com.glanznig.beepme.view.input.PhotoControl
 	            android:id="@+id/new_sample_photoview"
 	            android:layout_width="wrap_content"
         		android:layout_height="wrap_content"

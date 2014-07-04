@@ -30,7 +30,6 @@ import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Beep;
 import com.glanznig.beepme.data.Moment;
-import com.glanznig.beepme.data.db.BeepTable;
 import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.data.util.PreferenceHandler;
 import com.glanznig.beepme.data.util.Statistics;
@@ -277,7 +276,7 @@ public class BeepActivity extends Activity {
 			alert.stop();
 		}
 		
-		Intent accept = new Intent(BeepActivity.this, NewSampleActivity.class);
+		Intent accept = new Intent(BeepActivity.this, ChangeMomentActivity.class);
 		accept.putExtra(getApplication().getClass().getPackage().getName() + ".Timestamp", beepTimestamp);
 		startActivity(accept);
 	}
@@ -293,11 +292,11 @@ public class BeepActivity extends Activity {
             inDecline = true;
 
             BeepMeApp app = (BeepMeApp) getApplication();
-            Moment sample = new Moment();
-            sample.setTimestamp(new Date(beepTimestamp));
-            sample.setAccepted(false);
-            sample.setUptimeUid(app.getCurrentUptime().getUid());
-            new MomentTable(this.getApplicationContext()).addSample(sample);
+            Moment moment = new Moment();
+            moment.setTimestamp(new Date(beepTimestamp));
+            moment.setAccepted(false);
+            moment.setUptimeUid(app.getCurrentUptime().getUid());
+            new MomentTable(this.getApplicationContext()).addMoment(moment);
             app.scheduleBeep();
 
             if (!BeepActivity.this.isFinishing()) {

@@ -26,7 +26,7 @@ http://beepme.yourexp.at
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal">
     
-    <com.glanznig.beepme.view.SamplePhotoView
+    <com.glanznig.beepme.view.input.PhotoControl
         android:id="@+id/sample_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
