@@ -21,8 +21,8 @@ http://beepme.yourexp.at
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.glanznig.beepme"
-    android:versionCode="22"
-    android:versionName="1.5.5"
+    android:versionCode="23"
+    android:versionName="1.99"
     android:installLocation="auto">
 
     <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
@@ -40,14 +40,19 @@ http://beepme.yourexp.at
         android:name=".BeepMeApp"
         android:theme="@android:style/Theme.Holo.Light"
         android:allowBackup="false">
-      
-	    <activity
+
+        <activity
+            android:name=".view.WelcomeActivity"
+            android:label="@string/app_name">
+        </activity>
+
+        <activity
 	        android:name=".view.MainActivity"
 	        android:label="@string/app_name">
-	        <intent-filter>
-	            <action android:name="android.intent.action.MAIN" />
-	            <category android:name="android.intent.category.LAUNCHER" />
-	         </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 	    </activity>
 	    
 	    <activity

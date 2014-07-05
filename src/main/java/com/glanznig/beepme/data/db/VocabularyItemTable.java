@@ -169,7 +169,7 @@ public class VocabularyItemTable extends StorageHandler {
 
             Log.i(TAG, "inserted values=" + values);
             long vocabularyItemId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
 
             // if no error occurred
             if (vocabularyItemId != -1) {
@@ -193,7 +193,7 @@ public class VocabularyItemTable extends StorageHandler {
             ContentValues values = getContentValues(vocabularyItem);
 
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(vocabularyItem.getUid()) });
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;
@@ -221,7 +221,7 @@ public class VocabularyItemTable extends StorageHandler {
             vocabularyItem = populateObject(cursor);
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return vocabularyItem;
     }
@@ -258,26 +258,35 @@ public class VocabularyItemTable extends StorageHandler {
         String fields = "_id, name, lang, value, predefined, vocabulary_id, translation_of";
         String itemWhere = "WHERE vocabulary_id=? AND lang=? AND predefined=?";
         String query = "SELECT " + fields + " FROM" +
-                "(SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + " AND " +
+                " (SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + " AND " +
                 "_id NOT IN (SELECT translation_of FROM " + getTableName() + " " + itemWhere + ") " +
                 "UNION SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + " " +
-                "UNION SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + ") ";
-        String filterQuery = query + "WHERE value LIKE '?%' ORDER BY value";
-        query += "ORDER BY value";
+                "UNION SELECT " + fields + " FROM " + getTableName() + " " + itemWhere + ") vo";
+        String filterQuery = query + " WHERE value LIKE '?%' ORDER BY value";
+        query += " ORDER BY value";
 
         String vocabularyUidStr = Long.valueOf(vocabularyUid).toString();
-        String[] args = new String[] { vocabularyUidStr, baseLang, "1",
-                vocabularyUidStr, locale.getLanguage(), "1",
-                vocabularyUidStr, locale.getLanguage(), "1",
-                vocabularyUidStr, locale.getLanguage(), "0" };
+        ArrayList<String> args = new ArrayList<String>();
+        args.add(vocabularyUidStr);
+        args.add(baseLang);
+        args.add("1");
+        args.add(vocabularyUidStr);
+        args.add(locale.getLanguage());
+        args.add("1");
+        args.add(vocabularyUidStr);
+        args.add(locale.getLanguage());
+        args.add("1");
+        args.add(vocabularyUidStr);
+        args.add(locale.getLanguage());
+        args.add("0");
 
         Cursor cursor = null;
         if (search.length() > 0) {
-            args[args.length] = search;
-            cursor = db.rawQuery(filterQuery, args);
+            args.add(search);
+            cursor = db.rawQuery(filterQuery, args.toArray(new String[]{}));
         }
         else {
-            cursor = db.rawQuery(query, args);
+            cursor = db.rawQuery(query, args.toArray(new String[]{}));
         }
 
         if (cursor != null && cursor.getCount() > 0) {
@@ -290,7 +299,7 @@ public class VocabularyItemTable extends StorageHandler {
             while (cursor.moveToNext());
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return list;
     }
@@ -315,11 +324,11 @@ public class VocabularyItemTable extends StorageHandler {
                 " va ON va.vocabulary_item_id=vo._id";
 
         String query = "SELECT " + fields + " FROM" +
-                "(SELECT " + fields + " " + tableJoin + " " + itemWhere + " AND " +
+                " (SELECT " + fields + " " + tableJoin + " " + itemWhere + " AND " +
                 "_id NOT IN (SELECT translation_of " + tableJoin + " " + itemWhere + ") " +
                 "UNION SELECT " + fields + " " + tableJoin + " " + itemWhere + " " +
-                "UNION SELECT " + fields + " " + tableJoin + " " + itemWhere + ") " +
-                "ORDER BY value";
+                "UNION SELECT " + fields + " " + tableJoin + " " + itemWhere + ") vo" +
+                " ORDER BY value";
 
         String valueUidStr = Long.valueOf(valueUid).toString();
         String[] args = new String[] { valueUidStr, baseLang, "1",
@@ -339,7 +348,7 @@ public class VocabularyItemTable extends StorageHandler {
             while (cursor.moveToNext());
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return list;
     }

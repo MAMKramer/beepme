@@ -54,6 +54,7 @@ public class PhotoControl extends LinearLayout implements InputControl {
     private Mode mode;
     private String name;
     private boolean mandatory;
+    private long inputElementUid = 0L;
 
     private ImageView photo;
     private View frameView;
@@ -374,6 +375,7 @@ public class PhotoControl extends LinearLayout implements InputControl {
     @Override
     public Value getValue() {
         SingleValue value = new SingleValue();
+        value.setInputElementUid(inputElementUid);
         value.setValue(photoUri);
 
         return value;
@@ -381,7 +383,9 @@ public class PhotoControl extends LinearLayout implements InputControl {
 
     @Override
     public void setHelpText(String help) {
-        this.help.setText(help);
+        if (this.help != null) {
+            this.help.setText(help);
+        }
     }
 
     @Override
@@ -407,5 +411,15 @@ public class PhotoControl extends LinearLayout implements InputControl {
     @Override
     public boolean getMandatory() {
         return mandatory;
+    }
+
+    @Override
+    public void setInputElementUid(long inputElementUid) {
+        this.inputElementUid = inputElementUid;
+    }
+
+    @Override
+    public long getInputElementUid() {
+        return inputElementUid;
     }
 }

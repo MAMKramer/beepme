@@ -95,7 +95,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 	        formBeepSound.setEntryValues(sounds.keySet().toArray(new Integer[sounds.size()]));
 
             PreferenceHandler prefs = ((BeepMeApp)getActivity().getApplication()).getPreferences();
-            Log.i(TAG, "beep="+prefs.getBeepSoundId());
             formBeepSound.setDefaultValue(prefs.getBeepSoundId());
 		}
 	}

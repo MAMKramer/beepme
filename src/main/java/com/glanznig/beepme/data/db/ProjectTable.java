@@ -186,14 +186,11 @@ public class ProjectTable extends StorageHandler {
     }
 
     /**
-     * Populates a uptime object by reading values from a cursor
+     * Populates a Project object by reading values from a cursor
      * @param cursor cursor object
-     * @return populated uptime object
+     * @return populated Project object
      */
     private Project populateObject(Cursor cursor) {
-        String[] a = new String[] { "_id", "name", "type", "status", "startA",
-                "expireA", "lang", "restrictionsA", "timer", "options" };
-
         Project project = new Project(cursor.getLong(0));
         project.setName(cursor.getString(1));
         project.setType(invTypeMap.get(cursor.getInt(2)));
@@ -213,7 +210,7 @@ public class ProjectTable extends StorageHandler {
         }
         String timerString = cursor.getString(8);
         if (timerString.startsWith("type=random")) {
-            timerString = timerString.substring(11);
+            timerString = timerString.substring(12);
             project.setTimer(RandomTimer.fromString(ctx, timerString));
         }
         String[] options = cursor.getString(9).split(",");
@@ -239,7 +236,7 @@ public class ProjectTable extends StorageHandler {
 
             Log.i(TAG, "inserted values="+values);
             long projectId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
             // only if no error occurred
             if (projectId != -1) {
                 newProject = new Project(projectId);
@@ -262,7 +259,7 @@ public class ProjectTable extends StorageHandler {
             ContentValues values = getContentValues(project);
 
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(project.getUid()) });
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;
@@ -285,7 +282,7 @@ public class ProjectTable extends StorageHandler {
             project = populateObject(cursor);
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return project;
     }

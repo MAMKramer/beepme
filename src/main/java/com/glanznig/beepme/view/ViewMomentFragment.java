@@ -43,6 +43,7 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,7 +103,8 @@ public class ViewMomentFragment extends Fragment implements Callback {
             HashMap<String, Value> values = moment.getValues();
             viewManager.setValues(values);
 
-			TextView timestamp = (TextView)getView().findViewById(R.id.view_sample_timestamp);
+            //todo add title and timestamp to view manager
+			/*TextView timestamp = (TextView)getView().findViewById(R.id.view_sample_timestamp);
 			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 			timestamp.setText(dateFormat.format(moment.getTimestamp()));
 			
@@ -112,7 +114,7 @@ public class ViewMomentFragment extends Fragment implements Callback {
 			}
 			else {
 				title.setText(getString(R.string.sample_untitled));
-			}
+			}*/
 			
 			/*TextView description = (TextView)getView().findViewById(R.id.view_sample_description);
 			if (moment.getDescription() != null && moment.getDescription().length() > 0) {

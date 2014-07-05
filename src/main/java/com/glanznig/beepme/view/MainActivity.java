@@ -60,14 +60,14 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        final BeepMeApp app = (BeepMeApp)getApplication();
+
 		setContentView(R.layout.main);
 		
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		
         pagerAdapter = new MainSectionsPagerAdapter(getSupportFragmentManager(), this);
         final ActionBar actionBar = getActionBar();
-        
-        final BeepMeApp app = (BeepMeApp)getApplication();
         
         if (app.getPreferences().isTestMode()) {
         	actionBar.setSubtitle(getString(R.string.pref_title_test_mode));
@@ -105,12 +105,17 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	@Override
 	public void onResume() {
 		super.onResume();
+
+        final BeepMeApp app = (BeepMeApp)getApplication();
+        if (app.getPreferences().getProjectId() == 0L) {
+            Intent intent = new Intent(this, WelcomeActivity.class);
+            startActivity(intent);
+        }
 		
 		// make sure the current state is reflected in the options menu
 		invalidateOptionsMenu();
 		
 		//make sure that scheduled beeps do not expire due to an error
-		BeepMeApp app = (BeepMeApp)getApplication();
 		if (app.isBeeperActive()) {
             Beep currentBeep = app.getCurrentScheduledBeep();
 			

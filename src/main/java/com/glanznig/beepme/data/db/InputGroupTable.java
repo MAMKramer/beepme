@@ -135,7 +135,7 @@ public class InputGroupTable extends StorageHandler {
 
             Log.i(TAG, "inserted values=" + values);
             long groupId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
 
             // if no error occurred
             if (groupId != -1) {
@@ -159,7 +159,7 @@ public class InputGroupTable extends StorageHandler {
             ContentValues values = getContentValues(group);
 
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(group.getUid()) });
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;
@@ -187,7 +187,7 @@ public class InputGroupTable extends StorageHandler {
             while (cursor.moveToNext());
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return inputGroupList;
     }

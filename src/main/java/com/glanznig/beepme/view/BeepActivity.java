@@ -44,6 +44,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -283,8 +284,8 @@ public class BeepActivity extends Activity {
 	
 	public void declinePause() {
 		BeepMeApp app = (BeepMeApp)getApplication();
-		app.setBeeperStatus(PreferenceHandler.BeeperStatus.INACTIVE);
 		decline();
+        app.setBeeperStatus(PreferenceHandler.BeeperStatus.INACTIVE);
 	}
 	
 	public void decline() {
@@ -293,6 +294,7 @@ public class BeepActivity extends Activity {
 
             BeepMeApp app = (BeepMeApp) getApplication();
             Moment moment = new Moment();
+            moment.setProjectUid(app.getPreferences().getProjectId());
             moment.setTimestamp(new Date(beepTimestamp));
             moment.setAccepted(false);
             moment.setUptimeUid(app.getCurrentUptime().getUid());

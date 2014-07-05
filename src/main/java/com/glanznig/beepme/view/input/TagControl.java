@@ -57,6 +57,7 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
     private String name;
     private boolean mandatory;
     private boolean restrictEdit;
+    private long inputElementUid = 0L;
 
     private TextView help;
     private AutoCompleteTextView tagInput;
@@ -177,7 +178,9 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
 
     @Override
     public void setHelpText(String help) {
-        this.help.setText(help);
+        if (this.help != null) {
+            this.help.setText(help);
+        }
     }
 
     @Override
@@ -188,6 +191,16 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         else if (mode.equals(Mode.VIEW) || (mode.equals(Mode.EDIT) && restrictEdit)) {
             this.title.setText(title);
         }
+    }
+
+    @Override
+    public void setInputElementUid(long inputElementUid) {
+        this.inputElementUid = inputElementUid;
+    }
+
+    @Override
+    public long getInputElementUid() {
+        return inputElementUid;
     }
 
     @Override
@@ -225,6 +238,7 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
     @Override
     public Value getValue() {
         MultiValue value = new MultiValue();
+        value.setInputElementUid(inputElementUid);
         Iterator<VocabularyItem> itemIterator = vocabularyItems.iterator();
         while (itemIterator.hasNext()) {
             VocabularyItem item = itemIterator.next();

@@ -37,6 +37,7 @@ import com.glanznig.beepme.data.db.MomentTable;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,7 +77,14 @@ public class MomentListFragment extends ListFragment {
 	
 	private void populateList() {
         BeepMeApp app = (BeepMeApp)getActivity().getApplication();
-		List<Moment> momentList = new MomentTable(getActivity().getApplicationContext()).getMoments(app.getCurrentProject().getUid());
+		List<Moment> momentList = null;
+        if (app.getPreferences().getProjectId() != 0L) {
+            momentList = new MomentTable(getActivity().getApplicationContext()).getMoments(app.getPreferences().getProjectId());
+        }
+        else {
+            momentList = new ArrayList<Moment>();
+        }
+
 		ArrayList<ListItem> viewList = new ArrayList<ListItem>();
 		
 		Iterator<Moment> momentIterator = momentList.iterator();

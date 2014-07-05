@@ -137,7 +137,7 @@ public class UptimeTable extends StorageHandler {
             ContentValues values = getContentValues(uptime);
 
             long uptimeId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
 
             // if no error occurred
             if (uptimeId != -1) {
@@ -161,7 +161,7 @@ public class UptimeTable extends StorageHandler {
             ContentValues values = getContentValues(uptime);
 
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(uptime.getUid()) });
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;
@@ -175,7 +175,7 @@ public class UptimeTable extends StorageHandler {
         SQLiteDatabase db = getDb();
         Uptime u = null;
 
-        Cursor cursor = db.query(getTableName(), new String[] { "_id", "start", "end", "timerProfileId" },
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "start", "end", "project_id" },
                 "_id=?", new String[] { Long.valueOf(uid).toString() }, null, null, null, null);
 
         if (cursor != null && cursor.getCount() > 0) {
@@ -183,7 +183,7 @@ public class UptimeTable extends StorageHandler {
             u = populateObject(cursor);
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return u;
     }
@@ -197,7 +197,7 @@ public class UptimeTable extends StorageHandler {
 		ArrayList<Uptime> list = new ArrayList<Uptime>();
 		SQLiteDatabase db = getDb();
 		
-		Cursor cursor = db.query(getTableName(), new String[] { "_id", "start", "end", "timerProfileId" },
+		Cursor cursor = db.query(getTableName(), new String[] { "_id", "start", "end", "project_id" },
 				null, null, null, null, "start DESC", null);
 		
 		if (cursor != null && cursor.getCount() > 0) {
@@ -208,7 +208,7 @@ public class UptimeTable extends StorageHandler {
 			while (cursor.moveToNext());
 			cursor.close();
 		}
-		db.close();
+		closeDb();
 		
 		return list;
 	}
@@ -233,7 +233,7 @@ public class UptimeTable extends StorageHandler {
 			SQLiteDatabase db = getDb();
 			
 			// distinct start values
-			Cursor cursor = db.query(true, getTableName(), new String[] { "_id", "start", "end", "timerProfileId" },
+			Cursor cursor = db.query(true, getTableName(), new String[] { "_id", "start", "end", "project_id" },
 					"start between ? and ? OR end between ? and ?", new String[] { String.valueOf(startOfDay),
 					String.valueOf(endOfDay), String.valueOf(startOfDay),
 					String.valueOf(endOfDay) }, "start", null, "start DESC", null);
@@ -246,7 +246,7 @@ public class UptimeTable extends StorageHandler {
 				while (cursor.moveToNext());
 				cursor.close();
 			}
-			db.close();
+			closeDb();
 		}
 		return list;
 	}
@@ -258,17 +258,17 @@ public class UptimeTable extends StorageHandler {
     public Uptime getMostRecentUptime() {
         SQLiteDatabase db = getDb();
 
-        Cursor cursor = db.query(getTableName(), new String[] { "_id", "start", "end", "timerProfileId" },
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "start", "end", "project_id" },
                 null, null, null, null, "start DESC", null);
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             Uptime u = populateObject(cursor);
             cursor.close();
-            db.close();
+            closeDb();
             return u;
         }
-        db.close();
+        closeDb();
 
         return null;
     }

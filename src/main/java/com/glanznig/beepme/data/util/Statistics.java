@@ -207,7 +207,13 @@ public class Statistics {
 		
 		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
         BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
-        List<Moment> moments = momentTable.getAllMomentsOfDay(app.getCurrentProject().getUid(), day);
+        List<Moment> moments = null;
+        if (app.getPreferences().getProjectId() != 0L) {
+            moments = momentTable.getAllMomentsOfDay(app.getPreferences().getProjectId(), day);
+        }
+        else {
+            moments = new ArrayList<Moment>();
+        }
 		
 		if (moments != null && moments.size() > 0) {
 			for (int i = 0; i < moments.size(); i++) {
@@ -241,7 +247,13 @@ public class Statistics {
 		List<Uptime> uptimes = upTbl.getUptimes();
 		MomentTable momentTable = new MomentTable(ctx.getApplicationContext());
         BeepMeApp app = (BeepMeApp)ctx.getApplicationContext();
-		List<Moment> moments = momentTable.getAllMoments(app.getCurrentProject().getUid());
+		List<Moment> moments = null;
+        if (app.getPreferences().getProjectId() != 0L) {
+            moments = momentTable.getAllMoments(app.getPreferences().getProjectId());
+        }
+        else {
+            moments = new ArrayList<Moment>();
+        }
 		
 		if (uptimes != null && moments != null) {
 			TreeMap<Long, Bundle> map = new TreeMap<Long, Bundle>(new NegativeComparator());

@@ -198,7 +198,9 @@ public class InputElement {
      * @param restriction restriction to add or update
      */
     public void setRestriction(Restriction restriction) {
-        restrictions.put(restriction.getType(), restriction);
+        if (restriction != null) {
+            restrictions.put(restriction.getType(), restriction);
+        }
     }
 
     /**

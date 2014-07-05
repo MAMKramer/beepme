@@ -20,12 +20,16 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data;
 
+import android.util.Log;
+
 /**
  * A restriction defines an allowance or prohibition (as deviation from the default baseline).
  * Restrictions are related to edit and delete actions and can be valid for a certain time
  * period only. Such a time period is normally related to the creation of a moment.
  */
 public class Restriction {
+
+    private static final String TAG = "Restriction";
 
     public enum RestrictionType {
         EDIT, DELETE
@@ -87,7 +91,7 @@ public class Restriction {
      * @return amount of seconds how long this restriction is valid (normally amount of seconds
      * from the creation of a moment)
      */
-    public long getUntil() {
+    public Long getUntil() {
         return until;
     }
 
@@ -129,6 +133,7 @@ public class Restriction {
      * @return Restriction object, or null if string representation was not valid
      */
     public static Restriction fromString(String objRepresentation) {
+        Log.i(TAG, "parsing: "+objRepresentation);
         if (objRepresentation.toLowerCase().matches("^type=(edit|delete),allowed=(yes|no)(,until=\\d+)?$")) {
             String type = "";
             String allowed = "";
@@ -165,7 +170,7 @@ public class Restriction {
             }
 
             Restriction restriction = new Restriction(resType, allow);
-            if (until != null) {
+            if (until != null && until.length() > 0) {
                 restriction.setUntil(Long.valueOf(until));
             }
 

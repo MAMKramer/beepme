@@ -87,7 +87,7 @@ public class ValueVocabularyItemTable extends StorageHandler {
             values.put("value_id", valueUid);
             values.put("vocabulary_item_id", vocabularyItemUid);
             db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
         }
     }
 
@@ -105,7 +105,7 @@ public class ValueVocabularyItemTable extends StorageHandler {
             values.put("vocabulary_item_id", vocabularyItemUid);
 
             int rows = db.delete(TBL_NAME, "value_id=? AND vocabulary_item_id=?", new String[] { String.valueOf(valueUid), String.valueOf(vocabularyItemUid) });
-            db.close();
+            closeDb();
 
             return rows == 1;
         }
@@ -125,7 +125,7 @@ public class ValueVocabularyItemTable extends StorageHandler {
             values.put("value_id", valueUid);
 
             int rows = db.delete(TBL_NAME, "value_id=?", new String[] { String.valueOf(valueUid) });
-            db.close();
+            closeDb();
 
             return rows == 1;
         }

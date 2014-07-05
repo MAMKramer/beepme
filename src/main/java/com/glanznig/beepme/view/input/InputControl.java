@@ -41,6 +41,18 @@ public interface InputControl {
     public void setHelpText(String help);
 
     /**
+     * Sets the uid of the input element definition of this control
+     * @param inputElementUid uid of input element definition
+     */
+    public void setInputElementUid(long inputElementUid);
+
+    /**
+     * Gets the uid of the input element definition of this control
+     * @return uid of input element definition or 0L if not set
+     */
+    public long getInputElementUid();
+
+    /**
      * Sets the name (display id) of this input control.
      * @param name name (display id)
      */

@@ -35,6 +35,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 /**
  * Represents the table MOMENT (basic information about moment with/out values).
@@ -156,7 +157,7 @@ public class MomentTable extends StorageHandler {
             while (cursor.moveToNext());
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return idList;
     }
@@ -208,7 +209,7 @@ public class MomentTable extends StorageHandler {
 
             cursor.close();
         }
-		db.close();
+		closeDb();
 		
 		return moment;
 	}
@@ -283,10 +284,11 @@ public class MomentTable extends StorageHandler {
         ValueTable valueTable = new ValueTable(ctx);
 
         String where = "project_id=?";
-        String[] whereArgs = new String[] { Long.valueOf(projectUid).toString() };
+        ArrayList<String> whereArgs = new ArrayList<String>();
+        whereArgs.add(Long.valueOf(projectUid).toString());
         if (declined == false) {
             where += " AND accepted=?";
-            whereArgs[1] = "1";
+            whereArgs.add("1");
         }
         if (day != null && day.isSet(Calendar.YEAR) && day.isSet(Calendar.MONTH) && day.isSet(Calendar.DAY_OF_MONTH)) {
             long startOfDay = day.getTimeInMillis();
@@ -295,12 +297,12 @@ public class MomentTable extends StorageHandler {
             day.roll(Calendar.DAY_OF_MONTH, false);
 
             where += " AND timestamp between ? and ?";
-            whereArgs[whereArgs.length - 1] = Long.valueOf(startOfDay).toString();
-            whereArgs[whereArgs.length - 1] = Long.valueOf(endOfDay).toString();
+            whereArgs.add(Long.valueOf(startOfDay).toString());
+            whereArgs.add(Long.valueOf(endOfDay).toString());
         }
 
         Cursor cursor = db.query(getTableName(), new String[] { "_id", "timestamp", "accepted",
-                "uptime_id", "project_id" }, where, whereArgs, null, null, "timestamp DESC");
+                "uptime_id", "project_id" }, where, whereArgs.toArray(new String[]{}), null, null, "timestamp DESC");
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -322,7 +324,7 @@ public class MomentTable extends StorageHandler {
             while (cursor.moveToNext());
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return momentList;
     }
@@ -340,7 +342,7 @@ public class MomentTable extends StorageHandler {
             ContentValues values = getContentValues(moment);
 
             long momentId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
             // only if no error occurred
             if (momentId != -1) {
                 newMoment = new Moment(momentId);
@@ -364,7 +366,7 @@ public class MomentTable extends StorageHandler {
         valueTable.deleteValues(uid);
 
         int rows = db.delete(TBL_NAME, "_id=?", new String[] { String.valueOf(uid) });
-        db.close();
+        closeDb();
 
         return rows == 1;
     }

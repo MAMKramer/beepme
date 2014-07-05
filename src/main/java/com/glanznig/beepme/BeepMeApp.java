@@ -59,6 +59,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 public class BeepMeApp extends Application { //implements SharedPreferences.OnSharedPreferenceChangeListener {
 	
@@ -87,12 +88,13 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
      * @return current project, or null if none
      */
     public Project getCurrentProject() {
+        Project project = null;
         long projectId = getPreferences().getProjectId();
         if (projectId != 0L) {
-            return new ProjectTable(this.getApplicationContext()).getProject(projectId);
+            project = new ProjectTable(this.getApplicationContext()).getProject(projectId);
         }
 
-        return null;
+        return project;
     }
 
     /**
@@ -114,8 +116,10 @@ public class BeepMeApp extends Application { //implements SharedPreferences.OnSh
     public void startUptime() {
         if (getCurrentUptime() == null) {
             Uptime uptime = new Uptime();
+            uptime.setProjectUid(getPreferences().getProjectId());
             uptime.setStart(Calendar.getInstance().getTime());
             uptime = new UptimeTable(this.getApplicationContext()).addUptime(uptime);
+            Log.i(TAG, "uptimeUid="+uptime.getUid());
             getPreferences().setUptimeId(uptime.getUid());
         }
     }

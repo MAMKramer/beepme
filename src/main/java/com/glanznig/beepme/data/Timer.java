@@ -53,7 +53,7 @@ public abstract class Timer {
     }
 
     /**
-     * Gets the next scheduled beep (positive offset now in milliseconds) according to timer
+     * Gets the next scheduled beep (positive offset from now in milliseconds) according to timer
      * strategy. Has to be implemented by specific subclass.
      * @return next scheduled beep (positive offset from now in milliseconds)
      */

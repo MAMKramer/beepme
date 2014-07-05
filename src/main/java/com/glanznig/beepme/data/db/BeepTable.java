@@ -180,7 +180,7 @@ public class BeepTable extends StorageHandler {
             ContentValues values = getContentValues(beep);
 
             long beepId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
 
             // if no error occurred
             if (beepId != -1) {
@@ -204,7 +204,7 @@ public class BeepTable extends StorageHandler {
             ContentValues values = getContentValues(beep);
 
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(beep.getUid()) });
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;
@@ -227,7 +227,7 @@ public class BeepTable extends StorageHandler {
             beep = populateObject(cursor);
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return beep;
     }

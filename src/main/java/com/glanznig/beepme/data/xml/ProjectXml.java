@@ -117,6 +117,14 @@ public class ProjectXml {
     }
 
     /**
+     * Gets the project represented by this XML structure.
+     * @return the project, or null if an error or not set (yet).
+     */
+    public Project getProject() {
+        return mProject;
+    }
+
+    /**
      * Verifies (yes/no only) if the supplied XML document adheres to the internally specified
      * XML Schema.
      * @param xml XML document as String
@@ -409,7 +417,7 @@ public class ProjectXml {
                     String id = parser.getAttributeValue(null, "id");
                     mRefs.add(currentVocabulary.getName()+"_"+id);
                     currentVocabularyItem = new VocabularyItem(true);
-                    //currentVocabularyItem.setName(id);
+                    currentVocabularyItem.setName(id);
                     currentVocabularyItem.setLanguage(new Locale(currentLanguage));
                 }
             }
@@ -441,6 +449,7 @@ public class ProjectXml {
                     // referencing an element that does not exist
                     else {
                         valid = false;
+                        Log.d(TAG, "referencing element that does not exist");
                     }
                     currentVocabularyItem = null;
                 }
@@ -566,6 +575,7 @@ public class ProjectXml {
                             // this is not valid
                             else if (predefined.equals("true")) {
                                 valid = false;
+                                Log.d(TAG, "vocabulary not defined, predefined only");
                             }
                         }
                     }
@@ -605,6 +615,7 @@ public class ProjectXml {
                     // referenced input element does not exist
                     else {
                         valid = false;
+                        Log.d(TAG, "referenced input element does not exist");
                     }
                 }
             }

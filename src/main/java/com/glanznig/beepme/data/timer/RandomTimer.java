@@ -1,6 +1,7 @@
 package com.glanznig.beepme.data.timer;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.glanznig.beepme.data.Beep;
 import com.glanznig.beepme.data.Timer;
@@ -13,6 +14,8 @@ import com.glanznig.beepme.data.Timer;
  * at AVG and reaching zero probability at MIN and MAX.
  */
 public class RandomTimer extends Timer {
+
+    private static final String TAG = "RandomTimer";
 
     public enum TimerStrategy {
         INTERVAL, AVERAGE
@@ -78,8 +81,13 @@ public class RandomTimer extends Timer {
         return 0L;
     }
 
+    /**
+     * todo implement !!!
+     * @return
+     */
+    @Override
     public long getNext() {
-        return 0L;
+        return 60000;
     }
 
     /**
@@ -163,7 +171,7 @@ public class RandomTimer extends Timer {
             }
 
             RandomTimer randomTimer = new RandomTimer(ctx, timerStrategy, minVal, maxVal);
-            if (avg != null) {
+            if (avg != null && avg.length() > 0) {
                 randomTimer.setAvg(Long.valueOf(avg));
             }
 

@@ -150,7 +150,7 @@ public class TranslationElementTable extends StorageHandler {
 
             Log.i(TAG, "inserted values=" + values);
             long elementId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
 
             // if no error occurred
             if (elementId != -1) {
@@ -174,7 +174,7 @@ public class TranslationElementTable extends StorageHandler {
             ContentValues values = getContentValues(element);
 
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(element.getUid()) });
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;

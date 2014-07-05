@@ -114,7 +114,7 @@ public class VocabularyTable extends StorageHandler {
 
             Log.i(TAG, "inserted values=" + values);
             long vocabularyId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
 
             // if no error occurred
             if (vocabularyId != -1) {
@@ -138,7 +138,7 @@ public class VocabularyTable extends StorageHandler {
             ContentValues values = getContentValues(vocabulary);
 
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(vocabulary.getUid()) });
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;

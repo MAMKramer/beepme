@@ -23,6 +23,7 @@ package com.glanznig.beepme.data.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.glanznig.beepme.R;
 
@@ -36,6 +37,7 @@ public class PreferenceHandler {
 	public static final String KEY_UPTIME_ID = "uptimeId";
 	public static final String KEY_SCHEDULED_BEEP_ID = "scheduledBeepId";
     public static final String KEY_PROJECT_ID = "projectId";
+    public static final String KEY_PROJECT_ID_TEST_MODE = "projectId_testMode";
 	public static final String KEY_EXPORT_RUNNING_SINCE = "exportIsRunningSince";
 	public static final String KEY_IS_CALL = "isCall";
 	public static final String KEY_PAUSE_BEEPER_DURING_CALL = "pauseBeeperDuringCall";
@@ -147,6 +149,9 @@ public class PreferenceHandler {
      */
     public long getProjectId() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        if (isTestMode()) {
+            return prefs.getLong(KEY_PROJECT_ID_TEST_MODE, 0L);
+        }
         return prefs.getLong(KEY_PROJECT_ID, 0L);
     }
 
@@ -157,7 +162,12 @@ public class PreferenceHandler {
     public void setProjectId(long projectId) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong(KEY_PROJECT_ID, projectId);
+        if (isTestMode()) {
+            editor.putLong(KEY_PROJECT_ID_TEST_MODE, projectId);
+        }
+        else {
+            editor.putLong(KEY_PROJECT_ID, projectId);
+        }
         editor.commit();
     }
 

@@ -198,8 +198,10 @@ public class InputElementTable extends StorageHandler {
         if (!cursor.isNull(5)) {
             String[] options = cursor.getString(5).split(",");
             for (int i=0; i < options.length; i++) {
-                String option[] = options[i].split("=");
-                inputElement.setOption(option[0], option[1]);
+                if (options[i].length() > 0) {
+                    String option[] = options[i].split("=");
+                    inputElement.setOption(option[0], option[1]);
+                }
             }
         }
         if (!cursor.isNull(6)) {
@@ -224,7 +226,7 @@ public class InputElementTable extends StorageHandler {
 
             Log.i(TAG, "inserted values=" + values);
             long elementId = db.insert(getTableName(), null, values);
-            db.close();
+            closeDb();
 
             // if no error occurred
             if (elementId != -1) {
@@ -249,7 +251,7 @@ public class InputElementTable extends StorageHandler {
 
             Log.i(TAG, "updated values=" + values);
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(element.getUid()) });
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;
@@ -265,18 +267,18 @@ public class InputElementTable extends StorageHandler {
         SQLiteDatabase db = getDb();
         InputElement inputElement = null;
 
-        Cursor cursor = db.query(getTableName(), new String[] { "_id", "type", "name", "mandatory",
-                        "restrict", "options", "vocabulary_id", "input_group_id" },
-                "project_id=? AND name=?",
-                new String[] { Long.valueOf(projectUid).toString(), name },
-                null, null, null, null);
+        Cursor cursor = db.rawQuery("SELECT ie._id, ie.type, ie.name, ie.mandatory, ie.restrict," +
+                            " ie.options, ie.vocabulary_id, ie.input_group_id" +
+                            " FROM " + getTableName() + " ie, " + InputGroupTable.getTableName() + " ig" +
+                            " WHERE ie.input_group_id=ig._id AND ie.name=? AND ig.project_id=?",
+                            new String[] { name, Long.valueOf(projectUid).toString() });
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             inputElement = populateObject(cursor);
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return inputElement;
     }
@@ -290,19 +292,19 @@ public class InputElementTable extends StorageHandler {
         SQLiteDatabase db = getDb();
         InputElement inputElement = null;
 
-        Cursor cursor = db.query(getTableName(), new String[] { "_id", "type", "name", "mandatory",
-                        "restrict", "options", "vocabulary_id", "input_group_id" },
-                "project_id=? AND type=?",
+        Cursor cursor = db.rawQuery("SELECT ie._id, ie.type, ie.name, ie.mandatory, ie.restrict," +
+                        " ie.options, ie.vocabulary_id, ie.input_group_id" +
+                        " FROM " + getTableName() + " ie, " + InputGroupTable.getTableName() + " ig" +
+                        " WHERE ie.input_group_id=ig._id AND ig.project_id=? AND ie.type=?",
                 new String[] { Long.valueOf(projectUid).toString(),
-                        Integer.valueOf(typeMap.get(InputElement.InputElementType.PHOTO)).toString() },
-                null, null, null, null);
+                               Integer.valueOf(typeMap.get(InputElement.InputElementType.PHOTO)).toString() });
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             inputElement = populateObject(cursor);
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return inputElement;
     }
@@ -316,10 +318,11 @@ public class InputElementTable extends StorageHandler {
         SQLiteDatabase db = getDb();
         ArrayList<InputElement> inputElementList = new ArrayList<InputElement>();
 
-        Cursor cursor = db.query(getTableName(), new String[] { "_id", "type", "name", "mandatory",
-                        "restrict", "options", "vocabulary_id", "input_group_id" },
-                "project_id=?", new String[] { Long.valueOf(projectUid).toString() },
-                null, null, null, null);
+        Cursor cursor = db.rawQuery("SELECT ie._id, ie.type, ie.name, ie.mandatory, ie.restrict," +
+                        " ie.options, ie.vocabulary_id, ie.input_group_id" +
+                        " FROM " + getTableName() + " ie, " + InputGroupTable.getTableName() + " ig" +
+                        " WHERE ie.input_group_id=ig._id AND ig.project_id=?",
+                new String[] { Long.valueOf(projectUid).toString() });
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -330,7 +333,7 @@ public class InputElementTable extends StorageHandler {
             while (cursor.moveToNext());
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return inputElementList;
     }
@@ -358,7 +361,7 @@ public class InputElementTable extends StorageHandler {
             while (cursor.moveToNext());
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return inputElementList;
     }

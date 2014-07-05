@@ -25,6 +25,7 @@ public class TextControl extends LinearLayout implements InputControl {
     private String name;
     private boolean mandatory;
     private boolean restrictEdit;
+    private long inputElementUid = 0L;
 
     private EditText textInput;
     private TextView textDisplay;
@@ -131,6 +132,7 @@ public class TextControl extends LinearLayout implements InputControl {
     @Override
     public Value getValue() {
         SingleValue value = new SingleValue();
+        value.setInputElementUid(inputElementUid);
         if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && !restrictEdit)) {
             value.setValue(textInput.getText().toString());
         }
@@ -142,7 +144,9 @@ public class TextControl extends LinearLayout implements InputControl {
 
     @Override
     public void setHelpText(String help) {
-        this.help.setText(help);
+        if (this.help != null) {
+            this.help.setText(help);
+        }
     }
 
     @Override
@@ -173,5 +177,15 @@ public class TextControl extends LinearLayout implements InputControl {
     @Override
     public boolean getMandatory() {
         return mandatory;
+    }
+
+    @Override
+    public void setInputElementUid(long inputElementUid) {
+        this.inputElementUid = inputElementUid;
+    }
+
+    @Override
+    public long getInputElementUid() {
+        return inputElementUid;
     }
 }

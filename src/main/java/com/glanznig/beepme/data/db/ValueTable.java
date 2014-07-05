@@ -160,7 +160,7 @@ public class ValueTable extends StorageHandler {
                 }
             }
         }
-        db.close();
+        closeDb();
 
         return value;
     }
@@ -200,7 +200,7 @@ public class ValueTable extends StorageHandler {
             while (cursor.moveToNext());
             cursor.close();
         }
-        db.close();
+        closeDb();
 
         return valueList;
     }
@@ -233,7 +233,7 @@ public class ValueTable extends StorageHandler {
                 }
             }
 
-            db.close();
+            closeDb();
             // only if no error occurred
             if (valueUid != -1) {
                 if (value instanceof SingleValue) {
@@ -274,7 +274,7 @@ public class ValueTable extends StorageHandler {
                     valueVocabularyItemTable.addValueVocabularyItem(value.getUid(), vocabularyItem.getUid());
                 }
             }
-            db.close();
+            closeDb();
         }
 
         return numRows == 1;
@@ -289,6 +289,6 @@ public class ValueTable extends StorageHandler {
 
         int rows = db.delete(getTableName(), "moment_id=?", new String[] { Long.valueOf(momentUid).toString() });
         // todo: multivalues (also delete orphaned user-added vocabulary items?)
-        db.close();
+        closeDb();
     }
 }

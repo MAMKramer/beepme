@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -125,7 +126,8 @@ public class ViewMomentActivity extends FragmentActivity {
             Restriction restriction = restrictionIterator.next();
 
             boolean allowed = restriction.getAllowed();
-            if ((Calendar.getInstance().getTimeInMillis() - moment.getTimestamp().getTime()) >= restriction.getUntil() * 1000) {
+            Long until = restriction.getUntil();
+            if (until != null && (Calendar.getInstance().getTimeInMillis() - moment.getTimestamp().getTime()) >= until * 1000) {
                 allowed = !allowed;
             }
 

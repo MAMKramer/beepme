@@ -222,6 +222,7 @@ public class ViewManager {
         TextControl textControl = null;
         if (inputElement.getType().equals(InputElement.InputElementType.TEXT)) {
             textControl = new TextControl(ctx, mode, inputElement.getRestrictions());
+            textControl.setInputElementUid(inputElement.getUid());
             textControl.setName(inputElement.getName());
             textControl.setMandatory(inputElement.isMandatory());
             if (inputElement.getOption("lines") != null) {
@@ -247,6 +248,7 @@ public class ViewManager {
         TagControl tagControl = null;
         if (inputElement.getType().equals(InputElement.InputElementType.TAGS)) {
             tagControl = new TagControl(ctx, mode, inputElement.getRestrictions());
+            tagControl.setInputElementUid(inputElement.getUid());
             tagControl.setName(inputElement.getName());
             tagControl.setMandatory(inputElement.isMandatory());
             tagControl.setVocabularyUid(inputElement.getVocabularyUid());
@@ -269,6 +271,7 @@ public class ViewManager {
         PhotoControl photoControl = null;
         if (inputElement.getType().equals(InputElement.InputElementType.PHOTO)) {
             photoControl = new PhotoControl(ctx, mode, inputElement.getRestrictions());
+            photoControl.setInputElementUid(inputElement.getUid());
             photoControl.setName(inputElement.getName());
             photoControl.setMandatory(inputElement.isMandatory());
             // todo add specific parameters

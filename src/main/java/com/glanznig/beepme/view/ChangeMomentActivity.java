@@ -52,6 +52,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -158,6 +159,7 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         actionBar.setCustomView(customActionBarView);
 
+        //todo add title and timestamp to view manager
         if (mode == InputControl.Mode.CREATE) {
             setContentView(viewManager.getLayout(InputControl.Mode.CREATE));
             setTitle(R.string.new_sample);
@@ -179,11 +181,11 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
                 // we are in create mode
 				if (intentExtras.containsKey(getApplication().getClass().getPackage().getName() + ".Timestamp")) {
 					long timestamp = intentExtras.getLong(getApplication().getClass().getPackage().getName() + ".Timestamp");
+                    BeepMeApp app = (BeepMeApp)getApplication();
                     moment = new Moment();
+                    moment.setProjectUid(app.getPreferences().getProjectId());
 					moment.setTimestamp(new Date(timestamp));
 					moment.setAccepted(true);
-
-                    BeepMeApp app = (BeepMeApp)getApplication();
                     moment.setUptimeUid(app.getCurrentUptime().getUid());
 
 					moment = momentTable.addMoment(moment);
@@ -328,6 +330,9 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
             if (momentValue != null) {
                 // value of moment needs to be updated - if there have been changes
                 if (momentValue instanceof SingleValue) {
+                    if (controlValue == null) {
+                        Log.i(TAG, "uh oh");
+                    }
                     if (!((SingleValue)momentValue).getValue().equals(((SingleValue)controlValue).getValue())) {
                         ((SingleValue)momentValue).setValue(((SingleValue)controlValue).getValue());
                         valueTable.updateValue(momentValue);
@@ -344,12 +349,13 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
             }
             else {
                 // new value has to be added to moment
+                controlValue.setMomentUid(moment.getUid());
                 controlValue = valueTable.addValue(controlValue);
                 moment.setValue(control.getName(), controlValue);
             }
         }
 	}
-	
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		

@@ -21,6 +21,8 @@ http://beepme.yourexp.at
 package com.glanznig.beepme.data.db;
 
 import com.glanznig.beepme.BeepMeApp;
+import com.glanznig.beepme.data.InputGroup;
+import com.glanznig.beepme.data.TranslationElement;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -37,7 +39,7 @@ public class StorageHandler {
      */
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		
-		protected static final int DB_VERSION = 19; //todo: move to 20
+		protected static final int DB_VERSION = 20;
 		
 		public DatabaseHelper(Context ctx, String dbName) {
 			super(ctx, dbName, null, DB_VERSION);
@@ -49,13 +51,17 @@ public class StorageHandler {
          */
 		@Override
 		public void onCreate(SQLiteDatabase db) {
+            BeepTable.createTable(db);
+            InputElementTable.createTable(db);
+            InputGroupTable.createTable(db);
 			MomentTable.createTable(db);
-			ValueVocabularyItemTable.createTable(db);
+            ProjectTable.createTable(db);
+            TranslationElementTable.createTable(db);
+            UptimeTable.createTable(db);
+            ValueTable.createTable(db);
+            ValueVocabularyItemTable.createTable(db);
 			VocabularyItemTable.createTable(db);
-			UptimeTable.createTable(db);
-			BeepTable.createTable(db);
 			VocabularyTable.createTable(db);
-			ProjectTable.createTable(db);
 		}
 
         /**
@@ -87,13 +93,17 @@ public class StorageHandler {
          * @param db database object
          */
 		public void dropTables(SQLiteDatabase db) {
-			VocabularyItemTable.dropTable(db);
-			MomentTable.dropTable(db);
-			ValueVocabularyItemTable.dropTable(db);
-			UptimeTable.dropTable(db);
-			BeepTable.dropTable(db);
-			VocabularyTable.dropTable(db);
-			ProjectTable.dropTable(db);
+            BeepTable.createTable(db);
+            InputElementTable.createTable(db);
+            InputGroupTable.createTable(db);
+            MomentTable.createTable(db);
+            ProjectTable.createTable(db);
+            TranslationElementTable.createTable(db);
+            UptimeTable.createTable(db);
+            ValueTable.createTable(db);
+            ValueVocabularyItemTable.createTable(db);
+            VocabularyItemTable.createTable(db);
+            VocabularyTable.createTable(db);
 		}
 
         /**
@@ -107,6 +117,11 @@ public class StorageHandler {
 	
 	private static DatabaseHelper mDbHelperProduction;
 	private static DatabaseHelper mDbHelperTestMode;
+
+    private static SQLiteDatabase mDbProduction;
+    private static int mDbProdRefCount = 0;
+    private static SQLiteDatabase mDbTestMode;
+    private static int mDbTestRefCount = 0;
 	private Context mCtx;
 
     private static final String TAG = "StorageHandler";
@@ -137,15 +152,60 @@ public class StorageHandler {
 
     /**
      * Returns a database object associated to the current app mode.
+     * Keeps reference count to the database object and caches it.
      * @return database object associated to this mode
      */
 	public SQLiteDatabase getDb() {
 		BeepMeApp app = (BeepMeApp) mCtx.getApplicationContext();
+        SQLiteDatabase db;
+
 		if (app.getPreferences().isTestMode()) {
-			return mDbHelperTestMode.getWritableDatabase();
+            if (mDbTestMode == null) {
+                mDbTestMode = mDbHelperTestMode.getWritableDatabase();
+            }
+			db = mDbTestMode;
+            mDbTestRefCount++;
 		}
-		return mDbHelperProduction.getWritableDatabase();
+        else {
+            if (mDbProduction == null) {
+                mDbProduction = mDbHelperProduction.getWritableDatabase();
+            }
+            db = mDbProduction;
+            mDbProdRefCount++;
+        }
+
+		return db;
 	}
+
+    /**
+     * Closes a database object associated to the current app mode.
+     * Keeps reference count and only closes the object if count reaches zero.
+     */
+    public void closeDb() {
+        BeepMeApp app = (BeepMeApp) mCtx.getApplicationContext();
+        if (app.getPreferences().isTestMode()) {
+            if (mDbTestRefCount > 0) {
+                mDbTestRefCount--;
+            }
+            if (mDbTestRefCount == 0) {
+                if (mDbTestMode != null) {
+                    mDbTestMode.close();
+                    mDbTestMode = null;
+                }
+            }
+        }
+        else {
+            if (mDbProdRefCount > 0) {
+                mDbProdRefCount--;
+            }
+            if (mDbProdRefCount == 0) {
+                if (mDbProduction != null) {
+                    mDbProduction.close();
+                    mDbProduction = null;
+                }
+            }
+        }
+    }
 
     /**
      * Truncates all tables of the database of the current app mode.
