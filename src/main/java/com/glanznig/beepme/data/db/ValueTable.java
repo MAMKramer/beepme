@@ -24,6 +24,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.glanznig.beepme.data.MultiValue;
 import com.glanznig.beepme.data.SingleValue;
@@ -264,6 +265,7 @@ public class ValueTable extends StorageHandler {
             numRows = db.update(getTableName(), values, "_id=?", new String[] { String.valueOf(value.getUid()) });
 
             if (value instanceof MultiValue) {
+                VocabularyItemTable vocabularyItemTable = new VocabularyItemTable(ctx);
                 ValueVocabularyItemTable valueVocabularyItemTable = new ValueVocabularyItemTable(ctx);
                 // delete all connections first and then re-add new/changed ones
                 valueVocabularyItemTable.deleteAllOfValue(value.getUid());
@@ -271,6 +273,9 @@ public class ValueTable extends StorageHandler {
                 Iterator<VocabularyItem> valueIterator = ((MultiValue)value).getValues().iterator();
                 while (valueIterator.hasNext()) {
                     VocabularyItem vocabularyItem = valueIterator.next();
+                    if (vocabularyItem.getUid() == 0L) {
+                        vocabularyItem = vocabularyItemTable.addVocabularyItem(vocabularyItem);
+                    }
                     valueVocabularyItemTable.addValueVocabularyItem(value.getUid(), vocabularyItem.getUid());
                 }
             }

@@ -29,11 +29,15 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,11 +62,12 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
     private boolean mandatory;
     private boolean restrictEdit;
     private long inputElementUid = 0L;
+    private MultiValue value;
 
     private TextView help;
     private AutoCompleteTextView tagInput;
     private TextView title;
-    private Button addBtn;
+    private ImageButton addBtn;
     private FlowLayout tagContainer;
 
     private ArrayList<OnTagControlChangeListener> listeners;
@@ -81,6 +86,7 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         mode = Mode.CREATE;
         name = null;
         mandatory = false;
+        value = null;
         restrictEdit = false;
 
         setupView();
@@ -101,6 +107,7 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         this.mode = mode;
         name = null;
         mandatory = false;
+        value = null;
         restrictEdit = false;
 
         if (restrictions != null) {
@@ -129,6 +136,7 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         mode = Mode.CREATE;
         name = null;
         mandatory = false;
+        value = null;
         restrictEdit = false;
 
         setupView();
@@ -141,24 +149,38 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && !restrictEdit)) {
             setOrientation(LinearLayout.VERTICAL);
 
-            LinearLayout tagsInput = new LinearLayout(ctx);
-            tagsInput.setOrientation(LinearLayout.HORIZONTAL);
+            RelativeLayout tagsInput = new RelativeLayout(ctx);
 
-            tagInput = new AutoCompleteTextView(ctx);
+            tagInput = new AutoCompleteTextView(ctx); //todo let input fill all the width
+            addBtn = new ImageButton(ctx);
+
+            tagInput.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+
             TagAutocompleteAdapter adapterKeywords = new TagAutocompleteAdapter(ctx, R.layout.tag_autocomplete_list_row, vocabularyUid);
             tagInput.setAdapter(adapterKeywords);
             //after how many chars should auto-complete list appear?
             tagInput.setThreshold(2);
-            tagsInput.addView(tagInput);
 
-            addBtn = new Button(ctx);
+            RelativeLayout.LayoutParams tagInputParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            tagInputParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            tagInputParams.addRule(RelativeLayout.LEFT_OF, addBtn.getId());
+            tagsInput.addView(tagInput, tagInputParams);
+
+            addBtn.setImageResource(R.drawable.ic_action_new_label);
+            addBtn.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, (int)(40 * scale + 0.5f)));
+            addBtn.setAdjustViewBounds(true);
+            addBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
             addBtn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     addTag();
                 }
             });
-            tagsInput.addView(addBtn);
+
+            RelativeLayout.LayoutParams addBtnParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            addBtnParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            tagsInput.addView(addBtn, addBtnParams);
+
             addView(tagsInput);
 
             help = new TextView(ctx);
@@ -226,19 +248,46 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
     @Override
     public void setValue(Value value) {
         if (value instanceof MultiValue) {
-            MultiValue multiValue = (MultiValue)value;
-            Iterator<VocabularyItem> valuesIterator = multiValue.getValues().iterator();
+            this.value = (MultiValue)value;
+            vocabularyItems = new ArrayList<VocabularyItem>();
+            tagContainer.removeAllViews(); // remove all present tag buttons
+
+            Iterator<VocabularyItem> valuesIterator = this.value.getValues().iterator();
             while (valuesIterator.hasNext()) {
                 VocabularyItem item = valuesIterator.next();
-                vocabularyItems.add(item);
+
+                View tag = null;
+                if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && !restrictEdit)) {
+                    TagButton button = new TagButton(ctx, item);
+                    button.setOnClickListener(this);
+                    tag = button;
+                }
+                else if (mode.equals(Mode.VIEW) || (mode.equals(Mode.EDIT) && restrictEdit)) {
+                    TagView tagView = new TagView(ctx, item);
+                    tag = tagView;
+                }
+
+                // maintain sorting
+                Comparator<VocabularyItem> compare = new Comparator<VocabularyItem>() {
+                    public int compare(VocabularyItem item1, VocabularyItem item2) {
+                        return item1.getValue().compareTo(item2.getValue());
+                    }
+                };
+                int pos = Collections.binarySearch(vocabularyItems, item, compare);
+                tagContainer.addView(tag, -pos - 1);
+                vocabularyItems.add(-pos - 1, item);
             }
         }
     }
 
     @Override
     public Value getValue() {
-        MultiValue value = new MultiValue();
-        value.setInputElementUid(inputElementUid);
+        if (value == null) {
+            value = new MultiValue();
+            value.setInputElementUid(inputElementUid);
+        }
+        value.resetValue();
+
         Iterator<VocabularyItem> itemIterator = vocabularyItems.iterator();
         while (itemIterator.hasNext()) {
             VocabularyItem item = itemIterator.next();
@@ -300,6 +349,7 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
                 item.setValue(itemText);
             }
 
+            // todo checking for equality does not work, also keep in mind that there are translations
             if (!vocabularyItems.contains(item)) {
                 TagButton button = new TagButton(ctx, item);
                 button.setOnClickListener(this);
@@ -313,6 +363,8 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
                 int pos = Collections.binarySearch(vocabularyItems, item, compare);
                 tagContainer.addView(button, -pos - 1);
                 vocabularyItems.add(-pos - 1, item);
+
+                tagInput.setText("");
             }
             else {
                 Toast.makeText(ctx, R.string.new_sample_add_tag_error, Toast.LENGTH_SHORT).show();
@@ -363,6 +415,33 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
         private VocabularyItem vocabularyItem;
 
         public TagButton(Context context, VocabularyItem vocabularyItem) {
+            super(context);
+            this.vocabularyItem = vocabularyItem;
+
+            setText(vocabularyItem.getValue());
+            setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(40 * scale + 0.5f)));
+        }
+
+        public void setVocabularyItem(VocabularyItem vocabularyItem) {
+            this.vocabularyItem = vocabularyItem;
+
+            setText(vocabularyItem.getValue());
+        }
+
+        public VocabularyItem getVocabularyItem() {
+            return vocabularyItem;
+        }
+
+    }
+
+    /**
+     * Holder class for tag views (extends TextView).
+     */
+    private class TagView extends TextView {
+
+        private VocabularyItem vocabularyItem;
+
+        public TagView(Context context, VocabularyItem vocabularyItem) {
             super(context);
             this.vocabularyItem = vocabularyItem;
 

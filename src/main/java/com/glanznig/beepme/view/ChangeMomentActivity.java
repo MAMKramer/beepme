@@ -95,7 +95,8 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
         super.onCreate(savedState);
 
         View customActionBarView = null;
-        viewManager = new ViewManager(ChangeMomentActivity.this);
+        BeepMeApp app = (BeepMeApp)getApplication();
+        viewManager = new ViewManager(ChangeMomentActivity.this, app.getCurrentProject());
         MomentTable momentTable = new MomentTable(this.getApplicationContext());
         Bundle intentExtras = getIntent().getExtras();
         final LayoutInflater inflater = (LayoutInflater) getActionBar().getThemedContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -110,6 +111,7 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
                         mode = InputControl.Mode.EDIT;
                         break;
                 }
+                savedState.remove("ChangeMomentActivity_mode");
             }
         }
         else {
@@ -170,18 +172,18 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
         }
 		
 		if (savedState != null) {
-            viewManager.deserializeValues(savedState);
+            if (savedState.getLong("ChangeMomentActivity_momentId") != 0L) {
+                moment = momentTable.getMomentWithValues(savedState.getLong("ChangeMomentActivity_momentId"));
+                savedState.remove("ChangeMomentActivity_momentId");
+            }
 
-			if (savedState.getLong("ChangeMomentActivity_momentId") != 0L) {
-				moment = momentTable.getMomentWithValues(savedState.getLong("ChangeMomentActivity_momentId"));
-			}
+            viewManager.deserializeValues(savedState);
 		}
 		else {
 			if (intentExtras != null) {
                 // we are in create mode
 				if (intentExtras.containsKey(getApplication().getClass().getPackage().getName() + ".Timestamp")) {
 					long timestamp = intentExtras.getLong(getApplication().getClass().getPackage().getName() + ".Timestamp");
-                    BeepMeApp app = (BeepMeApp)getApplication();
                     moment = new Moment();
                     moment.setProjectUid(app.getPreferences().getProjectId());
 					moment.setTimestamp(new Date(timestamp));
@@ -268,47 +270,15 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 				keywordHolder.addTagButton(tag.getName(), this);
 			}
 		}
-	}
-	
-	public void onClickAddKeyword(View view) {
-		TagControl tagHolder = (TagControl)findViewById(R.id.new_sample_keyword_container);
-		EditText enteredTag = (EditText)findViewById(R.id.new_sample_add_keyword);
-		if (enteredTag.getText().length() > 0) {
-			VocabularyItem t = new VocabularyItem();
-			t.setVocabularyUid(tagHolder.getVocabularyUid());
-			t.setName(enteredTag.getText().toString().toLowerCase(Locale.getDefault()));
-			if (moment.addTag(t)) {
-				tagHolder.addTagButton(t.getName(), this);
-				enteredTag.setText("");
-			}
-			else {
-				Toast.makeText(getApplicationContext(), R.string.new_sample_add_tag_error, Toast.LENGTH_SHORT).show();
-			}
-		}
-	}
-	
-	public void onClickRemoveTag(View view) {
-		if (view instanceof TagButton) {
-			TagButton btn = (TagButton)view;
-			
-			TagControl tagHolder = null;
-			if (btn.getVocabularyId() == 1) {
-				tagHolder = (TagControl)findViewById(R.id.new_sample_keyword_container);
-			}
-			
-			VocabularyItem t = new VocabularyItem();
-			t.setName((btn.getText()).toString());
-			t.setVocabularyUid(btn.getVocabularyId());
-			tagHolder.removeTagButton(btn);
-			moment.removeTag(t);
-		}
 	}*/
 	
 	public void onClickDone(View view) {
-		saveMoment();
+        if (mode == InputControl.Mode.EDIT) {
+            saveMoment();
+        }
 
         if (mode == InputControl.Mode.CREATE) {
-            BeepMeApp app = (BeepMeApp) getApplication();
+            BeepMeApp app = (BeepMeApp)getApplication();
             app.scheduleBeep();
         }
 
@@ -330,21 +300,19 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
             if (momentValue != null) {
                 // value of moment needs to be updated - if there have been changes
                 if (momentValue instanceof SingleValue) {
-                    if (controlValue == null) {
-                        Log.i(TAG, "uh oh");
-                    }
                     if (!((SingleValue)momentValue).getValue().equals(((SingleValue)controlValue).getValue())) {
                         ((SingleValue)momentValue).setValue(((SingleValue)controlValue).getValue());
                         valueTable.updateValue(momentValue);
                     }
                 }
                 else if (momentValue instanceof MultiValue) {
-                    //todo multivalue support
-                    /*Iterator<VocabularyItem> valueIterator = ((MultiValue)controlValue).getValues().iterator();
+                    ((MultiValue)momentValue).resetValue(); // too much work to check for changes, reset value
+                    Iterator<VocabularyItem> valueIterator = ((MultiValue)controlValue).getValues().iterator();
                     while (valueIterator.hasNext()) {
                         VocabularyItem vocabularyItem = valueIterator.next();
                         ((MultiValue)momentValue).setValue(vocabularyItem);
-                    }*/
+                    }
+                    valueTable.updateValue(momentValue);
                 }
             }
             else {
@@ -426,54 +394,61 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 	@Override
 	public void onStop() {
 		super.onStop();
-		if (ChangeMomentActivity.this.isFinishing()) {
+		if (ChangeMomentActivity.this.isFinishing() && mode == InputControl.Mode.CREATE) {
 			ChangeMomentActivity.this.saveMoment();
 		}
 	}
-	
+
 	@Override
 	public boolean onMenuItemClick(MenuItem item) {
-		/*switch (item.getItemId()) {
+		switch (item.getItemId()) {
 			case R.id.action_take_photo:
-				
+
 				Intent takePhoto = PhotoUtils.getTakePhotoIntent(ChangeMomentActivity.this, moment.getTimestamp());
-				
+
 				if (takePhoto != null) {
 					Bundle extras = takePhoto.getExtras();
 					Uri photoUri = (Uri)extras.get(PhotoUtils.EXTRA_KEY);
-					moment.setPhotoUri(photoUri.getPath());
-					
+
+                    SingleValue value = new SingleValue();
+                    value.setInputElementUid(photoView.getInputElementUid());
+                    value.setMomentUid(moment.getUid());
+                    value.setValue(photoUri.getPath());
+                    photoView.setValue(value);
+
 					startActivityForResult(takePhoto, PhotoUtils.TAKE_PHOTO_INTENT);
 				}
 				break;
-				
+
 			case R.id.action_change_photo:
-				
+
 				Intent changePhoto = PhotoUtils.getChangePhotoIntent(ChangeMomentActivity.this);
-				
+
 				if (changePhoto != null) {
 					startActivityForResult(changePhoto, PhotoUtils.CHANGE_PHOTO_INTENT);
 				}
 				break;
-				
+
 			case R.id.action_delete_photo:
-				
+
 				AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(ChangeMomentActivity.this);
 		        deleteBuilder.setTitle(R.string.photo_delete_warning_title);
 		        deleteBuilder.setMessage(R.string.photo_delete_warning_msg);
 		        deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 		            public void onClick(DialogInterface dialog, int id) {
+                        SingleValue value = (SingleValue)photoView.getValue();
 		            	// delete photo on storage
-		            	PhotoUtils.deletePhoto(ChangeMomentActivity.this, moment.getPhotoUri());
-		            	
-		            	moment.setPhotoUri(null);
-		            	photoView.unsetPhoto();
+		            	PhotoUtils.deletePhoto(ChangeMomentActivity.this, value.getValue());
+
+                        value.setValue("");
+		            	photoView.setValue(value);
+		            	photoView.unsetPhoto(); // todo still needed?
 		            }
 		        });
 		        deleteBuilder.setNegativeButton(R.string.no, null);
 		        deleteBuilder.create().show();
 		        break;
-		}*/
+		}
 		return true;
 	}
 

@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import com.glanznig.beepme.helper.PhotoUtils;
+import com.glanznig.beepme.view.input.InputControl;
 import com.glanznig.beepme.view.input.PhotoControl;
 
 import android.content.Context;
@@ -145,7 +146,7 @@ public class SampleListAdapter extends ArrayAdapter<ListItem> {
 				holder.timestamp = (TextView)rowView.findViewById(R.id.sample_timestamp);
 				holder.description = (TextView)rowView.findViewById(R.id.sample_description);
 				holder.photo = (PhotoControl)rowView.findViewById(R.id.sample_photo);
-				holder.photo.setRights(false, false); // read only
+				holder.photo.setMode(InputControl.Mode.VIEW);
 				rowView.setTag(holder);
 			}
 			

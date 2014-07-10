@@ -191,10 +191,19 @@ public class InputElementTable extends StorageHandler {
         else {
             inputElement.setMandatory(false);
         }
-        String[] restrictions = cursor.getString(4).split(";");
-        for (int i=0; i < restrictions.length; i++) {
-            inputElement.setRestriction(Restriction.fromString(restrictions[i]));
+
+        String restrict = invRestrictionMap.get(cursor.getInt(4));
+        if (restrict.equals("edit")) {
+            inputElement.setRestriction(new Restriction(Restriction.RestrictionType.EDIT, false));
         }
+        else if (restrict.equals("delete")) {
+            inputElement.setRestriction(new Restriction(Restriction.RestrictionType.DELETE, false));
+        }
+        else if (restrict.equals("edit-delete")) {
+            inputElement.setRestriction(new Restriction(Restriction.RestrictionType.EDIT, false));
+            inputElement.setRestriction(new Restriction(Restriction.RestrictionType.DELETE, false));
+        }
+
         if (!cursor.isNull(5)) {
             String[] options = cursor.getString(5).split(",");
             for (int i=0; i < options.length; i++) {

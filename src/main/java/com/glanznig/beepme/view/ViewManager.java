@@ -3,6 +3,7 @@ package com.glanznig.beepme.view;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -13,9 +14,11 @@ import com.glanznig.beepme.data.InputGroup;
 import com.glanznig.beepme.data.MultiValue;
 import com.glanznig.beepme.data.Project;
 import com.glanznig.beepme.data.SingleValue;
+import com.glanznig.beepme.data.TranslationElement;
 import com.glanznig.beepme.data.Value;
 import com.glanznig.beepme.data.db.InputElementTable;
 import com.glanznig.beepme.data.db.InputGroupTable;
+import com.glanznig.beepme.data.db.TranslationElementTable;
 import com.glanznig.beepme.view.input.InputControl;
 import com.glanznig.beepme.view.input.PhotoControl;
 import com.glanznig.beepme.view.input.TagControl;
@@ -34,12 +37,19 @@ import java.util.Set;
  */
 public class ViewManager {
 
+    private static final String TAG = "ViewManager";
+
     private Context ctx;
     private HashMap<String, InputControl> controls;
+    private Project project;
+    private final float scale;
 
-    public ViewManager(Context ctx) {
+    public ViewManager(Context ctx, Project project) {
         this.ctx = ctx;
+        this.project = project;
         controls = new HashMap<String, InputControl>();
+
+        scale = ctx.getResources().getDisplayMetrics().density;
     }
 
     /**
@@ -156,6 +166,7 @@ public class ViewManager {
             Map.Entry<String, InputControl> control = controlIterator.next();
             String valueString = "type=";
             Value value = control.getValue().getValue();
+
             if (value instanceof SingleValue) {
                 valueString += "single;value=";
                 valueString += ((SingleValue)value).toString();
@@ -179,15 +190,24 @@ public class ViewManager {
         ScrollView scrollView = new ScrollView(ctx);
         LinearLayout linearLayout = new LinearLayout(ctx);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setPadding((int)(16 * scale + 0.5f), (int)(16 * scale + 0.5f), (int)(16 * scale + 0.5f), (int)(16 * scale + 0.5f));
         scrollView.addView(linearLayout);
 
-        // todo get tanslations
         List<InputElement> inputElements = new InputElementTable(ctx).getInputElementsByGroup(inputGroup.getUid());
         Iterator<InputElement> inputElementIterator = inputElements.iterator();
 
         View control = null;
         while (inputElementIterator.hasNext()) {
             InputElement inputElement = inputElementIterator.next();
+
+            // get translations
+            TranslationElementTable translationElementTable = new TranslationElementTable(ctx);
+            Iterator<TranslationElement> translationIterator = translationElementTable.getTranslationElements(inputElement.getUid()).iterator();
+
+            while (translationIterator.hasNext()) {
+                TranslationElement translationElement = translationIterator.next();
+                inputElement.setTranslation(translationElement);
+            }
 
             switch (inputElement.getType()) {
                 case PHOTO:
@@ -204,6 +224,7 @@ public class ViewManager {
             }
 
             controls.put(inputElement.getName(), (InputControl)control);
+            control.setPadding(0, 0, 0, (int)(16 * scale + 0.5f));
             linearLayout.addView(control);
         }
 
@@ -228,9 +249,19 @@ public class ViewManager {
             if (inputElement.getOption("lines") != null) {
                 textControl.setLines(Integer.valueOf(inputElement.getOption("lines")).intValue());
             }
-            // todo fallback to default language
-            textControl.setTitle(inputElement.getTitle(locale.getLanguage()));
-            textControl.setHelpText(inputElement.getHelp(locale.getLanguage()));
+
+            String title = inputElement.getTitle(locale.getLanguage());
+            if (title == null) {
+                // fallback to default language
+                title = inputElement.getTitle(project.getLanguage().getLanguage());
+            }
+            textControl.setTitle(title);
+            String help = inputElement.getHelp(locale.getLanguage());
+            if (help == null) {
+                // fallback to default language
+                help = inputElement.getHelp(project.getLanguage().getLanguage());
+            }
+            textControl.setHelpText(help);
         }
 
         return textControl;
@@ -252,9 +283,19 @@ public class ViewManager {
             tagControl.setName(inputElement.getName());
             tagControl.setMandatory(inputElement.isMandatory());
             tagControl.setVocabularyUid(inputElement.getVocabularyUid());
-            // todo fallback to default language
-            tagControl.setTitle(inputElement.getTitle(locale.getLanguage()));
-            tagControl.setHelpText(inputElement.getHelp(locale.getLanguage()));
+
+            String title = inputElement.getTitle(locale.getLanguage());
+            if (title == null) {
+                // fallback to default language
+                title = inputElement.getTitle(project.getLanguage().getLanguage());
+            }
+            tagControl.setTitle(title);
+            String help = inputElement.getHelp(locale.getLanguage());
+            if (help == null) {
+                // fallback to default language
+                help = inputElement.getHelp(project.getLanguage().getLanguage());
+            }
+            tagControl.setHelpText(help);
         }
         return tagControl;
     }
@@ -276,9 +317,18 @@ public class ViewManager {
             photoControl.setMandatory(inputElement.isMandatory());
             // todo add specific parameters
 
-            // todo fallback to default language
-            photoControl.setTitle(inputElement.getTitle(locale.getLanguage()));
-            photoControl.setHelpText(inputElement.getHelp(locale.getLanguage()));
+            String title = inputElement.getTitle(locale.getLanguage());
+            if (title == null) {
+                // fallback to default language
+                title = inputElement.getTitle(project.getLanguage().getLanguage());
+            }
+            photoControl.setTitle(title);
+            String help = inputElement.getHelp(locale.getLanguage());
+            if (help == null) {
+                // fallback to default language
+                help = inputElement.getHelp(project.getLanguage().getLanguage());
+            }
+            photoControl.setHelpText(help);
         }
 
         return photoControl;

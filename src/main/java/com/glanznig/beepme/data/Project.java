@@ -74,7 +74,7 @@ public class Project {
     private Timer timer;
 
     private ArrayList<InputGroup> inputGroups;
-    private ArrayList<Vocabulary> vocabularies;
+    private HashMap<String, Vocabulary> vocabularies;
 
     public Project() {
         uid = null;
@@ -349,9 +349,9 @@ public class Project {
         }
 
         if (vocabularies != null) {
-            Iterator<Vocabulary> vocabularyIterator = vocabularies.iterator();
+            Iterator<Vocabulary> vocabularyIterator = vocabularies.values().iterator();
             while (vocabularyIterator.hasNext()) {
-                copy.addVocabulary(vocabularyIterator.next());
+                copy.setVocabulary(vocabularyIterator.next());
             }
         }
     }
@@ -382,22 +382,35 @@ public class Project {
      * Associates a vocabulary with this project
      * @param vocabulary the vocabulary
      */
-    public void addVocabulary(Vocabulary vocabulary) {
+    public void setVocabulary(Vocabulary vocabulary) {
         if (vocabularies == null) {
-            vocabularies = new ArrayList<Vocabulary>();
+            vocabularies = new HashMap<String, Vocabulary>();
         }
-        vocabularies.add(vocabulary);
+        vocabularies.put(vocabulary.getName(), vocabulary);
+    }
+
+    /**
+     * Gets a associated vocabulary by its name (display id).
+     * @param name name of the vocabulary (display id)
+     * @return the vocabulary, or null if it is not associated to this project
+     */
+    public Vocabulary getVocabulary(String name) {
+        if (vocabularies != null) {
+            return vocabularies.get(name);
+        }
+
+        return null;
     }
 
     /**
      * Gets the associated vocabularies for this project.
      * @return associated vocabularies, or empty list if none
      */
-    public List<Vocabulary> getVocabularies() {
-        if (vocabularies != null) {
-            return vocabularies;
+    public Collection<Vocabulary> getVocabularies() {
+        if (vocabularies == null) {
+            vocabularies = new HashMap<String, Vocabulary>();
         }
-        return new ArrayList<Vocabulary>();
+        return vocabularies.values();
     }
 
     @Override

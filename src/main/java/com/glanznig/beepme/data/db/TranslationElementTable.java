@@ -22,12 +22,16 @@ package com.glanznig.beepme.data.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.glanznig.beepme.data.TranslationElement;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents the table TRANSLATION_ELEMENT, which is used to translate UI components in
@@ -136,6 +140,25 @@ public class TranslationElementTable extends StorageHandler {
     }
 
     /**
+     * Populates a translation element object by reading values from a cursor
+     * @param cursor cursor object
+     * @return populated translation element object
+     */
+    private TranslationElement populateObject(Cursor cursor) {
+        TranslationElement translationElement = new TranslationElement(cursor.getLong(0));
+        translationElement.setLang(new Locale(cursor.getString(1)));
+        translationElement.setContent(cursor.getString(2));
+        translationElement.setTarget(invTargetMap.get(cursor.getInt(3)));
+        translationElement.setInputElementUid(cursor.getLong(4));
+
+        if (!cursor.isNull(5)) {
+            translationElement.setTranslationOfUId(cursor.getLong(5));
+        }
+
+        return translationElement;
+    }
+
+    /**
      * Adds a new translation element to the database
      * @param element values to add to the translation element table
      * @return new translation element object with set values and uid, or null if an error occurred
@@ -178,5 +201,32 @@ public class TranslationElementTable extends StorageHandler {
         }
 
         return numRows == 1;
+    }
+
+    /**
+     * Gets a list of all translation elements for the specified input element.
+     * @param inputElementUid input element uid of input element which translation elements translate
+     * @return list of input elements, or empty list if none
+     */
+    public List<TranslationElement> getTranslationElements(long inputElementUid) {
+        SQLiteDatabase db = getDb();
+        ArrayList<TranslationElement> translationElementList = new ArrayList<TranslationElement>();
+
+        Cursor cursor = db.query(getTableName(), new String[] { "_id", "lang", "content", "target",
+                "input_element_id", "translation_of" }, "input_element_id=?",
+                new String[] { Long.valueOf(inputElementUid).toString() }, null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                TranslationElement translationElement = populateObject(cursor);
+                translationElementList.add(translationElement);
+            }
+            while (cursor.moveToNext());
+            cursor.close();
+        }
+        closeDb();
+
+        return translationElementList;
     }
 }

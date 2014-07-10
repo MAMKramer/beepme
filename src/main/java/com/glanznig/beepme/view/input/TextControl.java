@@ -26,6 +26,7 @@ public class TextControl extends LinearLayout implements InputControl {
     private boolean mandatory;
     private boolean restrictEdit;
     private long inputElementUid = 0L;
+    private SingleValue value;
 
     private EditText textInput;
     private TextView textDisplay;
@@ -44,6 +45,7 @@ public class TextControl extends LinearLayout implements InputControl {
         this.mode = mode;
         name = null;
         mandatory = false;
+        value = null;
         restrictEdit = false;
 
         if (restrictions != null) {
@@ -69,6 +71,7 @@ public class TextControl extends LinearLayout implements InputControl {
         this.mode = Mode.CREATE;
         name = null;
         mandatory = false;
+        value = null;
         restrictEdit = false;
 
         setupView();
@@ -80,6 +83,7 @@ public class TextControl extends LinearLayout implements InputControl {
         this.mode = Mode.CREATE;
         name = null;
         mandatory = false;
+        value = null;
         restrictEdit = false;
 
         setupView();
@@ -119,26 +123,30 @@ public class TextControl extends LinearLayout implements InputControl {
     @Override
     public void setValue(Value value) {
         if (value instanceof SingleValue) {
-            SingleValue singleValue = (SingleValue)value;
+            this.value = (SingleValue)value;
 
             if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && !restrictEdit)) {
-                textInput.setText(singleValue.getValue());
+                textInput.setText(this.value.getValue());
             } else if (mode.equals(Mode.VIEW) || (mode.equals(Mode.EDIT) && restrictEdit)) {
-                textDisplay.setText(singleValue.getValue());
+                textDisplay.setText(this.value.getValue());
             }
         }
     }
 
     @Override
     public Value getValue() {
-        SingleValue value = new SingleValue();
-        value.setInputElementUid(inputElementUid);
+        if (value == null) {
+            value = new SingleValue();
+            value.setInputElementUid(inputElementUid);
+        }
+
         if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && !restrictEdit)) {
             value.setValue(textInput.getText().toString());
         }
         else if (mode.equals(Mode.VIEW) || (mode.equals(Mode.EDIT) && restrictEdit)) {
                 value.setValue(textDisplay.getText().toString());
         }
+
         return value;
     }
 

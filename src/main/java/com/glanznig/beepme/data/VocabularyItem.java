@@ -32,7 +32,7 @@ import java.util.Locale;
  */
 public class VocabularyItem {
 
-    private static final String DELIMITER = "_#_";
+    private static final String DELIMITER = "\u0082";
     private static final String TAG = "VocabularyItem";
 
     private Long uid;
@@ -301,13 +301,6 @@ public class VocabularyItem {
             representation += "lang=" + lang.getLanguage();
             first = false;
         }
-        if (value != null) {
-            if (!first) {
-                representation += DELIMITER;
-            }
-            representation += "value=" + value;
-            first = false;
-        }
         if (predefined != null) {
             if (!first) {
                 representation += DELIMITER;
@@ -331,7 +324,14 @@ public class VocabularyItem {
             if (!first) {
                 representation += DELIMITER;
             }
-            representation += "vocuabularyUid=" + vocabularyUid.toString();
+            representation += "vocabularyUid=" + vocabularyUid.toString();
+            first = false;
+        }
+        if (value != null) {
+            if (!first) {
+                representation += DELIMITER;
+            }
+            representation += "value=" + value;
             first = false;
         }
 
@@ -345,8 +345,10 @@ public class VocabularyItem {
      * @return VocabularyItem object, or null if string representation was not valid
      */
     public static VocabularyItem fromString(String objRepresentation) {
-        //todo correct regex for string validation
-        if (objRepresentation.toLowerCase().matches("^uid=(edit|delete),allowed=(yes|no)(,until=\\d+)?$")) {
+        String regex = "^(uid=\\d+"+DELIMITER+")?(name=\\w+"+DELIMITER+")?lang=\\w+"+DELIMITER+
+                "predefined=(yes|no)("+DELIMITER+"translationOfUid=\\d+)?"+DELIMITER+"vocabularyUid=\\d+"+
+                DELIMITER+"value=.*$";
+        if (objRepresentation.matches(regex)) {
             String uid = "";
             String name = "";
             String lang = "";

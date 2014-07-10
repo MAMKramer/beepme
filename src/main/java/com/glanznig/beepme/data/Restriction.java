@@ -133,7 +133,6 @@ public class Restriction {
      * @return Restriction object, or null if string representation was not valid
      */
     public static Restriction fromString(String objRepresentation) {
-        Log.i(TAG, "parsing: "+objRepresentation);
         if (objRepresentation.toLowerCase().matches("^type=(edit|delete),allowed=(yes|no)(,until=\\d+)?$")) {
             String type = "";
             String allowed = "";

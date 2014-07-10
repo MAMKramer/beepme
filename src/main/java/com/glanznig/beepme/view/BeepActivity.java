@@ -208,7 +208,9 @@ public class BeepActivity extends Activity {
 
 		int numAccepted = Statistics.getNumMomentsAcceptedToday(this.getApplicationContext());
 		int numDeclined = Statistics.getNumMomentsDeclinedToday(this.getApplicationContext());
-		long uptimeDur = Statistics.getUptimeDurationToday(this.getApplicationContext());
+		long uptimeDur = Statistics.getUptimeDurationToday(this.getApplicationContext()) / 1000;
+
+        Bundle stats = Statistics.getStatsOfToday(this);
 		
 		TextView acceptedToday = (TextView)findViewById(R.id.beep_accepted_today);
 		TextView declinedToday = (TextView)findViewById(R.id.beep_declined_today);

@@ -20,6 +20,8 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.data;
 
+import android.util.Log;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,6 +45,8 @@ public class InputElement {
     public enum InputElementType {
         PHOTO, TEXT, TAGS
     }
+
+    private static final String TAG = "InputElement";
 
     private Long uid;
     private InputElementType type;

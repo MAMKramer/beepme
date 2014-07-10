@@ -431,7 +431,7 @@ public class ProjectXml {
                     inVocabularies = false;
                 }
                 else if (parser.getName().equals("vocabulary")) {
-                    mProject.addVocabulary(currentVocabulary);
+                    mProject.setVocabulary(currentVocabulary);
                     currentVocabulary = null;
                 }
                 else if (parser.getName().equals("item")) {
@@ -549,27 +549,19 @@ public class ProjectXml {
                         element.setType(InputElement.InputElementType.TAGS);
                         String vocabulary = parser.getAttributeValue(null, "vocabulary");
                         mRefs.add(vocabulary);
+                        element.setVocabulary(mProject.getVocabulary(vocabulary));
                         String predefined = parser.getAttributeValue(null, "predefinedOnly");
                         if (predefined == null) {
                             predefined = "false";
                         }
-                        Iterator<Vocabulary> vocsIterator = mProject.getVocabularies().iterator();
-                        boolean vocExists = false;
-                        while (vocsIterator.hasNext()) {
-                            Vocabulary v = vocsIterator.next();
-                            if (v.getName().equals(vocabulary)) {
-                                element.setVocabulary(v);
-                                vocExists = true;
-                            }
-                        }
                         element.setOption("predefinedOnly", predefined);
 
-                        if (!vocExists) {
+                        if (mProject.getVocabulary(vocabulary) == null) {
                             if (predefined.equals("false")) {
                                 Vocabulary v = new Vocabulary();
                                 v.setName(vocabulary);
                                 addId(vocabulary);
-                                mProject.addVocabulary(v);
+                                mProject.setVocabulary(v);
                             }
                             // vocabulary has not been defined, but only predefined items are allowed
                             // this is not valid
@@ -673,6 +665,7 @@ public class ProjectXml {
                 Vocabulary voc = vocabularyIterator.next();
                 voc.setProjectUid(mProject.getUid());
                 voc = vocabularyTable.addVocabulary(voc);
+                mProject.setVocabulary(voc); //re-add persisted vocabulary to have its uid set in the list
 
                 // persisting vocabulary items
                 Iterator<VocabularyItem> vocItemIterator = voc.getItems().iterator();
@@ -708,6 +701,15 @@ public class ProjectXml {
                 while (elementIterator.hasNext()) {
                     InputElement element = elementIterator.next();
                     element.setInputGroupUid(group.getUid());
+
+                    if (element.getVocabulary() != null) {
+                        Vocabulary persistedVoc = mProject.getVocabulary(element.getVocabulary().getName());
+                        if (persistedVoc != null) {
+                            Log.i(TAG, "vocabularyUid=" + persistedVoc.getUid());
+                            element.setVocabularyUid(persistedVoc.getUid());
+                        }
+                    }
+
                     Log.i(TAG, "persisting input element");
                     InputElementTable elementTable = new InputElementTable(ctx);
                     element = elementTable.addInputElement(element);

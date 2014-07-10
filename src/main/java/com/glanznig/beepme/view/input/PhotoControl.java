@@ -25,6 +25,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -55,6 +56,7 @@ public class PhotoControl extends LinearLayout implements InputControl {
     private String name;
     private boolean mandatory;
     private long inputElementUid = 0L;
+    private SingleValue value;
 
     private ImageView photo;
     private View frameView;
@@ -65,12 +67,14 @@ public class PhotoControl extends LinearLayout implements InputControl {
     private TextView title;
     
     private int placeholderResId = 0;
-    private int width;
-    private int height;
+    private int width = 0;
+    private int height = 0;
     private boolean canDelete = true;
     private boolean canChange = true;
     private boolean hasPhotoSet = false;
     private String photoUri;
+
+    private final float scale = getResources().getDisplayMetrics().density;
 
     public PhotoControl(Context context) {
         super(context);
@@ -78,7 +82,8 @@ public class PhotoControl extends LinearLayout implements InputControl {
         name = null;
         mode = Mode.CREATE;
         mandatory = false;
-        
+        value = null;
+
         setupView();
     }
 
@@ -89,6 +94,7 @@ public class PhotoControl extends LinearLayout implements InputControl {
         name = null;
         mode = Mode.CREATE;
         mandatory = false;
+        value = null;
 
         setupView();
     }
@@ -105,11 +111,13 @@ public class PhotoControl extends LinearLayout implements InputControl {
         this.mode = mode;
         name = null;
         mandatory = false;
+        value = null;
 
         if (restrictions != null) {
             Iterator<Restriction> restrictionIterator = restrictions.iterator();
             while (restrictionIterator.hasNext()) {
                 Restriction restriction = restrictionIterator.next();
+                Log.i(TAG, "restriction="+restriction.toString());
                 if (restriction.getType().equals(Restriction.RestrictionType.EDIT) && restriction.getAllowed() == false) {
                     canChange = false;
                 }
@@ -121,7 +129,7 @@ public class PhotoControl extends LinearLayout implements InputControl {
 
         setupView();
     }
-    
+
     private void readStyleParameters(Context context, AttributeSet attributeSet) {
         TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.PhotoControl);
         try {
@@ -142,100 +150,124 @@ public class PhotoControl extends LinearLayout implements InputControl {
 
         title = new TextView(ctx);
         addView(title);
-    	
+
     	frame = new FrameLayout(ctx);
+
+        if (width == 0 && height == 0) {
+            width = (int)(48 * scale + 0.5f);
+            height = (int)(48 * scale + 0.5f);
+        }
     	LayoutParams params = new LayoutParams(width, height);
     	frame.setLayoutParams(params);
     	addView(frame);
-    	
+
     	photo = new ImageView(ctx, null, R.style.SamplePhotoView_Photo);
     	params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.START);
     	photo.setLayoutParams(params);
     	photo.setImageResource(placeholderResId);
     	photo.setScaleType(ScaleType.CENTER_CROP);
     	frame.addView(photo);
-    	
+
     	int[] attrs = new int[] { android.R.attr.selectableItemBackground };
     	TypedArray a = ctx.getTheme().obtainStyledAttributes(attrs);
     	Drawable frameBg = a.getDrawable(0);
     	a.recycle();
-    	
+
     	frameView = new View(ctx);
     	params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     	frameView.setLayoutParams(params);
     	frameView.setBackgroundDrawable(frameBg);
     	frame.addView(frameView);
-    	
+
     	popup = new PopupMenu(ctx, frameView);
 	    popup.inflate(R.menu.photoview);
-	    
+        //todo popup.setOnMenuItemClickListener(this);
+
 	    if (!canChange) {
 	    	popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
 	    	popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
 	    }
-	    
+
 	    if (!canDelete) {
 	    	popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
 	    }
-    	
+
     	frameView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
             	popup.show();
             }
         });
-    	
+
     	photoTriangle = new ImageView(ctx);
     	params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     	photoTriangle.setLayoutParams(params);
     	photoTriangle.setBackgroundResource(R.drawable.ic_spinner);
     	addView(photoTriangle);
-    	
-    	if (!canChange && !canDelete) { // == read only
-    		frameView.setClickable(false);
-    		frameView.setFocusable(false);
-    		photoTriangle.setVisibility(View.GONE);
-    	}
-    	else {
-    		if (hasPhotoSet) {
-				frameView.setClickable(true);
-	        	frameView.setFocusable(true);
-	        	photoTriangle.setVisibility(View.VISIBLE);
-	        	
-	        	popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
-	        	if (!canChange) {
-    		    	popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
-	        	}
-	        	else {
-	        		popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
-	        	}
-	        	
-	        	if (!canDelete) {
-	        		popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
-	        	}
-	        	else {
-	        		popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
-	        	}
-    		}
-    		else {
-    			// no photo - delete and change is senseless
-    			popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
-    			popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
-    			
-    			if (canChange) {
-    				frameView.setClickable(true);
-    	        	frameView.setFocusable(true);
-    	        	photoTriangle.setVisibility(View.VISIBLE);
-    	        	
-    	        	popup.getMenu().findItem(R.id.action_take_photo).setVisible(true);
-    			}
-    			else {
-    				frameView.setClickable(false);
-    	    		frameView.setFocusable(false);
-    	    		photoTriangle.setVisibility(View.GONE);
-    			}
-    		}
-    	}
+
+        switch (mode) {
+            case CREATE:
+                frameView.setClickable(true);
+                frameView.setFocusable(true);
+                photoTriangle.setVisibility(View.VISIBLE);
+
+                if (hasPhotoSet) {
+                    popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
+                    popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
+                    if (canDelete) {
+                        popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
+                    }
+                    else {
+                        popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
+                    }
+                }
+                else {
+                    popup.getMenu().findItem(R.id.action_take_photo).setVisible(true);
+                    popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
+                    popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
+                }
+                break;
+
+            case EDIT:
+                frameView.setClickable(true);
+                frameView.setFocusable(true);
+                photoTriangle.setVisibility(View.VISIBLE);
+
+                popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
+                popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
+                popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
+
+                if (hasPhotoSet) {
+                    if (!canChange && !canDelete) {
+                        frameView.setClickable(false);
+                        frameView.setFocusable(false);
+                        photoTriangle.setVisibility(View.GONE);
+                    }
+
+                    if (canChange) {
+                        popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
+                    }
+                    if (canDelete) {
+                        popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
+                    }
+                }
+                else {
+                    if (!canChange) {
+                        frameView.setClickable(false);
+                        frameView.setFocusable(false);
+                        photoTriangle.setVisibility(View.GONE);
+
+                        popup.getMenu().findItem(R.id.action_take_photo).setVisible(true);
+                    }
+                }
+                break;
+
+            case VIEW:
+                frameView.setClickable(false);
+                frameView.setFocusable(false);
+                photoTriangle.setVisibility(View.GONE);
+                break;
+        }
 
         if (mode.equals(Mode.CREATE) || (mode.equals(Mode.EDIT) && canChange)) {
             help = new TextView(ctx);
@@ -299,74 +331,87 @@ public class PhotoControl extends LinearLayout implements InputControl {
     }
     
     private void updateAppearance() {
-    	if (!canChange && !canDelete) { // == read only
-    		frameView.setClickable(false);
-    		frameView.setFocusable(false);
-    		photoTriangle.setVisibility(View.GONE);
-    	}
-    	else {
-    		if (hasPhotoSet) {
-				frameView.setClickable(true);
-	        	frameView.setFocusable(true);
-	        	photoTriangle.setVisibility(View.VISIBLE);
-	        	
-	        	popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
-	        	if (!canChange) {
-    		    	popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
-	        	}
-	        	else {
-	        		popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
-	        	}
-	        	
-	        	if (!canDelete) {
-	        		popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
-	        	}
-	        	else {
-	        		popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
-	        	}
-    		}
-    		else {
-    			// no photo - delete and change is senseless
-    			popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
-    			popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
-    			
-    			if (canChange) {
-    				frameView.setClickable(true);
-    	        	frameView.setFocusable(true);
-    	        	photoTriangle.setVisibility(View.VISIBLE);
-    	        	
-    	        	popup.getMenu().findItem(R.id.action_take_photo).setVisible(true);
-    			}
-    			else {
-    				frameView.setClickable(false);
-    	    		frameView.setFocusable(false);
-    	    		photoTriangle.setVisibility(View.GONE);
-    			}
-    		}
-    	}
+        switch (mode) {
+            case CREATE:
+                frameView.setClickable(true);
+                frameView.setFocusable(true);
+                photoTriangle.setVisibility(View.VISIBLE);
+
+                if (hasPhotoSet) {
+                    popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
+                    popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
+                    if (canDelete) {
+                        popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
+                    }
+                    else {
+                        popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
+                    }
+                }
+                else {
+                    popup.getMenu().findItem(R.id.action_take_photo).setVisible(true);
+                    popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
+                    popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
+                }
+                break;
+
+            case EDIT:
+                frameView.setClickable(true);
+                frameView.setFocusable(true);
+                photoTriangle.setVisibility(View.VISIBLE);
+
+                popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
+                popup.getMenu().findItem(R.id.action_change_photo).setVisible(false);
+                popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
+
+                if (hasPhotoSet) {
+                    if (!canChange && !canDelete) {
+                        frameView.setClickable(false);
+                        frameView.setFocusable(false);
+                        photoTriangle.setVisibility(View.GONE);
+                    }
+
+                    if (canChange) {
+                        popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
+                    }
+                    if (canDelete) {
+                        popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
+                    }
+                }
+                else {
+                    if (!canChange) {
+                        frameView.setClickable(false);
+                        frameView.setFocusable(false);
+                        photoTriangle.setVisibility(View.GONE);
+
+                        popup.getMenu().findItem(R.id.action_take_photo).setVisible(true);
+                    }
+                }
+                break;
+
+            case VIEW:
+                frameView.setClickable(false);
+                frameView.setFocusable(false);
+                photoTriangle.setVisibility(View.GONE);
+                break;
+        }
     	
     	invalidate();
     }
     
-    public void setRights(boolean canChange, boolean canDelete) {
-    	this.canChange = canChange;
-    	this.canDelete = canDelete;
+    public void setMode(Mode mode) {
+    	this.mode = mode;
     	updateAppearance();
     }
     
     public boolean isPhotoSet() {
     	return hasPhotoSet;
     }
-    
-    public void setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener listener) {
-    	popup.setOnMenuItemClickListener(listener);
-    }
 
     @Override
     public void setValue(Value value) {
         if (value instanceof SingleValue) {
-            SingleValue singleValue = (SingleValue)value;
-            photoUri = singleValue.getValue();
+            this.value = (SingleValue)value;
+            photoUri = this.value.getValue();
 
             // todo set photo
         }
@@ -374,9 +419,18 @@ public class PhotoControl extends LinearLayout implements InputControl {
 
     @Override
     public Value getValue() {
-        SingleValue value = new SingleValue();
-        value.setInputElementUid(inputElementUid);
-        value.setValue(photoUri);
+        if (value == null) {
+            value = new SingleValue();
+            value.setInputElementUid(inputElementUid);
+        }
+
+        if (photoUri == null) {
+            // always set value != null because else value is treated as MultiValue
+            value.setValue("");
+        }
+        else {
+            value.setValue(photoUri);
+        }
 
         return value;
     }

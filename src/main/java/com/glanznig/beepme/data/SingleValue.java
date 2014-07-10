@@ -1,12 +1,15 @@
 package com.glanznig.beepme.data;
 
+import android.util.Log;
+
 /**
  * A single value (data entered by the user) can have a single item only. Examples are text
  * input or media URIs.
  */
 public class SingleValue extends Value {
 
-    private static final String DELIMITER = ":#:";
+    private static final String DELIMITER = "\u0081";
+    private static final String TAG = "SingleValue";
 
     private String value;
 
@@ -88,8 +91,9 @@ public class SingleValue extends Value {
      * @return SingleValue object, or null if string representation was not valid
      */
     public static SingleValue fromString(String objRepresentation) {
-        //todo correct regex for string validation
-        if (objRepresentation.toLowerCase().matches("^uid=(edit|delete),allowed=(yes|no)(,until=\\d+)?$")) {
+        String regex = "^(uid=\\d+"+DELIMITER+")?inputElementUid=\\d+("+DELIMITER+"inputElementName=\\w+)?("+DELIMITER+"momentUid=\\d+)?"+DELIMITER+
+                "value=.*$";
+        if (objRepresentation.matches(regex)) {
             String uid = "";
             String inputElementUid = "";
             String inputElementName = "";
@@ -110,8 +114,8 @@ public class SingleValue extends Value {
                 else if (splitRep[i].startsWith("momentUid")) {
                     momentUid = splitRep[i].substring(10);
                 }
-                else if (splitRep[i].startsWith("values")) {
-                    value = splitRep[i].substring(7);
+                else if (splitRep[i].startsWith("value")) {
+                    value = splitRep[i].substring(6);
                 }
             }
 

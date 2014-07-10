@@ -83,7 +83,8 @@ public class ViewMomentFragment extends Fragment implements Callback {
         momentId = args.getLong("momentId");
         
         //View rootView = inflater.inflate(R.layout.view_sample, container, false);
-        viewManager = new ViewManager(getActivity());
+        BeepMeApp app = (BeepMeApp)getActivity().getApplication();
+        viewManager = new ViewManager(getActivity(), app.getCurrentProject());
         View rootView = viewManager.getLayout(InputControl.Mode.VIEW);
         
         return rootView;

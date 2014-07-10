@@ -11,7 +11,7 @@ import java.util.Iterator;
  */
 public class MultiValue extends Value {
 
-    private static final String DELIMITER = ".#.";
+    private static final String DELIMITER = "\u0084";
 
     private HashMap<String, VocabularyItem> values;
 
@@ -22,6 +22,13 @@ public class MultiValue extends Value {
 
     public MultiValue(long uid) {
         super(uid);
+        values = new HashMap<String, VocabularyItem>();
+    }
+
+    /**
+     * Resets the value to empty.
+     */
+    public void resetValue() {
         values = new HashMap<String, VocabularyItem>();
     }
 
@@ -104,17 +111,16 @@ public class MultiValue extends Value {
         }
 
         Iterator<VocabularyItem> valueIterator = values.values().iterator();
-        if (valueIterator.hasNext()) {
-            if (!first) {
-                representation += DELIMITER;
-            }
-            representation += "values=";
+        if (!first) {
+            representation += DELIMITER;
         }
+
+        representation += "values=";
         while (valueIterator.hasNext()) {
             VocabularyItem value = valueIterator.next();
             representation += value.toString();
             if (valueIterator.hasNext()) {
-                representation += ",";
+                representation += "\u0083";
             }
         }
 
@@ -128,8 +134,9 @@ public class MultiValue extends Value {
      * @return MultiValue object, or null if string representation was not valid
      */
     public static MultiValue fromString(String objRepresentation) {
-        //todo correct regex for string validation
-        if (objRepresentation.toLowerCase().matches("^uid=(edit|delete),allowed=(yes|no)(,until=\\d+)?$")) {
+        String regex = "^(uid=\\d+"+DELIMITER+")?inputElementUid=\\d+("+DELIMITER+"inputElementName=\\w+)?("+DELIMITER+"momentUid=\\d+)?"+DELIMITER+
+                "values=.*$";
+        if (objRepresentation.matches(regex)) {
             String uid = "";
             String inputElementUid = "";
             String inputElementName = "";
@@ -172,8 +179,8 @@ public class MultiValue extends Value {
                 multiValue.setMomentUid(Long.valueOf(momentUid));
             }
             if (values.length() > 0) {
-                String[] split = values.split(",");
-                for (int i=0; i < splitRep.length; i++) {
+                String[] split = values.split("\u0083");
+                for (int i=0; i < split.length; i++) {
                     multiValue.setValue(VocabularyItem.fromString(split[i]));
                 }
             }
