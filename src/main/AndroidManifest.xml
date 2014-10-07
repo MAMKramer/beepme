@@ -38,7 +38,7 @@ http://beepme.yourexp.at
     <application android:icon="@drawable/ic_launcher_beepme"
         android:label="@string/app_name"
         android:name=".BeepMeApp"
-        android:theme="@android:style/Theme.Holo.Light"
+        android:theme="@style/BeepMeTheme"
         android:allowBackup="false">
 
         <activity

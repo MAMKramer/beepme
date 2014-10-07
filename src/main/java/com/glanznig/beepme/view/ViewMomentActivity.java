@@ -37,7 +37,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,7 +47,7 @@ public class ViewMomentActivity extends FragmentActivity {
 	private static final String TAG = "ViewMomentActivity";
 	private ViewMomentPagerAdapter pagerAdapter = null;
 	private ViewPager pager = null;
-	private long momentId = 0L;
+	private long momentUid = 0L;
 	
 	@Override
 	public void onCreate(Bundle savedState) {
@@ -69,7 +68,7 @@ public class ViewMomentActivity extends FragmentActivity {
             public void onPageSelected(int position) {
             	invalidateOptionsMenu();
                 getActionBar().setTitle(pagerAdapter.getPageTitle(position));
-                momentId = pagerAdapter.getMomentId(position);
+                momentUid = pagerAdapter.getMomentId(position);
                 
                 TextView pos = (TextView)findViewById(R.id.moment_swipe_pos);
                 pos.setText(String.format(getString(R.string.sample_swipe_pos), position + 1, pagerAdapter.getCount()));
@@ -79,14 +78,14 @@ public class ViewMomentActivity extends FragmentActivity {
         listener.onPageSelected(0); // due to a bug in listener implementation
         
         if (savedState != null) {
-        	if (savedState.getLong("momentId") != 0) {
-        		momentId = savedState.getLong("momentId");
+        	if (savedState.getLong("momentUid") != 0) {
+        		momentUid = savedState.getLong("momentUid");
         	}
         }
         else {
         	Bundle b = getIntent().getExtras();
         	if (b != null) {
-        		momentId = b.getLong(getApplication().getClass().getPackage().getName() + ".SampleId");
+        		momentUid = b.getLong(getApplication().getClass().getPackage().getName() + ".MomentUid");
         	}
         }
 	}
@@ -95,14 +94,14 @@ public class ViewMomentActivity extends FragmentActivity {
 	public void onResume() {
 		super.onResume();
 		
-		if (momentId != 0L) {
-			pager.setCurrentItem(pagerAdapter.getPosition(momentId));
+		if (momentUid != 0L) {
+			pager.setCurrentItem(pagerAdapter.getPosition(momentUid));
 		}
 		
 		TextView pos = (TextView)findViewById(R.id.moment_swipe_pos);
-		pos.setText(String.format(getString(R.string.sample_swipe_pos), pagerAdapter.getPosition(momentId) + 1, pagerAdapter.getCount()));
+		pos.setText(String.format(getString(R.string.sample_swipe_pos), pagerAdapter.getPosition(momentUid) + 1, pagerAdapter.getCount()));
 		
-		getActionBar().setTitle(pagerAdapter.getPageTitle(pagerAdapter.getPosition(momentId)));
+		getActionBar().setTitle(pagerAdapter.getPageTitle(pagerAdapter.getPosition(momentUid)));
 	}
 	
 	@Override
@@ -127,7 +126,7 @@ public class ViewMomentActivity extends FragmentActivity {
 
             boolean allowed = restriction.getAllowed();
             Long until = restriction.getUntil();
-            if (until != null && (Calendar.getInstance().getTimeInMillis() - moment.getTimestamp().getTime()) >= until * 1000) {
+            if (until != null && (Calendar.getInstance().getTimeInMillis() - moment.getTimestamp().getTime() >= until * 1000)) {
                 allowed = !allowed;
             }
 
@@ -162,9 +161,9 @@ public class ViewMomentActivity extends FragmentActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         MomentTable momentTable = new MomentTable(getApplicationContext());
                         // delete moment in database
-                        momentTable.deleteMoment(momentId);
+                        momentTable.deleteMoment(momentUid);
                         // update pager
-                        pagerAdapter.removeMoment(momentId);
+                        pagerAdapter.removeMoment(momentUid);
                     }
                 });
                 deleteBuilder.setNegativeButton(R.string.no, null);
@@ -177,6 +176,6 @@ public class ViewMomentActivity extends FragmentActivity {
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
-		savedState.putLong("momentId", momentId);
+		savedState.putLong("momentUid", momentUid);
 	}
 }

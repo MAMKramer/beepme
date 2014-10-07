@@ -20,11 +20,10 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.view;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
 
 import com.glanznig.beepme.BeepMeApp;
 import com.glanznig.beepme.R;
@@ -39,7 +38,6 @@ import com.glanznig.beepme.data.VocabularyItem;
 import com.glanznig.beepme.data.db.MomentTable;
 import com.glanznig.beepme.helper.AsyncImageScaler;
 import com.glanznig.beepme.helper.PhotoUtils;
-import com.glanznig.beepme.view.input.TagControl;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -52,14 +50,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.EditText;
+import android.view.ViewGroup;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuItemClickListener, Callback {
 	
@@ -69,7 +66,7 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
     private ViewManager viewManager;
     private InputControl.Mode mode;
 
-	private PhotoControl photoView = null;
+	private PhotoControl photoControl = null;
 	
 	private static class ImgLoadHandler extends Handler {
 		WeakReference<PhotoControl> view;
@@ -170,6 +167,10 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
             setContentView(viewManager.getLayout(InputControl.Mode.EDIT));
             //todo title?
         }
+        photoControl = viewManager.getPhotoControl();
+        if (photoControl != null) {
+            photoControl.setOnMenuItemClickListener(ChangeMomentActivity.this);
+        }
 		
 		if (savedState != null) {
             if (savedState.getLong("ChangeMomentActivity_momentId") != 0L) {
@@ -206,72 +207,40 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
                         InputControl inputControl = viewManager.getInputControl(value.getInputElementName());
                         inputControl.setValue(value);
                     }
+
+                    populateFields();
                 }
 			}
 		}
 	}
 	
-	/*@Override
+	@Override
 	public void onResume() {
 		super.onResume();
-		//populateFields();
+		populateFields();
 	}
 
     private void populateFields() {
-		photoView = (PhotoControl)findViewById(R.id.new_sample_photoview);
-		//check if device has camera feature
-		if (!PhotoUtils.isEnabled(ChangeMomentActivity.this)) {
-			photoView.setVisibility(View.GONE);
-		}
-		else {
-			photoView.setVisibility(View.VISIBLE);
-			photoView.setOnMenuItemClickListener(ChangeMomentActivity.this);
-			
-			String thumbnailUri = PhotoUtils.getThumbnailUri(moment.getPhotoUri(), 48);
-			if (thumbnailUri != null) {
-				File thumb = new File(thumbnailUri);
-				if (thumb.exists()) {
-					ImgLoadHandler handler = new ImgLoadHandler(photoView);
-					PhotoUtils.getAsyncBitmap(ChangeMomentActivity.this, thumbnailUri, handler);
-				}
-			}
-		}
-        
-        if (moment.getTimestamp() != null) {
-        	TextView timestamp = (TextView)findViewById(R.id.new_sample_timestamp);
-			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-			timestamp.setText(dateFormat.format(moment.getTimestamp()));
+        // display photo
+        SingleValue photoValue = (SingleValue)photoControl.getValue();
+        if (photoValue.getValue().length() > 0) {
+            String thumbnailUri = PhotoUtils.getThumbnailUri(photoValue.getValue(), 48);
+            if (thumbnailUri != null) {
+                File thumb = new File(thumbnailUri);
+                if (thumb.exists()) {
+                    ImgLoadHandler handler = new ImgLoadHandler(photoControl);
+                    PhotoUtils.getAsyncBitmap(ChangeMomentActivity.this, thumbnailUri, handler);
+                } else {
+                    Handler handler = new Handler(ChangeMomentActivity.this);
+                    photoControl.measure(0, 0);
+                    PhotoUtils.generateThumbnail(ChangeMomentActivity.this, photoValue.getValue(), 48, photoControl.getMeasuredWidth(), handler);
+                }
+            } else {
+                photoControl.unsetPhoto();
+            }
         }
-		
-        if (moment.getTitle() != null) {
-        	EditText titleWidget = (EditText)findViewById(R.id.new_sample_title);
-        	titleWidget.setText(moment.getTitle());
-        }
-		
-        if (moment.getDescription() != null) {
-        	EditText descriptionWidget = (EditText)findViewById(R.id.new_sample_description);
-        	descriptionWidget.setText(moment.getDescription());
-        }
-        
-        AutoCompleteTextView autocompleteTags = (AutoCompleteTextView)findViewById(R.id.new_sample_add_keyword);
-        TagAutocompleteAdapter adapterKeywords = new TagAutocompleteAdapter(ChangeMomentActivity.this, R.layout.tag_autocomplete_list_row, 1);
-    	autocompleteTags.setAdapter(adapterKeywords);
-    	//after how many chars should auto-complete list appear?
-    	autocompleteTags.setThreshold(2);
-    	
-    	TagControl keywordHolder = (TagControl)findViewById(R.id.new_sample_keyword_container);
-    	keywordHolder.setVocabularyUid(1);
-    	Iterator<VocabularyItem> i = moment.getTags().iterator();
-		VocabularyItem tag = null;
-		
-		while (i.hasNext()) {
-			tag = i.next();
-			if (tag.getVocabularyUid() == 1) {
-				keywordHolder.addTagButton(tag.getName(), this);
-			}
-		}
-	}*/
-	
+    }
+
 	public void onClickDone(View view) {
         if (mode == InputControl.Mode.EDIT) {
             saveMoment();
@@ -326,15 +295,17 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        SingleValue photoValue = (SingleValue) photoControl.getValue();
 		
-		/*switch (requestCode) {
+		switch (requestCode) {
 			case PhotoUtils.TAKE_PHOTO_INTENT:
 				if (resultCode == Activity.RESULT_OK) {
 					Handler handler = new Handler(ChangeMomentActivity.this);
-					PhotoUtils.generateThumbnails(ChangeMomentActivity.this, moment.getPhotoUri(), handler);
+					PhotoUtils.generateThumbnails(ChangeMomentActivity.this, photoValue.getValue(), handler);
 				}
 				else {
-					moment.setPhotoUri(null);
+                    photoValue.setValue("");
+					photoControl.setValue(photoValue);
 				}
 				break;
 			
@@ -342,14 +313,14 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 				if (resultCode == Activity.RESULT_OK) {
 					if (PhotoUtils.swapPhoto(ChangeMomentActivity.this, moment.getTimestamp())) {
 						Handler handler = new Handler(ChangeMomentActivity.this);
-						PhotoUtils.regenerateThumbnails(ChangeMomentActivity.this, moment.getPhotoUri(), handler);
+						PhotoUtils.regenerateThumbnails(ChangeMomentActivity.this, photoValue.getValue(), handler);
 					}
 				}
 				else {
 					PhotoUtils.deleteSwapPhoto(ChangeMomentActivity.this);
 				}
 				break;
-		}*/
+		}
 	}
 	
 	@Override
@@ -389,6 +360,9 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 
             momentSavedBuilder.create().show();
         }
+        else if (mode == InputControl.Mode.EDIT) {
+            ChangeMomentActivity.this.finish();
+        }
 	}
 	
 	@Override
@@ -411,10 +385,10 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 					Uri photoUri = (Uri)extras.get(PhotoUtils.EXTRA_KEY);
 
                     SingleValue value = new SingleValue();
-                    value.setInputElementUid(photoView.getInputElementUid());
+                    value.setInputElementUid(photoControl.getInputElementUid());
                     value.setMomentUid(moment.getUid());
                     value.setValue(photoUri.getPath());
-                    photoView.setValue(value);
+                    photoControl.setValue(value);
 
 					startActivityForResult(takePhoto, PhotoUtils.TAKE_PHOTO_INTENT);
 				}
@@ -436,13 +410,13 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 		        deleteBuilder.setMessage(R.string.photo_delete_warning_msg);
 		        deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 		            public void onClick(DialogInterface dialog, int id) {
-                        SingleValue value = (SingleValue)photoView.getValue();
+                        SingleValue value = (SingleValue) photoControl.getValue();
 		            	// delete photo on storage
 		            	PhotoUtils.deletePhoto(ChangeMomentActivity.this, value.getValue());
 
                         value.setValue("");
-		            	photoView.setValue(value);
-		            	photoView.unsetPhoto(); // todo still needed?
+		            	photoControl.setValue(value);
+		            	photoControl.unsetPhoto();
 		            }
 		        });
 		        deleteBuilder.setNegativeButton(R.string.no, null);
@@ -457,7 +431,7 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 		if (msg.what == AsyncImageScaler.MSG_SUCCESS) {
 			Bitmap photoBitmap = (Bitmap)msg.obj;
 			if (photoBitmap != null && msg.arg1 == 48) {
-				photoView.setPhoto(photoBitmap);
+				photoControl.setPhoto(photoBitmap);
 				return true;
 			}
 		}

@@ -20,7 +20,9 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.view;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,16 +33,22 @@ import com.glanznig.beepme.SampleListAdapter;
 import com.glanznig.beepme.ListItem;
 import com.glanznig.beepme.DateListSectionHeader;
 import com.glanznig.beepme.data.Moment;
+import com.glanznig.beepme.data.Restriction;
 import com.glanznig.beepme.data.util.Statistics;
 import com.glanznig.beepme.data.db.MomentTable;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -48,6 +56,11 @@ import android.widget.TextView;
 public class MomentListFragment extends ListFragment {
 	
 	private static final String TAG = "MomentListFragment";
+
+    private static final int VIEW = 0;
+    private static final int EDIT = 1;
+    private static final int DELETE = 2;
+
 	private int position = 0;
 	
 	@Override
@@ -103,6 +116,7 @@ public class MomentListFragment extends ListFragment {
         
         ListView list = (ListView)getView().findViewById(android.R.id.list);
         list.setSelectionFromTop(position, 0);
+        registerForContextMenu(list);
 	}
 	
 	private void updateStats() {
@@ -140,9 +154,87 @@ public class MomentListFragment extends ListFragment {
 	public void onListItemClick(ListView listView, View view, int position, long id) {
 		long momentUid = ((MomentListEntry)listView.getItemAtPosition(position)).getMomentUid();
 		Intent i = new Intent(getActivity(), ViewMomentActivity.class);
-		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".SampleId", momentUid);
+		i.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".MomentUid", momentUid);
 		startActivity(i);
 	}
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View item, ContextMenu.ContextMenuInfo menuInfo) {
+        if (item.getId() == android.R.id.list) {
+            ListView listView = (ListView)item;
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+            DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+            MomentListEntry momentEntry = (MomentListEntry)listView.getItemAtPosition(info.position);
+            menu.setHeaderTitle(dateTimeFormat.format(momentEntry.getTimestamp()));
+
+            menu.add(ContextMenu.NONE, VIEW, VIEW, getString(R.string.action_view_moment));
+
+            BeepMeApp app = (BeepMeApp)getActivity().getApplicationContext();
+            Iterator<Restriction> restrictionIterator = app.getCurrentProject().getRestrictions().iterator();
+
+            while (restrictionIterator.hasNext()) {
+                Restriction restriction = restrictionIterator.next();
+
+                boolean allowed = restriction.getAllowed();
+                Long until = restriction.getUntil();
+                if (until != null && (Calendar.getInstance().getTimeInMillis() - momentEntry.getTimestamp().getTime() >= until * 1000)) {
+                    allowed = !allowed;
+                }
+
+                if (allowed) {
+                    switch (restriction.getType()) {
+                        case EDIT:
+                            menu.add(ContextMenu.NONE, EDIT, EDIT, getString(R.string.action_edit_sample));
+                            break;
+                        case DELETE:
+                            menu.add(ContextMenu.NONE, DELETE, DELETE, getString(R.string.action_delete_moment));
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int menuItemIndex = item.getItemId();
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        int position = info.position;
+
+        ListView listView = (ListView)getView().findViewById(android.R.id.list);
+        final long momentUid = ((MomentListEntry)listView.getItemAtPosition(position)).getMomentUid();
+
+        switch (menuItemIndex) {
+            case VIEW:
+                Intent view = new Intent(getActivity(), ViewMomentActivity.class);
+                view.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".MomentUid", momentUid);
+                startActivity(view);
+                break;
+
+            case EDIT:
+                Intent edit = new Intent(getActivity(), ChangeMomentActivity.class);
+                edit.putExtra(getActivity().getApplication().getClass().getPackage().getName() + ".MomentUid", momentUid);
+                startActivity(edit);
+                break;
+
+            case DELETE:
+                AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(getActivity());
+                deleteBuilder.setTitle(R.string.moment_delete_warning_title);
+                deleteBuilder.setMessage(R.string.moment_delete_warning_msg);
+                deleteBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        MomentTable momentTable = new MomentTable(getActivity().getApplicationContext());
+                        // delete moment in database
+                        momentTable.deleteMoment(momentUid);
+                        // todo update adapter and list
+                    }
+                });
+                deleteBuilder.setNegativeButton(R.string.no, null);
+                deleteBuilder.create().show();
+                break;
+        }
+        return true;
+    }
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {

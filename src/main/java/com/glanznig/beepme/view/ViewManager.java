@@ -19,6 +19,7 @@ import com.glanznig.beepme.data.Value;
 import com.glanznig.beepme.data.db.InputElementTable;
 import com.glanznig.beepme.data.db.InputGroupTable;
 import com.glanznig.beepme.data.db.TranslationElementTable;
+import com.glanznig.beepme.helper.PhotoUtils;
 import com.glanznig.beepme.view.input.InputControl;
 import com.glanznig.beepme.view.input.PhotoControl;
 import com.glanznig.beepme.view.input.TagControl;
@@ -41,6 +42,7 @@ public class ViewManager {
 
     private Context ctx;
     private HashMap<String, InputControl> controls;
+    private PhotoControl photoControl = null;
     private Project project;
     private final float scale;
 
@@ -101,6 +103,14 @@ public class ViewManager {
     }
 
     /**
+     * Gets the photo control of this view manager
+     * @return photo control or null if none
+     */
+    public PhotoControl getPhotoControl() {
+        return photoControl;
+    }
+
+    /**
      * Sets the values for the input controls that are referenced in the value map.
      * @param values HashMap of String to Value containing values referencing input controls
      */
@@ -109,7 +119,8 @@ public class ViewManager {
 
         while (keyIterator.hasNext()) {
             String name = keyIterator.next();
-            getInputControl(name).setValue(values.get(name));
+            InputControl control = getInputControl(name);
+            control.setValue(values.get(name));
         }
     }
 
@@ -211,7 +222,11 @@ public class ViewManager {
 
             switch (inputElement.getType()) {
                 case PHOTO:
-                    control = createPhotoControl(inputElement, mode);
+                    //check if device has camera feature (only in CREATE mode)
+                    if (PhotoUtils.isEnabled(ctx) || mode != InputControl.Mode.CREATE) {
+                        control = createPhotoControl(inputElement, mode);
+                        photoControl = (PhotoControl) control;
+                    }
                     break;
 
                 case TAGS:
@@ -223,9 +238,12 @@ public class ViewManager {
                     break;
             }
 
-            controls.put(inputElement.getName(), (InputControl)control);
-            control.setPadding(0, 0, 0, (int)(16 * scale + 0.5f));
-            linearLayout.addView(control);
+            if (control != null) {
+                controls.put(inputElement.getName(), (InputControl) control);
+                control.setPadding(0, 0, 0, (int) (16 * scale + 0.5f));
+                linearLayout.addView(control);
+                control = null;
+            }
         }
 
         return scrollView;

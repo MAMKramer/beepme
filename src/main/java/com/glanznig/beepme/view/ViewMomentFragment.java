@@ -20,13 +20,11 @@ http://beepme.yourexp.at
 
 package com.glanznig.beepme.view;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
-import java.text.DateFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import com.glanznig.beepme.BeepMeApp;
-import com.glanznig.beepme.R;
 import com.glanznig.beepme.data.Moment;
 import com.glanznig.beepme.data.SingleValue;
 import com.glanznig.beepme.data.Value;
@@ -43,18 +41,16 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class ViewMomentFragment extends Fragment implements Callback {
 	
 	private static final String TAG = "ViewMomentFragment";
 	private long momentId = 0L;
     private ViewManager viewManager;
-	private PhotoControl photoView;
+	private PhotoControl photoControl = null;
 	
 	private static class ImgLoadHandler extends Handler {
 		WeakReference<PhotoControl> view;
@@ -86,6 +82,8 @@ public class ViewMomentFragment extends Fragment implements Callback {
         BeepMeApp app = (BeepMeApp)getActivity().getApplication();
         viewManager = new ViewManager(getActivity(), app.getCurrentProject());
         View rootView = viewManager.getLayout(InputControl.Mode.VIEW);
+
+        photoControl = viewManager.getPhotoControl();
         
         return rootView;
 	}
@@ -104,107 +102,35 @@ public class ViewMomentFragment extends Fragment implements Callback {
             HashMap<String, Value> values = moment.getValues();
             viewManager.setValues(values);
 
-            //todo add title and timestamp to view manager
-			/*TextView timestamp = (TextView)getView().findViewById(R.id.view_sample_timestamp);
-			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-			timestamp.setText(dateFormat.format(moment.getTimestamp()));
-			
-			TextView title = (TextView)getView().findViewById(R.id.view_sample_title);
-			if (titleName != null && values.get(titleName) != null && values.get(titleName) instanceof SingleValue) {
-				title.setText(((SingleValue)values.get(titleName)).getValue());
-			}
-			else {
-				title.setText(getString(R.string.sample_untitled));
-			}*/
-			
-			/*TextView description = (TextView)getView().findViewById(R.id.view_sample_description);
-			if (moment.getDescription() != null && moment.getDescription().length() > 0) {
-				description.setTextSize(14);
-				description.setText(moment.getDescription());
-			}
-			else {
-				description.setTextSize(12);
-				// not editable any more
-				if ((Calendar.getInstance().getTimeInMillis() - moment.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
-					description.setText(getString(R.string.sample_no_description));
-				}
-				else {
-					description.setText(getString(R.string.sample_no_description_editable));
-				}
-			}
-			
-			boolean hasKeywordTags = false;
-			
-			FlowLayout keywordHolder = (FlowLayout)getView().findViewById(R.id.view_sample_keyword_container);
-			keywordHolder.removeAllViews();
-			
-	    	Iterator<VocabularyItem> i = moment.getTags().iterator();
-			VocabularyItem tag = null;
-			
-			while (i.hasNext()) {
-				tag = i.next();
-				if (tag.getVocabularyUid() == 1) {
-					
-					TextView view = new TextView(getView().getContext());
-					view.setText(tag.getName());
-					
-					final float scale = getResources().getDisplayMetrics().density;
-					int textPaddingLeftRight = 6;
-					int textPaddingTopBottom = 2;
-					
-					view.setPadding((int)(textPaddingLeftRight * scale + 0.5f), (int)(textPaddingTopBottom * scale + 0.5f), (int)(textPaddingLeftRight * scale + 0.5f), (int)(textPaddingTopBottom * scale + 0.5f));
-					view.setBackgroundColor(getResources().getColor(R.color.bg_keyword));
-					
-					keywordHolder.addView(view);
-					hasKeywordTags = true;
-				}
-			}
-			
-			TextView noKeywordsView = (TextView)getView().findViewById(R.id.view_sample_no_keywords);
-			if (!hasKeywordTags) {
-				keywordHolder.setVisibility(View.GONE);
-				noKeywordsView.setVisibility(View.VISIBLE);
-				// not editable any more (after 1 day)
-				if ((Calendar.getInstance().getTimeInMillis() - moment.getTimestamp().getTime()) >= 24 * 60 * 60 * 1000) {
-					noKeywordsView.setText(getString(R.string.sample_no_keywords));
-				}
-				else {
-					noKeywordsView.setText(getString(R.string.sample_no_keywords_editable));
-				}
-			}
-			else {
-				noKeywordsView.setVisibility(View.GONE);
-				keywordHolder.setVisibility(View.VISIBLE);
-			}
-			
-			photoView = (SamplePhotoView)getView().findViewById(R.id.view_sample_photo);
-			photoView.setRights(false, false); // read only
-			DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
-
+            // display photo
+            DisplayMetrics metrics = getView().getContext().getResources().getDisplayMetrics();
             int thumbnailSize;
-			if(!isLandscape()) {
-				photoView.setFrameWidth(LayoutParams.MATCH_PARENT);
+            if(!isLandscape()) {
+                photoControl.setFrameDimensions(ViewGroup.LayoutParams.MATCH_PARENT, (int)(192 * metrics.density + 0.5f));
                 thumbnailSize = (int)(metrics.widthPixels / metrics.density + 0.5f);
-			}
+            }
             else {
                 thumbnailSize = (int)(metrics.heightPixels / metrics.density + 0.5f);
             }
-			
-			String thumbnailUri = PhotoUtils.getThumbnailUri(moment.getPhotoUri(), thumbnailSize);
-			if (thumbnailUri != null) {
-				File thumb = new File(thumbnailUri);
-				if (thumb.exists()) {
-					ImgLoadHandler handler = new ImgLoadHandler(photoView);
-					PhotoUtils.getAsyncBitmap(getView().getContext(), thumbnailUri, handler);
-				}
-				else {
-					Handler handler = new Handler(this);
-					PhotoUtils.generateThumbnails(getView().getContext(), moment.getPhotoUri(), handler);
-				}
-			}
-            else {
-                photoView.unsetPhoto();
-            }*/
+
+            SingleValue photoValue = (SingleValue)photoControl.getValue();
+            if (photoValue.getValue().length() > 0) {
+                String thumbnailUri = PhotoUtils.getThumbnailUri(photoValue.getValue(), thumbnailSize);
+                if (thumbnailUri != null) {
+                    File thumb = new File(thumbnailUri);
+                    if (thumb.exists()) {
+                        ImgLoadHandler handler = new ImgLoadHandler(photoControl);
+                        PhotoUtils.getAsyncBitmap(getView().getContext(), thumbnailUri, handler);
+                    } else {
+                        Handler handler = new Handler(this);
+                        PhotoUtils.generateThumbnails(getView().getContext(), photoValue.getValue(), handler);
+                    }
+                } else {
+                    photoControl.unsetPhoto();
+                }
+            }
+
+            //todo add title and timestamp to view manager
 		}
 	}
 	
@@ -213,7 +139,7 @@ public class ViewMomentFragment extends Fragment implements Callback {
 		if (msg.what == AsyncImageScaler.MSG_SUCCESS) {
 			Bitmap photoBitmap = (Bitmap)msg.obj;
 			if (photoBitmap != null) {
-				photoView.setPhoto(photoBitmap);
+				photoControl.setPhoto(photoBitmap);
 				
 				return true;
 			}

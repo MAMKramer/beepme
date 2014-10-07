@@ -117,7 +117,6 @@ public class PhotoControl extends LinearLayout implements InputControl {
             Iterator<Restriction> restrictionIterator = restrictions.iterator();
             while (restrictionIterator.hasNext()) {
                 Restriction restriction = restrictionIterator.next();
-                Log.i(TAG, "restriction="+restriction.toString());
                 if (restriction.getType().equals(Restriction.RestrictionType.EDIT) && restriction.getAllowed() == false) {
                     canChange = false;
                 }
@@ -181,7 +180,6 @@ public class PhotoControl extends LinearLayout implements InputControl {
 
     	popup = new PopupMenu(ctx, frameView);
 	    popup.inflate(R.menu.photoview);
-        //todo popup.setOnMenuItemClickListener(this);
 
 	    if (!canChange) {
 	    	popup.getMenu().findItem(R.id.action_take_photo).setVisible(false);
@@ -238,17 +236,21 @@ public class PhotoControl extends LinearLayout implements InputControl {
                 popup.getMenu().findItem(R.id.action_delete_photo).setVisible(false);
 
                 if (hasPhotoSet) {
+                    Log.i(TAG, "hasPhotoSet");
                     if (!canChange && !canDelete) {
                         frameView.setClickable(false);
                         frameView.setFocusable(false);
                         photoTriangle.setVisibility(View.GONE);
+                        Log.i(TAG, "read only");
                     }
 
                     if (canChange) {
                         popup.getMenu().findItem(R.id.action_change_photo).setVisible(true);
+                        Log.i(TAG, "can change");
                     }
                     if (canDelete) {
                         popup.getMenu().findItem(R.id.action_delete_photo).setVisible(true);
+                        Log.i(TAG, "can delete");
                     }
                 }
                 else {
@@ -402,6 +404,10 @@ public class PhotoControl extends LinearLayout implements InputControl {
     	this.mode = mode;
     	updateAppearance();
     }
+
+    public void setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener listener) {
+        popup.setOnMenuItemClickListener(listener);
+    }
     
     public boolean isPhotoSet() {
     	return hasPhotoSet;
@@ -412,8 +418,6 @@ public class PhotoControl extends LinearLayout implements InputControl {
         if (value instanceof SingleValue) {
             this.value = (SingleValue)value;
             photoUri = this.value.getValue();
-
-            // todo set photo
         }
     }
 
