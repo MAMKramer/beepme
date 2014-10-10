@@ -50,12 +50,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
 public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuItemClickListener, Callback {
@@ -126,6 +125,7 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
 
         if (mode == InputControl.Mode.CREATE) {
             customActionBarView = inflater.inflate(R.layout.actionbar_custom_done, null);
+            customActionBarView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
                     new OnClickListener() {
                         @Override
@@ -137,6 +137,7 @@ public class ChangeMomentActivity extends Activity implements PopupMenu.OnMenuIt
         }
         else if (mode == InputControl.Mode.EDIT) {
             customActionBarView = inflater.inflate(R.layout.actionbar_custom_done_cancel, null);
+            customActionBarView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             customActionBarView.findViewById(R.id.actionbar_done).setOnClickListener(
                     new OnClickListener() {
                         @Override

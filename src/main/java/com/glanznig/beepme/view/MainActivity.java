@@ -107,6 +107,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		super.onResume();
 
         final BeepMeApp app = (BeepMeApp)getApplication();
+        // if there is no active project display welcome screen
         if (app.getPreferences().getProjectId() == 0L) {
             Intent intent = new Intent(this, WelcomeActivity.class);
             startActivity(intent);
@@ -224,6 +225,11 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                 Intent iExport = new Intent(this, ExportActivity.class);
                 startActivity(iExport);
             	return true;
+
+            case R.id.action_project_info:
+                Intent iProjectInfo = new Intent(this, ProjectInfoActivity.class);
+                startActivity(iProjectInfo);
+                return true;
             	
             case R.id.action_settings:
                 Intent iSettings = new Intent(this, SettingsActivity.class);

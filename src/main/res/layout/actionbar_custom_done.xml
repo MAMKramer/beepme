@@ -22,9 +22,8 @@ http://beepme.yourexp.at
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="?android:actionButtonStyle"
     android:id="@+id/actionbar_done"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:divider="?android:attr/dividerVertical"
    	android:showDividers="end"
    	android:dividerPadding="12dp">
 

@@ -93,6 +93,11 @@ http://beepme.yourexp.at
 	        android:parentActivityName=".view.MainActivity">
 	        <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".view.ListSamplesActivity" />
 	    </activity>
+
+        <activity
+            android:name=".view.ProjectInfoActivity"
+            android:label="@string/project_info_title">
+        </activity>
 	    
 	    <receiver android:name=".helper.PhoneStateReceiver">
 	        <intent-filter>

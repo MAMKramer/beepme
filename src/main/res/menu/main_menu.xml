@@ -33,6 +33,10 @@ http://beepme.yourexp.at
       android:icon="@drawable/ic_action_import_export"
       android:title="@string/action_export"
       android:showAsAction="ifRoom" />
+    <!--todo: add icon for project info -->
+  <item android:id="@+id/action_project_info"
+      android:title="@string/project_info_title"
+      android:showAsAction="never" />
   <item android:id="@+id/action_settings"
       android:icon="@drawable/ic_action_settings"
       android:title="@string/action_settings"

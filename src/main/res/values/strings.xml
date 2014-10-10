@@ -87,6 +87,14 @@ http://beepme.yourexp.at
     <string name="pref_title_vibrate_beep">Always vibrate at beep</string>
     <string name="pref_summary_beep_sound">Choose between different beep sounds.</string>
     <string name="pref_title_beep_sound">Beep sound</string>
+    <string name="project_info_title">About this project</string>
+    <string name="project_info_project_name">Name</string>
+    <string name="project_info_allowed">You may</string>
+    <string name="project_info_forbidden">You may not</string>
+    <string name="project_info_edit">edit moments</string>
+    <string name="project_info_delete">delete moments</string>
+    <string name="project_info_duration_until">for up to %s</string>
+    <string name="project_info_duration_after">after %s</string>
     <string name="sample_description">How was your moment like?</string>
     <string name="sample_description_help">e.g. describe in fragments or full-text</string>
     <string name="sample_keyword">Keyword</string>

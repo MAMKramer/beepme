@@ -187,6 +187,7 @@ public class TagControl extends LinearLayout implements InputControl, View.OnCli
             addView(help);
 
             tagContainer = new FlowLayout(ctx);
+            tagContainer.setPadding(0, (int)(5 * scale + 0.5f), 0, 0);
             addView(tagContainer);
         }
         else if (mode.equals(Mode.VIEW) || (mode.equals(Mode.EDIT) && restrictEdit)) {

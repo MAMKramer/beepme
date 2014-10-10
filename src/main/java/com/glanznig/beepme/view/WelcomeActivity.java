@@ -1,3 +1,23 @@
+/*
+This file is part of BeepMe.
+
+BeepMe is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BeepMe is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BeepMe. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2012-2014 Michael Glanznig
+http://beepme.yourexp.at
+*/
+
 package com.glanznig.beepme.view;
 
 import android.app.Activity;
@@ -35,7 +55,7 @@ public class WelcomeActivity extends Activity {
             StringBuilder content = new StringBuilder();
 
             try {
-                while(scanner.hasNextLine()) {
+                while (scanner.hasNextLine()) {
                     content.append(scanner.nextLine() + lineSeparator);
                 }
             } finally {
@@ -49,18 +69,9 @@ public class WelcomeActivity extends Activity {
                 if (parser.getProject() != null) {
                     app.getPreferences().setProjectId(parser.getProject().getUid());
                 }
-            }
-            else {
+            } else {
                 Log.e(TAG, "Project XML is not valid. Aborting.");
             }
         }
-
-        /*if (app.getPreferences().getProjectId() != 0L) {
-            Intent intent = new Intent(this, MainActivity.class);
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-            stackBuilder.addParentStack(MainActivity.class);
-            stackBuilder.addNextIntent(intent);
-            stackBuilder.startActivities();
-        }*/
     }
 }

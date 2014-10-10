@@ -19,14 +19,13 @@ Copyright 2012-2014 Michael Glanznig
 http://beepme.yourexp.at
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/action_edit_moment"
-      android:icon="@drawable/ic_action_edit"
-      android:title="@string/action_edit_sample"
-      app:showAsAction="ifRoom" />
+        android:icon="@drawable/ic_action_edit"
+        android:title="@string/action_edit_sample"
+        android:showAsAction="ifRoom" />
     <item android:id="@+id/action_delete_moment"
         android:icon="@drawable/ic_action_delete"
         android:title="@string/action_delete_moment"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom" />
 </menu>

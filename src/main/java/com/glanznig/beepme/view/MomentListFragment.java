@@ -199,9 +199,9 @@ public class MomentListFragment extends ListFragment {
     public boolean onContextItemSelected(MenuItem item) {
         int menuItemIndex = item.getItemId();
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-        int position = info.position;
+        final int position = info.position;
 
-        ListView listView = (ListView)getView().findViewById(android.R.id.list);
+        final ListView listView = (ListView)getView().findViewById(android.R.id.list);
         final long momentUid = ((MomentListEntry)listView.getItemAtPosition(position)).getMomentUid();
 
         switch (menuItemIndex) {
