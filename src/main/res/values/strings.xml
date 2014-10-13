@@ -93,8 +93,13 @@ http://beepme.yourexp.at
     <string name="project_info_forbidden">You may not</string>
     <string name="project_info_edit">edit moments</string>
     <string name="project_info_delete">delete moments</string>
-    <string name="project_info_duration_until">for up to %s</string>
-    <string name="project_info_duration_after">after %s</string>
+    <string name="project_info_duration_until">for up to %1$s</string>
+    <string name="project_info_duration_after">after %1$s</string>
+    <string name="project_info_add_moment">Moments are created</string>
+    <string name="project_info_add_moment_manually">manually</string>
+    <string name="project_info_add_moment_timer">through alarms</string>
+    <string name="project_info_add_moment_timer_random_interval">randomly, between every %1$s and %2$s</string>
+    <string name="project_info_add_moment_timer_random_average">randomly, on average every %1$s</string>
     <string name="sample_description">How was your moment like?</string>
     <string name="sample_description_help">e.g. describe in fragments or full-text</string>
     <string name="sample_keyword">Keyword</string>

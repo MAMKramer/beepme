@@ -31,7 +31,8 @@ http://beepme.yourexp.at
         android:paddingTop="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -54,6 +55,86 @@ http://beepme.yourexp.at
                 android:id="@+id/project_info_project_name"
                 android:gravity="right"
                 android:textSize="16sp"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/project_info_add_moment"
+            android:id="@+id/project_info_add_moment_label"
+            android:gravity="left"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:background="@color/divider_gray" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/project_info_add_moment_manually"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/project_info_add_moment_manually_icon"
+                android:src="@drawable/ic_action_new"
+                android:paddingRight="16dp"
+                android:layout_gravity="center_vertical" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:text="@string/project_info_add_moment_manually"
+                android:id="@+id/project_info_add_moment_manually_text"
+                android:layout_gravity="center_vertical" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/project_info_add_moment_timer"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/project_info_add_moment_timer_icon"
+                android:src="@drawable/ic_action_alarms"
+                android:paddingRight="16dp"
+                android:layout_gravity="center_vertical" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:text="@string/project_info_add_moment_timer"
+                    android:id="@+id/project_info_add_moment_timer_text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:id="@+id/project_info_add_moment_timer_info" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
